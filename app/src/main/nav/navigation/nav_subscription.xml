@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/subscription"
+    app:startDestination="@id/currentSubscriptionFragment"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <fragment
+        android:id="@+id/subscriptionFragment"
+        android:name="com.tatasky.binge.ui.features.subscription.view.SubscriptionFragment">
+        <action
+            android:id="@+id/action_subscriptionFragment_to_subscriptionSummaryFragment"
+            app:destination="@id/subscriptionSummaryFragment" />
+
+        <action
+            android:id="@+id/action_subscriptionFragment_to_comparePlanFragment"
+            app:destination="@id/comparePlanFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/subscriptionSummaryFragment"
+        android:name="com.tatasky.binge.ui.features.subscription.view.SubscriptionSummaryFragment"
+        />
+    <fragment
+        android:id="@+id/currentSubscriptionFragment"
+        android:name="com.tatasky.binge.ui.features.subscription.view.CurrentSubscriptionFragment"
+        android:label="" >
+        <action
+            android:id="@+id/action_currentSubscriptionFragment_to_subscriptionFragment"
+            app:destination="@id/subscriptionFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/rechargeSubscriptionFragment"
+        android:name="com.tatasky.binge.ui.features.subscription.view.RechargeSubscriptionFragment">
+        <action
+            android:id="@+id/action_rechargeSubscriptionFragment_to_subscriptionFragment"
+            app:destination="@id/subscriptionFragment" />
+        <action
+            android:id="@+id/action_rechargeSubscriptionFragment_to_subscriptionSummaryFragment"
+            app:destination="@id/subscriptionSummaryFragment" />
+        <action
+            android:id="@+id/action_rechargeSubscriptionFragment_to_upgradeFragment"
+            app:destination="@id/trialUpgradeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/trialSubscriptionFragment"
+        android:name="com.tatasky.binge.ui.features.subscription.view.TrialSubscriptionFragment"
+        android:label="" >
+    </fragment>
+    <fragment
+        android:id="@+id/trialCurrentSubscriptionFragment"
+        android:name="com.tatasky.binge.ui.features.subscription.view.TrialCurrentSubscriptionFragment"
+        android:label="">
+        <action
+            android:id="@+id/action_trialSubscribedFragment_to_subscriptionFragment"
+            app:destination="@id/subscriptionFragment" />
+        <action
+            android:id="@+id/action_trialSubscribedFragment_to_upgradeFragment"
+            app:destination="@id/trialUpgradeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/trialUpgradeFragment"
+        android:name="com.tatasky.binge.ui.features.subscription.view.FreeTrialUpgradeFragment"
+        android:label="">
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/comparePlanFragment"
+        android:name="com.tatasky.binge.ui.features.subscription.view.ComparePlanFragment"
+        android:label="ComparePlanFragment"
+        tools:layout = "@layout/fragment_compare_plans"
+        >
+    </fragment>
+
+
+</navigation>

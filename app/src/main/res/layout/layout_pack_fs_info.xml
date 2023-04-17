@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/iv_firestick_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_firestick_big" />
+
+        <TextView
+            style="@style/TSTextMedium"
+            android:id="@+id/fs_pack_info_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_10"
+            android:textColor="?colorOnSecondary"
+            android:textSize="@dimen/text_size_14"
+            app:layout_constraintBottom_toBottomOf="@id/iv_firestick_logo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_firestick_logo"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Watch all your apps on TV with Amazon Fire TV Stick – Tata Sky Edition" />
+
+        <View
+            android:id="@+id/horizontalSeperater1"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginEnd="@dimen/margin_6"
+            android:background="#444764"
+            app:layout_constraintBottom_toBottomOf="@id/tv_plus"
+            app:layout_constraintEnd_toStartOf="@id/tv_plus"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_plus" />
+
+
+        <TextView
+            style="@style/TSTextMedium"
+            android:gravity="center_vertical"
+            android:text="+"
+            android:textColor="?colorOnSecondary"
+            android:id="@+id/tv_plus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_20"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_firestick_logo" />
+
+        <View
+            android:id="@+id/horizontalSeperater2"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="@dimen/margin_6"
+            android:background="#444764"
+            app:layout_constraintBottom_toBottomOf="@id/tv_plus"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_plus"
+            app:layout_constraintTop_toTopOf="@id/tv_plus" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

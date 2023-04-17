@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="pack"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks" />
+
+        <variable
+            name="viewModel"
+            type="com.tatasky.binge.ui.features.subscription_freemium.viewmodel.FreemiumSubscriptionViewModel" />
+
+        <import type="android.text.TextUtils" />
+
+        <variable
+            name="tenureMessage"
+            type="String" />
+
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/margin_10"
+        android:background="@drawable/bg_round_bottom_sheet"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <ImageView
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:translationZ="@dimen/margin_2"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/progress_avd" />
+
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_start"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.05" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_end"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.95" />
+
+
+        <ImageView
+            android:id="@+id/view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:srcCompat="@drawable/ic_bottom_sheet_top_selector"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <TextView
+            android:id="@+id/tv_pack_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_xlarge"
+            android:gravity="center"
+            android:textSize="@dimen/text_size_22"
+            app:drawableTopCompat="@drawable/ic_premium_crown"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/view"
+            android:text="@{pack.productName}"
+            android:drawablePadding="@dimen/padding_10dp"
+            style="@style/TSTextMedium"
+            tools:text="Premium VIP" />
+
+        <TextView
+            android:id="@+id/tv_pack_tenure_subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_medium"
+            android:gravity="center"
+            android:textSize="@dimen/text_size_22"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/tv_pack_title"
+            android:text = "@{pack.tenureFootageMessage}"
+            android:visibility="@{!TextUtils.isEmpty(pack.tenureFootageMessage)?View.VISIBLE:View.GONE, default=gone}"
+            tools:text="You can save upto 25%"
+            style="@style/TSTextMedium"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            tools:listitem="@layout/item_tenure"
+            tools:itemCount="3"
+            android:id="@+id/recycler_tenure_options"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_xlarge"
+            android:orientation="vertical"
+            app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"
+            app:reverseLayout="false"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/tv_pack_tenure_subtitle" />
+
+
+        <TextView
+            android:layout_marginTop="@dimen/view_margin_large"
+            android:id="@+id/tv_tenure_disc"
+            android:layout_width="0dp"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/price_breakup"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            android:textSize="@dimen/text_size_14"
+            android:visibility="@{!TextUtils.isEmpty(tenureMessage)?View.VISIBLE:View.GONE, default=gone}"
+            android:text="@{tenureMessage}"
+            android:textColor="@color/darkOnSecondary"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            />
+
+        <include
+            android:id="@+id/price_breakup"
+            layout="@layout/layout_balance_breakup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/guideline_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/recycler_tenure_options"
+            app:layout_constraintBottom_toTopOf="@id/tv_tenure_disc"
+            tools:visibility="gone"
+             />
+
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_proceed"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            style="@style/Widget.AppTheme.ButtonStyle.Icon"
+            android:text="@string/proceed_to_pay"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/tv_tenure_disc"
+            app:layout_constraintVertical_bias="1" />
+
+        <TextView
+            android:id="@+id/tv_go_back"
+            style="@style/TSTextBold"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_20"
+            android:layout_marginBottom="@dimen/margin_22"
+            android:gravity="center"
+            android:text="@string/go_back"
+            android:visibility="gone"
+            android:textColor="@color/darkSecondary"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_proceed" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</layout>

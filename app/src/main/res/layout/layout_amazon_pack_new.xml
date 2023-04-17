@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="isVisible"
+            type="Boolean" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="@{isVisible?View.VISIBLE:View.GONE, default=gone}"
+        tools:visibility="visible">
+
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardView"
+            style="@style/PackCardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="@{isVisible?View.VISIBLE:View.GONE, default=gone}"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/view_margin_large"
+                android:paddingHorizontal="@dimen/view_margin_xlarge"
+                android:paddingBottom="@dimen/view_margin_xlarge">
+
+                <TextView
+                    android:id="@+id/tv_pack_name"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/view_margin_large"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textSize="@dimen/text_size_16"
+                    android:textColor="@color/stroke_color"
+                    app:layout_constraintBottom_toTopOf="@id/tv_expiry_msg"
+                    app:layout_constraintStart_toEndOf="@id/pack_icon"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Prime Video" />
+
+                <TextView
+                    android:id="@+id/tv_expiry_msg"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:gravity="start"
+                    android:layout_marginTop="@dimen/margin_2"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toStartOf="@id/tv_price"
+                    android:textColor="@color/stroke_color"
+                    android:textSize="@dimen/text_size_14"
+                    app:layout_constraintStart_toStartOf="@id/tv_pack_name"
+                    app:layout_constraintTop_toBottomOf="@id/tv_pack_name"
+                    tools:text="Expires on 23/12/21" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/pack_icon"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/tv_pack_name"
+                    style="@style/customRoundedLogo"
+                    android:scaleType="fitXY"
+                    app:layout_constraintBottom_toBottomOf="@id/tv_pack_disclaimer"
+                    tools:srcCompat="@drawable/ic_bg_home_game_rail" />
+
+                <TextView
+                    android:id="@+id/tv_price"
+                    style="@style/TSTextBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_22"
+                    app:layout_constraintBottom_toBottomOf="@id/tv_expiry_msg"
+                    app:layout_constraintEnd_toStartOf="@id/tv_duration"
+                    app:layout_constraintTop_toTopOf="@id/tv_pack_name"
+                    tools:text="Rs 99" />
+                <TextView
+                    android:id="@+id/tv_duration"
+                    style="@style/TSTextBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_12"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/tv_price"
+                    app:layout_constraintBottom_toBottomOf="@id/tv_expiry_msg"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/tv_pack_name"
+                    tools:text="/month" />
+
+                <TextView
+                    android:id="@+id/tv_pack_disclaimer"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_smallest"
+                    android:text="@string/amazon_prime_through_tata_play"
+                    android:textSize="@dimen/text_size_12"
+                    android:visibility="gone"
+                    android:textColor="@color/grey_color"
+                    app:layout_constraintStart_toStartOf="@id/tv_pack_name"
+                    app:layout_constraintTop_toBottomOf="@id/tv_expiry_msg"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:visibility="visible" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1px"
+                    android:id="@+id/divider"
+                    android:alpha=".6"
+                    tools:visibility="visible"
+                    android:fadingEdge="horizontal"
+                    android:visibility="gone"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:background="?colorOnSecondary"
+                    app:layout_constraintEnd_toEndOf="@id/tv_price"
+                    app:layout_constraintStart_toStartOf="@id/pack_icon"
+                    app:layout_constraintTop_toBottomOf="@id/tv_pack_disclaimer"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/cancel_add_on"
+                        android:minHeight="@dimen/margin_0"
+                        android:visibility="gone"
+                        tools:visibility="visible"
+                        android:id="@+id/btn_cancel_prime"
+                        style="@style/Widget.AppTheme.ButtonStyle.Text.Pack"
+                        app:layout_constraintTop_toBottomOf="@id/divider"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

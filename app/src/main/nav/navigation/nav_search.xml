@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/search"
+    app:startDestination="@id/searchFragment">
+
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.tatasky.binge.ui.features.search.SearchFragment"
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/action_searchLandingFragment_to_voiceFragment"
+            app:destination="@id/voiceSearchDialog"
+            app:popUpToInclusive="false" />
+
+        <action
+            android:id="@+id/action_searchLandingFragment_to_languageGenreFragment"
+            app:destination="@id/nav_language_genre"
+            app:popUpToInclusive="false">
+            <argument
+                android:name="title"
+                app:argType="string" />
+            <argument
+                android:name="sectionType"
+                app:argType="string" />
+            <argument
+                android:name="pageName"
+                app:argType="string"
+                android:defaultValue=""/>
+            <argument
+                android:name="bgImage"
+                app:argType="string"
+                android:defaultValue=""/>
+            <argument
+                android:name="bgBottomImage"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="refId"
+                app:argType="string"
+                android:defaultValue=""
+                app:nullable="false"/>
+        </action>
+        <action
+            android:id="@+id/action_searchFragment_to_action_sub_home_landing"
+            app:destination="@id/action_sub_home_landing" />
+
+
+    </fragment>
+
+    <include app:graph="@navigation/nav_language_genre" />
+
+    <fragment
+        android:id="@+id/voiceSearchDialog"
+        android:name="com.tatasky.binge.ui.features.search.VoiceRecognizerDialogFragment"
+        tools:layout="@layout/layout_voice_search_dialog"/>
+
+    <fragment
+        android:id="@+id/action_sub_home_landing"
+        android:name="com.tatasky.binge.ui.features.home.subpage.SubHomeFragment"
+        tools:layout="@layout/fragment_home">
+        <argument
+            android:name="pageType"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="provider"
+            app:argType="string" />
+        <argument
+            android:name="img"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="providerId"
+            app:argType="string" />
+
+        <argument
+            android:name="categoryTitle"
+            app:argType="string"
+            app:nullable ="true"
+            android:defaultValue="@null"
+            />
+
+        <action
+            android:id="@+id/action_detailsFragment_to_nav_subscription"
+            app:destination="@id/subscriptionActivity"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_action_home_landing_to_seeAllFragment"
+            app:destination="@id/seeAllFragment">
+            <argument
+                android:name="railId"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                android:defaultValue=""
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="sectionType"
+                android:defaultValue="EDITORIAL"
+                app:argType="string" />
+            <argument
+                android:name="isRecommendation"
+                android:defaultValue="false"
+                app:argType="boolean" />
+            <argument
+                android:name="detailType"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="provider"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="placeHolder"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
+
+            <argument
+                android:name="source"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
+
+            <argument
+                android:name="origin"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="isMixedRail"
+                android:defaultValue="false"
+                app:argType="boolean" />
+            <argument
+                android:name="isPrepand"
+                android:defaultValue="false"
+                app:argType="boolean" />
+            <argument
+                android:name="taContentResponse"
+                android:defaultValue="@null"
+                app:argType="com.tatasky.binge.data.networking.models.response.RecommendationResponse"
+                app:nullable="true" />
+            <argument
+                android:name="backgroundImage"
+                android:defaultValue=""
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="layoutType"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="railPosition"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="refId"
+                app:argType="string"
+                android:defaultValue=""
+                app:nullable="false"/>
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/seeAllFragment"
+        android:name="com.tatasky.binge.ui.features.home.subpage.SeeAllFragment"
+        android:label=""
+        tools:layout="@layout/fragment_see_all">
+
+        <argument
+            android:name="railId"
+            app:argType="string" />
+        <argument
+            android:name="title"
+            android:defaultValue=""
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="sectionType"
+            android:defaultValue="EDITORIAL"
+            app:argType="string" />
+        <argument
+            android:name="isRecommendation"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="detailType"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="provider"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="placeHolder"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+
+        <argument
+            android:name="source"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+
+        <argument
+            android:name="origin"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="isMixedRail"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="isPrepand"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="taContentResponse"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.data.networking.models.response.RecommendationResponse"
+            app:nullable="true" />
+        <argument
+            android:name="backgroundImage"
+            android:defaultValue=""
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="layoutType"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="railPosition"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+
+        <argument
+            android:name="refId"
+            app:argType="string"
+            android:defaultValue=""
+            app:nullable="false"/>
+        <argument
+            android:name="packName"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+    </fragment>
+    <activity
+        android:id="@+id/subscriptionActivity"
+        android:name="com.tatasky.binge.ui.features.subscription_freemium.FreemiumSubscriptionActivity"
+        android:label="">
+        <argument
+            android:name="fromLogin"
+            android:defaultValue="true"
+            app:argType="boolean" />
+        <argument
+            android:name="selectedAppId"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+
+        <argument
+            android:name="fromScreen"
+            android:defaultValue="Home"
+            app:argType="string" />
+
+        <argument
+            android:name="firstTimeLogin"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="initiateRecharge"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </activity>
+    <fragment
+        android:id="@+id/appSeeAllFragment"
+        android:name="com.tatasky.binge.ui.features.home.subpage.AppSeeAllFragment"
+        android:label="{title}"
+        tools:layout="@layout/fragment_see_all">
+
+        <action
+            android:id="@+id/action_action_home_landing_to_subHomeFragment"
+            app:destination="@id/action_sub_home_landing" />
+        <argument
+            android:name="railId"
+            app:argType="integer" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_search"
+        app:destination="@id/search" />
+<!--
+    <include app:graph="@navigation/nav_details" />-->
+    <!--<action
+        android:id="@+id/action_to_detail"
+        app:destination="@id/nav_details">
+        <argument
+            android:name="contentItem"
+            app:argType="com.tatasky.binge.data.networking.models.response.ContentItem" />
+        <argument android:name="fromGrid"
+            app:argType="boolean"
+            android:defaultValue="true"/>
+    </action>-->
+</navigation>

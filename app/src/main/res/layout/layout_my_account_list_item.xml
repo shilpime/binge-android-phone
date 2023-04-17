@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="title"
+            type="String" />
+
+        <variable
+            name="count"
+            type="Integer" />
+
+        <variable
+            name="image"
+            type="android.graphics.drawable.Drawable" />
+
+        <variable
+            name="isVisible"
+            type="Boolean" />
+
+        <variable
+            name="profileModel"
+            type="com.tatasky.binge.data.networking.models.response.SubscriberProfileListModel" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/settings_menu_height"
+        android:id="@+id/cl_root"
+        android:background="@color/darkHighlight"
+        android:paddingStart="@dimen/view_margin_medium"
+        android:paddingEnd="@dimen/view_margin_medium">
+
+        <ImageView
+            android:id="@+id/ivLogo"
+            android:layout_width="@dimen/margin_16"
+            android:layout_height="@dimen/margin_16"
+            android:src="@{image}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvUserName"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="@{title}"
+            android:layout_marginStart="@dimen/view_margin_medium"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/ivLogo"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvCount"
+            style="@style/TSTextMedium"
+            android:layout_width="@dimen/margin_16"
+            android:layout_height="@dimen/margin_16"
+            android:maxLines="1"
+            android:background="@drawable/white_circle"
+            android:backgroundTint="@color/darkError"
+            android:textSize="@dimen/text_size_9"
+            android:gravity="center"
+            android:text="@{count > 99 ? @string/high_notification : count.toString()}"
+            android:visibility="@{count > 0 ? View.VISIBLE : View.GONE, default=gone }"
+            android:layout_marginStart="@dimen/view_margin_small"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tvUserName"
+            app:layout_constraintTop_toTopOf="parent"/>
+        <ImageView
+            android:id="@+id/ivArrow"
+            android:layout_width="@dimen/margin_16"
+            android:layout_height="@dimen/margin_16"
+            app:srcCompat="@drawable/ic_forward"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

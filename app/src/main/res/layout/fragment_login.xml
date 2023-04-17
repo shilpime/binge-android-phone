@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.text.InputType" />
+    </data>
+<androidx.core.widget.NestedScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/animatedContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/view_margin_form"
+        android:layout_marginEnd="@dimen/view_margin_form">
+
+        <ImageView
+            android:id="@+id/iv_tbaa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/sample_iv_desc"
+            app:srcCompat="@drawable/medium_binge_logo"
+            android:transitionName="@string/tata_sky_binge"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/guideline_2"
+            app:layout_constraintVertical_bias="1" />
+
+        <com.tatasky.binge.customviews.PageIndicatorView
+            app:total_pages="4"
+            app:selected_page="1"
+            android:id="@+id/ll_page_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_large"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_tbaa"/>
+
+
+
+        <TextView
+            android:id="@+id/tv_login"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_large"
+            android:text="@string/login"
+            android:textSize="@dimen/text_size_28"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ll_page_indicator" />
+
+
+        <RadioGroup
+            android:id="@+id/rg_login_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/view_margin_medium"
+            android:layout_marginEnd="@dimen/view_margin_medium"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@id/guideline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_login">
+
+            <RadioButton
+                android:id="@+id/rb_otp"
+                style="@style/TSTextBold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/normal_background_selector"
+                android:layout_marginStart="@dimen/view_margin_xxlarge"
+                android:layout_marginEnd="@dimen/view_margin_xxlarge"
+                android:button="@null"
+                android:checked="true"
+                android:gravity="center"
+                android:text="@string/otp"
+                android:textColor="@color/black_white_selector"
+                android:textSize="@dimen/text_size_18" />
+
+            <RadioButton
+                android:id="@+id/rb_password"
+                style="@style/TSTextBold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/view_margin_xxlarge"
+                android:layout_marginEnd="@dimen/view_margin_xxlarge"
+                android:layout_weight="1"
+                android:background="@drawable/normal_background_selector"
+                android:button="@null"
+                android:checked="false"
+                android:gravity="center"
+                android:text="@string/password"
+                android:textColor="@color/black_white_selector"
+                android:textSize="@dimen/text_size_18" />
+        </RadioGroup>
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/group_rmn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="et_mobile, tv_input_splitter" />
+
+        <include
+            android:id="@+id/et_mobile"
+            layout="@layout/layout_mobile_edittextbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:headerText="@{@string/enter_mobile_text}"
+            app:inputType="@{InputType.TYPE_CLASS_NUMBER}"
+            app:isVisible="@{true}"
+            app:layout_constraintTop_toBottomOf="@id/guideline"
+            app:maxLength="@{10}"
+            app:maxLines="@{1}" />
+
+        <TextView
+            android:id="@+id/tv_input_splitter"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/view_margin_small"
+            android:text="@string/or"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintBottom_toTopOf="@id/et_sid"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_mobile" />
+
+        <include
+            android:id="@+id/et_sid"
+            layout="@layout/layout_edittextbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:headerText="@{@string/enter_sid_text}"
+            app:inputType="@{InputType.TYPE_CLASS_NUMBER}"
+            app:isVisible="@{true}"
+            app:layout_constraintTop_toBottomOf="@id/tv_input_splitter"
+            app:maxLength="@{10}"
+            app:maxLines="@{1}" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/cb_tnc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingEnd="0dp"
+            android:paddingStart="@dimen/view_margin_small"
+            android:paddingBottom="@dimen/view_margin_small"
+            android:visibility="gone"
+            android:paddingTop="@dimen/view_margin_small"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_sid" />
+
+        <TextView
+            android:id="@+id/tv_tnc"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/view_margin_large"
+            app:layout_constraintBottom_toBottomOf="@id/cb_tnc"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_sid" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/signupLink"
+            style="@style/Widget.AppTheme.ButtonStyle.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sign_up_link"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="@dimen/view_margin_medium"/>
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNext"
+            android:layout_width="@dimen/margin_0"
+            android:layout_height="@dimen/button_height"
+            android:enabled="false"
+            android:text="@string/proceed"
+            app:layout_constraintTop_toBottomOf="@id/tv_tnc"
+            app:layout_constraintVertical_bias="1"
+            app:layout_constraintBottom_toTopOf="@id/signupLink"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".01" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".325" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
+</layout>

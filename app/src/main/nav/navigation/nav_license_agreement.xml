@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools"
+    android:id="@+id/nav_license_agreement"
+    app:startDestination="@id/licenseAgreementFragment">
+
+    <fragment android:id="@+id/licenseAgreementFragment"
+        android:name="com.tatasky.binge.ui.features.onboarding.LicenseAgreementFragment"
+        tool:layout="@layout/fragment_license_agreement"
+        android:label="@string/license_agreement"
+        />
+</navigation>

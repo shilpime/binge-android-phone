@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools">
+    <declare-styleable name="ticker_TickerView">
+        <attr format="reference|integer" name="ticker_animationDuration"/>
+        <attr format="reference|boolean" name="ticker_animateMeasurementChange"/>
+
+        <!-- Custom implementations of common android text attributes -->
+        <attr name="android:gravity" ns1:ignore="ResourceName"/>
+        <attr name="android:shadowColor" ns1:ignore="ResourceName"/>
+        <attr name="android:shadowDx" ns1:ignore="ResourceName"/>
+        <attr name="android:shadowDy" ns1:ignore="ResourceName"/>
+        <attr name="android:shadowRadius" ns1:ignore="ResourceName"/>
+        <attr name="android:textAppearance" ns1:ignore="ResourceName"/>
+        <attr name="android:textColor" ns1:ignore="ResourceName"/>
+        <attr name="android:textSize" ns1:ignore="ResourceName"/>
+        <attr name="android:textStyle" ns1:ignore="ResourceName"/>
+    </declare-styleable>
+</resources>

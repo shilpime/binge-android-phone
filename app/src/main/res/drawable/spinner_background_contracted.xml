@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/bg_rounded_10" />
+    <item
+        android:drawable="@drawable/avd_expand"
+        android:gravity="end|center"
+        android:right="@dimen/view_margin_large" />
+</layer-list>

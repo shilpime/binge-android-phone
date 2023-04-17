@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_round_bottom_sheet">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_margin_start"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/margin_20dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_margin_end"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/margin_20" />
+
+        <ImageView
+            android:id="@+id/view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:srcCompat="@drawable/ic_bottom_sheet_top_selector"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="34dp"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@drawable/ic_lock" />
+
+        <TextView
+            android:id="@+id/tv_header_title"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_marginTop="12dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="25dp"
+            android:gravity="center"
+            android:textSize="@dimen/text_size_22"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/logo"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            tools:text="@string/enter_otp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

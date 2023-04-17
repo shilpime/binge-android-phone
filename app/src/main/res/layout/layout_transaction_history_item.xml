@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="isNonDthUser"
+            type="Boolean" />
+        <variable
+            name="model"
+            type="com.tatasky.binge.data.networking.models.response.TransactionHistoryList" />
+        <import type="android.view.View"/>
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:id="@+id/transactionDetails_RL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/view_margin_medium"
+            android:paddingBottom="@dimen/dp_15">
+
+            <TextView
+                android:id="@+id/tv_id"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:ellipsize="end"
+                android:lineSpacingExtra="3sp"
+                android:maxLines="1"
+                android:text="@{String.format(@string/tran_history_id,model.transactionId)}"
+                android:textSize="@dimen/text_size_16"
+                tools:text="ID 456436455" />
+
+            <RelativeLayout
+                android:id="@+id/rl_desc_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv_id"
+                android:layout_alignStart="@id/tv_id"
+                android:layout_alignParentStart="true"
+                >
+
+                <TextView
+                    android:id="@+id/paymentModeVerbiage_TV"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="@dimen/dp_6"
+                    android:layout_marginEnd="@dimen/margin_15"
+                    android:ellipsize="end"
+                    android:maxEms="30"
+                    android:maxLines="1"
+                    android:paddingEnd="@dimen/margin_15"
+                    android:singleLine="true"
+                    android:visibility="@{model.paymentModeVerbiage !=null &amp; model.paymentModeVerbiage.length() > 0 ? View.VISIBLE : View.GONE}"
+                    android:text="@{model.paymentModeVerbiage}"
+                    android:textColor="?colorOnSecondary"
+                    android:textSize="@dimen/text_size_14"
+                    tools:text="Payment Mode:" />
+
+                <TextView
+                    android:id="@+id/paymentMode_TV"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="@dimen/dp8"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:visibility="@{model.paymentMethodType !=null &amp; model.paymentMethodType.length() > 0 ? View.VISIBLE : View.GONE}"
+                    android:text="@{model.paymentMethodType}"
+                    android:textSize="@dimen/text_size_14"
+                    tools:text="Credit Card" />
+
+                <TextView
+                    android:id="@+id/tv_description"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/paymentModeVerbiage_TV"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="@dimen/dimens_6dp"
+                    android:layout_marginEnd="@dimen/margin_15"
+                    android:ellipsize="end"
+                    android:maxEms="30"
+                    android:maxLines="1"
+                    android:paddingEnd="@dimen/margin_15"
+                    android:singleLine="true"
+                    android:text="@{model.description}"
+                    android:textColor="?colorOnSecondary"
+                    android:textSize="@dimen/text_size_14"
+                    tools:text="Tata Sky Binge Premium Trial" />
+
+                <TextView
+                    android:id="@+id/dueDate_TV"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tv_description"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="@dimen/dp_2"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@{String.format(@string/recharge_due_nav_drawer, model.expiryDate)}"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_size_10"
+                    android:visibility="@{model.expiryDate !=null &amp; model.expiryDate.length() > 0 ? View.VISIBLE : View.GONE}"
+                    tools:text="Due On: 09/07/21" />
+
+                <TextView
+                    android:id="@+id/tv_date_time"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/dueDate_TV"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="@dimen/dp_6"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@{model.date}"
+                    android:textColor="?colorOnSecondary"
+                    android:textSize="@dimen/text_size_12"
+                    tools:text="01/01/2020 10:00:54" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tv_date_time"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="@dimen/dp_15"
+                    android:orientation="horizontal"
+                    android:visibility="@{model.invoiceNo == null ? View.GONE : View.VISIBLE}">
+
+                    <TextView
+                        android:id="@+id/tv_download_invoice"
+                        style="@style/TSTextMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="@string/invoice"
+                        android:textColor="@color/darkSecondary"
+                        android:textSize="@dimen/text_size_16"
+                        android:textStyle="bold"
+                        tools:text="@string/invoice" />
+
+                    <ImageView
+                        android:id="@+id/iv_download"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="@dimen/dp_7"
+                        android:src="@drawable/ic_invoice_download"
+                         />
+                </LinearLayout>
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_alignRight="@+id/tv_description"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:visibility="gone" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tv_balance"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:lineSpacingExtra="3sp"
+                android:text="@{String.format(@string/tran_history_balance,model.amount)}"
+                android:textSize="@dimen/text_size_14"
+                tools:text=" ₹ 1999.00" />
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignBottom="@id/transactionDetails_RL"
+            android:background="@color/stroke_color" />
+    </RelativeLayout>
+</layout>

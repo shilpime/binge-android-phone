@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/freemium_subscription"
+    app:startDestination="@id/freemiumSubscriptionFragment">
+
+    <fragment
+        android:id="@+id/freemiumSubscriptionFragment"
+        android:name="com.tatasky.binge.ui.features.subscription_freemium.view.FreemiumSubscriptionFragment">
+        <action
+            android:id="@+id/action_freemium_subscriptionFragment_to_tenureBottomSheetDialog"
+            app:destination="@id/tenureBottomSheetDialog" />
+        <action
+            android:id="@+id/action_freemium_subscriptionFragment_to_comparePlanFragment"
+            app:destination="@id/comparePlanFragment" />
+        <action
+            android:id="@+id/action_freemiumSubscriptionFragment_to_fragmentSubscriptionPopup"
+            app:destination="@id/fragmentSubscriptionPopup" />
+
+        <action
+            android:id="@+id/action_subscriptionStarterFragment_to_loginBottomSheetDialogFragment"
+            app:destination="@id/guestLoginBottomDialogFragment" />
+    </fragment>
+
+    <include app:graph="@navigation/nav_freemium_subscription_managed_apps"/>
+
+    <action
+        android:id="@+id/action_managed_apps"
+        app:destination="@id/managedApps">
+        <argument
+            android:name="source"
+            app:nullable="true"
+            android:defaultValue="@null"
+            app:argType="string" />
+        <argument
+            android:name="journeySource"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="journeySourceRefId"
+            android:defaultValue=""
+            app:argType="string" />
+
+    </action>
+
+    <fragment
+        android:id="@+id/freemiumCurrentSubscriptionFragment"
+        android:name="com.tatasky.binge.ui.features.subscription_freemium.view.FreemiumCurrentSubscriptionFragment"
+        android:label="">
+
+        <action
+            android:id="@+id/action_freemium_current_subscription_to_freemium_subscription_fragment"
+            app:destination="@id/freemiumSubscriptionFragment" />
+        <action
+            android:id="@+id/action_freemiumCurrentSubscriptionFragment_to_myPlanOtherOptionsBottomSheet"
+            app:destination="@id/myPlanOtherOptionsBottomSheet" />
+        <action
+            android:id="@+id/action_freemiumCurrentSubscriptionFragment_to_cancellationConfirmationBottomSheet"
+            app:destination="@id/cancellationConfirmationBottomSheet" />
+        <action
+            android:id="@+id/action_freemiumCurrentSubscriptionFragment_to_addOnCancellationBottomSheet"
+            app:destination="@id/addOnCancellationBottomSheet" />
+        <action
+            android:id="@+id/action_freemiumCurrentSubscriptionFragment_to_tenureBottomSheetDialog"
+            app:destination="@id/tenureBottomSheetDialog" />
+        <action
+            android:id="@+id/action_myPlanOtherOptionsBottomSheet_to_managedAppFragment"
+            app:destination="@id/managedAppFragment"
+            >
+            <argument
+                android:name="journeySource"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="journeySourceRefId"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="accessToken"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="source"
+                app:nullable="true"
+                android:defaultValue="@null"
+                app:argType="string" />
+            <argument
+                android:name="cartId"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="pageUrl"
+                android:defaultValue=""
+                app:argType="string" />
+        </action>
+    </fragment>
+
+    <dialog
+        android:id="@+id/tenureBottomSheetDialog"
+        android:name="com.tatasky.binge.ui.features.subscription.view.SubscriptionTenureBottomSheetDialogFragment"
+        android:label="SubscriptionTenureBottomSheetDialogFragment"
+        tools:layout="@layout/fragment_subscription_tenure_bottom_sheet_dialog">
+
+        <argument
+            android:name="pack"
+            app:argType="com.tatasky.binge.data.networking.models.response.PartnerPacks"
+            app:nullable="false" />
+        <argument
+            android:name="fromScreen"
+            android:defaultValue=""
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_subscriptionTenureBottomSheetDialogFragment_to_loginBottomSheetDialogFragment"
+            app:destination="@id/guestLoginBottomDialogFragment" />
+    </dialog>
+
+    <fragment
+        android:id="@+id/comparePlanFragment"
+        android:name="com.tatasky.binge.ui.features.subscription.view.ComparePlanFragment"
+        android:label="ComparePlanFragment"
+        tools:layout="@layout/fragment_compare_plans">
+        <action
+            android:id="@+id/action_comparePlanFragment_to_tenureBottomSheetDialog"
+            app:destination="@id/tenureBottomSheetDialog" />
+    </fragment>
+    <dialog
+        android:id="@+id/myPlanOtherOptionsBottomSheet"
+        android:name="com.tatasky.binge.ui.features.subscription_freemium.view.MyPlanOtherOptionsBottomSheet"
+        android:label="" >
+        <action
+            android:id="@+id/action_myPlanOtherOptionsBottomSheet_to_freemiumSubscriptionFragment"
+            app:destination="@id/freemiumSubscriptionFragment" />
+        <action
+            android:id="@+id/action_myPlanOtherOptionsBottomSheet_to_tenureBottomSheetDialog2"
+            app:destination="@id/tenureBottomSheetDialog" />
+        <action
+            android:id="@+id/action_myPlanOtherOptionsBottomSheet_to_managedAppFragment"
+            app:destination="@id/managedAppFragment"
+            >
+            <argument
+                android:name="journeySource"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="journeySourceRefId"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="accessToken"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="source"
+                app:nullable="true"
+                android:defaultValue="@null"
+                app:argType="string" />
+            <argument
+                android:name="cartId"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="pageUrl"
+                android:defaultValue=""
+                app:argType="string" />
+        </action>
+    </dialog>
+    <dialog
+        android:id="@+id/cancellationConfirmationBottomSheet"
+        android:name="com.tatasky.binge.ui.features.subscription_freemium.view.CancellationConfirmationBottomSheet"
+        android:label="" >
+        <argument android:name="isPrimeCancellation"
+            app:argType="boolean"
+            android:defaultValue="false"/>
+    </dialog>
+    <dialog
+        android:id="@+id/addOnCancellationBottomSheet"
+        android:name="com.tatasky.binge.ui.features.subscription_freemium.view.AddOnCancellationBottomSheet"
+        android:label="" />
+    <dialog
+        android:id="@+id/fragmentSubscriptionPopup"
+        android:name="com.tatasky.binge.ui.features.subscription_freemium.SubscriptionBottomContainerFragment"
+        android:label="FragmentSubscriptionPopup" />
+    <dialog
+        android:id="@+id/guestLoginBottomDialogFragment"
+        android:name="com.tatasky.binge.ui.features.onboarding.login.bottomsheet.GuestLoginBottomDialogFragment"
+        android:label="LoginBottomSheetDialogFragment"
+        tools:layout="@layout/fragment_guest_login_bottom_sheet_dialog">
+        <argument
+            android:name="isParentalPinSetupRequested"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="isParentalPinVerificaitionRequested"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="isLoggedIn"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="previouslyUsedMobileNumbersList"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.data.networking.models.response.UsedMobileNumber[]"
+            app:nullable="true" />
+        <argument
+            android:name="loginSource"
+            app:argType="string" />
+        <argument
+            android:name="pack"
+            app:argType="com.tatasky.binge.data.networking.models.response.PartnerPacks"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="selectedTenure"
+            app:argType="com.tatasky.binge.data.networking.models.response.Tenure"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="subscriptionInfo"
+            app:argType="com.tatasky.binge.data.database.model.SubscriptionInfoModel"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="isLoginToHome"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_guestLoginBottomDialogFragment_to_managedAppFragment"
+            app:destination="@id/managedAppFragment"
+            app:launchSingleTop="true" >
+            <argument
+                android:name="isToSummaryPage"
+                android:defaultValue="false"
+                app:argType="boolean" />
+            <argument
+                android:name="cartId"
+                android:defaultValue=""
+                app:argType="string" />
+        </action>
+    </dialog>
+
+    <fragment
+        android:id="@+id/managedAppFragment"
+        android:name="com.tatasky.binge.ui.features.subscription_freemium.ManagedAppFragment"
+        android:label="ManagedAppFragment"
+        tools:layout="@layout/fragment_managed_app">
+        <argument
+            android:name="journeySource"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="accessToken"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="journeySourceRefId"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="isToSummaryPage"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="cartId"
+            android:defaultValue=""
+            app:argType="string" />
+
+        <action
+            android:id="@+id/action_managedAppFragment_to_guestLoginBottomDialogFragment"
+            app:destination="@id/guestLoginBottomDialogFragment"
+            app:launchSingleTop="true" />
+        <argument
+            android:name="pageUrl"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="skipDrawer"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </fragment>
+</navigation>

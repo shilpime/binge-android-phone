@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.update_password.UpdatePasswordViewModel" />
+
+        <variable
+            name="subheading"
+            type="String" />
+
+        <import type="android.text.InputType" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/semi_transparent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/view_margin_xxlarge"
+            android:layout_marginEnd="@dimen/view_margin_xxlarge">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".01" />
+
+            <ImageView
+                android:id="@+id/iv_tbaa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/sample_iv_desc"
+                app:srcCompat="@drawable/medium_binge_logo"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/guideline_2" />
+
+            <com.tatasky.binge.customviews.PageIndicatorView
+                android:id="@+id/ll_page_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_large"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/iv_tbaa"
+                app:selected_page="1"
+                app:total_pages="4" />
+
+            <TextView
+                android:id="@+id/tv_heading"
+                style="@style/TSTextMedium"
+                android:layout_width="@dimen/margin_0"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_12"
+                android:gravity="center"
+                android:text="@string/enter_verification"
+                android:textSize="@dimen/text_size_22"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ll_page_indicator"
+                app:layout_constraintVertical_bias="0" />
+
+            <TextView
+                android:id="@+id/tv_subheading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_12"
+                android:gravity="center"
+                android:text="@string/forget_pass_subheading"
+                android:textColor="@color/darkOnSecondary"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintTop_toBottomOf="@id/tv_heading" />
+
+            <include
+                android:id="@+id/et_otp"
+                layout="@layout/layout_edittextbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_12"
+                app:headerText="@{@string/enter_4_otp}"
+                app:hint="@{@string/otp_hint}"
+                app:inputType="@{InputType.TYPE_CLASS_NUMBER}"
+                app:isVisible="@{true}"
+                app:layout_constraintTop_toBottomOf="@id/tv_subheading"
+                app:maxLength="@{4}"
+                app:maxLines="@{1}"
+                app:onTextChanged="@{(text, start, before, count) -> vm.onOldTextChanged(text)}" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnVerifyOtp"
+                android:layout_width="@dimen/margin_0"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/view_margin_xxlarge"
+                android:layout_marginBottom="@dimen/margin_80"
+                android:text="@string/authenticate"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintVertical_bias="1"
+                app:layout_goneMarginTop="@dimen/view_margin_xxlarge" />
+
+            <TextView
+                android:id="@+id/tv_resend_otp"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_smallest"
+                android:enabled="false"
+                android:gravity="center"
+                android:padding="@dimen/view_margin_smallest"
+                android:text="@string/resend_code"
+                android:textColor="@color/button_color_tertiary"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/et_otp" />
+
+            <TextView
+                android:id="@+id/otp_expiry_msg"
+                style="@style/TSTextMedium"
+                android:layout_width="@dimen/margin_0"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_small"
+                android:gravity="end"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tv_resend_otp"
+                app:layout_constraintTop_toBottomOf="@id/et_otp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</layout>

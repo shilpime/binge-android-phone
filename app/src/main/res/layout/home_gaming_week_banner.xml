@@ -1,0 +1,112 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="contentItem"
+            type="com.tatasky.binge.data.networking.models.response.ContentItem" />
+
+        <variable
+            name="title"
+            type="String" />
+    </data>
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants"
+        android:paddingTop="@dimen/rail_margins">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_home_gaming_week_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_home_gameweek"
+            android:paddingHorizontal="@dimen/margin_18"
+            android:paddingBottom="@dimen/margin_10">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_week_game_image"
+                glideSrc="@{contentItem.image}"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/margin_24"
+                android:scaleType="fitXY"
+                app:layout_constraintDimensionRatio="16:9"
+                app:layout_constraintEnd_toStartOf="@id/gl_middle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/customRoundedImageView"
+                tools:src="@drawable/game_item_sample" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_middle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.50" />
+
+
+            <TextView
+                android:id="@+id/tv_game_week"
+                style="@style/TSTextBold"
+                setPremiumGradient="@{true}"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_16"
+                android:gravity="end"
+                android:text="@{title}"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_week_game_image"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Game of the week" />
+
+            <TextView
+                android:id="@+id/tv_game_week_title"
+                style="@style/TSTextBold"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_12"
+                android:gravity="end"
+                android:text="@{contentItem.title}"
+                android:textSize="@dimen/text_size_14"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_week_game_image"
+                app:layout_constraintTop_toBottomOf="@id/tv_game_week"
+                tools:text="City cricket" />
+
+            <TextView
+                android:id="@+id/tv_game_week_subtitle"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_4"
+                android:gravity="end"
+                android:text="@{contentItem.gamePlayCount}"
+                android:textSize="@dimen/text_size_14"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_week_game_image"
+                app:layout_constraintTop_toBottomOf="@id/tv_game_week_title"
+                tools:text="415.9M Plays" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_play_week_game"
+                android:layout_width="0dp"
+                android:layout_marginStart="46dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_12"
+                android:text="@string/play_now"
+                app:layout_constraintStart_toEndOf="@id/gl_middle"
+                android:textSize="@dimen/text_size_12"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_game_week_subtitle" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
+
+</layout>

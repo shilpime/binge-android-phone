@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="upgradeResponse"
+            type="com.tatasky.binge.data.networking.models.response.TrialUpgradeData" />
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        tools:visibility="visible"
+        android:visibility="@{upgradeResponse!=null ? View.VISIBLE: View.GONE, default=gone}"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_alignParentTop="true"
+            android:layout_above="@id/mcv_buttons"
+            android:fillViewport="true">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fitsSystemWindows="true">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent=".01" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_v_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".05" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_v_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".95" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_h_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.9" />
+
+                <ImageView
+                    android:id="@+id/logo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/guideline_2"
+                    app:srcCompat="@drawable/medium_binge_logo" />
+
+                <TextView
+                    android:id="@+id/tv_heading"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_large"
+                    android:gravity="center"
+                    android:lineSpacingExtra="4sp"
+                    android:text="@{upgradeResponse.upgradeTransitionMessage}"
+                    android:textSize="@dimen/text_size_24"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/logo"
+                    tools:text="Upgrade Free Trial to include access to Premium Apps" />
+
+                <com.tatasky.binge.customviews.CustomMaterialCardView
+                    android:id="@+id/additionalProviderCardView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/tv_heading">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/additional_providers_recycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:overScrollMode="never"
+                        android:paddingHorizontal="@dimen/view_margin_small"
+                        android:paddingVertical="@dimen/view_margin_medium"
+                        app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+                        tools:itemCount="2"
+                        tools:listitem="@layout/layout_provider"
+                        tools:spanCount="2" />
+                </com.tatasky.binge.customviews.CustomMaterialCardView>
+
+                <ImageView
+                    android:id="@+id/iv_plus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    android:minWidth="@dimen/margin_28"
+                    android:minHeight="@dimen/margin_28"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/additionalProviderCardView"
+                    app:srcCompat="@drawable/ic_plus" />
+
+                <com.tatasky.binge.customviews.CustomMaterialCardView
+                    android:id="@+id/baseProviderCardView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/iv_plus">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/base_providers_recycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:overScrollMode="never"
+                        android:paddingHorizontal="@dimen/view_margin_small"
+                        android:paddingVertical="@dimen/view_margin_medium"
+                        app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+                        app:spanCount="3"
+                        tools:listitem="@layout/layout_provider"
+                        tools:spanCount="3" />
+                </com.tatasky.binge.customviews.CustomMaterialCardView>
+
+                <TextView
+                    android:id="@+id/free_trial_expiry_msg"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="@dimen/view_margin_medium"
+                    android:lineSpacingExtra="4sp"
+                    android:text="@{upgradeResponse.expiryDate}"
+                    android:textColor="@color/offer_color"
+                    android:textSize="@dimen/text_size_16"
+                    app:layout_constraintBottom_toTopOf="@id/tv_footer"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/baseProviderCardView"
+                    tools:text="Free Trial Expires on 20/05/2020" />
+
+                <TextView
+                    android:id="@+id/tv_footer"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="@dimen/view_margin_medium"
+                    android:lineSpacingExtra="4sp"
+                    android:text="@{upgradeResponse.planApplicableMessage}"
+                    android:textColor="@color/offer_color"
+                    android:textSize="@dimen/text_size_16"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/free_trial_expiry_msg"
+                    tools:text="Premium plan at ₹ 299 applicable after free trial" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <com.tatasky.binge.customviews.CustomMaterialCardView
+            android:id="@+id/mcv_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="@dimen/view_margin_medium">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_v_b_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".05" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_v_b_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".95" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_upgrade"
+                    style="@style/Widget.AppTheme.ButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/button_height"
+                    android:text="@string/upgrade"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v_b_2"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v_b_1"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_not_now"
+                    style="@style/Widget.AppTheme.ButtonStyle.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/not_now"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v_b_2"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v_b_1"
+                    app:layout_constraintTop_toBottomOf="@id/btn_upgrade"
+                    tools:visibility="visible" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.tatasky.binge.customviews.CustomMaterialCardView>
+    </RelativeLayout>
+</layout>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/more"
+    app:startDestination="@id/moreFragment">
+
+    <fragment
+        android:id="@+id/moreFragment"
+        android:name="com.tatasky.binge.ui.features.more.MoreFragment"
+        android:label="@string/more"
+        tools:layout="@layout/fragment_more">
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/more" />
+        <action
+            android:id="@+id/action_moreFragment_to_contactUsFragment"
+            app:destination="@id/contactUsFragment" />
+        <action
+            android:id="@+id/action_moreFragment_to_notificationSettingsFragment"
+            app:destination="@id/notificationSettingsFragment" />
+        <action
+            android:id="@+id/action_moreFragment_to_privacyPolicyFragment"
+            app:destination="@id/privacyPolicyFragment" />
+        <action
+            android:id="@+id/action_moreFragment_to_termsConditionFragment"
+            app:destination="@id/termsConditionFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/contactUsFragment"
+        android:name="com.tatasky.binge.ui.features.more.ContactUsFragment"
+        android:label="@string/contact_us"
+        tools:layout="@layout/fragment_contactus">
+        <action
+            android:id="@+id/action_contactUsFragment_to_faqFragment"
+            app:destination="@id/faqFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/notificationSettingsFragment"
+        android:name="com.tatasky.binge.ui.features.more.NotificationSettingsFragment"
+        android:label="@string/notification_settings"
+        tools:layout="@layout/fragment_notification_settings" />
+    <fragment
+        android:id="@+id/privacyPolicyFragment"
+        android:name="com.tatasky.binge.ui.features.more.PrivacyPolicyFragment"
+        android:label="@string/privacy_policy" />
+    <fragment
+        android:id="@+id/termsConditionFragment"
+        android:name="com.tatasky.binge.ui.features.more.TermsConditionFragment"
+        android:label="@string/terms_n_condition" />
+    <fragment
+        android:id="@+id/faqFragment"
+        android:name="com.tatasky.binge.ui.features.more.FaqFragment"
+        android:label="Get Help and Support"
+        tools:layout="@layout/fragment_faq">
+    </fragment>
+</navigation>

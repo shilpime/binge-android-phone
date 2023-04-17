@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.tatasky.binge.customviews.CustomMaterialCardView
+        android:layout_width="match_parent"
+        app:cardCornerRadius="@dimen/view_margin_medium"
+        app:strokeColor="@color/darkHighlight"
+        app:strokeWidth="@dimen/mtrl_textinput_box_stroke_width_focused"
+        android:layout_height="wrap_content">
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/view_margin_xlarge"
+            android:paddingBottom="@dimen/view_margin_xlarge">
+
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_v_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".05" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_v_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".95" />
+
+
+            <ImageView
+                android:id="@+id/main_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@+id/upgrade_toast_desc"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toTopOf="@+id/upgrade_toast_title"
+                app:srcCompat="@drawable/ic_upgrade_trial_toast_icon" />
+
+            <TextView
+                android:id="@+id/upgrade_toast_title"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/view_margin_medium"
+                android:layout_marginEnd="@dimen/view_margin_large"
+                android:lineSpacingExtra="1sp"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                app:layout_constraintStart_toEndOf="@id/main_image"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Plan Upgraded" />
+
+            <TextView
+                android:id="@+id/upgrade_toast_desc"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_smallest"
+                android:textColor="@color/tint_purple_25"
+                android:textSize="@dimen/text_size_14"
+                app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/upgrade_toast_title"
+                app:layout_constraintTop_toBottomOf="@id/upgrade_toast_title"
+                tools:text="Your Free Trial plan has been upgraded successfully." />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.tatasky.binge.customviews.CustomMaterialCardView>
+</layout>

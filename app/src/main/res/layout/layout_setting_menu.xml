@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+                name="title"
+                type="String"/>
+        <variable name="iconRes"
+                  type="android.graphics.drawable.Drawable"/>
+        <variable name="isActivated" type="Boolean"/>
+
+    </data>
+    <RelativeLayout
+            android:id="@+id/setting_menu_container"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/settings_menu_height"
+            android:layout_marginBottom="@dimen/view_margin_small"
+            android:background="@{isActivated?@color/darkWidgetUnchecked:@color/darkHighlight}"
+            android:paddingStart="@dimen/view_margin_medium"
+            android:paddingEnd="@dimen/view_margin_medium">
+        <ImageView
+                android:id="@+id/iv_icon"
+                glideSrc="@{iconRes}"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_centerVertical="true"
+                android:contentDescription="@string/sample_iv_desc"/>
+        <TextView
+                style="@style/TSTextMedium"
+                android:layout_width="@dimen/margin_0"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@id/iv_arrow"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_marginStart="@dimen/view_margin_medium"
+                android:layout_toEndOf="@id/iv_icon"
+                android:text="@{title}"
+                android:textSize="@dimen/text_size_16"
+                tools:text="Notification Settings"/>
+
+        <ImageView
+                android:id="@+id/iv_arrow"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@{isActivated?@drawable/ic_check_large:@drawable/ic_forward}"
+                android:contentDescription="@string/sample_iv_desc"/>
+    </RelativeLayout>
+</layout>

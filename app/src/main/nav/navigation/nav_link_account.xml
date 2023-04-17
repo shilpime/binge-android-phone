@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_link_account"
+    app:startDestination="@id/linkAccounts">
+
+    <fragment
+        android:id="@+id/linkAccounts"
+        android:name="com.tatasky.binge.ui.features.link_accounts.LinkAccountsFragment"
+        android:label="@string/link_tatasky_label"
+        tools:layout="@layout/fragment_link_accounts">
+        <action
+            android:id="@+id/action_linkAccounts_to_linkAccountsOTP"
+            app:destination="@id/linkAccountsOTP"
+            app:popUpTo="@+id/linkAccounts"
+            app:popUpToInclusive="false" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/linkAccountsOTP"
+        android:name="com.tatasky.binge.ui.features.link_accounts.LinkAccountsOTPFragment"
+        android:label="@string/link_tatasky_label"
+        tools:layout="@layout/fragment_link_accounts_otp">
+        <argument
+            android:name="rmn"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_linkAccountsOTP_to_linkAccountsSuccessful"
+            app:destination="@id/linkAccountsSuccessful" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/linkAccountsSuccessful"
+        android:name="com.tatasky.binge.ui.features.link_accounts.LinkAccountsSuccessfulFragment"
+        tools:layout="@layout/fragment_link_account_successful">
+        <argument
+            android:name="subID"
+            app:argType="string" />
+    </fragment>
+</navigation>

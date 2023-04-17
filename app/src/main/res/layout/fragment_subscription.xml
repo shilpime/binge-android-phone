@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.tatasky.binge.ui.features.subscription.viewmodel.SubscriptionViewModel" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:transitionGroup="true">
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <ImageButton
+                android:id="@+id/imgBack"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/view_margin_large"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_back_key"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".01" />
+
+            <ImageView
+                android:layout_marginTop="?actionBarSize"
+                android:id="@+id/logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/guideline_2"
+                app:srcCompat="@drawable/medium_binge_logo" />
+
+            <com.tatasky.binge.customviews.PageIndicatorView
+                android:id="@+id/ll_page_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_medium"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/logo"
+                app:selected_page="4"
+                app:total_pages="4" />
+
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/group_pack_listing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:constraint_referenced_ids="logo,tv_sub_landing_title,gridview"
+                tools:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/iv_crown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_medium"
+                app:layout_constraintBottom_toBottomOf="@id/tv_sub_landing_title"
+                app:layout_constraintEnd_toStartOf="@id/tv_sub_landing_title"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/logo"
+                app:srcCompat="@drawable/ic_premium_crown" />
+
+            <TextView
+                android:id="@+id/tv_sub_landing_title"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_medium"
+                android:gravity="center"
+                android:textSize="@dimen/text_size_28"
+                tools:text = "Subscribe"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_crown"
+                app:layout_constraintTop_toBottomOf="@id/logo" />
+
+            <TextView
+                android:id="@+id/tv_sub_landing_message"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_large"
+                android:gravity="center"
+                android:paddingStart="@dimen/view_margin_xlarge"
+                android:paddingEnd="@dimen/view_margin_xlarge"
+                android:textColor="@color/darkOnSecondary"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/tv_sub_landing_title" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_v_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.0" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_v_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="1.0" />
+
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/gridview"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:overScrollMode="never"
+                android:layout_marginTop="@dimen/view_margin_small"
+                android:fillViewport="true"
+                android:scrollbars="none"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/tv_sub_landing_message"
+                app:layout_constraintVertical_bias="0">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler"
+                        setAdapter="@{viewModel.adapter}"
+                        android:paddingStart="@dimen/view_margin_xlarge"
+                        android:paddingEnd="@dimen/view_margin_xlarge"
+                        android:clipToPadding="false"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/view_margin_small"
+                        android:layout_marginBottom="@dimen/view_margin_small"
+                        android:nestedScrollingEnabled="true"
+                        android:orientation="horizontal"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"
+                        app:reverseLayout="false"
+                        tools:visibility="visible" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/view_margin_xlarge"
+                        android:visibility="gone"
+                        style="@style/TSTextMedium"
+                        android:textColor="@color/offer_color"
+                        android:textSize="@dimen/text_size_16"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/recycler"
+                        android:gravity="center"
+                        android:id="@+id/tv_subscription_footer_msg"
+                        />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_proceed"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_marginTop="@dimen/view_margin_xxlarge"
+                        android:layout_marginBottom="@dimen/view_margin_small"
+                        android:enabled="false"
+                        android:text="@string/proceed"
+                        app:layout_constraintBottom_toTopOf="@id/btn_skip"
+                        app:layout_constraintTop_toBottomOf="@id/tv_subscription_footer_msg"
+                        app:layout_constraintVertical_bias="1"
+                        android:visibility="gone"
+                        />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_skip"
+                        style="@style/Widget.AppTheme.ButtonStyle.Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/view_margin_xxlarge"
+                        android:text="@string/skip_underline"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_compare_plan"
+                        style="@style/Widget.AppTheme.ButtonStyle.Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Compare Plans"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/recycler"
+                        app:layout_constraintVertical_bias="1.0" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.core.widget.NestedScrollView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

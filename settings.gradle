@@ -1,0 +1,6 @@
+//include ':SonyPlayerSDK-release-prod-v5'
+//include ':ha-release-18'
+//include ':hungamaplayersdk-v1.5'
+//include ':SonyPlayerSDK-release-uat-v6'
+include ':cmsdkCore-2.4.3.3-pa.sonyliv-v5.com'
+include ':app', ':TtnPlayer'

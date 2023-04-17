@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/darkPrimaryDark">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_centerInParent="true">
+            <ImageView
+                android:id="@+id/iv_wifi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="@dimen/margin_38"
+                android:maxHeight="@dimen/margin_38"
+                android:layout_margin="@dimen/view_margin_small"
+                android:contentDescription="@string/sample_iv_desc"
+                app:srcCompat="@drawable/ic_subscription_error"/>
+
+            <TextView
+                android:id="@+id/tv_title"
+                style="@style/TSTextMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_small"
+                android:gravity="center"
+                android:text="@string/network_title"
+                android:textSize="@dimen/text_size_20"/>
+            <TextView
+                android:id="@+id/tv_message"
+                style="@style/TSTextMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/dp8"
+                android:paddingBottom="@dimen/margin_2"
+                android:paddingStart="@dimen/margin_8"
+                android:paddingEnd="@dimen/margin_8"
+                android:gravity="center"
+                android:text="@string/network_error_message"
+                android:textSize="@dimen/text_size_16"
+                android:textColor="@color/darkOnSecondary"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_okay"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="170dp"
+                android:text="@string/okay"
+                android:textSize="@dimen/text_size_16"
+                android:layout_marginTop="@dimen/view_margin_small"
+                android:layout_marginBottom="@dimen/view_margin_small"/>
+        </LinearLayout>
+    </RelativeLayout>
+</layout>

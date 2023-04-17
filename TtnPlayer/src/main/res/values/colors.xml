@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="scrubberColor">@color/playedColor</color>
+    <color name="playedColor">#80C242</color>
+    <color name="white_50">#80ffffff</color>
+    <color name="black_50">#80000000</color>
+    <color name="darkBackground">#1d1e30</color>
+    <color name="darkWidgetUnchecked">#52547a</color>
+    <color name="transparent">#00000000</color>
+    <color name="light_blue_grey">#a3a6c2</color>
+</resources>

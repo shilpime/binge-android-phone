@@ -1,0 +1,24 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+
+        <vector
+            android:width="14dp"
+            android:height="14dp"
+            android:viewportWidth="14"
+            android:viewportHeight="14">
+            <group android:name="refresh" android:pivotX="7" android:pivotY="7">
+                <path
+
+                    android:fillAlpha="0.5"
+                    android:fillColor="#FFF"
+                    android:fillType="evenOdd"
+                    android:pathData="M11.947,2.047L14,0v6.14H7.842l2.832,-2.824C9.634,2.279 8.403,1.76 6.98,1.76c-1.45,0 -2.689,0.512 -3.715,1.535C2.238,4.32 1.724,5.554 1.724,7c0,1.446 0.514,2.681 1.54,3.705 1.026,1.023 2.265,1.535 3.715,1.535 1.15,0 2.176,-0.32 3.08,-0.962 0.903,-0.642 1.532,-1.48 1.888,-2.518h1.807c-0.384,1.529 -1.205,2.784 -2.464,3.766C10.031,13.51 8.594,14 6.98,14c-1.916,0 -3.559,-0.682 -4.927,-2.047C0.684,10.59 0,8.938 0,7c0,-1.938 0.684,-3.589 2.053,-4.953C3.42,0.682 5.063,0 6.979,0c1.944,0 3.6,0.682 4.968,2.047z" />
+            </group>
+        </vector>
+
+    </aapt:attr>
+    <target
+        android:name="refresh"
+        android:animation="@animator/refresh_rotation" />
+</animated-vector>

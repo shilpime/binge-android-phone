@@ -1,0 +1,158 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+    }
+}
+
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+//apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+//apply plugin: 'com.jfrog.bintray'
+//apply plugin: 'com.github.dcendents.android-maven'
+
+
+ext {
+    bintrayRepo = 'AndroidNativePlayer'
+    bintrayName = 'TtnPlayer'
+
+    publishedGroupId = 'com.ttn.ttnplayer'
+    libraryName = 'TtnPlayer'
+    artifact = 'ttnplayer'
+
+    libraryDescription = 'An Android library for playing video.'
+
+    siteUrl = 'https://gitlab.intelligrape.net/tothenew/AndroidNativePlayer'
+    // Homepage URL of the library
+    gitUrl = 'https://gitlab.intelligrape.net/tothenew/AndroidNativePlayer.git'
+
+    libraryVersion = getLibVersionName()
+
+    developerId = 'ttn'
+    developerName = 'ttn'
+    developerEmail = 'ttn'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+    jcenterUser = 'amanshandilya'
+    jcenterApiKey = '4911b451e716108c4311440ad9afdc5cb87a5610'
+}
+
+
+static def getLibVersionName() {
+    return "0.1.4"
+}
+
+static def getLibTextVersionName() {
+    String vers = 'v' + getLibVersionName()
+    return vers
+}
+
+android {
+    repositories {
+        maven { url "https://jitpack.io" }
+        maven {
+            allowInsecureProtocol true
+            url 'http://repo1.maven.org/maven2'
+        }
+    }
+    repositories {
+        mavenCentral()
+        flatDir {
+            dirs 'libs'
+        }
+    }
+    compileSdkVersion 29
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 4
+        versionName getLibVersionName()
+        vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
+        resConfigs "en"
+
+
+    }
+
+    buildTypes {
+
+
+        release {
+            // Enables code shrinking, obfuscation, and optimization for only
+            // your project's release build type.
+            minifyEnabled true
+            debuggable false
+
+            // Enables resource shrinking, which is performed by the
+            // Android Gradle plugin.
+//            shrinkResources true
+
+            // Includes the default ProGuard rules files that are packaged with
+            // the Android Gradle plugin. To learn more, go to the section about
+            // R8 configuration files.
+            proguardFiles getDefaultProguardFile(
+                    'proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
+        }
+        debug {
+            // Enables code shrinking, obfuscation, and optimization for only
+            // your project's release build type.
+            minifyEnabled false
+            debuggable true
+
+            // Enables resource shrinking, which is performed by the
+            // Android Gradle plugin.
+//            shrinkResources true
+
+            // Includes the default ProGuard rules files that are packaged with
+            // the Android Gradle plugin. To learn more, go to the section about
+            // R8 configuration files.
+            proguardFiles getDefaultProguardFile(
+                    'proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+    android {
+        kotlinOptions {
+            jvmTarget = '1.8'
+        }
+    }
+    allprojects {
+        tasks.withType(Javadoc) {
+            excludes = ['**/*.kt', '\'**/*.java\'']
+        }
+    }
+
+}
+
+ext.exoPlayerVersion = '2.11.8'
+ext.kotlin_version = '1.3.61'
+
+dependencies {
+    implementation fileTree(include: '*.jar', dir: 'libs')
+    implementation "com.google.android.exoplayer:exoplayer-core:$exoPlayerVersion"
+    implementation "com.google.android.exoplayer:exoplayer-ui:$exoPlayerVersion"
+    implementation "com.google.android.exoplayer:exoplayer-hls:$exoPlayerVersion"
+    implementation "com.google.android.exoplayer:exoplayer-dash:$exoPlayerVersion"
+    implementation "com.google.android.exoplayer:exoplayer-smoothstreaming:$exoPlayerVersion"
+    implementation "com.google.android.exoplayer:extension-ima:$exoPlayerVersion"
+    api "com.google.android.exoplayer:extension-okhttp:$exoPlayerVersion"
+    implementation "androidx.core:core-ktx:1.2.0-rc01"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.intuit.ssp:ssp-android:1.0.6'
+    implementation 'com.intuit.sdp:sdp-android:1.0.6'
+}
+
+//apply from: file('jcenter-build.gradle')

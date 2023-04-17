@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/toolbar_layout"
+            layout="@layout/shadowed_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/view_margin_large"
+                android:layout_marginEnd="@dimen/view_margin_large"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/logo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:paddingVertical="@dimen/view_margin_medium"
+                    app:srcCompat="@drawable/medium_binge_logo" />
+
+                <include
+                    android:id="@+id/tile_faq"
+                    layout="@layout/layout_setting_menu"
+                    app:iconRes="@{@drawable/ic_faq}"
+                    app:title="@{@string/faq}" />
+
+
+
+                <include
+                    android:id="@+id/tile_chat"
+                    layout="@layout/layout_setting_menu"
+                    android:visibility="gone"
+                    app:iconRes="@{@drawable/ic_chat}"
+                    app:title="@{@string/chat}" />
+
+                <include
+                    android:id="@+id/tile_email"
+                    layout="@layout/layout_setting_menu"
+                    app:iconRes="@{@drawable/ic_email}"
+                    android:visibility="gone"
+                    app:title="@{@string/write_to_us}" />
+
+                <include
+                    android:id="@+id/tile_feedback"
+                    layout="@layout/layout_setting_menu"
+                    android:visibility="gone"
+                    app:iconRes="@{@drawable/ic_feedback}"
+                    app:title="@{@string/feedback}" />
+
+                <TextView
+                    android:id="@+id/tv_contact_us_heading"
+                    style="@style/TSTextDefault"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:autoLink="email"
+                    android:layout_marginBottom="@dimen/view_margin_medium"
+                    android:text="@string/contact_us_message"
+                    android:textSize="@dimen/text_size_16" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+</layout>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto">
+    <Transition android:id="@+id/dialog_start_scene"
+        app:duration="300"
+        app:autoTransition="animateToEnd"
+        app:motionInterpolator="easeInOut"
+        app:constraintSetStart="@id/dialog_start_constraint"
+        app:constraintSetEnd="@id/dialog_end_constraint"
+        />
+    <Transition android:id="@+id/transition_end"
+        app:duration="300"
+        app:motionInterpolator="easeInOut"
+        app:constraintSetStart="@id/dialog_end_constraint"
+        app:constraintSetEnd="@id/dialog_start_constraint"
+        />
+    <ConstraintSet android:id="@+id/dialog_start_constraint">
+        <Constraint
+            android:id="@+id/root_dialog_view"
+            android:layout_width="@dimen/margin_0"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="8dp"
+            app:cardBackgroundColor="@color/darkHighlight"
+            app:layout_constraintVertical_bias=".65"
+            android:alpha=".25"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+            app:layout_constraintStart_toStartOf="@id/guideLine_start"
+            app:layout_constraintTop_toTopOf="parent" />
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/dialog_end_constraint">
+        <Constraint
+            android:id="@+id/root_dialog_view"
+            android:layout_width="@dimen/margin_0"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="8dp"
+            android:alpha="1"
+            app:cardBackgroundColor="@color/darkHighlight"
+            app:layout_constraintVertical_bias=".5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+            app:layout_constraintStart_toStartOf="@id/guideLine_start"
+            app:layout_constraintTop_toTopOf="parent" />
+    </ConstraintSet>
+</MotionScene>

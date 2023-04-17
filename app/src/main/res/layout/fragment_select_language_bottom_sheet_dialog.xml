@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View"/>
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.home.bottomsheet.HomeBottomSheetViewModel" />
+        <variable
+            name="verbiage"
+            type="com.tatasky.binge.data.networking.models.response.Verbiages" />
+        <import type="android.text.TextUtils" />
+
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_round_bottom_sheet"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+            <ImageView
+                android:id="@+id/view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                app:srcCompat="@drawable/ic_bottom_sheet_top_selector"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_select_languages"
+                style="@style/TSTextMedium"
+                android:lineSpacingExtra="3sp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="@{verbiage.data.header}"
+                android:textSize="22sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/view" />
+
+
+            <TextView
+                android:id="@+id/tv_language_sub_header"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_20"
+                android:layout_marginTop="@dimen/margin_10"
+                android:layout_marginEnd="@dimen/margin_20"
+                android:gravity="center"
+                android:textColor="@color/purple_25"
+                android:text="@{verbiage.data.subHeader}"
+                android:textSize="@dimen/sp_14"
+                android:visibility="@{TextUtils.isEmpty(verbiage.data.subHeader)?View.GONE : View.VISIBLE, default= gone}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_select_languages" />
+
+
+
+            <com.tatasky.binge.customviews.CustomRecyclerView
+                android:id="@+id/rv_language_listing"
+                setAdapter="@{vm.languageAdapter}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:orientation="vertical"
+                app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+                app:layout_constraintBottom_toTopOf="@+id/dummy_view"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_language_sub_header"
+                app:spanCount="2"
+                tools:listitem="@layout/item_select_language" />
+
+            <View
+                android:id="@+id/dummy_view"
+                android:layout_width="match_parent"
+                android:layout_height="112dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/bg_blur"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:gravity="center"
+                android:background="@drawable/bg_bottomsheet"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_select_lang"
+                    style="@style/Widget.AppTheme.ButtonStyle.Icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="20dp"
+                    android:enabled="false"
+                    android:text="@{verbiage.data.others.buttonTitle}"
+                    app:layout_constraintBottom_toTopOf="@+id/tv_not_now"
+                    app:layout_constraintEnd_toEndOf="@+id/rv_language_listing"
+                    app:layout_constraintStart_toStartOf="@+id/rv_language_listing"
+                    app:layout_goneMarginEnd="0dp" />
+
+                <TextView
+                    android:id="@+id/tv_not_now"
+                    style="@style/TSTextBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/text_not_now"
+                    android:textColor="?android:textColorTertiary"
+                    android:textSize="@dimen/sp_16"
+                    android:lineSpacingExtra="4sp" />
+            </LinearLayout>
+            <FrameLayout
+                android:id="@+id/progressBarOverlay"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/progressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/progress_avd" />
+            </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</layout>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<data>
+    <variable
+        name="subID"
+        type="String" />
+</data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/view_margin_xxlarge"
+        android:layout_marginEnd="@dimen/view_margin_xxlarge">
+
+        <ImageView
+            android:id="@+id/iv_tick"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_margin="@dimen/view_margin_large"
+            android:contentDescription="@string/sample_iv_desc"
+            app:srcCompat="@drawable/ic_check_large"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/guideline" />
+
+        <TextView
+            android:id="@+id/tv_success"
+            style="@style/TSTextMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/view_margin_medium"
+            android:layout_marginTop="@dimen/view_margin_xxlarge"
+            android:layout_marginEnd="@dimen/view_margin_medium"
+            android:gravity="center"
+            android:lineSpacingExtra="-7sp"
+            android:text="@string/link_successfully"
+            android:textSize="@dimen/text_size_32"
+            app:layout_constraintTop_toBottomOf="@id/iv_tick" />
+
+        <TextView
+            android:id="@+id/redirect_text"
+            style="@style/TSTextDefault"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/margin_20"
+            android:layout_marginBottom="@dimen/view_margin_xxlarge"
+            android:gravity="center_horizontal"
+            android:lineSpacingExtra="5sp"
+            android:text="@{String.format(@string/link_successfully_string,subID)}"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_success" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBack"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/margin_45"
+            android:text="@string/back_to_account"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/redirect_text" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".15" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/logo_margin"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/sample_iv_desc"
+            android:maxWidth="@dimen/logo_max_width"
+            android:maxHeight="@dimen/logo_max_height"
+            app:srcCompat="@drawable/small_binge_logo"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnBack"
+            app:layout_constraintVertical_bias="1" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

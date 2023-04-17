@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context=".ui.features.parentalcontrol.ParentalPinSuccessFragment">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_margin_start"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/margin_20dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_margin_end"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/margin_20" />
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="35dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="10dp"
+            android:alpha="0.5"
+            android:background="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="#2B2D41"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/top_gradient" />
+
+        <ImageView
+            android:id="@+id/iv_lock_parental_pin_success"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="34dp"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_success_tick" />
+
+        <TextView
+            android:id="@+id/title_parental_pin_success"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="@string/title_parental_pin_success"
+            android:textSize="@dimen/text_size_22"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toBottomOf="@id/iv_lock_parental_pin_success" />
+
+        <TextView
+            android:id="@+id/tv_subtitle_parental_pin_success"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:text="@string/text_subtitle_parental_pin_success"
+            android:textColor="@color/pink_50"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toBottomOf="@id/title_parental_pin_success" />
+
+        <TextView
+            android:id="@+id/tv_text_parental_pin_success"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:text="@string/text_parental_pin_success"
+            android:textColor="@color/pink_50"
+            android:textSize="@dimen/text_size_13"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toBottomOf="@id/tv_subtitle_parental_pin_success" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_proceed_parental_pin_success"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="@dimen/margin_20dp"
+            android:layout_marginBottom="@dimen/margin_20dp"
+            android:enabled="true"
+            android:text="@string/btn_proceed_text_parental_pin_success"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintBottom_toTopOf="@id/btn_cancel_parental_pin_success"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toBottomOf="@id/tv_text_parental_pin_success" />
+
+        <TextView
+            android:id="@+id/btn_cancel_parental_pin_success"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="23dp"
+            android:background="@color/transparent"
+            android:gravity="center"
+            android:text="@string/text_cancel_parental_pin_success"
+            android:textColor="?android:textColorTertiary"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toBottomOf="@id/btn_proceed_parental_pin_success" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

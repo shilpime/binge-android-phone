@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:id="@android:id/text1"
+        style="@style/TSTextMedium"
+        android:textSize="@dimen/text_size_16"
+        android:textColor="@color/darkOnPrimary"
+        android:textColorHint="@color/pink_50"
+        android:background="@color/darkHighlight"
+        android:paddingBottom="@dimen/view_margin_small"
+        android:paddingTop="@dimen/view_margin_small"
+        android:paddingStart="@dimen/view_margin_large"
+        android:paddingEnd="@dimen/view_margin_large"
+        android:singleLine="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee" />
+</layout>

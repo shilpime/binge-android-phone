@@ -1,0 +1,513 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="AppTheme.SplashAppTheme">
+        <item name="android:colorBackground">@color/launcher_background</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges</item>
+    </style>
+    <style name="AppTheme.PlayerAppTheme">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges</item>
+    </style>
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:statusBarColor">@color/darkBackground</item>
+        <item name="android:navigationBarColor">@color/darkBackground</item>
+        <item name="android:splitMotionEvents">false</item>
+        <item name="android:windowEnableSplitTouch">false</item>
+        <item name="android:colorBackground">@color/darkBackground</item>
+        <item name="android:textColorTertiary">@color/darkButtonTertiary</item>
+        <item name="colorOnSecondary">@color/darkOnSecondary</item>
+        <item name="colorOnPrimary">@color/darkOnPrimary</item>
+        <item name="colorOnSurface">@color/darkOnSurface</item>
+        <item name="colorSecondary">@color/darkSecondary</item>
+        <item name="colorPrimary">@color/darkPrimary</item>
+        <item name="colorPrimaryDark">@color/darkPrimaryDark</item>
+        <item name="colorAccent">@color/darkAccent</item>
+        <item name="searchViewStyle">@style/SearchViewStyle</item>
+        <item name="android:datePickerDialogTheme">@style/DatePickerTheme</item>
+        <item name="colorError">@color/darkError</item>
+        <item name="colorOnBackground">@color/darkOnBackground</item>
+        <item name="switchStyle">@style/Widget.AppTheme.SwitchStyle</item>
+        <item name="colorSurface">@color/darkBackground</item>
+        <item name="android:textColor">?colorOnSurface</item>
+        <item name="materialButtonStyle">@style/Widget.AppTheme.ButtonStyle</item>
+        <item name="materialCardViewStyle">@style/CardStyle</item>
+        <item name="tabStyle">@style/TabLayoutStyle</item>
+        <item name="android:dialogTheme">@style/DialogTheme</item>
+        <item name="toolbarStyle">@style/ToolbarStyle</item>
+        <item name="colorControlNormal">@color/darkOnSurface</item>
+        <item name="textInputStyle">@style/EditTextStyle</item>
+        <item name="android:textColorLink">@color/darkPrimary</item>
+        <item name="colorControlActivated">@color/transparent</item>
+        <item name="checkboxStyle">@style/CheckboxStyle</item>
+        <item name="bottomNavigationStyle">@style/BottomNavStyle</item>
+        <item name="android:autofilledHighlight" tools:targetApi="O">@android:color/transparent
+        </item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.Transparent">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowEnterAnimation">@null</item>
+        <item name="android:windowExitAnimation">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <style name="AppTheme.NotificationSettings">
+        <item name="fontPath">@string/medium_font</item>
+    </style>
+
+    <style name="Widget.ActionMenuTextAppearance"
+           parent="TextAppearance.AppCompat.Widget.ActionBar.Menu">
+        <item name="textAllCaps">false</item>
+        <item name="android:fontFamily">@font/volteplay_medium</item>
+        <item name="fontPath">@string/medium_font</item>
+    </style>
+
+    <declare-styleable name="AutoResizeTextView">
+        <attr name="trimLength" format="integer"/>
+
+        <!--for font-->
+        <attr name="expandFontName" format="string"/>
+        <attr name="expandLeftDrawableOnly" format="integer"/>
+    </declare-styleable>
+
+    <!--<style name="SplashTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/drawable_splash_night</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>-->
+
+    <style name="TabLayoutStyle" parent="Widget.MaterialComponents.TabLayout.PrimarySurface">
+        <item name="tabIndicatorColor">?colorPrimary</item>
+        <item name="tabTextColor">@color/text_color_selector</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="tabBackground">?colorSurface</item>
+        <item name="tabMode">auto</item>
+        <item name="tabUnboundedRipple">false</item>
+        <item name="tabGravity">fill</item>
+        <item name="tabIndicatorFullWidth">false</item>
+        <item name="tabIndicatorHeight">4dp</item>
+    </style>
+
+    <style name="CardStyle" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">6dp</item>
+        <item name="cardElevation">@dimen/card_elevation</item>
+        <item name="cardBackgroundColor">?colorSurface</item>
+        <item name="elevation">@dimen/card_elevation</item>
+        <item name="cardPreventCornerOverlap">false</item>
+    </style>
+
+    <style name="SearchFilterRadioButtonStyle" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:button">@null</item>
+        <item name="android:paddingTop">@dimen/view_margin_small</item>
+        <item name="android:paddingBottom">@dimen/view_margin_small</item>
+        <item name="android:paddingStart">@dimen/view_margin_large</item>
+        <item name="android:paddingEnd">@dimen/view_margin_large</item>
+        <item name="android:textSize">@dimen/text_size_14</item>
+        <item name="android:background">@drawable/search_filter_background</item>
+        <item name="android:textColor">@color/filter_color_selector</item>
+        <item name="fontPath">@string/medium_font</item>
+        <item name="android:fontFamily">@font/volteplay_medium</item>
+        <item name="android:textAppearance">@style/TSTextMedium</item>
+    </style>
+
+    <style name="SearchFilterCheckbox" parent="CheckboxStyle">
+        <item name="android:button">@null</item>
+        <item name="android:textAppearance">@style/TSTextMedium</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingStart">@dimen/view_margin_large</item>
+        <item name="android:paddingEnd">@dimen/view_margin_large</item>
+        <item name="android:textSize">@dimen/text_size_16</item>
+        <item name="android:background">@drawable/search_filter_background</item>
+    </style>
+
+    <style name="Widget.AppTheme.ButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="cornerRadius">@dimen/button_radius</item>
+        <item name="fontPath">@string/bold_font</item>
+        <item name="fontFamily">@font/volteplay_semibold</item>
+        <item name="backgroundTint">@color/button_color_primary</item>
+        <item name="android:textColor">@color/button_text_color</item>
+        <item name="iconTint">?colorOnPrimary</item>
+        <item name="android:gravity">center</item>
+        <item name="rippleColor">?colorSecondary</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textSize">@dimen/text_size_16</item>
+    </style>
+
+    <style name="Widget.AppTheme.OutlineButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="strokeColor">@color/button_color_tertiary</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="cornerRadius">@dimen/button_radius</item>
+        <item name="fontPath">@string/bold_font</item>
+        <item name="fontFamily">@font/volteplay_semibold</item>
+        <item name="android:textColor">@color/button_color_tertiary</item>
+        <item name="iconTint">?colorOnPrimary</item>
+        <item name="android:gravity">center</item>
+        <item name="rippleColor">?colorSecondary</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textSize">@dimen/text_size_16</item>
+    </style>
+
+
+
+
+    <style name="Widget.AppTheme.ButtonStyle.Secondary">
+        <item name="android:backgroundTint">?colorOnPrimary</item>
+        <item name="iconTint">?colorSecondary</item>
+        <item name="android:textColor">?colorSecondary</item>
+    </style>
+
+    <style name="Widget.AppTheme.ButtonStyle.DifferentDisabled">
+        <item name="android:backgroundTint">@color/button_color_different_disabled</item>
+    </style>
+
+    <style name="Widget.AppTheme.ButtonStyle.Icon">
+        <item name="iconPadding">8dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="android:textSize">16sp</item>
+        <item name="fontPath">@string/bold_font</item>
+        <item name="android:textColor">@color/button_text_color</item>
+    </style>
+
+    <style name="Widget.AppTheme.ButtonStyle.Text">
+        <item name="android:textColor">?colorSecondary</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="fontPath">@string/bold_font</item>
+        <item name="rippleColor">@color/transparent</item>
+    </style>
+
+    <style name="Widget.AppTheme.ButtonStyle.Text.Pack">
+        <item name="android:textColor">?colorPrimary</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="fontPath">@string/bold_font</item>
+        <item name="rippleColor">@color/transparent</item>
+    </style>
+
+    <style name="Widget.AppTheme.ButtonStyle.Small">
+        <item name="android:layout_height">48dp</item>
+    </style>
+
+    <style name="Widget.AppTheme.ButtonStyle.Tertiary">
+        <item name="android:layout_height">@dimen/button_height</item>
+        <item name="backgroundTint">@color/button_color_tertiary</item>
+    </style>
+
+    <style name="EditTextStyle"
+           parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="boxCornerRadiusBottomEnd">@dimen/margin_2</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/margin_2</item>
+        <item name="boxCornerRadiusTopStart">@dimen/margin_2</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/margin_2</item>
+        <item name="errorIconDrawable">@null</item>
+        <item name="boxStrokeColor">?colorOnSecondary</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="fontPath">@string/default_font</item>
+        <item name="errorTextAppearance">@style/ErrorTextStyle</item>
+        <item name="android:textSize">@dimen/text_size_16</item>
+        <item name="boxBackgroundColor">@color/darkHighlight</item>
+    </style>
+
+    <style name="Widget.AppTheme.SwitchStyle"
+           parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <item name="fontPath">@string/medium_font</item>
+        <item name="thumbTint">?colorOnPrimary</item>
+        <item name="trackTint">@color/switch_color</item>
+        <item name="android:textColor">?colorOnSurface</item>
+    </style>
+
+    <style name="BottomNavStyle"
+           parent="Widget.MaterialComponents.BottomNavigationView.PrimarySurface">
+        <item name="android:background">@drawable/bg_bottom_gradient</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="itemTextColor">@drawable/bottom_nav_selector</item>
+        <item name="itemTextAppearanceActive">@style/BottomNavTextActive</item>
+        <item name="itemTextAppearanceInactive">@style/BottomNavTextActive</item>
+        <item name="itemHorizontalTranslationEnabled">false</item>
+    </style>
+
+    <style name="ErrorTextStyle" parent="TextAppearance.Design.Error">
+        <item name="android:textSize">@dimen/text_size_12</item>
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:paddingStart">0dp</item>
+    </style>
+
+    <style name="PackTheme" parent="AppTheme">
+        <item name="colorSecondary">#52547a</item>
+    </style>
+
+    <style name="CheckboxStyle" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:textColor">?colorOnSurface</item>
+        <item name="fontPath">@string/medium_font</item>
+        <item name="android:button">@drawable/ic_check_box</item>
+    </style>
+
+    <style name="CheckboxStyleRTL" parent="CheckboxStyle">
+        <item name="android:button">@null</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">@null</item>
+        <item name="android:drawableEnd">@drawable/ic_check_box</item>
+    </style>
+    <style name="CustomTabText" parent="TextAppearance.TabPageIndicator">
+        <item name="android:textSize">@dimen/text_size_16</item>
+        <item name="android:textColor">@color/text_color_selector</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textAppearance">@style/TSTextMedium</item>
+    </style>
+
+    <style name="DialogTheme" parent="Theme.MaterialComponents.Dialog.MinWidth">
+        <!-- Fill the screen -->
+        <item name="dialogCornerRadius">8dp</item>
+        <item name="colorOnPrimary">@color/darkOnPrimary</item>
+        <item name="colorPrimary">@color/darkPrimary</item>
+        <item name="android:windowMinWidthMajor">80%</item>
+        <item name="android:windowMinWidthMinor">80%</item>
+        <item name="colorSecondary">@color/darkSecondary</item>
+        <item name="checkboxStyle">@style/CheckboxStyle</item>
+        <item name="colorOnSecondary">@color/darkOnSecondary</item>
+        <item name="materialButtonStyle">@style/Widget.AppTheme.ButtonStyle</item>
+        <item name="android:windowBackground">@drawable/dialog_background</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="materialCardViewStyle">@style/CardStyle</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="AlertDialogStyle" parent="Theme.MaterialComponents.Dialog.MinWidth">
+        <!-- Fill the screen -->
+        <item name="dialogCornerRadius">8dp</item>
+        <item name="colorOnPrimary">@color/darkOnPrimary</item>
+        <item name="colorPrimary">@color/darkPrimary</item>
+        <item name="android:windowMinWidthMajor">85%</item>
+        <item name="android:windowMinWidthMinor">85%</item>
+        <item name="colorSecondary">@color/darkSecondary</item>
+        <item name="colorOnSecondary">@color/darkOnSecondary</item>
+        <item name="materialButtonStyle">@style/Widget.AppTheme.ButtonStyle</item>
+        <item name="android:background">@color/darkHighlight</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:backgroundDimAmount">.3</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="ToolbarStyle" parent="ThemeOverlay.MaterialComponents.Toolbar.Surface">
+        <item name="titleTextAppearance">@style/ToolbarTextStyle</item>
+        <item name="fontFamily">@font/volteplay_medium</item>
+        <item name="android:background">@color/darkBackground</item>
+        <item name="fontPath">@string/medium_font</item>
+        <item name="titleTextColor">?colorOnSurface</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginStart">@dimen/margin_0</item>
+        <item name="titleMargin">@dimen/view_margin_medium</item>
+        <item name="colorControlNormal">@color/darkOnSurface</item>
+        <item name="android:actionMenuTextColor">@color/darkButtonTertiary</item>
+        <item name="actionMenuTextColor">@color/darkButtonTertiary</item>
+        <item name="actionMenuTextAppearance">@style/Widget.ActionMenuTextAppearance</item>
+    </style>
+
+    <style name="ToolbarTextStyle" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="fontFamily">@font/volteplay_medium</item>
+        <item name="android:fontFamily">@font/volteplay_medium</item>
+        <item name="fontPath">@string/medium_font</item>
+        <item name="android:textSize">19sp</item>
+    </style>
+
+    <style name="AppBarLayoutStyle" parent="Widget.MaterialComponents.AppBarLayout.Surface">
+        <item name="android:theme">@style/Widget.MaterialComponents.AppBarLayout.Surface</item>
+    </style>
+    <style name="TSText">
+        <item name="android:textSize">@dimen/text_size_18</item>
+        <item name="fontPath">@string/medium_font</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="TSTextBold">
+        <item name="fontWeight">600</item>
+        <item name="fontPath">@string/bold_font</item>
+    </style>
+
+    <style name="TSTextMedium">
+        <item name="fontWeight">500</item>
+        <item name="fontPath">@string/medium_font</item>
+    </style>
+
+    <style name="TSTextPriceMedium">
+        <item name="fontWeight">600</item>
+        <item name="fontPath">@string/medium_font</item>
+    </style>
+    <style name="TSTextDefault">
+        <item name="fontWeight">400</item>
+        <item name="fontPath">@string/default_font</item>
+    </style>
+
+    <style name="AppTheme.SearchView">
+        <item name="android:textAppearance">@style/TSTextMedium</item>
+        <item name="android:textSize">@dimen/text_size_16</item>
+        <item name="android:editTextColor">@color/white</item>
+        <item name="android:textColorHint">@color/pink_50</item>
+        <item name="colorControlActivated">@color/white</item>
+    </style>
+    <style name="AppTheme.SearchView.SearchViewTheme">
+        <item name="android:textSize">@dimen/text_size_14</item>
+        <item name="android:textColorHint">@color/grey_color</item>
+        <item name="colorControlActivated">@color/black</item>
+    </style>
+    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <item name="queryBackground">@color/transparent</item>
+        <item name="iconifiedByDefault">false</item>
+        <item name="closeIcon">@drawable/ic_cross</item>
+        <item name="searchIcon">@null</item>
+    </style>
+
+    <style name="TSText.PlayerError">
+        <item name="android:textSize">@dimen/text_size_18</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:maxLines">5</item>
+        <item name="android:padding">40dp</item>
+        <item name="android:background">@color/black</item>
+    </style>
+
+
+    <style name="TSTextTitle">
+        <item name="fontWeight">500</item>
+        <item name="android:textSize">16sp</item>
+        <item name="fontPath">@string/medium_font</item>
+        <item name="android:textColor">@color/light_theme_title_color</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="BottomNavTextActive" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="fontFamily">@font/volteplay_semibold</item>
+        <item name="android:textSize">@dimen/text_size_10</item>
+    </style>
+
+
+    <style name="DialogThemeTransparent" parent="android:Theme.Dialog">
+        <!-- Fill the screen -->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" targetApi='p' tools:targetApi="o_mr1">shortEdges</item>
+        <!-- backgrounds, titles or window float -->
+
+        <item name="android:windowBackground">@color/darkBackground</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">false</item>
+
+    </style>
+
+    <style name="BottomRoundedCard" parent="Widget.MaterialComponents.CardView">
+        <item name="shapeAppearanceOverlay">@style/CornerRadius</item>
+        <item name="cardElevation">@dimen/card_elevation</item>
+        <item name="cardBackgroundColor">@color/darkHighlight</item>
+    </style>
+    <style name="CornerRadius" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeBottomRight">24dp</item>
+        <item name="cornerSizeBottomLeft">24dp</item>
+        <item name="cornerSizeTopLeft">0dp</item>
+        <item name="cornerSizeTopRight">0dp</item>
+    </style>
+
+    <style name="DatePickerTheme" parent="Theme.MaterialComponents.Light.Dialog">
+        <item name="android:datePickerStyle">@android:style/Widget.Material.Light.DatePicker</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="dialogCornerRadius">8dp</item>
+        <item name="colorPrimary">@color/darkPrimary</item>
+        <item name="fontPath">@string/medium_font</item>
+        <item name="colorAccent">@color/darkWidgetUnchecked</item>
+        <item name="materialButtonStyle">@style/Widget.AppTheme.ButtonStyle.Text</item>
+    </style>
+    <style name="AppBottomSheetDialogTheme"
+        parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/AppModalStyle</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.6</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
+    <style name="AppModalStyle"
+        parent="Widget.Design.BottomSheet.Modal">
+        <item name="behavior_peekHeight">400dp</item>
+        <item name="shapeAppearance">@style/roundedCornerShapeAppearance</item>
+    </style>
+
+    <style name="roundedCornerShapeAppearance" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+<!--    <style name="BottomSheetDialog" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">-->
+<!--        <item name="cornerFamily">rounded</item>-->
+<!--        <item name="cornerSizeTopRight">16dp</item>-->
+<!--        <item name="cornerSizeTopLeft">16dp</item>-->
+<!--        <item name="cornerSizeBottomRight">0dp</item>-->
+<!--        <item name="cornerSizeBottomLeft">0dp</item>-->
+<!--    </style>-->
+
+    <style name="GuestLoginBottomSheetDialogTheme" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/GuestLoginBottomSheetModalStyle</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
+    </style>
+
+    <style name="GuestLoginBottomSheetModalStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="shapeAppearance">@style/GuestLoginBottomSheetRoundedCornerShapeAppearance</item>
+    </style>
+
+    <style name="GuestLoginBottomSheetRoundedCornerShapeAppearance" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20dp</item>
+    </style>
+
+    <style name="ShapeAppearance.CircularBorder" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+    <style name="PackCardStyle" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">@dimen/view_margin_xlarge</item>
+        <item name="strokeColor">@color/stroke_color</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cardElevation">1dp</item>
+        <item name="cardBackgroundColor">@color/fill_pack_color</item>
+    </style>
+    <style name="customRoundedImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <style name="customRoundedLogo" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="customPartnerRoundedLogo" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">5dp</item>
+    </style>
+
+</resources>

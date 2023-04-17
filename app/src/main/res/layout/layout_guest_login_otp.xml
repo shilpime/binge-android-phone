@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="isEligibleForFreeTrial"
+            type="Boolean" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_subtitle_guest_login_verify_otp"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|start"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:textSize="@dimen/text_size_14"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/text_subtitle_guest_login_verify_otp" />
+
+        <include
+            android:id="@+id/cl_et_otp_container"
+            layout="@layout/layout_otp_view_without_hint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_subtitle_guest_login_verify_otp" />
+
+        <TextView
+            android:id="@+id/tv_code_expiry_guest_login_verify_otp"
+            style="@style/TSTextDefault"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            app:layout_marginBottom="@{isEligibleForFreeTrial ? @dimen/dimens_28dp : @dimen/dimens_28dp}"
+            android:layout_marginBottom="@dimen/dimens_28dp"
+            android:gravity="center_vertical|start"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:textSize="@dimen/text_size_14"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tv_resend_otp_guest_login_verify_otp"
+            app:layout_constraintStart_toStartOf="@id/cl_et_otp_container"
+            app:layout_constraintTop_toBottomOf="@id/cl_et_otp_container"
+            tools:text="@string/text_code_expiry_guest_login_verify_otp" />
+
+        <TextView
+            android:id="@+id/tv_error_guest_login_verify_otp"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            app:layout_marginBottom="@{isEligibleForFreeTrial ? @dimen/dimens_28dp : @dimen/dimens_28dp}"
+            android:gravity="center_vertical|start"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:textColor="@color/darkError"
+            android:textSize="@dimen/text_size_14"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tv_resend_otp_guest_login_verify_otp"
+            app:layout_constraintStart_toStartOf="@id/cl_et_otp_container"
+            app:layout_constraintTop_toBottomOf="@id/cl_et_otp_container"
+            tools:text="Incorrect OTP" />
+
+        <TextView
+            android:id="@+id/tv_resend_otp_guest_login_verify_otp"
+            style="@style/TSTextBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_marginBottom="@{isEligibleForFreeTrial ? @dimen/dimens_28dp : @dimen/dimens_28dp}"
+            tools:layout_marginBottom="@dimen/dimens_28dp"
+            android:enabled="false"
+            android:gravity="center_vertical|end"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:text="@string/resend_otp"
+            android:textColor="@color/button_color_tertiary"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/cl_et_otp_container"
+            app:layout_constraintTop_toBottomOf="@id/cl_et_otp_container" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,554 @@
+{
+    "code": 0,
+    "message": "Response fetched successfully.",
+    "data": [
+        {
+            "productId": "MAXIVIPMON",
+            "productName": "maxiVIPmonthly",
+            "validityInDays": "1 Month",
+            "amount": "&#8377; 200/month",
+            "componentList": [
+                {
+                    "componentId": "MaxVM",
+                    "componentName": "Max VIP Monthly",
+                    "numberOfApps": "17 Apps",
+                    "partnerList": [
+                        {
+                            "partnerId": "M10",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "",
+                            "included": false,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M11",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "",
+                            "included": false,
+                            "premiumPartner": false
+                        },
+                        {
+                                                    "partnerId": "M1",
+                                                    "partnerName": "Partner Member",
+                                                    "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822180437",
+                                                    "included": true,
+                                                    "premiumPartner": false
+                                                },
+
+                        {
+                            "partnerId": "M2",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822198187",
+                            "included": false,
+                            "premiumPartner": false
+                        },
+                         {
+                                                    "partnerId": "M12",
+                                                    "partnerName": "Partner Member",
+                                                    "iconUrl": "",
+                                                    "included": false,
+                                                    "premiumPartner": false
+                                                },
+                        {
+                            "partnerId": "M3",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822224076",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M4",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822189245",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M5",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822241975",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M6",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822489216",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M7",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://res.cloudinary.com/uat-main/image/upload/v1630483444/tatasky-uat/cms-ui/images/custom-content/1630483442587.png",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M8",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://res.cloudinary.com/uat-main/image/upload/v1600151957/tatasky-uat/cms-ui/images/custom-content/1600151955770.png",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M9",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822479507",
+                            "included": true,
+                            "premiumPartner": false
+                        }
+                    ]
+                }
+            ],
+            "tenure": [
+                {
+                    "tenureType": "ANNUALLY",
+                    "tenureDuration": "1 Year",
+                    "mrp": "2400",
+                    "offeredPrice": "2000",
+                    "discountedPercentage": "Save 17%",
+                    "tenureImage": "",
+                    "currentTenure": false
+                },
+                {
+                    "tenureType": "MONTHLY",
+                    "tenureDuration": "1 Month",
+                    "mrp": "200",
+                    "offeredPrice": "200",
+                    "discountedPercentage": "Save 0%",
+                    "tenureImage": "",
+                    "currentTenure": false
+                },
+                {
+                    "tenureType": "QUARTERLY",
+                    "tenureDuration": "3 Months",
+                    "mrp": "600",
+                    "offeredPrice": "500",
+                    "discountedPercentage": "Save 17%",
+                    "tenureImage": "",
+                    "currentTenure": false
+                }
+            ],
+            "packHeaderMessage": "Access these apps on Mobile, TV & Web",
+            "packFooterMessage": "*Watch on TV with your Binge+ Set Top Box",
+            "appHeaderMessage": "Apps not included",
+            "tenureFootageMessage": "You can save up to Save 17%%",
+            "sunnextFooterMessage": null,
+            "largeScreenImage": "",
+            "highlightedPack": false
+        },
+        {
+            "productId": "MINIVIPMON",
+            "productName": "miniVIPmonthly",
+            "validityInDays": "1 Month",
+            "amount": "&#8377; 100/month",
+            "componentList": [
+                {
+                    "componentId": "MinVM",
+                    "componentName": "Mini VIP Monthly",
+                    "numberOfApps": "11 Apps",
+                    "partnerList": [
+                        {
+                            "partnerId": "M1",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822180437",
+                            "included": false,
+                            "premiumPartner": false
+                        },
+
+                        {
+                            "partnerId": "M11",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "",
+                            "included": false,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M12",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "",
+                            "included": false,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M2",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822198187",
+                            "included": false,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M3",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822224076",
+                            "included": false,
+                            "premiumPartner": false
+                        },
+                         {
+                                                    "partnerId": "M10",
+                                                    "partnerName": "Partner Member",
+                                                    "iconUrl": "",
+                                                    "included": false,
+                                                    "premiumPartner": false
+                                                },
+                        {
+                            "partnerId": "M4",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822189245",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M5",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822241975",
+                            "included": false,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M6",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822489216",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+
+                        {
+                            "partnerId": "M8",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://res.cloudinary.com/uat-main/image/upload/v1600151957/tatasky-uat/cms-ui/images/custom-content/1600151955770.png",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                                                    "partnerId": "M7",
+                                                    "partnerName": "Partner Member",
+                                                    "iconUrl": "https://res.cloudinary.com/uat-main/image/upload/v1630483444/tatasky-uat/cms-ui/images/custom-content/1630483442587.png",
+                                                    "included": true,
+                                                    "premiumPartner": false
+                                                },
+                        {
+                            "partnerId": "M9",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822479507",
+                            "included": true,
+                            "premiumPartner": false
+                        }
+                    ]
+                }
+            ],
+            "tenure": [
+                {
+                    "tenureType": "ANNUALLY",
+                    "tenureDuration": "1 Year",
+                    "mrp": "1200",
+                    "offeredPrice": "1000",
+                    "discountedPercentage": "Save 17%",
+                    "tenureImage": "",
+                    "currentTenure": false
+                },
+                {
+                    "tenureType": "MONTHLY",
+                    "tenureDuration": "1 Month",
+                    "mrp": "100",
+                    "offeredPrice": "100",
+                    "discountedPercentage": "Save 0%",
+                    "tenureImage": "",
+                    "currentTenure": false
+                },
+                {
+                    "tenureType": "QUARTERLY",
+                    "tenureDuration": "3 Months",
+                    "mrp": "300",
+                    "offeredPrice": "250",
+                    "discountedPercentage": "Save 17%",
+                    "tenureImage": "",
+                    "currentTenure": false
+                }
+            ],
+            "packHeaderMessage": "Access these apps on Mobile, TV & Web",
+            "packFooterMessage": "*Watch on TV with your Binge+ Set Top Box",
+            "appHeaderMessage": "Apps not included",
+            "tenureFootageMessage": "You can save up to Save 17%%",
+            "sunnextFooterMessage": null,
+            "largeScreenImage": "",
+            "highlightedPack": false
+        },
+        {
+            "productId": "PRMVIPMONT",
+            "productName": "prmVIPmonthly",
+            "validityInDays": "1 Month",
+            "amount": "&#8377; 400/month",
+            "componentList": [
+                {
+                    "componentId": "PreVM",
+                    "componentName": "Premium VIP Monthly",
+                    "numberOfApps": "25 Apps",
+                    "partnerList": [
+                        {
+                            "partnerId": "M1",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822180437",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+
+                        {
+                            "partnerId": "M11",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M12",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                                                    "partnerId": "M10",
+                                                    "partnerName": "Partner Member",
+                                                    "iconUrl": "",
+                                                    "included": true,
+                                                    "premiumPartner": false
+                                                },
+                        {
+                            "partnerId": "M2",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822198187",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M3",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822224076",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+
+                        {
+                            "partnerId": "M5",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822241975",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M6",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822489216",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                                                    "partnerId": "M4",
+                                                    "partnerName": "Partner Member",
+                                                    "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822189245",
+                                                    "included": true,
+                                                    "premiumPartner": false
+                                                },
+                        {
+                            "partnerId": "M7",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://res.cloudinary.com/uat-main/image/upload/v1630483444/tatasky-uat/cms-ui/images/custom-content/1630483442587.png",
+                            "included": true,
+                            "premiumPartner": true
+                        },
+                        {
+                            "partnerId": "M8",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://res.cloudinary.com/uat-main/image/upload/v1600151957/tatasky-uat/cms-ui/images/custom-content/1600151955770.png",
+                            "included": true,
+                            "premiumPartner": true
+                        },
+                        {
+                            "partnerId": "M9",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822479507",
+                            "included": true,
+                            "premiumPartner": true,
+                                                        "footerMessage": "*SunNxt is available on TV only"
+
+                        }
+                    ]
+                }
+            ],
+            "tenure": [
+                {
+                    "tenureType": "ANNUALLY",
+                    "tenureDuration": "1 Year",
+                    "mrp": "4800",
+                    "offeredPrice": "4000",
+                    "discountedPercentage": "Save 17%",
+                    "tenureImage": "",
+                    "currentTenure": false
+                },
+                {
+                    "tenureType": "MONTHLY",
+                    "tenureDuration": "1 Month",
+                    "mrp": "400",
+                    "offeredPrice": "400",
+                    "discountedPercentage": "Save 0%",
+                    "tenureImage": "",
+                    "currentTenure": false
+                },
+                {
+                    "tenureType": "QUARTERLY",
+                    "tenureDuration": "3 Months",
+                    "mrp": "1200",
+                    "offeredPrice": "1000",
+                    "discountedPercentage": "Save 17%",
+                    "tenureImage": "",
+                    "currentTenure": false
+                }
+            ],
+            "packHeaderMessage": "Access these apps on Mobile, TV & Web",
+            "packFooterMessage": "*Eligible for watch on TV using Amazon FireTV Stick ? Tata Sky Edition or Binge+ Set Top Box",
+            "appHeaderMessage": "Available only on Premium VIP",
+            "tenureFootageMessage": "You can save up to Save 17%%",
+            "sunnextFooterMessage": "*SunNxt is available on TV only",
+            "largeScreenImage": "",
+            "highlightedPack": true
+        },
+        {
+            "productId": "SNDVIPMONT",
+            "productName": "sndVIPmonthly",
+            "validityInDays": "1 Month",
+            "amount": "&#8377; 300/month",
+            "componentList": [
+                {
+                    "componentId": "StdVM",
+                    "componentName": "Standard VIP Monthly",
+                    "numberOfApps": "19 Apps",
+                    "partnerList": [
+                        {
+                            "partnerId": "M1",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822180437",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M10",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "",
+                            "included": false,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M11",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "",
+                            "included": false,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M12",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "",
+                            "included": false,
+                            "premiumPartner": false
+                        },
+                        {
+                                                    "partnerId": "M8",
+                                                    "partnerName": "Partner Member",
+                                                    "iconUrl": "https://res.cloudinary.com/uat-main/image/upload/v1600151957/tatasky-uat/cms-ui/images/custom-content/1600151955770.png",
+                                                    "included": true,
+                                                    "premiumPartner": false
+                                                },
+                        {
+                            "partnerId": "M2",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822198187",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M3",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822224076",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M4",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822189245",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M5",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822241975",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M6",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822489216",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+                        {
+                            "partnerId": "M7",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://res.cloudinary.com/uat-main/image/upload/v1630483444/tatasky-uat/cms-ui/images/custom-content/1630483442587.png",
+                            "included": true,
+                            "premiumPartner": false
+                        },
+
+                        {
+                            "partnerId": "M9",
+                            "partnerName": "Partner Member",
+                            "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822479507",
+                            "included": true,
+                            "premiumPartner": false
+                        }
+                    ]
+                }
+            ],
+            "tenure": [
+                {
+                    "tenureType": "ANNUALLY",
+                    "tenureDuration": "1 Year",
+                    "mrp": "3600",
+                    "offeredPrice": "3000",
+                    "discountedPercentage": "Save 17%",
+                    "tenureImage": "",
+                    "currentTenure": false
+                },
+                {
+                    "tenureType": "MONTHLY",
+                    "tenureDuration": "1 Month",
+                    "mrp": "300",
+                    "offeredPrice": "300",
+                    "discountedPercentage": "Save 0%",
+                    "tenureImage": "",
+                    "currentTenure": false
+                },
+                {
+                    "tenureType": "QUARTERLY",
+                    "tenureDuration": "3 Months",
+                    "mrp": "900",
+                    "offeredPrice": "750",
+                    "discountedPercentage": "Save 17%",
+                    "tenureImage": "",
+                    "currentTenure": true
+                }
+            ],
+            "packHeaderMessage": "Access these apps on Mobile, TV & Web",
+            "packFooterMessage": "*Watch on TV with your Binge+ Set Top Box",
+            "appHeaderMessage": "Apps not included",
+            "tenureFootageMessage": "You can save up to Save 17%%",
+            "sunnextFooterMessage": null,
+            "largeScreenImage": "",
+            "highlightedPack": false
+        }
+    ]
+}

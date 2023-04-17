@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.text.InputType" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.tatasky.binge.ui.features.subscription.viewmodel.SubscriptionViewModel" />
+
+        <variable
+            name="selectedPack"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".01" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_v_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".05" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_v_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".95" />
+
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/guideline_2"
+                app:srcCompat="@drawable/medium_binge_logo" />
+
+            <com.tatasky.binge.customviews.PageIndicatorView
+                android:id="@+id/ll_page_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_medium"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/logo"
+                app:selected_page="4"
+                app:total_pages="4" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/group_views"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:constraint_referenced_ids="selected_pack_card,btn_proceed" />
+
+            <TextView
+                android:id="@+id/tv_sub_landing_title"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_medium"
+                android:gravity="center"
+                android:lineSpacingExtra="4sp"
+                android:text="@string/subscription_summary"
+                android:textSize="@dimen/text_size_28"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ll_page_indicator" />
+
+            <include
+                android:id="@+id/selected_pack_card"
+                layout="@layout/layout_selected_pack_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_large"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/tv_sub_landing_title"
+                app:pack="@{selectedPack}" />
+
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/group_total_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:constraint_referenced_ids="price_divider, row_to_buy_pack_price_details, row_to_total_price_details" />
+
+            <include
+                android:id="@+id/row_to_buy_pack_price_details"
+                layout="@layout/row_price"
+                android:layout_width="0dp"
+                android:layout_marginTop="@dimen/view_margin_large"
+                app:label="@{selectedPack.packName}"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/selected_pack_card" />
+
+            <include
+                android:id="@+id/row_current_pack_price_details"
+                layout="@layout/row_price"
+                android:layout_width="0dp"
+                app:hide="@{true}"
+                app:label="@{@string/current_subscription}"
+                android:layout_marginVertical="@dimen/view_margin_small"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/row_to_buy_pack_price_details" />
+
+            <View
+                android:id="@+id/price_divider"
+                android:layout_width="0dp"
+                android:layout_height="1.5dp"
+                android:layout_marginVertical="@dimen/view_margin_small"
+                android:background="@color/darkHighlight"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/row_current_pack_price_details" />
+
+            <include
+                android:id="@+id/row_to_total_price_details"
+                layout="@layout/row_price"
+                android:layout_width="0dp"
+                android:layout_marginVertical="@dimen/view_margin_small"
+                app:label="@{@string/total_payable}"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/price_divider" />
+
+
+            <TextView
+                android:id="@+id/tv_msg"
+                style="@style/TSTextDefault"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/view_margin_medium"
+                android:layout_marginTop="@dimen/view_margin_xxlarge"
+                android:layout_marginEnd="@dimen/view_margin_medium"
+                android:layout_marginBottom="@dimen/view_margin_large"
+                android:lineSpacingExtra="2sp"
+                android:gravity="center_horizontal"
+                android:textColor="@color/pink_50"
+                android:textSize="@dimen/text_size_14"
+                app:layout_constraintBottom_toTopOf="@id/btn_proceed"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/row_to_total_price_details"
+                app:layout_constraintVertical_bias="0" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/cl_recharge_barrier"
+                app:constraint_referenced_ids="selected_pack_card, row_to_total_price_details"
+                app:barrierDirection="bottom"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_recharge"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_large"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@id/btn_proceed"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/cl_recharge_barrier"
+                app:layout_constraintVertical_bias="1">
+
+                <View
+                    android:id="@+id/recharge_price_divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1.5dp"
+                    android:background="@color/darkHighlight"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/et_header"
+                    style="@style/TSTextMedium"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_large"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:textSize="@dimen/text_size_14"
+                    app:hint="@{@string/recommended_recharge}"
+                    app:layout_constraintTop_toBottomOf="@id/recharge_price_divider"
+                    app:required="@{true}" />
+
+
+                <com.tatasky.binge.customviews.CustomTextInputLayout
+                    android:id="@+id/til_recharge"
+                    android:layout_width="@dimen/margin_0"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    app:errorEnabled="true"
+                    app:hintEnabled="false"
+                    app:layout_constraintEnd_toStartOf="@id/iv_info"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/et_header">
+
+                    <com.tatasky.binge.customviews.FixedPrefixTextInputEditText
+                        android:id="@+id/et_recharge"
+                        style="@style/TSTextMedium"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/edit_layout_height"
+                        android:hint="0"
+                        android:imeOptions="actionGo"
+                        android:inputType="@{InputType.TYPE_CLASS_NUMBER}"
+                        android:maxLength="5"
+                        android:maxLines="1"
+                        android:saveEnabled="false"
+                        android:tag=" \u20B9 " />
+                </com.tatasky.binge.customviews.CustomTextInputLayout>
+
+                <ImageView
+                    android:id="@+id/iv_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/view_margin_medium"
+                    android:layout_marginBottom="@dimen/view_margin_large"
+                    android:padding="@dimen/view_margin_smallest"
+                    app:layout_constraintBottom_toBottomOf="@id/til_recharge"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/til_recharge"
+                    app:layout_constraintTop_toTopOf="@id/til_recharge"
+                    app:srcCompat="@drawable/ic_info1" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="cl_recharge" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_proceed"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/view_margin_small"
+                android:layout_marginBottom="@dimen/view_margin_small"
+                android:text='@{selectedPack.packType.equalsIgnoreCase("free") ?@string/start_watching:@string/proceed}'
+                app:layout_constraintBottom_toTopOf="@id/btn_skip"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/barrier"
+                app:layout_constraintVertical_bias="1"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_skip"
+                style="@style/Widget.AppTheme.ButtonStyle.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/view_margin_medium"
+                android:text="@string/skip_underline"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/btn_proceed"
+                app:layout_constraintVertical_bias="1" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

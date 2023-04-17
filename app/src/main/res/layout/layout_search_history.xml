@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="suggestion"
+            type="String" />
+
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.search.model.SearchViewModel" />
+    </data>
+
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_margin="2dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="@{()->vm.setClickedHistory(suggestion)}"
+        app:cardCornerRadius="55dp"
+        app:strokeColor="?android:textColorTertiary"
+        app:strokeWidth="@dimen/mtrl_textinput_box_stroke_width_focused">
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp">
+
+            <TextView
+                android:id="@+id/tvSearchKeyword"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center"
+                android:text="@{suggestion}"
+                android:textColor="?android:textColorTertiary"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/cross"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Funny Shows" />
+
+            <ImageButton
+                android:id="@+id/cross"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                app:layout_constraintStart_toEndOf="@id/tvSearchKeyword"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:background="?attr/selectableItemBackground"
+                app:srcCompat="@drawable/ic_cross_suggestion" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</layout>

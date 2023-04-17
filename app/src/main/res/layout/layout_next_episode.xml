@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="isPortrait"
+            type="Boolean" />
+
+        <import type="android.view.View"/>
+        <variable
+            name="contentItem"
+            type="com.tatasky.binge.data.networking.models.response.ContentItem" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/iv_poster"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/sample_iv_desc"
+            android:scaleType="fitXY" />
+
+        <ImageView
+            android:id="@+id/iv_poster_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:contentDescription="@string/sample_iv_desc"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toBottomOf="@id/iv_poster"
+            app:layout_constraintTop_toTopOf="@id/iv_poster"
+            app:srcCompat="@drawable/ic_overlay_next_episode" />
+
+        <TextView
+            android:id="@+id/tv_starting"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/starting_in"
+            android:textSize="@{isPortrait?@dimen/text_size_14:@dimen/text_size_16}"
+            app:layout_constraintStart_toStartOf="@id/guideLine_start"
+            app:layout_constraintTop_toTopOf="@id/guideLine_top" />
+
+        <TextView
+            android:id="@+id/tv_starting_timer"
+            style="@style/TSTextBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@{isPortrait?@dimen/text_size_14:@dimen/text_size_16}"
+            app:layout_constraintStart_toEndOf="@id/tv_starting"
+            app:layout_constraintTop_toTopOf="@id/guideLine_top" />
+
+        <TextView
+            android:id="@+id/tv_episode_info"
+            style="@style/TSTextMedium"
+            android:layout_width="@dimen/margin_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_large"
+            android:ellipsize="end"
+            android:gravity="center_vertical|start"
+            android:maxLines="1"
+            android:text="@{contentItem.title}"
+            android:textSize="@{isPortrait?@dimen/text_size_18:@dimen/text_size_24}"
+            app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+            app:layout_constraintStart_toStartOf="@id/guideLine_start"
+            app:layout_constraintTop_toBottomOf="@id/tv_starting" />
+
+        <TextView
+            android:id="@+id/vod_title"
+            style="@style/TSTextMedium"
+            android:layout_width="@dimen/margin_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_smallest"
+            android:ellipsize="end"
+            android:gravity="center_vertical|start"
+            android:maxLines="1"
+            android:text="@{contentItem.title}"
+            android:textSize="@{isPortrait?@dimen/text_size_14:@dimen/text_size_16}"
+            app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+            app:layout_constraintStart_toStartOf="@id/guideLine_start"
+            app:layout_constraintTop_toBottomOf="@id/tv_episode_info" />
+
+        <TextView
+            android:id="@+id/duration"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_small"
+            android:text="@{contentItem.episodeDuration}"
+            android:textColor="@color/pink_50"
+            android:textSize="@{isPortrait?@dimen/text_size_14:@dimen/text_size_16}"
+            app:layout_constraintStart_toStartOf="@id/guideLine_start"
+            app:layout_constraintTop_toBottomOf="@id/vod_title" />
+
+        <TextView
+            android:id="@+id/tv_description"
+            style="@style/TSText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_small"
+            android:ellipsize="end"
+            android:gravity="center_vertical|start"
+            android:lines="@{isPortrait?2:3}"
+            android:maxLines="@{isPortrait?2:3}"
+            android:text="@{contentItem.description}"
+            android:textColor="@color/pink_50"
+            android:textSize="@{isPortrait?@dimen/text_size_14:@dimen/text_size_16}"
+            app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+            app:layout_constraintStart_toStartOf="@id/guideLine_start"
+            app:layout_constraintTop_toBottomOf="@id/duration" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPlay"
+            style="@style/Widget.AppTheme.ButtonStyle.Icon"
+            android:layout_width="@dimen/margin_0"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/view_margin_small"
+            android:layout_marginTop="@dimen/view_margin_small"
+            android:paddingHorizontal="@dimen/view_margin_medium"
+            android:text="@string/play_now"
+            android:visibility="@{isPortrait ? View.GONE : View.VISIBLE, default=gone}"
+            app:icon="@drawable/ic_small_play"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideLine_start"
+            app:layout_constraintTop_toBottomOf="@id/tv_description"
+            app:layout_constraintVertical_bias="0" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideLine_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".15" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideLine_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".75" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideLine_btn_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".35" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideLine_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".15" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

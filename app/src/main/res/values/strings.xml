@@ -1,0 +1,866 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <string name="partner_id">TATASky</string>
+    <string name="app_code">TSMOBILE</string>
+    <array name="home_title">
+        <item>"Home"</item>
+        <item>"TV Stream"</item>
+        <item>"Favourites"</item>
+        <item>"My Account"</item>
+    </array>
+
+
+    <string name="default_font">fonts/VoltePlay-Regular.otf</string>
+    <string name="bold_font">fonts/VoltePlay-SemiBold.otf</string>
+    <string name="medium_font">fonts/VoltePlay-Medium.otf</string>
+    <string name="loading">Loading</string>
+
+    <string name="plus_more">+&#160;More</string>
+    <string name="minus_less">-&#160;Less</string>
+    <string name="no_content_available">No content available to watch</string>
+    <string name="no_search_result">No results found</string>
+    <string name="profile">Profile</string>
+    <string name="live">Live</string>
+    <string name="action_search">Search</string>
+    <string name="play">Play</string>
+    <string name="replay">Replay</string>
+    <string name="pack_price">₹ %s month</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="recommendation">You May Like This</string>
+    <string name="description">Description</string>
+    <string name="home">Home</string>
+    <string name="watchlist">Binge List</string>
+    <string name="favourites">Favourites</string>
+    <string name="account">Account</string>
+    <string name="more">+More</string>
+    <string name="movies">Movies</string>
+    <string name="shows">Shows</string>
+    <string name="kids">Kids</string>
+    <string name="games">Games</string>
+    <string name="sports">Sports</string>
+    <string name="others">Categories</string>
+    <string name="network_error_message">Make sure that your Wifi or mobile data is turned on and try again.</string>
+    <string name="login">Login</string>
+    <string name="signup">Sign Up</string>
+    <string name="update_details">Update Your Details</string>
+    <string name="register_login_title">Register &amp; Enjoy all benefits</string>
+    <string name="mobile_title">Mobile Number</string>
+    <string name="enter_mobile_text">Enter Your Registered Mobile Number</string>
+    <string name="enter_sid_text">Enter Your Tata Play Subscriber ID</string>
+    <string name="or">OR</string>
+    <string name="enter_email_text">Enter Your Email Address</string>
+    <string name="name">Name</string>
+    <string name="update_email">Update your Email ID</string>
+    <string name="confirm_email">Confirm your Email ID</string>
+    <string name="write_to_us">Write To Us</string>
+    <string name="mobile">Mobile</string>
+    <string name="registered_mobile_number">Registered Mobile Number</string>
+    <string name="enter_new_password_optional">Create Password (Optional)</string>
+    <string name="enter_new_password">New Password</string>
+    <string name="enter_password">Enter your Tata Play Password</string>
+    <string name="enter_6_otp">Enter the 6-digit OTP</string>
+    <string name="enter_4_otp">Enter the 4-digit OTP</string>
+    <string name="verify_new_password">Confirm Password</string>
+    <string name="get_otp">Get OTP</string>
+    <string name="validate">Validate</string>
+    <string name="temp_password">Enter Temporary Password</string>
+    <string name="otp_text">The OTP is sent to +91 %s</string>
+    <string name="episodes">Episodes</string>
+    <string name="empty_arrow">"    "</string>
+    <string name="view_all">See all</string>
+    <string name="select_languages">Select Languages</string>
+    <string name="resend_code">
+        <u>Resend OTP</u>
+    </string>
+    <string name="more_info">
+        <u>More Info</u>
+    </string>
+    <string name="cancel">Cancel</string>
+    <string name="already_customer">Already a Customer?</string>
+    <string name="app_price">₹ %s/month</string>
+    <string name="label_or">OR</string>
+    <string name="label_back">Dismiss</string>
+    <string name="label_your_tata_sky_binge_subscription_has_expired">Error may have occurred
+        because
+    </string>
+    <string name="error_device_limit">Maximum device limit reached! \n \n You have reached the
+        maximum device limit from your account to access the content. Please remove one of your
+        devices from device management in settings from your mobile device and try again.
+    </string>
+    <string name="error_network_unavailable">Oops! An error has occurred on our server. Please check
+        internet connection and try to playback again!
+    </string>
+    <string name="error_generic">Something went wrong. Unable to play the content.</string>
+    <string name="error_session_expire">Please subscribe to enjoy content on Tata Play Binge. Please
+        contact Tata Play Helpline number 1860 120 6633, 1860 208 6633, 1860 500 6633 to know more on
+        the package(Telecom rates as applicable.)
+    </string>
+    <string name="error_not_subscribe">Please subscribe to enjoy content on Tata Play Binge. Please
+        contact Tata Play Helpline number 1860 120 6633, 1860 208 6633, 1860 500 6633 to know more on
+        the package(Telecom rates as applicable.)
+    </string>
+    <string name="error_400">Oops! An error has occurred. Please check your internet connection and
+        try to play the content again! If the problem persists, please reboot Tata Play Binge.
+    </string>
+    <string name="sign_up_link">
+        <u>Not on Tata Play? Get Now</u>
+    </string>
+    <string name="login_link">
+        <u>Login</u>
+    </string>
+    <string name="forgot_password">
+        <u>Forgot Password?</u>
+    </string>
+    <string name="next">Next</string>
+    <string name="not_on_tatasky_binge">Not on Tata Play Binge?</string>
+    <string name="mobile_hint">0123 456789</string>
+    <string name="subid_hint">Subscriber Id</string>
+    <string name="otp_hint">Enter OTP</string>
+    <string name="password_hint">Password</string>
+    <string name="new_password_hint">New Password*</string>
+    <string name="verify_password_hint">Confirm Password*</string>
+    <string name="name_hint">Enter your name here</string>
+    <string name="enter_name_here">Enter Name Here</string>
+    <string name="enter_email_id">Enter Email ID</string>
+    <string name="email_hint">Enter your email ID here</string>
+    <string name="already_subscriber_part1">I am already a \u0020</string>
+    <string name="already_subscriber_part2">Tata Play Subscriber</string>
+    <string name="already_subscriber_part3">, and I want to link my
+        Accounts
+    </string>
+    <string name="terms_n_condition_part1">By proceeding, you accept the\u0020</string>
+    <string name="terms_n_condition_part2">Terms and Conditions</string>
+    <string name="already_subscribed">Already Subscribed</string>
+    <string name="update">Update</string>
+    <string name="install_now">Update Now</string>
+    <string name="enter_verification_code">Enter \n Verification Code</string>
+    <string name="password_recovery_subtitle">&amp; Create a New Tata Play Binge Password</string>
+
+    <string name="error_phone_number">Please enter a valid number</string>
+    <string name="error_name">Please enter your full name</string>
+    <string name="error_email">Please enter a valid Email ID</string>
+    <string name="error_first_name">Subscriber Name cannot be left Null or Empty.</string>
+    <string name="error_password">The Password entered is incorrect. Please try again.</string>
+    <string name="error_current_password">Invalid, your current password is incorrect.</string>
+    <string name="error_verify_password">The retyped password does not match.</string>
+    <string name="emailId">Email ID</string>
+    <string name="sent_to">sent to %s</string>
+    <string name="partner_btn_text">Add %s to My Subscription</string>
+
+    <string name="otp_expiration_msg">Code will expire in %s</string>
+    <string name="incorrect_otp">Incorrect OTP</string>
+    <string name="sample_iv_desc">ImageView Desc</string>
+    <string name="password">Password</string>
+    <string name="otp">OTP</string>
+    <string name="password_update_success">Password Has\nBeen Updated</string>
+    <string name="signup_success">Sign Up Successful</string>
+    <string name="start_watching">Start Watching</string>
+    <string name="error_6_valid_otp">Please enter a 6-digit OTP.</string>
+    <string name="error_4_valid_otp">Please enter a 4-digit OTP.</string>
+
+    <string name="otp_resend_expire_msg">Resend OTP in %s seconds</string>
+    <string name="audio">Audio: \u0020</string>
+    <string name="title_audio">Audio</string>
+    <string name="title_subtitle">Subtitle</string>
+    <string name="starring">Starring: \u0020</string>
+    <string name="director">Director: \u0020</string>
+    <string name="producer">Producer: \u0020</string>
+    <string name="genre">Genre: \u0020</string>
+    <string name="subtitle">Subtitles: \u0020</string>
+    <string name="view_seasons">View Seasons</string>
+    <string name="load_more">Load More</string>
+    <string name="new_version_available">New Version Available</string>
+    <string name="force_upgrade_message">A newer version %s of app is available for download.\nPlease update the app.
+    </string>
+    <string name="recommended_upgrade_message">A newer version %s of app is available for download.\nDo you want to
+        update?
+    </string>
+    <string name="label_exit">Exit</string>
+    <string name="continue_">Continue</string>
+
+    <string name="auto_play_trailers">Autoplay Trailers</string>
+    <string name="signout">
+        <u>Log Out</u>
+    </string>
+
+    <!--Search-->
+    <string name="search_hint">Search for a TV Show or Movie..</string>
+    <string name="recent_search">Recent Search</string>
+    <string name="clear_all">Clear All</string>
+    <string name="show_filter">Show Filter</string>
+    <string name="hide_filter">Hide Filter</string>
+    <string name="filter">Filter</string>
+    <string name="hide">
+        <u>Hide</u>
+    </string>
+    <string name="search_result_found">%1$s results found</string>
+    <string name="browse_genre">Browse by Genre</string>
+    <string name="browse_language">Browse by Language</string>
+    <string name="trending">Trending</string>
+    <string name="watch_trailer">View Trailer</string>
+    <string name="validate_tnc"><![CDATA[Please accept Terms & condition!]]></string>
+    <string name="otp_created">OTP generated successfully</string>
+
+    <string name="notification_settings">Notification Settings</string>
+    <string name="faq">FAQs</string>
+    <string name="chat">Chat With Us</string>
+    <string name="feedback">Feedback</string>
+    <string name="callback_requested">Callback Requested</string>
+    <string name="contact_us_message">For any further support, you can reach out to us at help@tataplay.com</string>
+    <string name="contact_us">Contact Us</string>
+    <string name="allow_transactional_notification">Allow Transactional Notifications</string>
+    <string name="allow_watch_notification">Allow Notifications</string>
+    <string name="allow_my_offers_notification">Allow My Offers Notifications</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_n_condition">Terms &amp; Conditions</string>
+    <string name="license_agreement">License Agreement</string>
+    <string name="receive_updates">Receive Updates</string>
+    <string name="receive_updates_message">Stay updated with our latest offers, updates and Customer surveys</string>
+    <string name="tata_sky_binge_updates">Tata Play Binge Updates</string>
+    <string name="tata_sky_binge_offers">Tata Play Binge Offers</string>
+    <string name="tata_sky_binge_surveys">Tata Play Binge Survey</string>
+    <string name="binge_anywhere">Binge Anywhere</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="logout_confirmation">You will miss out on the latest content from your favourite apps.</string>
+    <string name="version_info">Version %s</string>
+    <string name="communication_sent_to_message">All communications are sent to %s</string>
+    <string name="resend_count_limit_reached">You have exceeded the number of attempts for generating OTP.</string>
+    <string name="privacy_policy_heading">Tata Play Binge Privacy Policy</string>
+    <string name="subscribe_now_message">Subscribe Now to \n Tata Play Binge</string>
+    <string name="free_trial_title">Start Your Free Trial</string>
+    <string name="start_free_trial">Start Now</string>
+    <string name="free_trial_expiry_message">Free Trial will expire on 06/03/2020</string>
+    <string name="select_provider_message">Select channels of your choice and \n start watching your favourite Movies \n
+        and TV Shows today
+    </string>
+    <string name="subscribe_now">Subscribe Now</string>
+    <string name="skip_underline">
+        <u>Skip</u>
+    </string>
+    <string name="skip">Skip</string>
+    <string name="select">Select</string>
+
+    <string name="proceed">Proceed</string>
+    <string name="change">Change</string>
+    <string name="to_pay_now">To Pay Now</string>
+    <string name="confirm_pack_selection">Confirm Your Selection</string>
+    <string name="payment_success">Payment Successful</string>
+    <string name="payment_unsuccessful">Payment Unsuccessful</string>
+    <string name="payment_failure">Payment failed</string>
+    <string name="request_success">Request Successful</string>
+    <string name="confirm">Confirm</string>
+    <string name="edit_app_selection">
+        <u>Or edit your selection</u>
+    </string>
+    <string name="selected_apps_title">Selected Apps</string>
+    <string name="additional_apps_title">Additional apps at no extra cost</string>
+    <string name="other_apps_title">Other Apps</string>
+    <string name="go_to_homepage">Go To Homepage</string>
+    <string name="subscribed">Subscribed</string>
+    <string name="unsubscribed">Not Subscribed</string>
+
+    <!--My Account-->
+    <string name="id_mobile_no">ID: %1$s \u0020| \u0020Mob: +91 %2$s</string>
+    <string name="recharge_due">Recharge due on %1$s</string>
+    <string name="recharge">Recharge</string>
+    <string name="add_alias_hint">Add Alias</string>
+    <string name="my_subscription">My Subscription</string>
+    <string name="my_plan">My Plan</string>
+    <string name="notification">Notifications</string>
+    <string name="transaction_history">Transaction History</string>
+    <string name="my_offers">My Offers</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="device_management">Manage Devices</string>
+    <string name="link_tatasky">Link My Tata Play Accounts</string>
+    <string name="last_name">Last Name</string>
+    <string name="first_name">First Name</string>
+    <string name="update_password">Update Password</string>
+    <string name="rupees">₹ <b>%1$s</b></string>
+    <string name="rupees_non_bold">₹%1$s</string>
+    <string name="subscriber_id_template">Subscriber ID: %s</string>
+    <string name="negative_rupees">-₹ <b>%1$s</b></string>
+    <string name="rupees_cyclic">₹<b>%1$s</b>/%2$s</string>
+    <string name="rupee_symbol">₹ </string>
+    <string name="amount_with_rupee">₹%1$s</string>
+    <string name="monthly_rupees_template">\u20B9
+        <b>%1$s</b> \n monthly
+    </string>
+    <string name="cyclic_rupees_template">\u20B9 <b>%1$s</b>\n%2$s
+    </string>
+    <string name="no_of_apps_template"><b>%1$s</b> Apps
+    </string>
+    <string name="mobile_no">Mobile: +91 %1$s</string>
+
+    <!--Update Password-->
+    <string name="create_password">Create a New Password</string>
+    <string name="current_password">Current Password</string>
+    <string name="new_password">New Password</string>
+    <string name="enter_verify_new_password">Verify New Password</string>
+    <string name="hint_current_password">Password*</string>
+    <string name="hint_new_password">New Password*</string>
+    <string name="hint_enter_verify_new_password">Verify Password*</string>
+    <string name="send_otp_code">Send OTP Code</string>
+    <string name="enter_valid_password">Enter a valid password</string>
+    <string name="enter_valid_verify_password">Verify password is not valid.</string>
+    <string name="otp_sent_to">Enter the OTP Sent to \n %1$s</string>
+    <string name="authenticate">Authenticate</string>
+    <string name="back_to_account">Back to Accounts</string>
+    <string name="password_update_alert">Password Has \nBeen Updated</string>
+    <string name="profile_pic_alert">Choose Profile Picture</string>
+    <string name="camera">Camera</string>
+    <string name="capture_new">Capture New</string>
+    <string name="from_gallery">From Gallery</string>
+    <string name="permission_denied">Unfortunately You have Denied Permission to Perform this Operation.</string>
+    <string name="cancel_underline">
+        <u>Cancel</u>
+    </string>
+    <string name="update_profile">Confirm</string>
+    <string name="you_save">You Save</string>
+
+    <string name="login_devices">Logged - in Devices</string>
+    <string name="login_devices_msg">You can log into a maximum of 4 devices at a time.</string>
+    <string name="review_devices_msg">You can remove or logout from one of the devices below</string>
+    <string name="this_device">This Device</string>
+    <string name="remove_device_msg">Sure you want to remove %s?</string>
+    <string name="remove_device">Yes, Remove Device</string>
+    <string name="primary_device">TV Device</string>
+    <string name="primary_device_description">This primary device cannot be removed</string>
+    <string name="m_out_3">%s out of 3</string>
+    <string name="m_out_4">%s out of 4</string>
+    <string name="remove_device_msg_without_login">Sure you want to remove %s?</string>
+    <string name="logout_device">Yes, Log out</string>
+    <string name="m_out_n">%s out of %s</string>
+    <string name="m_out_n_primary">%s out of 1</string>
+    <string name="device_limit_exceeded">Device Limit Exceeded</string>
+    <string name="device_limit_exceeded_description">Your account has exceeded the device limit. To continue watching, please remove a device from your account.</string>
+    <string name="review_devices">Review Devices</string>
+
+    <!--Transaction History-->
+
+    <string name="tran_history_sub_id">Sub ID: %1$s</string>
+    <string name="tran_history_date_time">%1$s \u0020| \u0020 %2$s</string>
+    <string name="tran_history_balance">₹ %s</string>
+    <string name="tran_empty">No transactions found</string>
+    <string name="tran_history_id">ID %s</string>
+
+    <!--Link Accounts-->
+    <string name="link_tatasky_label">Link Tata Play Accounts</string>
+    <string name="enter_mobile_string">Enter Mobile Number \nor Subscriber Id</string>
+    <string name="enter_details_string">Enter details of Tata Play DTH account to \nwhich you want to link to your Tata
+        Play \nBinge Subscription
+    </string>
+    <string name="link_tata_sky_string">Linking your Tata Play Binge Account to your Tata Play DTH account would allow you to recharge for both subscription in a single transaction
+    </string>
+    <string name="mobile_no_sub_id">Enter Mobile Number or Subscriber ID</string>
+    <string name="send_otp">Send OTP</string>
+    <string name="otp_sent">Enter OTP sent \n to +91 %1$s</string>
+    <string name="link_accounts">Link Accounts</string>
+    <string name="link_successfully">Linked Successfully</string>
+    <string name="link_successfully_string">Your Tata Play DTH with Subscriber ID \n65446 has been successfully linked to
+        your
+        \nTata Play Binge Account
+    </string>
+    <string name="resend_otp">Resend OTP</string>
+    <string name="watchlist_empty">Your Binge List is empty!</string>
+    <string name="watchlist_empty_msg">Browse and save exciting movies &amp; TV shows to your list</string>
+    <string name="watchlist_empty_btn_text">Discover to Add</string>
+    <string name="bingelist_tool_tv_cancel">Cancel</string>
+    <string name="remove_with_number">Remove (%1$d)</string>
+
+    <!--Notifications-->
+
+    <string name="watch">Watch</string>
+    <string name="transaction">Transactions</string>
+    <string name="edit">Edit</string>
+    <string name="clear">Clear</string>
+    <string name="close">Close</string>
+    <string name="remove">Remove</string>
+    <string name="select_all">Select All</string>
+    <string name="mark_read">Mark all as read</string>
+    <string name="view_notification">View notification setting</string>
+    <string name="other_device">Mobile Devices</string>
+    <string name="switch_account">Switch Account</string>
+    <string name="id_append">ID: %1$s \u0020</string>
+    <string name="under_development">Under development</string>
+    <string name="remove_data_empty">There is no data to remove.</string>
+    <string name="select_data_empty">There is no data to select.</string>
+    <string name="read_data_empty">There is no data to read.</string>
+    <string name="already_read_marked">Already marked as read.</string>
+    <string name="notification_empty">No new notifications</string>
+
+    <string name="subscription_summary">Subscription Summary</string>
+    <string name="current_subscription">Current Subscription</string>
+    <string name="recent">Recent</string>
+    <string name="earlier">Earlier</string>
+    <string name="empty_mobile_validation">Mobile Number can not be blank.</string>
+    <string name="validate_rmn">Not a valid Mobile Number</string>
+    <string name="invalid_rmn">Please enter a valid mobile number.</string>
+    <string name="unselect_all">Deselect All</string>
+    <string name="free_apps_header"><i>Apps available for 7-day free trial</i></string>
+    <string name="paid_apps_header"><i>Apps not part of free trial</i></string>
+
+    <string name="title_multiple_id">You have multiple Subscriber IDs linked to your Registered Mobile Number. Please select one and proceed.</string>
+    <string name="title_multiple_bmid">Your Tata Play Binge subscriptions</string>
+    <string name="select_one_bmid">Please select one and proceed.</string>
+    <string name="select_id">Select Subscriber ID</string>
+    <string name="separator"> | \u0020</string>
+    <string name="action_not_allowed">Action not allowed.</string>
+    <string name="title_multiple_bs">You have multiple Binge Subscriptions under:</string>
+    <string name="select_one_bs">Select the one you want to use</string>
+    <string name="switch_account_success_msg">Now using %s</string>
+
+    <string name="ok">Ok</string>
+    <string name="okay">Ok</string><!--changed because of Abhinav confirmation-->
+    <string name="go_back">Go Back</string>
+    <string name="retry">Retry</string>
+    <string name="aca_failed">Sorry you can\'t use this app on this device.</string>
+    <string name="directors">Directors: \u0020</string>
+    <string name="producers">Producers: \u0020</string>
+    <string name="genres">Genres: \u0020</string>
+    <string name="audio_setting"><![CDATA[Audio & Subtitles]]></string>
+    <string name="video_qaultiy">Video Quality</string>
+    <string name="play_next">Play Next</string>
+    <string name="play_now">Play Now</string>
+    <string name="add_to_wishlist">Add To Binge List</string>
+    <string name="alias_error">Enter alias name.</string>
+    <string name="transactional_notification_channel">Transactional Notification</string>
+    <string name="watch_notification_channel">Watch Notification</string>
+    <string name="offers_notification_channel">Offers Notification</string>
+    <string name="alias_updated">Alias name updated successfully.</string>
+    <string name="resume">Resume</string>
+    <string name="pause">Pause</string>
+    <string name="starting_in">Starting in \u0020</string>
+    <string name="seconds_timer">%s\u0020 Seconds</string>
+    <string name="force_logout_message">You have been logged out of this device. Please log in again.</string>
+    <string name="high_notification">99+</string>
+
+    //Voice Search
+    <string name="didnt_hear_anything">Didn\'t hear what you said</string>
+    <string name="listening">Listening...</string>
+    <string name="tap_on_mic">Tap the microphone to try again</string>
+    <string name="google">Google</string>
+    <string name="try_saying_text">Try saying\n\n“Avengers”\n“Comedy Movies”\n“Marathi”</string>
+    <string name="network_title">No Internet Connection</string>
+    <string name="network_settings">Network Settings</string>
+    <string name="tata_sky_binge">Tata Play Binge</string>
+    <string name="mobile_template">+91 %1$s</string>
+    <string name="expire_lbl">Expires: \u0020</string>
+    <string name="expired_content_msg">This content has expired, and is no longer available on this device.</string>
+    <string name="remove_profile_pic">Remove Profile Picture</string>
+    <string name="msg_voice_permission">Permission was denied. Please open settings of your phone and allow Microphone permission to use this feature</string>
+    <string name="msg_sonyliv_permission">Permission was denied. Please open settings of your phone and allow Phone permission to play this content</string>
+    <string name="msg_state_permission">Permission was denied. Please open settings of your phone and allow Phone permission to use this feature</string>
+    <string name="open_setting_btn">Open Settings</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="other_episodes">Episodes</string>
+    <string name="total_payable">Total payable</string>
+    <string name="payable_amount">Payable amount</string>
+    <string name="free_trial_expiry_msg">You will be charged ₹ %1$s per month for Tata Play Binge after the free trial.</string>
+    <string name="free_trial_downgrade_error_msg">You will continue the free trial on the %1$s plan. Modification request will be effective after free trial.</string>
+    <string name="sufficient_wallet_balance_summary">Amount will be deducted from your Tata Play Balance</string>
+    <string name="sufficient_wallet_balance">Subscription amount will be deducted from your Tata Play balance every 30 days</string>
+    <string name="subscribe_app_message">You have no subscription, currently select one to enjoy your favorite Movies and TV Shows</string>
+    <string name="use_ts_wallet_balance">Use my Tata Play balance</string>
+    <string name="revoke_cancellation"><u>Withdraw Cancellation</u></string>
+    <string name="modify_subscription"><u>Modify</u></string>
+    <string name="cancel_subscription">Cancel Plan</string>
+    <string name="cancel_free_subscription"><u>Cancel Free Trial</u></string>
+    <string name="select_subscription">Select Subscription</string>
+    <string name="choose_subscription">Choose a plan</string>
+    <string name="non_free_trial_msg">Select a plan of your favourite premium apps and start watching</string>
+    <string name="free_trial_msg">Enjoy 7 days free trial of your favourite premium apps</string>
+    <string name="recommended_recharge">Recommended Recharge Amount</string>
+
+    <string name="dth_id_append">Tata Play Balance for Sub. ID: %1$s \u0020</string>
+    <string name="expire_on">Expires on %1$s</string>
+    <string name="ends_on">Ends on %1$s</string>
+    <string name="expired_on">Expired on %1$s</string>
+    <string name="upgrade_subscription">Upgrade Plan</string>
+    <string name="upgrade">Upgrade</string>
+    <string name="upgrade_subscription_message">To watch this %s, upgrade your plan</string>
+    <string name="select_subscription_message">You are not subscribed to Tata Play Binge.</string>
+    <string name="subscribe_to_get_this_App">Get Now</string>
+    <string name="subscription_payment_success_msg">Proceed to enjoy your favourite Movies and TV Shows on Tata Play Binge</string>
+    <string name="free_trial_expiry_date">Free Trial ends on %1$s</string>
+    <string name="date_range">%1$s - %2$s</string>
+    <string name="billing_period">Billing Period - %1$s</string>
+    <string name="prorata_info">You are being charged ₹%1$d on prorata basis. After %2$s you will be charged ₹%3$d. This amount will be deducted from your Tata Play balance account every 30 days.</string>
+    <string name="upgrade_payment_info">From next month you will be charged ₹ %1$s.This amount will be deducted from your Tata Play balance account every 30 days.</string>
+
+    <string name="deeplink_sports">https://%1$s/sports</string>
+    <string name="deeplink_notification">https://%1$s/notification</string>
+    <string name="deeplink_login">https://%1$s/login</string>
+    <string name="deeplink_settings">https://%1$s/setting</string>
+    <string name="deeplink_edit_profile">https://%1$s/profile</string>
+    <string name="deeplink_device_management">https://%1$s/device-management</string>
+    <string name="deeplink_transaction_history">https://%1$s/transaction-history</string>
+    <string name="deeplink_content_language">https://%1$s/content-language</string>
+    <string name="deeplink_parental_control">https://%1$s/parental-control</string>
+    <string name="deeplink_switch_account">https://%1$s/switchaccount</string>
+    <string name="deeplink_home">https://%1$s/home</string>
+    <string name="deeplink_movies">https://%1$s/movies</string>
+    <string name="deeplink_shows">https://%1$s/shows</string>
+    <string name="deeplink_kids">https://%1$s/kids</string>
+    <string name="deeplink_games">https://%1$s/games</string>
+    <string name="deeplink_categories">https://%1$s/categories</string>
+    <string name="deeplink_watchlist">https://%1$s/bingelist</string>
+    <string name="deeplink_search">https://%1$s/search</string>
+    <string name="deeplink_account">https://%1$s/account</string>
+    <string name="deeplink_subscription">https://%1$s/my-subscription?action=%2$s&amp;packName=%3$s</string>
+    <string name="deeplink_subscription_generic_placeholder">https://%1$s/my-subscription</string>
+    <string name="deeplink_recharge">https://%1$s/recharge</string>
+    <string name="deeplink_detail">https://%1$s/detail/%2$s/%3$s/%4$s</string>
+    <string name="deeplink_faq">https://%1$s/faq</string>
+    <string name="deeplink_more">https://%1$s/more</string>
+    <string name="deeplink_homepage">https://%1$s/home-page/%2$s</string>
+    <string name="deeplink_prime">https://%1$s/prime</string>
+    <string name="deeplink_see_all">https://%1$s/see-all/%2$d?title=%3$s&amp;sectionType=%4$s&amp;placeHolder=%5$s</string>
+    <string name="deeplink_app_page">https://%1$s/partner/%3$s/%4$s?pageType=%2$s</string>
+    <string name="deeplink_app_see_all">https://%1$s/app-see-all/%2$d?title=%3$s</string>
+    <string name="deeplink_detail_for_onelink">https://%1$s/detail/%2$s</string>
+    <string name="deeplink_language_genre_for_onelink">https://%1$s/language-genre/%2$s</string>
+    <string name="deeplink_app_page_for_onelink">https://%1$s/partner/%2$s</string>
+    <string name="deeplink_see_all_for_onelink">https://%1$s/see-all/%2$s</string>
+    <string name="deeplink_app_see_all_for_onelink">https://%1$s/app-see-all/%2$s</string>
+    <string name="prime_subscribed_from_tata_play">You are subscribed to Prime via Tata Play</string>
+    <string name="pack_expiry_message_on_player">Your subscription has been expired. Please renew your subscription to continue watching your favorite TV Shows and Movies.</string>
+    <string name="recommended_breakdown_title">The amount displayed is the recommended monthly subscription to keep your Tata Play Account active</string>
+    <string name="dth">DTH</string>
+    <string name="cancellation_title">Are you sure you want to cancel your subscription?</string>
+    <string name="cancellation_binge_and_prime_msg">If you cancel your Binge, Amazon Prime Video will also be canceled.</string>
+    <string name="resume_subscription_title">Are you sure you want to resume your current subscription?</string>
+    <string name="cancellation_selection_title">Select the subscription you would like to cancel</string>
+    <string name="cancellation_success_template">Your %1$s subscription will be canceled on %2$s</string>
+    <string name="free_trial_cancellation_success_template">Your free trial of %1$s is canceled</string>
+    <string name="recharge_error_min">Please recharge with a minimum of ₹ %1$d</string>
+    <string name="recharge_error_max">Recharge with a maximum of ₹ %1$d</string>
+    <string name="recharge_msg">Recharge to activate your Tata Play Binge subscription.</string>
+    <string name="no_subscription_msg">You are not subscribed to Tata Play Binge. Choose a plan and start your subscription to enjoy your favourite movies &amp; TV shows.</string>
+    <string name="no_subscription">No Subscription</string>
+    <string name="revoke_success_title">Thank you for continuing the subscription</string>
+    <string name="revoke_success_msg">Start enjoying your favourite Movies and TV Shows</string>
+    <string name="binge_active">Binge Active</string>
+    <string name="binge_deactive">Binge Inactive</string>
+    <string name="deactive">Inactive</string>
+    <string name="recharge_binge_deactive">Your Tata Play Binge Subscription is inactive due to insufficient balance. Recharge to activate your subscription.</string>
+    // maybe revert
+    <string name="recharge_dth_binge_deactive">Your Tata Play account is inactive. Please Recharge to continue.</string>
+    <string name="recharge_dth_deactive">Your Tata Play account is inactive. Please Recharge to continue.</string>
+    <string name="recharge_binge">Recharge Binge</string>
+    <string name="i_am_intrested">Avail Now</string>
+    <string name="firestick_offer_messsage">+ 3 months of Amazon Prime Video at  no extra cost</string>
+    <string name="firestick_offer_title">You are eligible for a Amazon Fire TV Stick at no extra cost.</string>
+    <string name="firestick_promo_text">Upgrade to Premium and get Amazon Fire TV Stick – Tata Play Edition at no extra cost</string>
+    <string name="prime_promo_text">+ 3 months of Amazon Prime Video at no extra cost.</string>
+    <string name="get_firestick">Get Amazon Fire TV Stick – Tata Play Edition</string>
+    <string name="subscription_change">Subscription Change</string>
+    <string name="firestick_recovery_message">Your Amazon Fire TV Stick will be collected back and you cannot access the subscription on TV.</string>
+    <string name="firestick_recovery_title">No access on TV</string>
+    <string name="status_code_error_template">Error code %1$d</string>
+    <string name="added_to_watchlist">Added to Binge List</string>
+    <string name="add_to_watchlist">My Binge List</string>
+    <string name="remove_from_watchlist">Removed From Binge List</string>
+    <string name="message_inactive_dth_account">Please recharge to access Tata Play Binge.</string>
+    <string name="message_inactive_dth_account_active_binge">Your Tata Play account is inactive. Please recharge to ensure you can access Tata Play Binge after %1$s.</string>
+    <string name="message_temp_suspension_dth_account">Please call Customer Care on 1800 208 6633 and resume services to access Tata Play Binge.</string>
+    <string name="message_temp_suspension_dth_account_active_binge">Your Tata Play account is temporarily suspended. Please call Customer Care on 1800 208 6633 and resume services to access Tata Play Binge after %1$s.</string>
+    <string name="message_partial_dunned_dth_account">Please recharge to access Tata Play Binge.</string>
+    <string name="message_partial_dunned_dth_account_active_binge">Please recharge to ensure you can access Tata Play Binge after %1$s.</string>
+    <string name="message_inactive_binge">Your Tata Play Binge Subscription is inactive due to insufficient balance.</string>
+    <string name="dth_inactive">DTH Inactive</string>
+    <string name="dth_temporary_suspended">Temporarily Suspended</string>
+    <string name="account_status">Account Status</string>
+    <string name="account_inactive">Account Inactive</string>
+    <string name="account_suspended">Account Suspended</string>
+
+    <string name="installation_method">Installation Method</string>
+    <string name="installation_description">You can either do it yourself or we can send our\n installer to your address</string>
+    <string name="address">Address</string>
+    <string name="add_info">*If the address is incorrect then please reach out to our \nrepresentatives on 1800&#160;208&#160;6633.</string>
+    <string name="landmark_instructions">Landmark / Instructions ( Optional )</string>
+    <string name="not_now"><u>Not now</u></string>
+    <string name="confirm_your_address">Confirm Your Address</string>
+    <string name="fs_address_desc">Thank you for showing interest on Amazon firetv stick. Please confirm the following details to arrange for a firestick delivery</string>
+    <string name="diy_text">Do It Yourself</string>
+    <string name="diy_text_desc">Installation guide for self-installation would be provided. Recommended for contactless installation.</string>
+    <string name="installer_req">Installer Required</string>
+    <string name="installer_req_desc">Our agent with visit your address and do the installation for you. Recommended for people not comfortable with self installation.</string>
+    <string name="date_hint">DD / MM / YYYY</string>
+    <string name="date_template">%1$02d / %2$02d / %3$d</string>
+    <string name="date">Date</string>
+    <string name="time_slot_hint">Please select a time slot</string>
+    <string name="time_slot">Time</string>
+    <string name="installation_schedule">Schedule Installation</string>
+    <string name="installation_schedule_diy">Schedule Delivery</string>
+    <string name="installation_schedule_subtitle">Select a suitable Date and Time for installation.</string>
+    <string name="installation_schedule_subtitle_diy">Select a suitable Date and Time to \ndeliver the device.</string>
+    <string name="fs_installer_required">Thank you for showing interest on Fire TV Stick. \nPlease confirm the details to arrange for delivery.</string>
+    <string name="thank_you">Thank You </string>
+    <string name="installation_scheduled">Installation Scheduled</string>
+    <string name="start_watching_now">Start Watching</string>
+    <string name="re_schedule_installation">Re-schedule Installation</string>
+    <string name="details_sent_via_sms">Details will be sent via SMS to your Registered Mobile Number.</string>
+    <string name="details_diy_option">Your fire tv stick will be delivered to your address on</string>
+    <string name="later">Later</string>
+    <string name="later_underline"><u>Later</u></string>
+    <string name="invalid_amount">Invalid Amount</string>
+    <string name="fs_availed_msg">This plan is linked to your Amazon Fire TV Stick - Tata Play Edition.</string>
+    <string name="atv_availed_msg">This plan is linked to your Tata Play Binge+.</string>
+    <string name="fs_eligible">You are eligible for Amazon Fire TV Stick - Tata Play Edition at no extra cost.</string>
+    <string name="fs_eligible_not_availed">Eligible for an Amazon Fire TV Stick - Tata Play Edition.</string>
+    <string name="fs_taken_back_msg">Your Amazon Fire TV Stick – Tata Play Edition will be collected back after your Binge subscription ends</string>
+    <string name="dunning_message_default">Your Binge subscription is going to expire soon. Would you like to recharge now?</string>
+    <string name="attention">Attention</string>
+    <string name="select_higher_plan">Select Higher Plan</string>
+    <string name="select_higher_plan_msg">Select a higher plan and get Free Amazon FireTv Stick and 3 months of Amazon Prime Video at no extra cost</string>
+    <string name="low_wallet_balance_msg">Your wallet balance is low. Kindly recharge to continue</string>
+    <string name="low_balance">Low Balance</string>
+    <string name="days">days</string>
+    <string name="nudge_day">day</string>
+
+    <string name="minute">"%dm"</string>
+    <string name="day">"%dd"</string>
+    <string name="hour">"%dhr"</string>
+    <string name="ok_recom_rec_dialog">Ok</string>
+    <string name="do_you_wish_proceed">Do you wish to proceed?</string>
+    <string name="device_removed">Device Removed</string>
+    <string name="fs_delivery_msg">Details will be sent via SMS to your Registered Mobile Number.</string>
+    <string name="create_new_password">Create New Password</string>
+    <string name="enter_verification">Enter Verification Code</string>
+    <string name="forget_otp_text">Enter the Code Sent to + %s</string>
+    <string name="whatsapp">WhatsApp</string>
+    <string name="share">Share</string>
+    <string name="know_more"><u>Know More</u></string>
+    <string name="close_underline"><u>Close</u></string>
+
+    <string name="subscription_inactive">Subscription Inactive</string>
+    <string name="deviceStatusLogoutDialogTitle">Subscription Cancelled</string>
+    <string name="deviceStatusLogoutDialogText">Please relogin and subscribe to Tata Play Binge</string>
+    <string name="atvContentPlaybackDialogText">Your Tata Play Binge subscription on Binge+ box is inactive. To reactivate &amp; get access on mobile, call Customer Care on 1800 208 6633.</string>
+    <string name="dthContentPlaybackDialogText">Your Tata Play account is Inactive. Please recharge to continue.</string>
+    <string name="ftvContentPlaybackDialogText">Please activate your Tata Play Binge subscription to continue.</string>
+    <string name="atvDropped">Binge Dropped</string>
+
+    <string name="invalid_sid">Please enter a valid Subscriber ID.</string>
+    <string name="hotstar_body_installed">Please ensure you are logged in with your Tata Play Registered Mobile Number \"%1$s\"</string>
+    <string name="hotstar_head_installed">You will be redirected to Disney+ Hotstar</string>
+    <string name="hotstar_head_not_installed">Install Disney+ Hotstar</string>
+    <string name="hotstar_body_not_installed">Please ensure that you log in with your Tata Play Registered Mobile Number \"%1$s\"</string>
+    <string name="install">Install</string>
+    <string name="no_browser">No Suitable browser found to play this content</string>
+    <string name="your_tatasky_subscriptions">Your Tata Play Subscriptions</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="forget_pass_subheading">Please enter 4-digit OTP sent to your Registered Mobile Number and create a new password.</string>
+    <string name="concurrency_error">You have exceeded the limit of screens on which you can watch this video. Please stop playback on one of the other devices to watch here.</string>
+    <string name="geo_blocking_error_message">Something went wrong. Unable to play content.</string>
+    <string name="casting_not_allowed">Please switch off casting to watch content in the app</string>
+    <string name="pubnub_history_url">https://ps.pndsn.com/v2/history/sub-key/%1$s/channel/%2$s?count=1</string>
+    <string name="alert">Alert</string>
+    <string name="recommended_recharge_msg">The amount displayed is the recommended monthly subscription to keep your Tata Play Account active</string>
+    <string name="ftv_upsell_header">Get Amazon Fire TV Stick – Tata Play Edition at no extra cost.</string>
+    <string name="ftv_upsell_description">+ 3 months of Amazon Prime Video at \nno extra cost</string>
+    <string name="subscribe_now_url">https://www.tatasky.com/tata-sky-new-dth-connection-online?utm_source=ts-binge-app&amp;utm_medium=referral&amp;utm_campaign=get-connection&amp;utm_term=&amp;utm_content=</string>
+    <string name="cannot_downgrade">Cannot Downgrade</string>
+    <string name="already_downgraded">You have already Downgraded</string>
+    <string name="atv_cancel_dialog_msg">You have been upgraded to Tata Binge Premium with 1 month free trial linked to your Tata Play Binge+.</string>
+    <string name="atv_cancel_dialog_msg1">Your Tata Binge Premium subscription is now linked to your Tata Play Binge+.</string>
+    <string name="atv_cancel_api_error">Error in switching to upgraded subscription.</string>
+    <string name="upgrade_to_premium">Upgrade to Premium</string>
+    <string name="upgrade_to_get_this_App">Upgrade to get this App</string>
+    <string name="remind_me_later_underline"><u>Remind me later</u></string>
+    <string name="remind_me_later">Remind Me Later</string>
+    <string name="error_sso">Playback Error (%s)</string>
+    <string name="error_message">Error Message</string>
+    <string name="amazon_prime_deeplink_url">https://www.primevideo.com/detail/%1$s/?ref_=TataSky</string>
+    <string name="join_prime_template">Join %1$s at ₹%2$d/%3$s </string>
+    <string name="existing_prime_user"><u>I am an existing Prime user</u></string>
+    <string name="recharge_success_amazon">You have successfully added balance to your Tata Play account</string>
+    <string name="continue_to_prime">Continue to Prime</string>
+    <string name="amazon_recommended_recharge_msg">The Recommended Recharge also includes the amount to keep your Tata Play account active.</string>
+    <string name="about_your_subscription">About Your Subscription</string>
+    <string name="resume_prime">Resume Prime</string>
+    <string name="_switch">Switch</string>
+    <string name="plan_upgraded">Free Trial upgraded</string>
+
+    <string name="content_url"><![CDATA[https://bitmovin-a.akamaihd.net/content/sintel/sintel.mpd]]></string>
+    <string name="ad_tag_url"><![CDATA[https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator=]]></string>
+    <string name="ad_tag_url2"><![CDATA[https://pubads.g.doubleclick.net/gampad/ads?iu=/317733190/Test_Video_Ad&description_url=https%3A%2F%2Fwww.hungama.com%2F&tfcd=0&npa=0&sz=400x300%7C640x480&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=]]]></string>
+    <string name="premium_image_desc">premium for top10 rails</string>
+
+    <!-- Guest login bottom sheet  -->
+    <string name="btn_proceed_text_fragment_guest_login">Proceed</string>
+    <string name="title_header_guest_login">Login</string>
+    <string name="text_not_now">Not now</string>
+    <string name="text_non_underlined_Not_Now">Not now</string>
+    <string name="text_subtitle_guest_login_sid_listing">You have multiple Subscription IDs. Please select the one you want to use.</string>
+    <string name="text_subtitle_guest_login_baid_listing">Chosen Sub ID has multiple Plans. Please select the one you want to use.</string>
+    <string name="text_subtitle_fragment_guest_login">Please enter your Mobile Number</string>
+    <string name="enter_mobile_text_guest_login">Please enter your Mobile Number</string>
+    <string name="hint_enter_mobile_text_guest_login">1234567890</string>
+    <string name="text_code_expiry_guest_login_verify_otp">Resend OTP in %s sec</string>
+    <string name="hint_otp_dig_et_guest_login_verify_otp">0</string>
+    <string name="btn_proceed_text_fragment_guest_login_previously_used">New Login</string>
+    <string name="proceed_to_login">Proceed to login</string>
+    <string name="login_using_new_number">Login using new number</string>
+    <string name="text_subtitle_guest_login_previously_used_mobile">Previously used</string>
+    <string name="text_prefix_previously_used_mobile">+91</string>
+    <string name="string_premium">Premium</string>
+    <string name="text_subtitle_guest_login_verify_otp">Please enter the OTP sent to +91 %s</string>
+
+    <!--    NavDrawer states-->
+    <string name="nav_open">Open</string>
+    <string name="nav_close">Close</string>
+
+    <!--  Parental control-->
+    <string name="btn_parental_pin">Parental Control</string>
+    <string name="title_parental_pin_setup">Setup Parental PIN</string>
+    <string name="title_parental_pin_verification">Enter PIN</string>
+    <string name="title_parental_pin_control_verification">Turn off Parental PIN</string>
+    <string name="title_parental_pin_reset">Forgot Parental PIN</string>
+    <string name="title_parental_pin_change">Change Parental PIN</string>
+    <string name="btn_proceed_text_parental_pin_setup">Proceed</string>
+    <string name="text_cancel_parental_pin_setup">Not now</string>
+    <string name="text_forgot_parental_pin_setup">Forgot PIN</string>
+    <string name="text_forgot_parental_control_pin_setup">Forgot PIN</string>
+    <string name="text_subtitle_parental_pin_setup">Enter the 4 digit Parental PIN</string>
+    <string name="title_parental_pin_success">Setup successful!</string>
+    <string name="text_subtitle_parental_pin_success">You have successfully setup a Parental PIN. Do you want to turn on Parental PIN  now?</string>
+    <string name="text_parental_pin_success">You can change this anytime from Settings</string>
+    <string name="btn_proceed_text_parental_pin_success">Yes, turn on</string>
+    <string name="text_cancel_parental_pin_success">Not now</string>
+    <string name="text_btn_action_snackbar_custom_parental_control">Setup</string>
+    <string name="text_msg_snackbar_custom_parental_control">Do you want to set a Parental PIN?</string>
+    <string name="header_title_parental_pin_setup">Login to setup PIN</string>
+    <string name="parental_pin_error_msg">Please enter 4 digit PIN</string>
+    <string name="text_subtitle_parental_control_setup">You have not set a Parental PIN yet. \nDo you want to set it up now?</string>
+    <string name="btn_proceed_text_fragment_parental_control_setup">Setup Parental PIN</string>
+    <string name="text_description_fragment_parental_control_setup" tools:ignore="Typos">These settings will apply to Binge Mobile App. For your Binge+ Set Top Box, please set the parental controls on the Set Top Box separately.</string>
+    <string name="text_subtitle_two_parental_control_setup">What’s Parental PIN?</string>
+    <string name="btn_proceed_text_parental_control_pin">Proceed</string>
+    <string name="text_cancel_parental_control_pin">Cancel</string>
+    <string name="text_subtitle_parental_control_pin">Enter the 4 digit Parental PIN</string>
+    <string name="btn_change_parental_pin_parental_control_settings">Change Parental PIN</string>
+    <string name="text_menu_item_parental_control_settings">Parental Pin</string>
+    <string name="text_menu_item_parental_control_settings_restrictions">Viewing Restrictions</string>
+    <string name="string_parental_control_on">ON</string>
+    <string name="string_parental_control_off">OFF</string>
+    <string name="menu_parental_control_title">Parental Control</string>
+    <string name="menu_sign_out_title">Sign Out</string>
+    <string name="toast_msg_pin_changed_successful">Parental Pin Changed Successfully</string>
+    <string name="toast_msg_login_success">Successfully logged in %s</string>
+    <string name="free_trial_started">Free Trial started!</string>
+    <string name="please_try_again">Please Try Again</string>
+    <string name="toast_msg_login_failure">Login not successful. %s</string>
+    <string name="view_all_episodes">View all Episodes</string>
+    <string name="previous_episode_btn">Previous Episode</string>
+    <string name="next_episode_btn">Next Episode</string>
+    <string name="title_parental_control_rating">Set viewing restrictions</string>
+    <string name="subtitle_parental_control_rating">Please select the age restrictions for content which will require the Parental PIN.</string>
+    <string name="btn_proceed_parental_control_rating">Set</string>
+
+    <!--    Side Nav Menu-->
+
+    <string name="text_menu_binge_list">Binge List</string>
+    <string name="text_menu_notification">Notifications</string>
+    <string name="text_menu_settings">Settings</string>
+    <string name="text_menu_help_and_support">Get Help and Support</string>
+    <string name="text_account_refresh">Account Refresh</string>
+    <string name="text_logout">Log Out</string>
+    <string name="text_standard_vip">Standard VIP</string>
+    <string name="text_dot">\u2022</string>
+    <string name="renew">Renew</string>
+    <string name="text_tata_sky_balance">Tata Play Balance</string>
+    <string name="text_un_logged_in_header">Login now to access your account</string>
+    <string name="version_no">Version No. %s</string>
+    <string name="text_log_in">Log In</string>
+    <string name="signout_header">Sure you want to log out?</string>
+    <!--New Freemium Setting Menu Items-->
+    <string name="payment_settings">Payment Settings</string>
+    <string name="content_language">Video Languages</string>
+    <string name="renew_plan">Renew Plan</string>
+    <string name="regional_app">Add regional apps</string>
+    <string name="get_plan">Get a Plan</string>
+    <string name="revoke_link">Don\'t cancel my plan</string>
+    <string name="check_other_options">Check other options</string>
+    <string name="change_plan">Change Plan</string>
+    <string name="recharge_due_nav_drawer">Due On: %1$s</string>
+    <string name="change_tenure">Change Plan Term</string>
+
+    <string name="toast_msg_rating_change_success">Viewing restrictions updated</string>
+    <string name="toast_msg_parental_pin_setup_successful">Parental Pin Setup Successfully</string>
+    <string name="toast_msg_rating_no_restriction">“No Restrictions” set for Parental Pin</string>
+
+    <string name="content_language_tittle">Choose Video Languages</string>
+    <string name="shuffle">Shuffle</string>
+    <string name="select_content_language">Choose Video Languages</string>
+    <string name="episode_search_hint">Search for episodes</string>
+    <string name="toast_msg_remove_binge_list">%s removed from Binge List</string>
+    <string name="welcome">Welcome</string>
+
+    <string name="text_change_pin">Change PIN</string>
+    <string name="text_forgot_pin">Forgot PIN</string>
+
+    <string name="text_cancel_edit_profile">Cancel</string>
+    <string name="go_vip">Go VIP!</string>
+    <string name="choose_plan">Choose A Plan &amp; Start Watching</string>
+    <string name="compare_plans">Compare Plans</string>
+    <string name="your_wallet_has_low_amount">Your wallet has low amount</string>
+    <string name="make_payment">Make Payment</string>
+    <string name="more_payment_methods">More Payment Methods</string>
+    <string name="toast_saved_language">Preffered Language Saved Successfully</string>
+
+    <string name="no_restrictions">No Restriction</string>
+    <string name="enter_otp">Enter OTP</string>
+    <string name="unable_to_process">Unable to process. Please try again.</string>
+    <string name="cancellation_revoked">Cancellation revoked</string>
+
+    <string name="search_hint_text">Search a Show, Movie or Game</string>
+    <string name="first_episode_free">1st Episode Free</string>
+    <string name="select_categories">Select Categories</string>
+    <string name="pay_using_tata_sky_balance">PAY USING TATA PLAY BALANCE</string>
+    <string name="language_widget_text">"Personalise your video\nwith your preferred languages "</string>
+
+    <!--  Nudges texts  -->
+    <string name="btn_notification_nudge_text">Allow</string>
+    <string name="btn_email_nudge_text">Enter</string>
+    <string name="invoice">Invoice</string>
+    <string name="done">Done</string>
+
+    <string name="amazon_prime_through_tata_play">Amazon Prime through Tata Play</string>
+    <string name="maybe_later">Maybe later</string>
+    <string name="proceed_to_pay">Proceed to Pay</string>
+    <string name="add_on">Add-on</string>
+    <string name="cancel_add_on">Cancel Add-on</string>
+    <string name="current_plan">Current plan</string>
+    <string name="invoice_downloaded">Invoice Downloaded</string>
+    <string name="view">View</string>
+    <string name="enter_email">Enter Email</string>
+
+
+    <string name="select_plan">Select plan</string>
+    <string name="do_it_later">Do It Later</string>
+    <string name="existing_user_login">Existing User Login</string>
+    <string name="msg_notification_on">Notification turned on successfully.</string>
+
+
+    <string name="default_notification_channel_id">TP_Clevertap_Channel</string>
+    <string name="enter_email_msg">Provide us your email address for latest updates on movies and TV shows</string>
+    <string name="first_episode_available">Free Episodes Available</string>
+    <string name="explore">Explore</string>
+    <string name = "add_fav_game">Added to your Favourites!</string>
+    <string name= "game_exit_warning">Are you sure you want to close this game?</string>
+    <string name= "game_nudge_title">Binge On Games!</string>
+    <string name= "game_nudge_subtitle">AD-FREE option available starting at ₹49/month</string>
+    <string name="game_widget_text">Get Ad-Free Gaming Experience!</string>
+
+    <string name= "lg_no_data">Sorry! We could not find any matching results</string>
+    <string name="account_updated_successfully">Account Updated Successfully</string>
+    <string name="logout_success">You have successfully logged out.</string>
+    <string name="now">now</string>
+    <string name="save_content_language">Save content language</string>
+    <string name="coach_mark_search_description">Search your favourite TV shows and movies</string>
+    <string name="coach_mark_mic_title">Voice Search</string>
+    <string name="coach_mark_mic_description">Tap &amp; speak to search</string>
+    <string name="space">\u0020</string>
+</resources>

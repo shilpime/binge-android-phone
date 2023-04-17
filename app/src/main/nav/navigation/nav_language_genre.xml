@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_language_genre"
+    app:startDestination="@id/languageGenre">
+
+    <fragment
+        android:id="@+id/languageGenre"
+        android:name="com.tatasky.binge.ui.features.search.LanguageGenreFragment"
+        android:label="{title}"
+        tools:layout="@layout/fragment_language_genre">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="sectionType"
+            app:argType="string" />
+        <argument
+            android:name="pageName"
+            app:argType="string"
+            android:defaultValue=""/>
+        <argument
+            android:name="bgImage"
+            app:argType="string"
+            android:defaultValue=""/>
+        <argument
+            android:name="bgBottomImage"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="source"
+            android:defaultValue=""
+            app:argType="string" />
+
+        <argument
+            android:name="refId"
+            app:argType="string"
+            android:defaultValue=""
+            app:nullable="false"/>
+        <action
+            android:id="@+id/action_to_detail"
+            app:destination="@id/nav_details">
+            <argument
+                android:name="contentItem"
+                app:argType="com.tatasky.binge.data.networking.models.response.ContentItem" />
+            <argument android:name="fromGrid"
+                app:argType="boolean"
+                android:defaultValue="true"/>
+        </action>
+
+        <action
+            android:id="@+id/action_to_search"
+            app:destination="@id/search">
+        </action>
+
+
+    </fragment>
+</navigation>

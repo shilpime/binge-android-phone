@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.appcompat.widget.AppCompatCheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/text1"
+    android:minWidth="@dimen/_120sdp"
+    android:layout_width="match_parent"
+    android:padding="@dimen/_4sdp"
+    style="@style/TSTextMedium"
+    android:paddingStart="@dimen/_8sdp"
+    android:paddingEnd="@dimen/_8sdp"
+    android:layout_height="@dimen/_28sdp"
+    android:textColor="@color/text_color"
+    android:background="@drawable/single_choice_background"
+    android:checkMark="@drawable/single_choice_selector"
+    android:fontFamily="@font/volteplay_medium"
+    android:gravity="center_vertical"
+    android:textSize="@dimen/_16sdp" />

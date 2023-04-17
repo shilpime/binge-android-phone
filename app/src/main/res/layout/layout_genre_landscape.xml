@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="contentItem"
+            type="com.tatasky.binge.data.networking.models.response.ContentItem"/>
+    </data>
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardElevation="5dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:id="@+id/rlImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/img"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/sample_iv_desc"
+                    android:scaleType="fitXY"/>
+
+                <ImageView
+                    android:id="@+id/imgOverlay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ic_overlay_genre"
+                    android:contentDescription="@string/sample_iv_desc"
+                    android:scaleType="fitXY"/>
+
+                <TextView
+                    android:id="@+id/tv_content_title"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/view_margin_smallest"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:gravity="start"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="@{contentItem.title}"
+                    android:textFontWeight="400"
+                    android:layout_alignParentBottom="true"
+                    android:textSize="11sp" />
+            </RelativeLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</layout>

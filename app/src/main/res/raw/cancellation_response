@@ -1,0 +1,13 @@
+{
+  "code": 0,
+  "message": "Response fetched successfully.",
+  "data": {
+	"bingeSubscriptionExpiryDate":"01/12/2021",
+	"amazonPrimeVideoExpiryDate":"01/12/2021",
+	"deactivateMessage":{
+  	"header":"Plan cancellation scheduled",
+  	"footer":"Your Plan Cancellation request has been taken. You can change this anytime before cancellation",
+  	"message":"Add-on cancellation is scheduled on 21/01/2021"
+	}
+  }
+}

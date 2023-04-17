@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:drawable="@drawable/bg_rounded_10"
+        android:duration="250" />
+    <item
+        android:drawable="@drawable/avd_contract"
+        android:duration="250"
+        android:gravity="end|center"
+        android:right="@dimen/view_margin_large" />
+</layer-list>

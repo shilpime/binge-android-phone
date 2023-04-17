@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.tatasky.binge.ui.features.subscription.viewmodel.SubscriptionViewModel" />
+
+        <variable
+            name="selectedPack"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks" />
+
+    </data>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_v_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".05" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_v_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".95" />
+
+
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_large"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/medium_binge_logo" />
+
+            <TextView
+                android:id="@+id/tv_sub_landing_title"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_xlarge"
+                android:gravity="center"
+                android:textSize="@dimen/text_size_28"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/logo"
+                tools:text="Congratulations!" />
+
+            <TextView
+                android:id="@+id/tv_sub_landing_message"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_large"
+                android:gravity="center"
+                android:paddingStart="@dimen/view_margin_xlarge"
+                android:paddingEnd="@dimen/view_margin_xlarge"
+                android:textSize="@dimen/text_size_18"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/tv_sub_landing_title"
+                tools:text="Enjoy 'no conditions apply' 7 Day Free Trial for following apps" />
+
+            <include
+                android:id="@+id/trial_recycler"
+                layout="@layout/layout_trial_pack"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_xlarge"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/tv_sub_landing_message"
+                app:pack="@{selectedPack}" />
+
+            <TextView
+                android:id="@+id/trial_expire_msg"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/offer_color"
+                android:textSize="@dimen/text_size_18"
+                app:layout_constraintBottom_toTopOf="@id/trial_pack_msg"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/trial_recycler"
+                tools:text="Free Trial Expires on 20/05/2020" />
+
+            <TextView
+                android:id="@+id/trial_pack_msg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                style="@style/TSTextMedium"
+                android:textColor="@color/offer_color"
+                android:textSize="@dimen/text_size_18"
+                app:layout_constraintBottom_toTopOf="@id/trial_btn_proceed"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/trial_expire_msg"
+                tools:text="Standard ₹149 Plan applicable post Free Trial" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/trial_btn_proceed"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/view_margin_xxlarge"
+                android:layout_marginBottom="@dimen/view_margin_small"
+                android:text="@string/start_free_trial"
+                app:layout_constraintBottom_toTopOf="@id/trial_btn_skip"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintVertical_bias="1" />
+
+            <!--            later button not yet available in zeplin [Verify before MR]-->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/trial_btn_skip"
+                style="@style/Widget.AppTheme.ButtonStyle.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/view_margin_medium"
+                android:text="@string/later_underline"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="bundle"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks" />
+
+        <variable
+            name="status"
+            type="String" />
+        <variable
+            name="isExpired"
+            type="Boolean" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_root"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:layout_constraintBottom_toBottomOf="@id/tv_tag"
+            app:layout_constraintTop_toTopOf="@id/tv_tag" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/pricing_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/barrier">
+
+            <ImageView
+                android:id="@+id/iv_bundle_background"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/ic_pack_background"
+                app:layout_constraintBottom_toTopOf="@id/tv_apps_count"
+                app:layout_constraintEnd_toEndOf="@id/cl_bundle"
+                app:layout_constraintStart_toStartOf="@id/cl_bundle"
+                app:layout_constraintTop_toTopOf="@id/cl_bundle" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_bundle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/view_margin_small"
+                android:layout_marginEnd="@dimen/view_margin_small"
+                android:paddingStart="@dimen/view_margin_small"
+                android:paddingTop="@dimen/view_margin_small"
+                android:paddingEnd="@dimen/view_margin_small"
+                android:paddingBottom="@dimen/view_margin_small"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/tv_bundle_name"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@{bundle.packName}"
+                    android:textSize="@dimen/text_size_20"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tv_price"
+                    android:gravity="center"
+                    android:text="@{String.format(@string/rupees, bundle.formattedPrice)}"
+                    android:textSize="@dimen/text_size_16"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_bundle_name" />
+                <TextView
+                    style="@style/TSTextDefault"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:id="@+id/tv_renewal_cycle"
+                    android:text="@{bundle.renewalCycle}"
+                    android:textSize="@dimen/text_size_14"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_price" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/tv_apps_count"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_medium"
+                android:padding="@dimen/view_margin_medium"
+                android:text="@{String.format(@string/no_of_apps_template, bundle.appList.size())}"
+                android:textSize="@dimen/text_size_14"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cl_bundle" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/tv_tag"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha=".8"
+            android:background="@{ isExpired ?@drawable/pack_tag_expired : @drawable/pack_tag_background}"
+            android:paddingStart="@dimen/view_margin_smallest"
+            android:paddingEnd="@dimen/view_margin_smallest"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@{status}"
+            android:textSize="@dimen/text_size_12"
+            android:visibility="@{(status==null || status.empty)?View.INVISIBLE:View.VISIBLE, default=invisible}"
+            app:layout_constraintBottom_toTopOf="@id/pricing_container"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/pricing_container" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

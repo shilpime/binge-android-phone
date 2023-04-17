@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/home"
+        android:icon="@drawable/ic_home"
+        android:title="@string/home" />
+    <item
+        android:id="@+id/movies"
+        android:icon="@drawable/ic_movies"
+        android:title="@string/movies" />
+
+    <item
+        android:id="@+id/shows"
+        android:icon="@drawable/ic_shows"
+        android:title="@string/shows" />
+
+    <item
+        android:id="@+id/sports"
+        android:icon="@drawable/ic_sports"
+        android:title="@string/sports" />
+
+    <item
+        android:id="@+id/gametab"
+        android:icon="@drawable/ic_games"
+        android:title="@string/games" />
+
+
+</menu>

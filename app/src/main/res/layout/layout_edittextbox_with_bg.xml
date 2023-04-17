@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="etBackground"
+            type="android.graphics.drawable.Drawable" />
+
+        <variable
+            name="headerText"
+            type="String" />
+
+        <variable
+            name="required"
+            type="Boolean" />
+
+        <variable
+            name="hint"
+            type="String" />
+
+        <variable
+            name="etValue"
+            type="String" />
+
+        <variable
+            name="isVisible"
+            type="Boolean" />
+
+        <variable
+            name="maxLength"
+            type="Integer" />
+
+        <variable
+            name="maxLines"
+            type="Integer" />
+
+        <variable
+            name="inputType"
+            type="Integer" />
+
+        <variable
+            name="imeOptions"
+            type="Integer" />
+
+        <variable
+            name="onTextChanged"
+            type="androidx.databinding.adapters.TextViewBindingAdapter.OnTextChanged" />
+
+        <import type="android.view.View" />
+
+        <import type="android.text.InputType" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/et_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="@{isVisible?View.VISIBLE:View.GONE}">
+
+        <TextView
+            android:id="@+id/et_header"
+            style="@style/TSTextDefault"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_14"
+            app:hint="@{headerText}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:required="@{required}" />
+
+        <com.tatasky.binge.customviews.CustomTextInputLayout
+            android:id="@+id/til"
+            android:layout_width="@dimen/margin_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_small"
+            app:errorEnabled="true"
+            app:hintEnabled="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_header">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et"
+                style="@style/TSTextMedium"
+                android:textSize="@dimen/dimens_16sp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/edit_layout_height"
+                android:background="@{etBackground}"
+                android:hint="@{hint}"
+                android:imeOptions="@{imeOptions}"
+                android:inputType="@{inputType  | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS}"
+                android:maxLength="@{maxLength}"
+                android:maxLines="@{maxLines}"
+                android:onTextChanged="@{onTextChanged}"
+                android:saveEnabled="false"
+                android:text="@{etValue}" />
+        </com.tatasky.binge.customviews.CustomTextInputLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="proRataValue"
+            type="Integer" />
+
+        <import type="android.view.View" />
+
+        <import type="com.tatasky.binge.utils.SubscriptionPackStatusEnum" />
+
+        <import type="android.text.TextUtils"/>
+
+        <variable
+            name="pack"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:layout_constraintBottom_toBottomOf="@id/tv_tag"
+            app:layout_constraintTop_toTopOf="@id/tv_tag" />
+
+        <com.tatasky.binge.customviews.CustomMaterialCardView
+            android:id="@+id/cardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/barrier">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingHorizontal="@dimen/view_margin_large"
+                android:paddingTop="@dimen/view_margin_large"
+                android:paddingBottom="@dimen/view_margin_small">
+
+                <TextView
+                    android:id="@+id/tv_total_apps"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/view_margin_large"
+                    android:gravity="start"
+                    android:text="@{String.format(@string/no_of_apps_template, pack.appList.size())}"
+                    android:textSize="@dimen/text_size_18"
+                    app:layout_constraintEnd_toStartOf="@id/tv_renewal_cycle"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="10 Apps" />
+
+                <TextView
+                    android:id="@+id/tv_renewal_cycle"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size_18"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="7-days Free trial"
+                    tools:visibility="visible" />
+
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_packs"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    tools:listitem="@layout/layout_provider"
+                    android:overScrollMode="never"
+                    app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_renewal_cycle"
+                    app:spanCount="4" />
+
+
+                <TextView
+                    android:id="@+id/tv_pack_disclaimer"
+                    style="@style/TSTextDefault"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_smallest"
+                    android:text="@{pack.extraInfo}"
+                    android:textSize="10sp"
+                    android:visibility="@{!TextUtils.isEmpty(pack.extraInfo)? View.VISIBLE : View.GONE, default=gone}"
+                    app:layout_constraintTop_toBottomOf="@id/recycler_packs"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:text="*SunNxt is available to watch on TV only"
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/tv_eligibility"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:textColor="?colorOnSecondary"
+                    android:textSize="@dimen/text_size_14"
+                    android:visibility="gone"
+                    app:layout_constraintStart_toStartOf="@id/recycler_packs"
+                    app:layout_constraintTop_toBottomOf="@id/tv_pack_disclaimer" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_modify_subscription"
+                    style="@style/Widget.AppTheme.ButtonStyle.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/margin_0"
+                    android:visibility="@{(pack.isDummyUser() || !pack.modifyBtn || pack.isCancelled)? View.GONE : View.VISIBLE, default=gone}"
+                    android:paddingStart="0dp"
+                    android:gravity="start"
+                    android:paddingEnd="0dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_eligibility"
+                    app:text="@{pack.mobileUpgradable? @string/upgrade :  @string/modify_subscription}"
+                    app:underlined="@{true}" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_revoke_subscription"
+                    style="@style/Widget.AppTheme.ButtonStyle.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/margin_0"
+                    android:visibility="@{(pack.cancelBtn &amp;&amp; pack.isCancelled)? View.VISIBLE : View.GONE, default=gone}"
+                    android:paddingStart="0dp"
+                    android:gravity="start"
+                    android:paddingEnd="0dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_eligibility"
+                    app:text="@{@string/revoke_cancellation}"
+                    app:underlined="@{true}" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.tatasky.binge.customviews.CustomMaterialCardView>
+
+        <TextView
+            android:id="@+id/tv_tag"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/pack_tag_background"
+            android:elevation="@dimen/view_margin_smallest"
+            android:paddingStart="@dimen/view_margin_small"
+            android:paddingTop="@dimen/view_margin_smallest"
+            android:paddingEnd="@dimen/view_margin_small"
+            android:paddingBottom="@dimen/view_margin_smallest"
+            android:textSize="@dimen/text_size_12"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/cardView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/cardView" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

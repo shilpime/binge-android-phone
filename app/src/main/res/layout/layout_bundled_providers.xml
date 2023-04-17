@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_root"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@drawable/bundle_divider">
+
+        <com.tatasky.binge.customviews.ClickableRecyclerView
+            android:id="@+id/apps_recycler"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/view_margin_large"
+            android:layout_marginEnd="@dimen/view_margin_large"
+            android:clickable="false"
+            android:orientation="vertical"
+            app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:reverseLayout="false" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

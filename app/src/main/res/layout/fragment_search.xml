@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.search.model.SearchViewModel"/>
+        <import type="android.view.View"/>
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="56dp"
+        android:clipToPadding="false">
+
+        <include
+            android:id="@+id/searchView"
+            layout="@layout/layout_searchview" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/progressBarBottom"
+            android:layout_below="@id/searchView"
+            android:id="@+id/search_all_container">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/searchContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="20dp"
+                android:visibility="gone">
+
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/gp_free_toggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="tv_off_settings_item,tv_on_settings_item,switchView"
+                    android:visibility="gone"
+                    />
+
+                <TextView
+                    android:id="@+id/tv_off_settings_item"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="4dp"
+                    android:maxLines="1"
+                    android:text="All Content"
+                    android:textColor="@color/binge_blue_10"
+                    android:textSize="@dimen/text_size_13"
+                    android:translationY="-10dp"
+                    app:layout_constraintBaseline_toBaselineOf="@id/switchView"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="0dp"
+                    android:translationY="-10dp"
+                    app:layout_constraintStart_toEndOf="@id/tv_off_settings_item"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_on_settings_item"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:maxLines="1"
+                    android:text="Free"
+                    android:textSize="@dimen/text_size_13"
+                    android:translationY="-10dp"
+                    app:layout_constraintBaseline_toBaselineOf="@id/switchView"
+                    app:layout_constraintStart_toEndOf="@id/switchView"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+
+                <!--<TextView
+                    android:layout_marginTop="28dp"
+                    android:id="@+id/tvSearchCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_size_14"
+                    android:paddingBottom="8dp"
+                    android:layout_marginStart="4dp"
+                    android:visibility="visible"
+                    style="@style/TSTextMedium"
+                    android:text="@{@string/search_result_found(vm.changedCount)}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/filters"/>-->
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/tvShowFilter"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:button="@null"
+                    android:layout_marginEnd="14dp"
+                    android:paddingBottom="8dp"
+                    android:drawableEnd="@drawable/filter_checkbox_drawable"
+                    android:drawablePadding="@dimen/view_margin_small"
+                    android:text="@string/filter"
+                    android:textColor="@color/more_color"
+                    android:textSize="@dimen/text_size_14"
+                    android:visibility="gone"
+                    android:layout_marginTop="@dimen/margin_2"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <LinearLayout
+                    android:id="@+id/filters"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@id/tvShowFilter">
+
+                    <include
+                        android:id="@+id/language_filters"
+                        layout="@layout/layout_filters"
+                        app:title="@{vm.languageFilterTitle}" />
+
+                    <include
+                        android:id="@+id/genre_filters"
+                        layout="@layout/layout_filters"
+                        app:title="@{vm.genreFilterTitle}" />
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/searchRecyclerView"
+                    setAdapter="@{vm.getSearchAdapter()}"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/margin_0"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/dimens_10dp"
+                    app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/filters"
+                    app:reverseLayout="false"
+                    app:spanCount="2"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <RelativeLayout
+                android:id="@+id/landing_container"
+                android:layout_width="match_parent"
+                android:transitionGroup="true"
+                android:layout_height="match_parent">
+
+
+                <androidx.coordinatorlayout.widget.CoordinatorLayout
+                    android:id="@+id/scrolling_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:visibility="visible"
+                    android:visibility="gone">
+
+                    <com.google.android.material.appbar.AppBarLayout
+                        android:id="@+id/appbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/transparent"
+                        app:elevation="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_scrollFlags="scroll">
+
+                            <FrameLayout
+                                tools:visibility="visible"
+                                android:id="@+id/historySuggestionContainer"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="12dp"
+                                android:layout_marginBottom="12dp"
+                                android:layout_marginEnd="0dp"
+                                android:layout_marginTop="10dp"
+                                android:visibility="@{vm.historyVisible?View.VISIBLE:View.GONE}">
+
+                                <androidx.constraintlayout.widget.ConstraintLayout
+                                    android:id="@+id/historyContainer"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent">
+
+                                    <TextView
+                                        tools:visibility="gone"
+                                        android:layout_marginStart="@dimen/view_margin_medium"
+                                        android:id="@+id/tvRecentSearch"
+                                        style="@style/TSTextTitle"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/recent_search"
+                                        app:layout_constraintStart_toStartOf="parent"
+                                        app:layout_constraintTop_toTopOf="parent"/>
+
+                                    <androidx.recyclerview.widget.RecyclerView
+                                        android:id="@+id/historyRecyclerView"
+                                        setAdapter="@{vm.recentSearchAdapter}"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/view_margin_small"
+                                        android:layout_marginStart="@dimen/view_margin_small"
+                                        app:layout_constraintBottom_toBottomOf="parent"
+                                        app:layout_constraintStart_toStartOf="parent"
+                                        app:layout_constraintTop_toBottomOf="@id/tvRecentSearch"
+                                        tools:listitem="@layout/layout_search_suggestion"
+                                        tools:showIn="@layout/fragment_search"/>
+                                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                                <androidx.recyclerview.widget.RecyclerView
+                                    tools:visibility="gone"
+                                    android:id="@+id/searchSuggestionsRecycler"
+                                    setAdapter="@{vm.mSuggestionAdapter}"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginTop="@dimen/view_margin_xxlarge"
+                                    android:visibility="@{vm.historyVisible?View.GONE:View.VISIBLE}"
+                                    android:orientation="vertical"
+                                    app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"
+                                    app:reverseLayout="false"
+                                    tools:listitem="@layout/layout_search_suggestion"
+                                    tools:showIn="@layout/fragment_search"/>
+                            </FrameLayout>
+
+
+                            <TextView
+                                android:id="@+id/tvNoData"
+                                style="@style/TSTextMedium"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/margin_36"
+                                android:layout_marginEnd="@dimen/margin_36"
+                                android:layout_marginBottom="@dimen/view_margin_xxlarge"
+                                android:layout_marginTop="@dimen/view_margin_xxlarge"
+                                android:gravity="center"
+                                android:text="@string/no_search_result"
+                                android:textSize="@dimen/text_size_18"
+                                android:visibility="gone"/>
+
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                app:layout_collapseMode="pin"
+                                android:id="@+id/searchLandingRecycler"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layoutAnimation="@anim/layout_animation_fade_in"
+                                android:orientation="vertical"
+                                app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"
+                                app:reverseLayout="false"
+                                tools:showIn="@layout/fragment_search" />
+
+                            <LinearLayout
+                                android:id="@+id/llTitle"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/margin_6"
+                                android:layout_marginTop="@dimen/rail_margins"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/rail_title"
+                                    style="@style/TSTextTitle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="@dimen/margin_20"
+                                    android:ellipsize="end"
+                                    android:maxLines="1"
+                                    android:text="@string/trending"
+                                    android:visibility="gone"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    android:drawablePadding="@dimen/dimens_6dp"
+                                    app:drawableStartCompat="@drawable/ic_trending" />
+
+                            </LinearLayout>
+                        </LinearLayout>
+
+                    </com.google.android.material.appbar.AppBarLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/trendingRecyclerView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="@dimen/margin_16"
+                            android:layout_marginEnd="@dimen/margin_16"
+                            android:layout_marginBottom="@dimen/view_margin_medium"
+                            android:orientation="vertical"
+                            android:overScrollMode="never"
+                            app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+                            app:reverseLayout="false"
+                            app:spanCount="2" />
+                    </RelativeLayout>
+                </androidx.coordinatorlayout.widget.CoordinatorLayout>
+            </RelativeLayout>
+        </FrameLayout>
+        <ImageView
+            android:id="@+id/progressBarBottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:paddingTop="@dimen/view_margin_smallest"
+            android:paddingBottom="@dimen/view_margin_large"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            app:srcCompat="@drawable/progress_avd"/>
+    </RelativeLayout>
+</layout>

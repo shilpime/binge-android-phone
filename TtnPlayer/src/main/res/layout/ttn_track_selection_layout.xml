@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.ttn.ttnplayer.ui.TtnPlayerTrackSelectionView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ttn_track_selection_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/_16sdp"
+    android:paddingTop="@dimen/_4sdp"
+    android:paddingRight="@dimen/_16sdp"
+    android:paddingBottom="@dimen/_4sdp" />
+

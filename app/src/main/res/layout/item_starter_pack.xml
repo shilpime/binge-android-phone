@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+        <import type="android.text.TextUtils"/>
+
+
+        <variable
+            name="status"
+            type="String" />
+
+        <variable
+            name="isExpired"
+            type="Boolean" />
+
+        <variable
+            name="pack"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="@dimen/margin_10">
+
+
+        <LinearLayout
+            android:id="@+id/ll_pack_tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/view_margin_small"
+            android:background="@drawable/tenure_save_tag_bg"
+            android:paddingStart="@dimen/margin_6"
+            android:paddingTop="@dimen/margin_2"
+            android:paddingEnd="@dimen/margin_6"
+            android:paddingBottom="@dimen/margin_2"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/tv_pack_tag"
+                style="@style/TSTextDefault"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="0sp"
+                android:textSize="@dimen/text_size_10"
+                tools:text="Save 15%" />
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="1dp"
+            app:cardMaxElevation="1dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ll_pack_tag"
+            app:strokeColor="@color/stroke_color"
+            app:strokeWidth="@dimen/dp_1">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingVertical="@dimen/margin_14"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:background="@color/darkSurface">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_begin="@dimen/margin_14" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_end"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_end="@dimen/margin_14" />
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/cl_pack_header_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="@dimen/margin_14"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/iv_crown_small"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_premium_crown" />
+
+                    <TextView
+                        android:id="@+id/tv_pack_name"
+                        style="@style/TSTextMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_8"
+                        android:text="@{pack.productName}"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="@id/iv_crown_small"
+                        app:layout_constraintStart_toEndOf="@id/iv_crown_small"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Hotstar Starter" />
+
+                    <ImageView
+                        android:id="@+id/iv_device_type"
+                        glideSrc="@{pack.deviceDetails.iconUrl}"
+                        android:layout_width="16dp"
+                        android:layout_height="18dp"
+                        android:layout_marginTop="@dimen/margin_8"
+                        android:scaleType="fitStart"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/iv_crown_small"
+                        tools:srcCompat="@drawable/ic_device" />
+
+                    <TextView
+                        android:id="@+id/tv_device_desc"
+                        style="@style/TSTextMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_8"
+                        android:layout_marginTop="@dimen/margin_8"
+                        android:text="@{pack.deviceDetails.platformName}"
+                        android:textColor="@color/darkOnSecondary"
+                        android:textSize="@dimen/text_size_12"
+                        app:layout_constraintBottom_toBottomOf="@id/iv_device_type"
+                        app:layout_constraintStart_toEndOf="@id/iv_device_type"
+                        app:layout_constraintTop_toBottomOf="@id/tv_pack_name"
+                        tools:text="Mobile and Web" />
+
+
+                    <TextView
+                        android:id="@+id/tv_pack_amount_value"
+                        style="@style/TSTextBold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/view_margin_smallest"
+                        tools:text="Rs49"
+                        android:textSize="19sp"
+                        app:layout_constraintEnd_toStartOf="@id/tv_pack_cycle"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tv_pack_cycle"
+                        style="@style/TSTextMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/margin_6"
+                        tools:text="/month"
+                        android:textSize="@dimen/text_size_12"
+                        app:layout_constraintBaseline_toBaselineOf="@id/tv_pack_amount_value"
+                        app:layout_constraintBottom_toBottomOf="@id/tv_pack_amount_value"
+                        app:layout_constraintEnd_toStartOf="@id/rb_pack_selector" />
+
+                    <com.google.android.material.radiobutton.MaterialRadioButton
+                        android:id="@+id/rb_pack_selector"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:background="@drawable/radio_button_selector"
+                        android:button="@null"
+                        android:clickable="false"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tv_extra_info"
+                        style="@style/TSTextMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/darkOnSecondary"
+                        android:textSize="@dimen/text_size_12"
+                        app:layout_constraintBaseline_toBaselineOf="@id/tv_device_desc"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tv_pack_amount_value"
+                        tools:text="4 Apps | 3 Devices" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_pack_partners"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_2"
+                    android:layout_marginEnd="@dimen/margin_10"
+                    android:clickable="false"
+                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/guideline_start"
+                    app:layout_constraintTop_toBottomOf="@id/cl_pack_header_info"
+                    app:spanCount="6"
+                    tools:listitem="@layout/layout_rotate_provider" />
+
+                <androidx.constraintlayout.widget.Group
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/group_launch_offer"
+                    app:constraint_referenced_ids="tv_launch_offer, tv_launch_offer_verbiage"
+                    android:layout_marginTop="@dimen/margin_12"
+                    tools:visibility="visible"
+                    android:visibility="@{(pack.launchOfferVerbiage != null &amp;&amp; pack.nammaFlixVerbiage != null) ? View.VISIBLE : View.GONE, default=gone}" />
+
+                <TextView
+                    android:id="@+id/tv_launch_offer"
+                    style="@style/TSTextBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/guideline_start"
+                    app:layout_constraintTop_toBottomOf="@id/rv_pack_partners"
+                    android:text="@{pack.launchOfferVerbiage}"
+                    tools:text="Launch Offer: "
+                    android:layout_marginTop="@dimen/margin_12"
+                    android:textSize="@dimen/text_size_9"/>
+
+                <TextView
+                    android:id="@+id/tv_launch_offer_verbiage"
+                    style="@style/TSTextDefault"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_end"
+                    app:layout_constraintStart_toEndOf="@id/tv_launch_offer"
+                    app:layout_constraintTop_toBottomOf="@id/rv_pack_partners"
+                    android:text="@{pack.nammaFlixVerbiage}"
+                    tools:text="Watch Namma Flix for a limited period"
+                    android:textColor="@color/purple_25"
+                    android:textSize="@dimen/text_size_9"
+                    android:layout_marginTop="@dimen/margin_12"/>
+
+                <TextView
+                    android:id="@+id/tv_pack_tnc1"
+                    style="@style/TSTextDefault"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_12"
+                    android:text="@{pack.sunnextFooterMessage}"
+                    android:visibility="@{!TextUtils.isEmpty(pack.sunnextFooterMessage)? View.VISIBLE : View.GONE , default=gone}"
+                    android:textColor="@color/purple_25"
+                    android:textSize="@dimen/text_size_9"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_end"
+                    app:layout_constraintStart_toEndOf="@id/guideline_start"
+                    app:layout_constraintTop_toBottomOf="@id/tv_launch_offer_verbiage"
+                    tools:visibility="visible"
+                    tools:text="*SunNxt is available on TV only" />
+
+                <TextView
+                    android:id="@+id/tv_pack_tnc2"
+                    style="@style/TSTextDefault"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_6"
+                    android:text="@{pack.packFooterMessage}"
+                    android:visibility="@{!TextUtils.isEmpty(pack.packFooterMessage)? View.VISIBLE : View.GONE , default=gone}"
+                    android:textColor="@color/purple_25"
+                    android:textSize="@dimen/text_size_9"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_end"
+                    app:layout_constraintStart_toEndOf="@id/guideline_start"
+                    app:layout_constraintTop_toBottomOf="@id/tv_pack_tnc1"
+                    tools:visibility="visible"
+                    tools:text="**Eligible to watch on TV using Amazon FireTV Stick Tata Play Edition or Bing+ Set Top Box" />
+                <TextView
+                    android:id="@+id/tv_pack_tnc3"
+                    style="@style/TSTextDefault"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_6"
+                    android:text="@{pack.deviceDetails.mxPlatformName}"
+                    android:visibility="@{!TextUtils.isEmpty(pack.deviceDetails.mxPlatformName)? View.VISIBLE : View.GONE , default=gone}"
+                    android:textColor="@color/purple_25"
+                    android:textSize="@dimen/text_size_9"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_end"
+                    app:layout_constraintStart_toEndOf="@id/guideline_start"
+                    app:layout_constraintTop_toBottomOf="@id/tv_pack_tnc2"
+                    tools:visibility="visible"
+                    tools:text="*MX Player is available on Mobile and TV only" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="isVisible"
+            type="Boolean" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="@{isVisible?View.VISIBLE:View.GONE, default=gone}"
+        tools:visibility="visible">
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:layout_constraintBottom_toBottomOf="@id/tv_tag"
+            app:layout_constraintTop_toTopOf="@id/tv_tag" />
+
+        <com.tatasky.binge.customviews.CustomMaterialCardView
+            android:id="@+id/cardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="@{isVisible?View.VISIBLE:View.GONE, default=gone}"
+            app:layout_constraintTop_toBottomOf="@id/barrier"
+            tools:visibility="visible">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/view_margin_smallest"
+                android:padding="@dimen/view_margin_medium">
+
+                <TextView
+                    android:id="@+id/tv_expiry_msg"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:paddingVertical="@dimen/view_margin_smallest"
+                    android:textColor="?colorOnSecondary"
+                    android:textSize="@dimen/text_size_14"
+                    app:layout_constraintStart_toStartOf="@id/pack_icon"
+                    app:layout_constraintTop_toBottomOf="@id/pack_icon"
+                    tools:text="Notification Settings" />
+
+                <ImageView
+                    android:id="@+id/pack_icon"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/margin_30"
+                    android:scaleType="fitStart"
+                    app:layout_constraintWidth_default="wrap"
+                    app:layout_constraintEnd_toStartOf="@id/tv_price"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_price"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textSize="@dimen/text_size_18"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    style="@style/TSTextDefault"
+                    android:id="@+id/tv_pack_disclaimer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    android:text="Amazon Prime through Tata Play"
+                    android:textSize="@dimen/text_size_12"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@id/tv_expiry_msg"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.tatasky.binge.customviews.CustomMaterialCardView>
+
+        <TextView
+            android:id="@+id/tv_tag"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/pack_tag_background"
+            android:elevation="@dimen/view_margin_smallest"
+            android:paddingStart="@dimen/view_margin_small"
+            android:paddingTop="@dimen/view_margin_smallest"
+            android:paddingEnd="@dimen/view_margin_small"
+            android:paddingBottom="@dimen/view_margin_smallest"
+            android:textSize="@dimen/text_size_12"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/cardView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/cardView" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

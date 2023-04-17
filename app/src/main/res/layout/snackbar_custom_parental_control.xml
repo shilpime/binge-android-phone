@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_snackbar_parental_control"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shp_dark_highlight_rect"
+        android:minHeight="44dp"
+        android:padding="4dp">
+
+        <TextView
+            android:id="@+id/tv_msg_snackbar_parental_control"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_10"
+            android:layout_marginEnd="@dimen/margin_4"
+            android:gravity="start"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_13"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_action_snackbar_parental_control"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Do you want to set a Parental PIN?" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_action_snackbar_parental_control"
+            android:layout_width="64dp"
+            android:layout_height="40dp"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/iv_close_snackbar_parental_control"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Setup" />
+
+        <ImageView
+            android:id="@+id/iv_close_snackbar_parental_control"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_cross" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

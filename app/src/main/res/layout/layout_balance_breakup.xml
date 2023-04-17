@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+
+        <variable
+            name="proRatedResponse"
+            type="com.tatasky.binge.data.networking.models.response.ProRatedResponse" />
+
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:id="@+id/pro_rated_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_marginStart="@dimen/margin_55"
+            android:id="@+id/tv_current_balance"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="?colorOnSecondary"
+            android:textSize="@dimen/text_size_14"
+            app:layout_constraintEnd_toStartOf="@id/tv_current_balance_value"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:text="@{proRatedResponse.Data.currentBalanceVerbiage}"
+            tools:text="Current balance" />
+
+        <TextView
+            android:layout_marginEnd="@dimen/margin_55"
+            android:id="@+id/tv_current_balance_value"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textColor="?colorOnSecondary"
+            android:textSize="@dimen/text_size_14"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_current_balance"
+            app:layout_constraintTop_toTopOf="parent"
+            htmlText="@{proRatedResponse.Data.currentBalance}"
+            tools:text="Current balance" />
+
+        <View
+            android:layout_marginStart="@dimen/margin_55"
+            android:layout_marginEnd="@dimen/margin_55"
+            android:id="@+id/horizontalSeperater"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginTop="@dimen/view_margin_large"
+            android:background="#444764"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_current_balance" />
+
+
+        <TextView
+            android:layout_marginStart="@dimen/margin_55"
+            android:id="@+id/tv_payable_amount"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_large"
+            android:textSize="@dimen/text_size_14"
+            app:layout_constraintEnd_toStartOf="@id/tv_payable_amount_value"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/horizontalSeperater"
+            android:text="@{proRatedResponse.Data.payableAmountVerbiage}"
+            tools:text="Current balance" />
+
+
+        <TextView
+            android:layout_marginEnd="@dimen/margin_55"
+            android:id="@+id/tv_payable_amount_value"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_large"
+            android:gravity="end"
+            android:textSize="@dimen/text_size_14"
+            app:layout_constraintEnd_toEndOf="parent"
+            htmlText="@{proRatedResponse.Data.payableAmount}"
+            app:layout_constraintStart_toEndOf="@id/tv_payable_amount"
+            app:layout_constraintTop_toBottomOf="@id/horizontalSeperater"
+            tools:text="Current balance" />
+
+
+        <TextView
+            android:id="@+id/tv_prorate_footer"
+            style="@style/TSText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_large"
+            android:gravity="center"
+            htmlText="@{proRatedResponse.Data.proRateFooterMessage}"
+            android:textColor="?colorOnSecondary"
+            android:textSize="@dimen/text_size_12"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_payable_amount"
+            tools:text="Current balance" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

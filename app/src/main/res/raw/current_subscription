@@ -1,0 +1,141 @@
+{
+  "productId": "DEFAULT",
+  "productName": "Premium",
+  "amount": "&#8377; 299/month",
+  "packValidity": "Expired on 21/12/2021",
+  "expiryFooterMessage": "Plan is ongoing",
+  "numberOfApps": "7 Apps",
+  "planOptions": {
+    "renewPlanOption": false,
+    "renewPlanMessage": "Renew Plan",
+    "changePlanOption": true,
+    "changePlanMessage": "Change Plan",
+    "changeTenureMessage": "Change Tenure",
+    "changeTenureOption": true,
+    "revokeButtonOption": false,
+    "revokeButtonMessage": "Don't cancel my plan",
+    "revokePlanVerbiage": "Plan cancellation scheduled for 20/08/2021",
+    "cancellationOption": {
+      "cancelButtonOption": true,
+      "cancelButtonMessage": "Cancel Plan",
+      "bingeCancelHeaderMessage": "We're sad to see you go",
+      "bingeCancelFooterMessage": "Are you sure you want to cancel your Plan?",
+      "bingeCancelExpiryVerbiage": "Plan cancellation will be scheduled on 21/01/2021",
+      "primeCancelHeaderMessage": "We're sad to see you go",
+      "primeCancelFooterMessage": "Are you sure you want to cancel your add on?",
+      "primeCancelExpiryVerbiage": "Plan cancellation will be scheduled on 21/01/2021"
+    }
+  },
+  "primeAutoSelect": true,
+  "primePackDetails": {
+    "bundleState": "ACTIVATED",
+    "packAmount": "299/month",
+    "title": "Amazon Prime",
+    "imageUrl": "",
+    "expiryDate": "21/20/2020",
+    "packType": "paid",
+    "subscriptionExpiryMessage": "",
+    "renewalCycle": "",
+    "platform": "mobile",
+    "cancelled": false,
+    "primeMessageDetails": {
+      "primeTitle1": "",
+      "primeTitle2": "",
+      "primeMessage1": "",
+      "primeMessage2": "",
+      "statusType": ""
+    }
+  },
+  "componentList": [
+    {
+      "componentId": "DEF",
+      "componentName": "DEFAULT",
+      "partnerList": [
+        {
+          "partnerId": "M1",
+          "partnerName": "zeefive",
+          "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822180437"
+        },
+        {
+          "partnerId": "M2",
+          "partnerName": "vootSelect",
+          "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822198187"
+        },
+        {
+          "partnerId": "M3",
+          "partnerName": "shemaroome",
+          "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822224076"
+        },
+        {
+          "partnerId": "M4",
+          "partnerName": "hungama",
+          "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822189245"
+        },
+        {
+          "partnerId": "M5",
+          "partnerName": "erosnow",
+          "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822241975"
+        },
+        {
+          "partnerId": "M6",
+          "partnerName": "sonyliv",
+          "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822489216"
+        },
+        {
+          "partnerId": "M7",
+          "partnerName": "hotstar",
+          "iconUrl": "https://res.cloudinary.com/uat-main/image/upload/v1630483444/tatasky-uat/cms-ui/images/custom-content/1630483442587.png"
+        }
+      ]
+    },
+    {
+      "componentId": "TRIAL",
+      "componentName": "FREE TRIAL",
+      "partnerList": [
+        {
+          "partnerId": "M1",
+          "partnerName": "zeefive",
+          "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822180437"
+        },
+        {
+          "partnerId": "M2",
+          "partnerName": "vootSelect",
+          "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822198187"
+        },
+        {
+          "partnerId": "M3",
+          "partnerName": "shemaroome",
+          "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822224076"
+        },
+        {
+          "partnerId": "M4",
+          "partnerName": "hungama",
+          "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822189245"
+        },
+        {
+          "partnerId": "M5",
+          "partnerName": "erosnow",
+          "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822241975"
+        },
+        {
+          "partnerId": "M6",
+          "partnerName": "sonyliv",
+          "iconUrl": "https://tatasky-production-cms.s3.amazonaws.com/cms-ui/images/custom-content/1618822489216"
+        },
+        {
+          "partnerId": "M7",
+          "partnerName": "hotstar",
+          "iconUrl": "https://res.cloudinary.com/uat-main/image/upload/v1630483444/tatasky-uat/cms-ui/images/custom-content/1630483442587.png"
+        },
+        {
+          "partnerId": "M8",
+          "partnerName": "sunnxt",
+          "iconUrl": "https://res.cloudinary.com/uat-main/image/upload/v1600151957/tatasky-uat/cms-ui/images/custom-content/1600151955770.png"
+        }
+      ]
+    }
+  ],
+  "subscriptionInformationDTO": {
+    "bingeAccountStatus": "deactive"
+  }
+}

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="android.text.TextUtils" />
+        <variable
+            name="viewModel"
+            type="com.tatasky.binge.ui.features.subscription_freemium.viewmodel.FreemiumSubscriptionViewModel"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="@dimen/dp_14"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/dp_20"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/dp_14"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineBottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="@dimen/dp16"/>
+
+        <ImageView
+            android:id="@+id/subscription_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="fitStart"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/sample_iv_desc" />
+
+        <ImageButton
+            android:id="@+id/imgBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@id/guidelineTop"
+            increaseTouch="@{8}"
+            app:srcCompat="@drawable/ic_back_key"
+            android:contentDescription="@string/sample_iv_desc" />
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@+id/imgBack"
+            app:layout_constraintBottom_toBottomOf="@+id/imgBack"
+            app:layout_constraintTop_toTopOf="@+id/imgBack"
+            android:layout_marginStart="@dimen/margin_22"
+            app:srcCompat="@drawable/small_binge_logo"
+            android:contentDescription="@string/sample_iv_desc" />
+
+        <TextView
+            android:id="@+id/tv_existing_user"
+            style="@style/TSTextBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/margin_10"
+            android:paddingVertical="@dimen/margin_18"
+            android:text="@string/existing_user_login"
+            android:lineSpacingExtra="3sp"
+            android:textColor="@color/darkSecondary"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/imgBack"
+            app:layout_constraintTop_toTopOf="@+id/imgBack"
+            app:layout_constraintEnd_toStartOf="@id/iv_existing_user_end"
+            />
+
+        <ImageView
+            android:paddingTop="2dp"
+            android:id="@+id/iv_existing_user_end"
+            android:layout_height="0dp"
+            android:layout_width="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/tv_existing_user"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:srcCompat = "@drawable/ic_arrow_right"
+            app:layout_constraintBottom_toBottomOf="@id/tv_existing_user"
+            />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/group_pack_listing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="recycler_pack_options,subscription_background,tv_sub_landing_title,btn_pack_proceed"
+            tools:visibility="visible" />
+
+
+        <TextView
+            android:id="@+id/tv_sub_landing_title"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_24"
+            android:gravity="center"
+            android:textSize="22sp"
+            app:layout_constraintStart_toEndOf="@id/guidelineStart"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:layout_constraintTop_toBottomOf="@id/logo"
+            tools:text="@string/choose_plan"
+            android:text="@{!TextUtils.isEmpty(viewModel.getCurrentSubscription().planCTADetails.changePlanText) ? viewModel.getCurrentSubscription().planCTADetails.changePlanText : @string/choose_plan, default=@string/choose_plan}" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:id="@+id/game_info_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_16"
+            android:background="@drawable/bg_bottom_gradient"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_sub_landing_title">
+
+            <ImageView
+                android:id="@+id/iv_game_label"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tv_game_info"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_game_info"
+                style="@style/TSTextBold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_12"
+                android:layout_marginTop="@dimen/margin_22"
+                android:layout_marginBottom="@dimen/margin_22"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_game_label"
+                app:layout_constraintTop_toTopOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_pack_options"
+            setAdapter="@{viewModel.adapterNew}"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_gravity="bottom"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="@dimen/dimens_26dp"
+            android:orientation="vertical"
+            android:scrollbars="vertical"
+            android:scrollbarStyle="outsideInset"
+            android:scrollbarThumbVertical="@drawable/scroll_thumb"
+            android:fadeScrollbars="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:paddingEnd="10dp"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintStart_toEndOf="@id/guidelineStart"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_anchorGravity="bottom"
+            app:layout_constraintBottom_toTopOf="@+id/btn_pack_proceed"
+            app:layout_constraintTop_toBottomOf="@id/game_info_layout"
+            app:reverseLayout="false"
+            tools:itemCount="5"
+            tools:listitem="@layout/item_starter_pack" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_pack_proceed"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dimens_56dp"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            android:text="@string/proceed"
+            android:enabled="false"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            android:layout_marginBottom="@dimen/dp_14"
+            app:layout_constraintBottom_toTopOf="@id/comparePlan_TV"/>
+
+
+        <TextView
+            android:id="@+id/comparePlan_TV"
+            style="@style/TSTextBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/compare_plans"
+            android:textColor="@color/darkSecondary"
+            android:textSize="@dimen/text_size_16"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/guidelineBottom"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

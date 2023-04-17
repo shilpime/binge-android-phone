@@ -1,0 +1,100 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="railsModel"
+            type="com.tatasky.binge.ui.features.home.model.RailsModel" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:descendantFocusability="blocksDescendants"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clHomeRoot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/rail_margins">
+
+            <ImageView
+                android:id="@+id/provider_logo"
+                style="@style/TSTextMedium"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="@dimen/view_margin_medium"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBaseline_toBaselineOf="@id/divider"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/home_recycler_view_title"
+                style="@style/TSTextTitle"
+                android:layout_width="0dp"
+                android:layout_marginStart="@dimen/margin_20"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="@{railsModel.title}"
+                android:gravity="top"
+                app:layout_constraintEnd_toStartOf="@+id/home_see_all"
+                app:layout_constraintStart_toEndOf="@+id/provider_logo"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Top Movies" />
+
+            <ImageView
+                android:id="@+id/divider"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/margin_2"
+                android:layout_marginEnd="@dimen/view_margin_medium"
+                android:baselineAlignBottom="true"
+                android:layout_marginStart="@dimen/view_margin_medium"
+                android:contentDescription="@string/sample_iv_desc"
+                android:scaleType="fitXY"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_divider"
+                app:layout_constraintEnd_toStartOf="@id/home_see_all"
+                app:layout_constraintStart_toEndOf="@+id/provider_logo"
+                app:layout_constraintTop_toBottomOf="@id/home_recycler_view_title" />
+
+            <TextView
+                android:id="@+id/home_see_all"
+                style="@style/TSTextMedium"
+                android:layout_width="80dp"
+                android:layout_height="20dp"
+                android:paddingStart="@dimen/dp_1"
+                android:paddingEnd="@dimen/view_margin_large"
+                android:gravity="top"
+                android:drawablePadding="@dimen/view_margin_smallest"
+                android:visibility="visible"
+                android:text="@string/empty_arrow"
+                increaseTouch="@{8}"
+                android:textSize="@dimen/text_size_14"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:drawableEndCompat="@drawable/ic_seeall" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/home_recycler_view"
+                setAdapter="@{railsModel.adapter}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_8"
+                android:background="@android:color/transparent"
+                android:clipToPadding="false"
+                android:lineSpacingExtra="4dp"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/margin_20dp"
+                android:paddingEnd="4dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/divider" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
+</layout>

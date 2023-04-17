@@ -1,0 +1,186 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fl_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginEnd="@dimen/_8sdp"
+        android:layout_marginRight="@dimen/_8sdp"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_start_over"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/_8sdp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_start_over" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/tv_video_language"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/_8sdp"
+            android:visibility="visible"
+            app:srcCompat="@drawable/ic_video_language" />
+        <!--            android:background="?attr/selectableItemBackgroundBorderless"-->
+
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/tv_video_quality"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="@dimen/_8sdp"
+            android:visibility="visible"
+            app:srcCompat="@drawable/ic_video_quality" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_ttn_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_pause" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_ttn_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            app:srcCompat="@drawable/ic_play" />
+
+
+        <ImageView
+            android:id="@+id/tv_rew"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:gravity="center"
+            app:srcCompat="@drawable/exo_icon_rewind"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/iv_ttn_play"
+            />
+
+        <ImageView
+            android:id="@+id/tv_ffwd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:gravity="center"
+            app:srcCompat="@drawable/exo_icon_fastforward"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/iv_ttn_play"
+            />
+        <TextView
+            android:id="@+id/tv_error_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/iv_ttn_play"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/_12ssp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/_16sdp"
+        android:paddingRight="@dimen/_16sdp">
+
+
+        <TextView
+            android:id="@id/tv_played_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white" />
+
+
+        <TextView
+            android:id="@+id/tv_live"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:background="@android:color/holo_red_dark"
+            android:includeFontPadding="false"
+            android:paddingLeft="@dimen/_4sdp"
+            android:paddingRight="@dimen/_4sdp"
+            android:text="@string/live"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/_14ssp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/ll_bottom_controller"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_played_time"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+
+            <com.google.android.exoplayer2.ui.DefaultTimeBar
+                android:id="@id/tb_video_played"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/_8sdp"
+                android:layout_marginRight="@dimen/_8sdp"
+                android:layout_weight="1"
+                app:buffered_color="@android:color/white"
+                app:played_color="@color/playedColor"
+                app:scrubber_color="@color/scrubberColor"
+                app:scrubber_disabled_size="0dp"
+                app:unplayed_color="@color/white_50" />
+
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_full_screen_enter_exit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_full_screen_enter" />
+
+            <TextView
+                android:id="@+id/tv_add_to_watchlist"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:id="@+id/tv_play_next"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+
+            <ImageView
+                android:id="@+id/iv_previous"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/exo_remaining"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                app:layout_constraintTop_toTopOf="@id/exo_progress"
+                app:layout_constraintBottom_toBottomOf="@id/exo_progress"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </LinearLayout>
+    </RelativeLayout>
+</FrameLayout>

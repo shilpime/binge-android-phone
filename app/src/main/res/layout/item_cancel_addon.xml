@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.tatasky.binge.customviews.CustomMaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="@dimen/margin_10dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/stroke_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingVertical="@dimen/view_margin_medium"
+                android:paddingHorizontal="@dimen/view_margin_large"
+                >
+
+                <ImageView
+                    android:id="@+id/iv_item_image"
+                    android:scaleType="fitXY"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_premium_crown" />
+
+                <TextView
+                    android:layout_marginStart="@dimen/view_margin_smallest"
+                    android:id="@+id/tv_item_name"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    tools:text="Premium  VIP"
+                    android:textSize="@dimen/text_size_16"
+                    app:layout_constraintBottom_toBottomOf="@id/iv_item_image"
+                    app:layout_constraintEnd_toStartOf="@id/tv_price"
+                    app:layout_constraintStart_toEndOf="@id/iv_item_image"
+                    app:layout_constraintTop_toTopOf="@id/iv_item_image" />
+
+                <TextView
+                    android:id="@+id/tv_price"
+                    style="@style/TSText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="Rs 199/month"
+                    android:textColor="?colorOnSecondary"
+                    android:textSize="@dimen/text_size_14"
+                    android:layout_marginEnd="@dimen/view_margin_small"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/rb_add_on"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/rb_add_on"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/check_button_selector"
+                    android:button="@null"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.tatasky.binge.customviews.CustomMaterialCardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

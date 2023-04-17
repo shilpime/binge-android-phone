@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+        <variable
+            name="knowMore"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks.KnowMore" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.tatasky.binge.customviews.CustomMaterialCardView
+            android:id="@+id/root_dialog_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/view_margin_xxlarge"
+                android:paddingBottom="@dimen/view_margin_small">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideLine_end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".95" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideLine_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".05" />
+
+
+                <ImageView
+                    android:id="@+id/iv_dialog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/sample_iv_desc"
+                    app:layout_constraintHeight_max="@dimen/dp_80"
+                    app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+                    app:layout_constraintStart_toStartOf="@id/guideLine_start"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_dialog_heading"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_large"
+                    android:textSize="@dimen/text_size_20"
+                    android:text="@{knowMore.title}"
+                    app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+                    app:layout_constraintStart_toStartOf="@id/guideLine_start"
+                    app:layout_constraintTop_toBottomOf="@id/iv_dialog"
+                    tools:text="Multiscreen 299" />
+
+                <TextView
+                    android:id="@+id/tv_dialog_msg"
+                    style="@style/TSTextMedium"
+                    android:layout_width="@dimen/margin_0"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_large"
+                    android:textColor="@color/offer_color"
+                    android:textSize="@dimen/text_size_14"
+                    app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+                    app:layout_constraintStart_toStartOf="@id/guideLine_start"
+                    app:layout_constraintTop_toBottomOf="@id/tv_dialog_heading" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_cancel"
+                    style="@style/Widget.AppTheme.ButtonStyle.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_large"
+                    android:text="@string/close_underline"
+                    android:textColor="?android:textColorTertiary"
+                    android:textSize="@dimen/text_size_16"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+                    app:layout_constraintStart_toStartOf="@id/guideLine_start"
+                    app:layout_constraintTop_toBottomOf="@id/tv_dialog_msg" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.tatasky.binge.customviews.CustomMaterialCardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

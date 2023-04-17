@@ -1,0 +1,2 @@
+configurations.maybeCreate("default")
+artifacts.add("default", file('cmsdkCore-2.4.3.3-pa.sonyliv.com.aar'))

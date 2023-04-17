@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View"/>
+        <variable name="numberOfBingeAccount" type="Integer" />
+        <variable name="autoPlayOn" type="Boolean"/>
+        <variable name="notificationOn" type="Boolean"/>
+        <variable
+            name="contentLangTitle"
+            type="String" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <include
+            android:id="@+id/toolbar_layout"
+            layout="@layout/shadowed_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:scrollbars="none"
+            android:layout_weight="1">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:context=".ui.features.sidemenunavdrawer.SettingsFragment">
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_margin_start"
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_begin="@dimen/margin_20dp" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_margin_end"
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_end="@dimen/margin_20" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+                    app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:orientation="vertical">
+                    <include
+                        android:id="@+id/view_edit_profile"
+                        layout="@layout/layout_settings_item"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:menuArrowVisible="@{true}"
+                        app:menuDividerVisible="@{true}"
+                        app:menuItemImgRes="@{@drawable/ic_profile}"
+                        app:menuItemText="@{@string/edit_profile}" />
+
+                    <include
+                        android:id="@+id/view_content_language"
+                        layout="@layout/layout_settings_item"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:menuArrowVisible="@{true}"
+                        app:menuDividerVisible="@{true}"
+                        app:menuItemImgRes="@{@drawable/ic_content_language}"
+                        app:menuItemText="@{contentLangTitle}" />
+
+                    <include
+                        android:id="@+id/view_device_management"
+                        layout="@layout/layout_settings_item"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:menuArrowVisible="@{true}"
+                        app:menuDividerVisible="@{true}"
+                        app:menuItemImgRes="@{@drawable/ic_device_management}"
+                        app:menuItemText="@{@string/device_management}" />
+                    <include
+                        android:id="@+id/view_parental_pin"
+                        layout="@layout/layout_settings_item"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:menuArrowVisible="@{true}"
+                        app:menuDividerVisible="@{true}"
+                        app:menuItemImgRes="@{@drawable/ic_parental_lock}"
+                        app:menuItemText="@{@string/btn_parental_pin}" />
+<!--
+                    <include
+                        android:id="@+id/view_payment_settings"
+                        layout="@layout/layout_settings_item"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:menuArrowVisible="@{true}"
+                        app:menuDividerVisible="@{true}"
+                        app:menuItemImgRes="@{@drawable/ic_payment_settings}"
+                        app:menuItemText="@{@string/payment_settings}" />-->
+                    <include
+                        android:id="@+id/view_switch_account"
+                        layout="@layout/layout_settings_item"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:menuArrowVisible="@{true}"
+                        app:menuDividerVisible="@{true}"
+                        android:visibility="@{numberOfBingeAccount > 1 ? View.VISIBLE : View.GONE, default=gone}"
+                        app:menuItemImgRes="@{@drawable/ic_switch_account}"
+                        app:menuItemText="@{@string/switch_account}"
+                        tools:visibility="visible"/>
+                    <include
+                        android:id="@+id/view_auto_trailer"
+                        layout="@layout/layout_settings_item_with_toggle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:menuDividerVisible="@{true}"
+                        app:menuItemSwitchEnabled="@{true}"
+                        app:isChecked="@{autoPlayOn}"
+                        app:menuItemImgRes="@{@drawable/ic_auto_trailer}"
+                        app:menuItemText="@{@string/auto_play_trailers}" />
+                    <include
+                        android:id="@+id/view_notification_settings"
+                        layout="@layout/layout_settings_item_with_toggle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:menuDividerVisible="@{true}"
+                        app:menuItemSwitchEnabled="@{true}"
+                        app:isChecked="@{notificationOn}"
+                        app:menuItemImgRes="@{@drawable/ic_notification_settings}"
+                        app:menuItemText="@{@string/notification_settings}" />
+
+                    <include
+                        android:id="@+id/view_transaction_history"
+                        layout="@layout/layout_settings_item"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:menuArrowVisible="@{true}"
+                        app:menuDividerVisible="@{true}"
+                        app:menuItemImgRes="@{@drawable/ic_trans_history}"
+                        app:menuItemText="@{@string/transaction_history}" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+
+        <TextView
+            android:id="@+id/tv_account_refresh"
+            style="@style/TSText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawablePadding="27dp"
+            android:padding="@dimen/margin_20"
+            android:textColor="@color/white_75"
+            android:text="@string/text_account_refresh"
+            android:textSize="@dimen/dimens_16sp"
+            app:drawableStartCompat="@drawable/ic_refresh_account" />
+
+        <TextView
+            android:id="@+id/tv_log_out"
+            style="@style/TSText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawablePadding="27dp"
+            android:padding="@dimen/margin_20"
+            android:textColor="@color/white_75"
+            android:text="@string/text_logout"
+            android:textSize="@dimen/dimens_16sp"
+            app:drawableStartCompat="@drawable/ic_sign_out_settings" />
+    </LinearLayout>
+</layout>

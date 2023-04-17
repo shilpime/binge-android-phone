@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View"/>
+
+        <variable
+            name="channelInfo"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks.Channels" />
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="@{channelInfo!=null?View.VISIBLE:View.GONE, default=gone}"
+        tools:visibility="visible"
+        android:paddingHorizontal="@dimen/view_margin_smallest">
+
+        <TextView
+            style="@style/TSTextBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_border"
+            android:paddingHorizontal="@dimen/view_margin_small"
+            android:paddingVertical="1dp"
+            android:text="@{channelInfo.name}"
+            tools:text = "HD"
+            android:textColor="@color/darkSecondary"
+            />
+
+        <TextView
+            style="@style/TSTextDefault"
+            tools:text="45"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_14"
+            android:layout_marginStart="@dimen/view_margin_small"
+            android:textColor="@color/stroke_color"
+            android:text="@{channelInfo.count}" />
+
+    </LinearLayout>
+</layout>

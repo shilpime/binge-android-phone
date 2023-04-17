@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.tatasky.binge.data.networking.models.response.SubscriberProfileListModel" />
+
+        <variable
+            name="largeScreen"
+            type="Boolean" />
+
+        <import type="android.view.View" />
+    </data>
+
+<com.google.android.material.card.MaterialCardView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="@style/BottomRoundedCard">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/view_margin_large"
+        android:paddingEnd="@dimen/view_margin_large"
+        android:paddingTop="@dimen/view_margin_large"
+        android:paddingBottom="@dimen/view_margin_medium">
+
+        <FrameLayout
+            android:id="@+id/fl_profileImage"
+            android:layout_width="@dimen/profile_width_height"
+            android:layout_height="@dimen/profile_width_height"
+            android:layout_marginTop="@dimen/view_margin_large"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/profileImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="4dp"
+                android:background="@drawable/circle_with_gradient_border"
+                android:scaleType="fitXY"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/tvLetter"
+                style="@style/TSTextBold"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:background="@drawable/account_switch_circle"
+                android:textSize="@dimen/text_size_36"
+                android:visibility="gone" />
+        </FrameLayout>
+
+
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="end"
+            app:constraint_referenced_ids="fl_profileImage" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/view_margin_xlarge"
+            android:layout_marginTop="@dimen/view_margin_large"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/barrier"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvUserName"
+                style="@style/TSTextMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_4"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:gravity="start"
+                android:text="@{(model.userData.firstName ?? ``) +' ' + (model.userData.lastName ?? ``)}"
+                android:textSize="@dimen/text_size_20" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvMobile"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_smallest"
+                android:text="@{@string/mobile_no(model.userData.rmn ?? ``)}"
+                android:textColor="@color/darkOnSecondary"
+                android:textSize="@dimen/text_size_14" />
+
+            <RelativeLayout
+                android:id="@+id/rl_alias"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_small"
+                android:layout_marginBottom="@dimen/view_margin_small"
+                app:layout_constraintStart_toStartOf="@+id/tvMobile"
+                app:layout_constraintTop_toBottomOf="@+id/tvMobile">
+
+                <com.tatasky.binge.utils.CustomEditText
+                    android:id="@+id/etAddAlias"
+                    style="@style/TSTextMedium"
+                    android:textCursorDrawable="@null"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@{largeScreen?@drawable/ic_tv:@drawable/ic_device, default=@drawable/ic_tv}"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/add_alias_hint"
+                    android:textColorHint="@color/warm_grey"
+                    android:imeOptions="actionDone"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:ellipsize="end"
+                    android:drawablePadding="@dimen/view_margin_small"
+                    android:editable="false"
+                    android:scrollHorizontally="true"
+                    android:enabled="false"
+                    android:singleLine="true"
+                    android:text="@{model.userData.aliasName}"
+                    android:textColor="@color/darkOnSecondary"
+                    android:textSize="@dimen/text_size_14" />
+
+                <ImageView
+                    android:id="@+id/iv_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_4"
+                    android:layout_marginTop="@dimen/view_margin_smallest"
+                    android:layout_toEndOf="@+id/etAddAlias"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_edit" />
+            </RelativeLayout>
+            <LinearLayout
+                android:id="@+id/llCurrentPlan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvPlanName"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_smallest"
+                    android:text="@{model.userData.planName}"
+                    android:textColor="@color/darkOnSecondary"
+                    android:textSize="@dimen/text_size_14" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvPlanExpire"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_smallest"
+                    android:layout_marginStart="2dp"
+                    android:textColor="@color/darkOnSecondary"
+                    android:textSize="@dimen/text_size_14" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llPrime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:id="@+id/tv_prime_name"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_smallest"
+                    android:layout_marginEnd="@dimen/view_margin_small"
+                    tools:text="Amazon Prime Videos"
+                    android:textColor="@color/darkOnSecondary"
+                    android:textSize="@dimen/text_size_14" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvPrimeExpire"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_smallest"
+                    android:textColor="@color/darkOnSecondary"
+                    android:textSize="@dimen/text_size_14" />
+
+            </LinearLayout>
+            <!--need to add current plan-->
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
+</layout>

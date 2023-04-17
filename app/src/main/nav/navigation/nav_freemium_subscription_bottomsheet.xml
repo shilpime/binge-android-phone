@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/freemium_subscription_bottomsheet"
+    app:startDestination="@id/subscriptionStarterFragment">
+
+
+
+
+    <action
+        android:id="@+id/action_global_guestLoginBottomDialogFragment"
+        app:destination="@id/guestLoginBottomDialogFragment" />
+
+
+    <fragment
+        android:id="@+id/subscriptionStarterFragment"
+        android:name="com.tatasky.binge.ui.features.subscription_freemium.SubscriptionStarterFragment"
+        android:label="SubscriptionStarterFragment"
+        tools:layout="@layout/fragment_subscription_starter">
+
+        <argument
+            android:name="source"
+            app:argType="string"/>
+
+        <action
+            android:id="@+id/action_subscriptionStarterFragment_to_subscriptionTenureBottomSheetDialog"
+            app:destination="@id/subscriptionTenureBottomSheetDialog" />
+        <action
+            android:id="@+id/action_subscriptionStarterFragment_to_loginBottomSheetDialogFragment"
+            app:destination="@id/loginBottomSheetDialogFragment" />
+
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/subscriptionTenureBottomSheetDialog"
+        android:name="com.tatasky.binge.ui.features.subscription.view.SubscriptionTenureBottomSheetDialogFragment"
+        android:label="fragment_select_tenure_bottom_sheet_dialog"
+        tools:layout="@layout/fragment_subscription_tenure_bottom_sheet_dialog">
+
+        <argument
+            android:name="pack"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.data.networking.models.response.PartnerPacks"
+            app:nullable="true" />
+        <argument
+            android:name="selectedTenure"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.data.networking.models.response.Tenure"
+            app:nullable="true" />
+
+        <argument
+            android:name="fromScreen"
+            android:defaultValue=""
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_subscriptionTenureBottomSheetDialogFragment_to_loginBottomSheetDialogFragment"
+            app:destination="@id/loginBottomSheetDialogFragment" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/loginBottomSheetDialogFragment"
+        android:name="com.tatasky.binge.ui.features.onboarding.login.bottomsheet.GuestLoginBottomDialogFragment"
+        android:label="LoginBottomSheetDialogFragment"
+        tools:layout="@layout/fragment_guest_login_bottom_sheet_dialog">
+        <argument
+            android:name="isParentalPinSetupRequested"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="isParentalPinVerificaitionRequested"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="isLoggedIn"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="previouslyUsedMobileNumbersList"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.data.networking.models.response.UsedMobileNumber[]"
+            app:nullable="true" />
+        <argument
+            android:name="loginSource"
+            app:argType="string" />
+        <!--Fixme: NEWSUB, Remove extra params-->
+        <argument
+            android:name="pack"
+            app:argType="com.tatasky.binge.data.networking.models.response.PartnerPacks"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="selectedTenure"
+            app:argType="com.tatasky.binge.data.networking.models.response.Tenure"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="subscriptionInfo"
+            app:argType="com.tatasky.binge.data.database.model.SubscriptionInfoModel"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="isLoginToHome"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_guestLoginBottomDialogFragment_to_managedAppFragment"
+            app:destination="@id/managedAppFragment"
+            app:launchSingleTop="true" >
+            <argument
+                android:name="isToSummaryPage"
+                android:defaultValue="false"
+                app:argType="boolean" />
+            <argument
+                android:name="cartId"
+                android:defaultValue=""
+                app:argType="string" />
+        </action>
+    </fragment>
+
+
+</navigation>

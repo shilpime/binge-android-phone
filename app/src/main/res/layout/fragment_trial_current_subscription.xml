@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="selectedPack"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks" />
+
+        <variable
+            name="firstTimeLogin"
+            type="Boolean" />
+
+        <variable
+            name="primeVisible"
+            type="Boolean" />
+
+        <import type="android.text.InputType" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nsv_trial"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".01" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_h_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.9" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_v_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".05" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_v_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".95" />
+
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/guideline_2"
+                app:srcCompat="@drawable/medium_binge_logo" />
+
+            <TextView
+                android:id="@+id/tv_sub_landing_title"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_medium"
+                android:gravity="center"
+                android:lineSpacingExtra="4sp"
+                tools:text="You are currently enjoying Free Trial"
+                android:textSize="@dimen/text_size_28"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/logo" />
+
+            <include
+                android:id="@+id/selected_pack_card"
+                layout="@layout/layout_trial_pack_subscribed"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_xlarge"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/tv_sub_landing_title"
+                app:pack="@{selectedPack}" />
+
+            <TextView
+                android:id="@+id/free_trial_expiry_msg"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_large"
+                android:gravity="center"
+                android:lineSpacingExtra="4sp"
+                android:textColor="@color/offer_color"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintVertical_chainStyle="spread_inside"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/selected_pack_card"
+                app:layout_constraintBottom_toTopOf="@id/amazon_packs"
+                tools:text="Free Trial Expires on 20/05/2020" />
+
+            <include
+                layout="@layout/layout_amazon_pack"
+                android:id="@+id/amazon_packs"
+                android:layout_width="0dp"
+                app:isVisible="@{primeVisible}"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_small"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintTop_toBottomOf="@id/free_trial_expiry_msg" />
+
+            <TextView
+                android:id="@+id/tv_footer"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/view_margin_large"
+                android:gravity="center"
+                android:lineSpacingExtra="4sp"
+                android:textColor="@color/offer_color"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintTop_toBottomOf="@id/amazon_packs"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                tools:text="Select a susbcription plan to continue watching after Free Trial" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_select_subscription"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/button_height"
+                android:visibility="gone"
+                tools:visibility="gone"
+                app:layout_constraintVertical_bias="1"
+                android:layout_marginTop="@dimen/view_margin_medium"
+                tools:text="@string/select_subscription"
+                app:layout_constraintTop_toBottomOf="@id/tv_footer"
+                app:layout_constraintBottom_toBottomOf="@id/guideline_h_2"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_cancel_subscription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Widget.AppTheme.ButtonStyle.Text"
+                android:text="@string/cancel_free_subscription"
+                android:visibility="gone"
+                tools:visibility="visible"
+                app:layout_constraintTop_toBottomOf="@id/barrier"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"/>
+
+            <androidx.constraintlayout.widget.Barrier
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="btn_proceed, btn_select_subscription"
+                android:id="@+id/barrier"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_proceed"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/view_margin_medium"
+                android:text="@string/start_watching"
+                android:visibility="gone"
+                tools:visibility="gone"
+                app:layout_constraintVertical_bias="1"
+                app:layout_constraintTop_toBottomOf="@id/tv_footer"
+                app:layout_constraintBottom_toBottomOf="@id/guideline_h_2"
+                app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                app:layout_constraintStart_toStartOf="@id/guideline_v_1"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

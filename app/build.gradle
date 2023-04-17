@@ -1,0 +1,487 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'androidx.navigation.safeargs.kotlin'
+apply plugin: 'com.google.firebase.firebase-perf'
+apply from: '../aca.gradle'
+apply plugin: "org.sonarqube"
+apply from: "navigation.gradle.kts"
+apply plugin: "jacoco"
+//Make sure to add MerchantConfig.txt where this gradle is stored
+//or follow: https://developer.juspay.in/v4.0/docs/adding-plugin
+apply plugin: 'hypersdk-asset-plugin'
+
+gradle.projectsEvaluated {
+    preBuild.dependsOn convertNavigation
+}
+def generatedResDir = new File(buildDir, "generated/local/main/res")
+sonarqube {
+    properties {
+        property "sonar.projectName", "BingeFreemium-Android"
+        property "sonar.projectKey", "com.tatasky.binge"
+        property "sonar.projectVersion", "2.0"
+
+        property "sonar.sources", "src/main/java"
+
+        def unit = fileTree(dir: project.projectDir, includes: ['**/*.exec']).files;
+        def ui = fileTree(dir: project.projectDir, includes: ['**/*.ec']).files;
+        unit.addAll(ui);
+        def files = unit.join(", ");
+
+        property "sonar.jacoco.reportPaths", files
+        property "sonar.java.coveragePlugin", "jacoco"
+        property "sonar.junit.reportsPath", "build/test-results/testDebugUnitTest"
+        property "sonar.android.lint.report", "build/reports/lint-results.xml"
+        property "sonar.host.url", "http://nprod-sonarqube1.internal.videoready.tv:9000"
+        property "sonar.login", "sonar-read"
+        property "sonar.password", "AtreTHoPyRdicYST"
+//        property "sonar.login", "sonar-write"
+//        property "sonar.password", "[eJ;G2gxF*U@-[Qb"
+//        property "sonar.host.url", "http://non-production-sonarqube.ott-route-tatasky.com/"
+//        property "sonar.login", "admin"
+//        property "sonar.password", "admin"
+        property "sonar.exclusions",
+                '*.json,' +
+//                '**/*test*/**,' +
+                '**/.gradle/**,' +
+                '**/*TtnPlayer*/**,' +
+                '**/R.class'
+    }
+}
+
+repositories {
+    flatDir {
+        dirs 'aars'
+    }
+    flatDir {
+        dirs 'libs'
+    }
+}
+kapt {
+    generateStubs = true
+    correctErrorTypes true
+}
+def version ="4.0.8.27"
+android {
+    compileSdkVersion 31
+    buildToolsVersion "29.0.3"
+    defaultConfig {
+        applicationId "com.tatasky.binge"
+        minSdkVersion 21
+        targetSdkVersion 31
+        versionCode 35
+        versionName version
+        testInstrumentationRunner "com.tatasky.binge.app.CustomInstrumentationRunner"
+        manifestPlaceholders.hostName = project.property("hostNameUat")
+        manifestPlaceholders.app_name = "Tata Play Binge"
+    }
+    signingConfigs {
+        release {
+            storeFile file("../cert_tataskybinge.jks")
+            storePassword "tata1234"
+            keyAlias "tatasky_binge"
+            keyPassword "tata1234"
+        }
+    }
+    buildFeatures{
+        dataBinding = true
+//        viewBinding = true
+    }
+//    androidExtensions {
+//        experimental = true
+//    }
+    lintOptions {
+        checkReleaseBuilds false
+    }
+
+    packagingOptions {
+        exclude 'META-INF/beans.xml'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/proguard/androidx-annotations.pro'
+    }
+    //You may need to add this for catchmedia sdk
+    dexOptions {
+        javaMaxHeapSize "2g"
+    }
+    buildTypes {
+        release {
+            shrinkResources true
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            debuggable false
+            jniDebuggable = false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            manifestPlaceholders.crashlyticsCollectionEnabled = "true"
+        }
+        debug {
+            shrinkResources false
+            minifyEnabled false
+            jniDebuggable = true
+            debuggable true
+            manifestPlaceholders.crashlyticsCollectionEnabled = "false"
+            FirebasePerformance {
+                // Set this flag to 'false' to disable @AddTrace annotation processing and
+                // automatic HTTP/S network request monitoring
+                // for a specific build variant at compile time.
+                instrumentationEnabled true
+            }
+            testCoverageEnabled true
+        }
+
+    }
+
+    flavorDimensions "default"
+    productFlavors {
+        uat {
+            applicationIdSuffix = ".uat"
+            manifestPlaceholders.hostName= project.property("hostNameUat")
+            manifestPlaceholders.app_name= "Binge Freemium"
+//            manifestPlaceholders.app_name= "Tata Play Binge Uat"
+            buildConfigField 'String', 'hostName', ('\"' + project.property("hostNameUat") + '\"')
+            buildConfigField 'String', 'BASE_URL', '"https://uat-tb.tapi.videoready.tv"'
+//            buildConfigField 'String', 'BASE_URL', '"https://tatasky-uat-tsmore-kong.videoready.tv"'
+            buildConfigField 'String', 'SEARCH_BASE_URL', '"https://uat-tb.tapi.videoready.tv"'
+            buildConfigField 'String', 'APP_NAME', ('\"' + manifestPlaceholders.app_name + '\"')
+            buildConfigField 'String', 'PUBNUB_PUBLISH_KEY', '"pub-c-3a5f1ed7-9f13-4b1a-a0b7-985378992199"'
+            buildConfigField 'String', 'PUBNUB_SUBSCRIBE_KEY', '"sub-c-2e37b748-8d74-11ec-b19d-ca42df2d7d16"'
+            buildConfigField 'String', 'PUBNUB_ORIGIN_URL', '"tatasky.pubnubapi.com"'
+            buildConfigField 'String', 'MIXPANEL_KEY', '"0b3a850cd5db836fe8430a754dff4f93"'
+            buildConfigField 'String', 'MIXPANEL_UNIFIED_KEY', '"9b3d83bf6e332e5bf15e6491bd23644e"' //uat unified
+//            buildConfigField 'String', 'MIXPANEL_UNIFIED_KEY', '"abd146bbdd2ee094c9ebfffd4fd4e61e"' //dummy uat unified
+            buildConfigField 'String', 'HEART_BEAT_URL', '"https://tatasky-csm.stage.ott.irdeto.com/csm/v1/tatasky/"'
+            buildConfigField 'String', 'SHEMAROOME_SERVICE_ID', '"10"'
+            buildConfigField 'String', 'MOENGAGE_APP_ID', '"FOX9RV3377K9FYXE84FQZ1XQ"'
+            buildConfigField 'String', 'MOENGAGE_SENDER_ID', '"954420610390"'
+            resValue "string", "moengage_sender_id", "954420610390"
+            resValue "string", "moengage_pushamp_appid", "954420610390"
+            resValue "string", "moengage_pushamp_appkey", "954420610390"
+            resValue "string", "facebook_app_id", "1403948053320616"
+            resValue "string", "fb_login_protocol_scheme", "fb1403948053320616"
+            resValue "string", "facebook_client_token", "ae94e44e29d7c6dc78aeafb61169f93b"
+            buildConfigField 'String', 'AUTH_APP_ID', '"vr-dm-android-uat"'
+            buildConfigField 'String', 'AUTH_APP_KEY', '"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6InZyLWRtLWFuZHJvaWQtdWF0Iiwia2V5IjoidnItZG0tYW5kcm9pZC11YXQifQ.ugNAiQFxbgJ6_lKBJdXpJ6Rq7JOGt_fKP3rO5kwbM6U"'
+            buildConfigField 'String', 'EROSNOW_PARTNER_CODE', '"TSKY"'
+            buildConfigField 'String', 'EROSNOW_API_CLIENTID', '"QxrFiKSkc7D1Yq38trNbBp9YfdZk0xHHsM3RKP53"'
+            buildConfigField 'String', 'SONY_LIV_TOKEN', '"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXJ0bmVyIjoiVEFUQV9TS1lfQklOR0VfTU9CSUxFIiwiYWNjZXNzS2V5IjoiM2QxYWFmNjIzNzI3NTdmYThkNjAiLCJpc3N1ZXIiOiJTb255TElWIiwic3ViamVjdCI6IlBhcnRuZXIgU3BlY2lmaWMgVG9rZW4iLCJhdWRpZW5jZSI6Iiouc29ueWxpdi5jb20iLCJpYXQiOjE2MTYwOTI1NDAsImV4cCI6MTYxNjE4NjE0MH0.CvyzgZ7UNBHRT9crMWKZphEvh1F6mhY_Y93IexcacWW92QSjnvig6dWo3yjKjFdDFjgwf94yljiykDv6wroLvg"'
+            // AppsFlyer Dev Key
+            buildConfigField 'String', 'AF_DEV_KEY', '"3TcAjEHEaS4MjapFRiRpCJ"'
+            // AppsFlyer Branded Domain
+            buildConfigField 'String', 'AF_BRANDED_DOMAIN', '"click.uat-web-tb.videoready.tv"'
+
+           //Clevertap Dev Key- TEST-LIVE-TataPlay
+            resValue "string", "ct_account_id", "TEST-6R4-556-Z56Z"
+            resValue "string", "ct_token", "TEST-655-426"
+        }
+        staging {
+//            manifestPlacehoLgolders.app_name= "Tata Play Binge Stage"
+            manifestPlaceholders.hostName = project.property("hostNameProd")
+            manifestPlaceholders.app_name= "Tata Play Freemium"
+            buildConfigField 'String', 'hostName', ('\"' + project.property("hostNameProd") + '\"')
+//            buildConfigField 'String', 'BASE_URL', '"https://staging-tb.tapi.videoready.tv"'
+//            buildConfigField 'String', 'SEARCH_BASE_URL', '"https://staging-tb.tapi.videoready.tv"'
+            buildConfigField 'String', 'BASE_URL', '"https://tb.tapi.videoready.tv"'//prod
+            buildConfigField 'String', 'SEARCH_BASE_URL', '"https://tb.tapi.videoready.tv"'//prod
+            buildConfigField 'String', 'APP_NAME', ('\"' + manifestPlaceholders.app_name + '\"')
+            buildConfigField 'String', 'PUBNUB_PUBLISH_KEY', '"pub-c-d2e51136-74e8-4c47-8418-0c66767d4b60"'//prod
+            buildConfigField 'String', 'PUBNUB_SUBSCRIBE_KEY', '"sub-c-99af3d1a-707e-11e7-8293-02ee2ddab7fe"'//prod
+            buildConfigField 'String', 'PUBNUB_ORIGIN_URL', '"tatasky.pubnubapi.com"'//prod
+            buildConfigField 'String', 'MIXPANEL_KEY', '"0b3a850cd5db836fe8430a754dff4f93"'//uat
+            buildConfigField 'String', 'MIXPANEL_UNIFIED_KEY', '"9b3d83bf6e332e5bf15e6491bd23644e"' //uat unified
+//            buildConfigField 'String', 'MIXPANEL_KEY', '"a3017925f92ffb3b9f09aee7cfb484c0"'//prod
+            buildConfigField 'String', 'HEART_BEAT_URL', '"https://tatasky-csm.stage.ott.irdeto.com/csm/v1/tatasky/"'
+            buildConfigField 'String', 'SHEMAROOME_SERVICE_ID', '"118"'
+            buildConfigField 'String', 'MOENGAGE_APP_ID', '"FOX9RV3377K9FYXE84FQZ1XQ"'//uat
+            buildConfigField 'String', 'MOENGAGE_SENDER_ID', '"954420610390"'//uat
+            resValue "string", "moengage_sender_id", "954420610390"
+            resValue "string", "moengage_pushamp_appid", "954420610390"
+            resValue "string", "moengage_pushamp_appkey", "954420610390"
+            resValue "string", "facebook_app_id", "1403948053320616"//uat
+            resValue "string", "fb_login_protocol_scheme", "fb1403948053320616"//uat
+            resValue "string", "facebook_client_token", "ae94e44e29d7c6dc78aeafb61169f93b"//UAT
+            buildConfigField 'String', 'AUTH_APP_ID', '"vr-dm-android-uat"'
+            buildConfigField 'String', 'AUTH_APP_KEY', '"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6InZyLWRtLWFuZHJvaWQtdWF0Iiwia2V5IjoidnItZG0tYW5kcm9pZC11YXQifQ.ugNAiQFxbgJ6_lKBJdXpJ6Rq7JOGt_fKP3rO5kwbM6U"'
+            buildConfigField 'String', 'SONY_LIV_TOKEN', '"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXJ0bmVyIjoiVEFUQV9TS1lfQklOR0VfTU9CSUxFIiwiYWNjZXNzS2V5IjoiM2QxYWFmNjIzNzI3NTdmYThkNjAiLCJpc3N1ZXIiOiJTb255TElWIiwic3ViamVjdCI6IlBhcnRuZXIgU3BlY2lmaWMgVG9rZW4iLCJhdWRpZW5jZSI6Iiouc29ueWxpdi5jb20iLCJpYXQiOjE2MTYwOTI1NDAsImV4cCI6MTYxNjE4NjE0MH0.CvyzgZ7UNBHRT9crMWKZphEvh1F6mhY_Y93IexcacWW92QSjnvig6dWo3yjKjFdDFjgwf94yljiykDv6wroLvg"'
+            buildConfigField 'String', 'EROSNOW_PARTNER_CODE', '"TSKY"'
+            buildConfigField 'String', 'EROSNOW_API_CLIENTID', '"1MZeCKJYqvwEeaWsCd1FA19KZxHubbz41TCIqdbF"'
+            versionName '4.0.8.3'
+            // AppsFlyer Dev Key
+            buildConfigField 'String', 'AF_DEV_KEY', '"3TcAjEHEaS4MjapFRiRpCJ"'
+            // AppsFlyer Branded Domain
+            buildConfigField 'String', 'AF_BRANDED_DOMAIN', '"click.tataplaybinge.com"'
+
+            //Clevertap Dev Key- TEST-LIVE-TataPlay
+            resValue "string", "ct_account_id", "TEST-6R4-556-Z56Z"
+            resValue "string", "ct_token", "TEST-655-426"
+        }
+        production {
+            manifestPlaceholders.hostName = project.property("hostNameProd")
+            manifestPlaceholders.app_name= "Tata Play Binge"
+            buildConfigField 'String', 'hostName', ('\"' + project.property("hostNameProd") + '\"')
+            buildConfigField 'String', 'BASE_URL', '"https://tb.tapi.videoready.tv"'
+            buildConfigField 'String', 'APP_NAME', ('\"' + manifestPlaceholders.app_name + '\"')
+//            buildConfigField 'String', 'BASE_URL', '"https://tatasky-tsmore-kong.videoready.tv"'
+            buildConfigField 'String', 'SEARCH_BASE_URL', '"https://tb.tapi.videoready.tv"'
+            buildConfigField 'String', 'PUBNUB_PUBLISH_KEY', '"pub-c-d2e51136-74e8-4c47-8418-0c66767d4b60"'
+            buildConfigField 'String', 'PUBNUB_SUBSCRIBE_KEY', '"sub-c-99af3d1a-707e-11e7-8293-02ee2ddab7fe"'
+            buildConfigField 'String', 'PUBNUB_ORIGIN_URL', '"tatasky.pubnubapi.com"'
+            buildConfigField 'String', 'MIXPANEL_KEY', '"a3017925f92ffb3b9f09aee7cfb484c0"'
+            buildConfigField 'String', 'MIXPANEL_UNIFIED_KEY', '"54ba79732ca505efbfc5cf97e6aac547"' //prod unified
+            buildConfigField 'String', 'HEART_BEAT_URL', '"https://tatasky-csm.stage.ott.irdeto.com/csm/v1/tatasky/"'
+            buildConfigField 'String', 'SHEMAROOME_SERVICE_ID', '"118"'
+            buildConfigField 'String', 'MOENGAGE_APP_ID', '"H96OKLTDJTGID5RVY1M8FIIK"'
+            buildConfigField 'String', 'MOENGAGE_SENDER_ID', '"X1ZI98JV9O61"'
+            resValue "string", "moengage_sender_id", "X1ZI98JV9O61"
+            resValue "string", "moengage_pushamp_appid", "954420610390"
+            resValue "string", "moengage_pushamp_appkey", "954420610390"
+            resValue "string", "facebook_app_id", "325375989196489"
+            resValue "string", "fb_login_protocol_scheme", "fb325375989196489"
+            resValue "string", "facebook_client_token", "c828d0458a28de7439052a1384c44536"
+            buildConfigField 'String', 'AUTH_APP_ID', '"vr-dm-android-uat"'
+            buildConfigField 'String', 'AUTH_APP_KEY', '"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6InZyLWRtLWFuZHJvaWQtdWF0Iiwia2V5IjoidnItZG0tYW5kcm9pZC11YXQifQ.ugNAiQFxbgJ6_lKBJdXpJ6Rq7JOGt_fKP3rO5kwbM6U"'
+            buildConfigField 'String', 'EROSNOW_PARTNER_CODE', '"TSKY"'
+            buildConfigField 'String', 'EROSNOW_API_CLIENTID', '"1MZeCKJYqvwEeaWsCd1FA19KZxHubbz41TCIqdbF"'
+            versionName '4.0.8'
+            buildConfigField 'String', 'SONY_LIV_TOKEN', '"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXJ0bmVyIjoiVEFUQV9TS1lfQklOR0VfTU9CSUxFIiwiYWNjZXNzS2V5IjoiM2QxYWFmNjIzNzI3NTdmYThkNjAiLCJpc3N1ZXIiOiJTb255TElWIiwic3ViamVjdCI6IlBhcnRuZXIgU3BlY2lmaWMgVG9rZW4iLCJhdWRpZW5jZSI6Iiouc29ueWxpdi5jb20iLCJpYXQiOjE2MTYwOTI1NDAsImV4cCI6MTYxNjE4NjE0MH0.CvyzgZ7UNBHRT9crMWKZphEvh1F6mhY_Y93IexcacWW92QSjnvig6dWo3yjKjFdDFjgwf94yljiykDv6wroLvg"'
+            // AppsFlyer Dev Key
+            buildConfigField 'String', 'AF_DEV_KEY', '"3TcAjEHEaS4MjapFRiRpCJ"'
+            // AppsFlyer Branded Domain
+            buildConfigField 'String', 'AF_BRANDED_DOMAIN', '"click.tataplaybinge.com"'
+
+            //Clevertap Production Key
+            resValue "string", "ct_account_id", "5R4-556-Z56Z"
+            resValue "string", "ct_token", "655-425"
+        }
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs','src/uat/libs', 'src/staging/libs', 'src/production/libs']
+            assets.srcDirs += 'src/main/nav'
+            res.srcDirs += generatedResDir
+            java.srcDirs += 'generated/source/kapt'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    defaultConfig {
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+        animationsDisabled = true
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+}
+
+//android.applicationVariants.all {
+//    def aptOutputDir = new File(buildDir, "generated/source/kapt/${it.unitTestVariant.dirName}")
+//    it.unitTestVariant.addJavaSourceFoldersToModel(aptOutputDir)
+//}
+
+ext.exoPlayerVersion = '2.11.8'
+
+dependencies {
+    implementation 'com.airbnb.android:lottie:5.2.0'
+    implementation 'nl.dionsegijn:konfetti:1.3.2'
+    implementation 'com.github.didikk:sticky-nestedscrollview:1.0.1'
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
+    implementation files('libs/ha-release-1.6.aar')
+    implementation files('libs/hungamaplayersdk-release_1.6.aar')
+
+    implementation 'com.android.support:multidex:1.0.3'
+
+    implementation 'com.pubnub:pubnub-gson:4.20.0'
+
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+    uatImplementation fileTree(include: ['*.jar', '*.aar'], dir: 'src/uat/libs')
+    stagingImplementation fileTree(include: ['*.jar', '*.aar'], dir: 'src/staging/libs')
+    productionImplementation fileTree(include: ['*.jar', '*.aar'], dir: 'src/production/libs')
+    /*ErosNow Library*/
+    implementation files('libs/eros.jar')
+
+    implementation project(path: ':TtnPlayer')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.0"
+//    implementation 'androidx.appcompat:appcompat:1.2.0'
+//    implementation 'androidx.core:core-ktx:1.6.0'
+
+    implementation("androidx.core:core:1.6.0")
+    implementation("androidx.appcompat:appcompat:1.3.1")
+
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta4'
+
+    // To leverage the latest navigation components for Activity and Fragment transactions
+    implementation 'androidx.navigation:navigation-ui-ktx:2.3.0-rc01'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0-rc01'
+    implementation "androidx.fragment:fragment:1.2.1"
+
+    //Live data, ViewModel
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    //implementation deps.archComponents.lifecycleCommonJava8
+    implementation 'androidx.lifecycle:lifecycle-reactivestreams:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.2.0'
+
+    //Retrofit - for network calls
+    implementation 'com.squareup.retrofit2:retrofit:2.6.2'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.2'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.4.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.4.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.4.0'
+//    implementation 'com.squareup.okhttp3:logging-interceptor:4.4.0'
+
+    //RxJava - for asynchronous, reactive, observer pattern based programming
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.0'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
+
+    //Dagger - for dependency injection
+    implementation 'com.google.dagger:dagger:2.27'
+    implementation 'com.google.dagger:dagger-android:2.22.1'
+    implementation 'com.google.dagger:dagger-android-support:2.22.1'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+//    implementation project(path: ':DigitAnimation')
+    kapt 'com.google.dagger:dagger-compiler:2.22.1'
+    kapt 'com.google.dagger:dagger-android-processor:2.22.1'
+
+    //Extras - Material based themes/widgets and to find memory leaks
+    implementation 'com.google.android.material:material:1.2.0'
+
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    //noinspection GradleCompatible
+    implementation 'io.github.inflationx:calligraphy3:3.1.1'
+    implementation 'io.github.inflationx:viewpump:2.0.3'
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    kapt 'com.github.bumptech.glide:compiler:4.12.0'
+
+    implementation('com.github.JakeWharton:ViewPagerIndicator:2.4.1') {
+        exclude module: 'support-v4'
+    }
+
+    implementation 'com.google.firebase:firebase-analytics:17.4.4'
+    implementation 'com.google.firebase:firebase-perf:19.0.8'
+    implementation 'com.google.android.gms:play-services-analytics:17.0.0'
+    implementation 'com.mixpanel.android:mixpanel-android:5.8.5'
+    implementation 'com.google.firebase:firebase-core:17.2.2'
+    implementation 'com.google.firebase:firebase-messaging:23.0.0'
+//    implementation 'com.moengage:moe-android-sdk:9.7.02'
+    api "com.google.android.exoplayer:exoplayer-core:$exoPlayerVersion"
+    api "com.google.android.exoplayer:exoplayer-ui:$exoPlayerVersion"
+    api "com.google.android.exoplayer:exoplayer-hls:$exoPlayerVersion"
+    api "com.google.android.exoplayer:exoplayer-dash:$exoPlayerVersion"
+    api "com.google.android.exoplayer:exoplayer-smoothstreaming:$exoPlayerVersion"
+    api "com.google.android.exoplayer:extension-ima:$exoPlayerVersion"
+    // MoEngage
+    implementation 'com.moengage:moe-android-sdk:12.2.05'
+    implementation 'com.moengage:inbox-core:2.0.0'
+    implementation 'com.moengage:inapp:6.2.0'
+    implementation 'com.moengage:push-amp-plus:6.0.0'
+    implementation 'com.moengage:rich-notification:4.0.0'
+
+// implementation('com.moengage:moengage-segment-integration:4.0.02') { transitive = true }
+    //MoE required this sdk for initialization otherwise app crashes
+    implementation("com.moengage:moengage-segment-integration:5.6.00") {
+        transitive = true
+    }
+
+    implementation 'com.google.firebase:firebase-crashlytics:17.2.2'
+    implementation 'com.google.android.exoplayer:extension-okhttp:2.11.4'
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+    implementation "androidx.room:room-runtime:2.2.4"
+    kapt "androidx.room:room-compiler:2.2.4"
+    implementation "androidx.room:room-ktx:2.2.4"
+//    implementation "androidx.room:room-runtime:2.3.0"
+//    annotationProcessor "androidx.room:room-compiler:2.3.0"
+    implementation 'com.robinhood.ticker:ticker:2.0.2'
+    implementation 'androidx.browser:browser:1.3.0'
+
+
+    /*Start of SonyLiv SDk*/
+    uatImplementation files('src/uat/libs/SonyPlayerSDK-release-uat.aar')
+    stagingImplementation files('src/staging/libs/SonyPlayerSDK-release.aar')
+    productionImplementation files('src/production/libs/SonyPlayerSDK-release-prod.aar')
+    implementation project(path: ':cmsdkCore-2.4.3.3-pa.sonyliv-v5.com')
+//    productionImplementation project(path: ':SonyPlayerSDK-release-prod-v5')
+//    stagingImplementation project(path: ':SonyPlayerSDK-release-prod-v5')
+//    uatImplementation project(path: ':SonyPlayerSDK-release-uat-v6')
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.19'
+    implementation group: 'com.cloudinary', name: 'cloudinary-android', version: '1.26.0'
+    implementation 'org.greenrobot:eventbus:3.2.0'
+    implementation 'com.conviva.sdk:conviva-core-sdk:4.0.5'
+    api ('com.logituit:logixplayer-android:1.1.4.27') {
+        exclude  group:'com.google.android.gms'
+        exclude group: 'com.google.ads.interactivemedia'
+    }
+    /*End of SonyLiv SDk*/
+    implementation("com.facebook.android:facebook-core:14.1.1")
+    androidTestImplementation "androidx.test.ext:junit:$junit_x_ext"
+    androidTestImplementation "androidx.test:runner:$testx_rules"
+    androidTestImplementation "androidx.test:rules:$testx_rules"
+    androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
+    androidTestImplementation "com.squareup.okhttp3:mockwebserver:$mockwebserver_version"
+    androidTestImplementation "androidx.test.espresso:espresso-contrib:$espresso_contrib"
+//    androidTestImplementation 'androidx.fragment:fragment-testing:1.4.0-alpha06'
+    kaptTest 'com.google.dagger:dagger-compiler:2.22.1'
+    kaptAndroidTest 'com.google.dagger:dagger-compiler:2.22.1'
+    kaptTest 'com.google.dagger:dagger-android-processor:2.22.1'
+    kaptAndroidTest 'com.google.dagger:dagger-android-processor:2.22.1'
+    testImplementation "androidx.test.ext:junit:$junit_x_ext"
+    androidTestImplementation 'io.mockk:mockk-android:1.12.0'
+    testImplementation 'io.mockk:mockk:1.12.0'
+    testImplementation "androidx.arch.core:core-testing:2.1.0"
+    testImplementation "com.squareup.okhttp3:mockwebserver:$mockwebserver_version"
+
+    // Play Services auth component for SMS Retriever API
+    implementation 'com.google.android.gms:play-services-base:17.6.0'
+    implementation 'com.google.android.gms:play-services-auth:19.2.0'
+    implementation 'com.google.android.gms:play-services-auth-api-phone:17.5.1'
+    implementation ('org.imaginativeworld.whynotimagecarousel:whynotimagecarousel:2.0.4'){
+        exclude group: 'androidx.constraintlayout'
+        exclude group: 'com.google.android.material'
+    }
+
+    // AppsFlyer SDK
+    implementation 'com.appsflyer:af-android-sdk:6.3.2'
+    // To improve attribution accuracy of AppsFlyer
+    implementation "com.android.installreferrer:installreferrer:2.2"
+
+    //JusPay HyperSDK for Payment gateway integration
+    implementation 'in.juspay:hypersdk:2.1.7'
+
+    //Clevertap
+    implementation 'com.clevertap.android:clevertap-android-sdk:4.6.1'
+
+    //MX Player
+//    implementation 'com.m.x.tata.sdk:player:1.0.1.17-SNAPSHOT'
+
+    // Play store In-App review lib
+    implementation 'com.google.android.play:review:2.0.0'
+    // For Kotlin users, also add the Kotlin extensions library for Play In-App Review:
+    implementation 'com.google.android.play:review-ktx:2.0.0'
+
+    implementation 'androidx.webkit:webkit:1.4.0'
+
+    //Facebook App links: For deeplink and deferred deeplink with FB (Includes BoltFramework)
+    implementation("com.facebook.android:facebook-applinks:14.1.1")
+
+    //Datastore artifact without an Android dependency
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    // Material tap target: For Coach marks
+    implementation 'uk.co.samuelwall:material-tap-target-prompt:3.3.2'
+}
+apply plugin: 'com.google.gms.google-services'

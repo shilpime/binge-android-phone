@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="menuItemImgRes"
+            type="Drawable" />
+
+        <variable
+            name="menuItemText"
+            type="String" />
+
+        <variable
+            name="menuArrowVisible"
+            type="Boolean" />
+
+        <variable
+            name="menuDividerVisible"
+            type="Boolean" />
+
+        <import type="android.graphics.drawable.Drawable" />
+
+        <import type="android.view.View" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="12dp"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:id="@+id/iv_settings_item"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:scaleType="centerInside"
+            android:src="@{menuItemImgRes}"
+            app:layout_constraintBottom_toBottomOf="@id/tv_settings_item"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_settings_item"
+            tools:srcCompat="@drawable/ic_sign_out_settings" />
+
+        <TextView
+            android:id="@+id/tv_settings_item"
+            style="@style/TSText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="16dp"
+            android:text="@{menuItemText}"
+            android:textSize="@dimen/dimens_16sp"
+            app:layout_constraintEnd_toStartOf="@id/iv_settings_arrow"
+            app:layout_constraintStart_toEndOf="@id/iv_settings_item"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/text_logout" />
+
+
+        <ImageView
+            android:id="@+id/iv_settings_arrow"
+            android:layout_width="20dp"
+            android:layout_height="0dp"
+            android:scaleType="centerInside"
+            android:visibility="@{menuArrowVisible?View.VISIBLE:View.GONE}"
+            app:layout_constraintBottom_toBottomOf="@id/tv_settings_item"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_settings_item"
+            app:srcCompat="@drawable/ic_arrow_right" />
+
+        <View
+            android:id="@+id/divider_view"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="12dp"
+            android:background="@color/stroke_color"
+            android:visibility="@{menuDividerVisible?View.VISIBLE:View.GONE}"
+            app:layout_constraintTop_toBottomOf="@id/tv_settings_item" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

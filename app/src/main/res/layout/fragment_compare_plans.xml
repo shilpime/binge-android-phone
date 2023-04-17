@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:scaleType="fitXY"
+            android:contentDescription="@string/sample_iv_desc"
+            />
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/btn_proceed">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/group_compare_pack_listing"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:constraint_referenced_ids="compare_plan_recycler,compare_background,tv_compare_plan_title,compare_plan_header_recycler"
+                    tools:visibility="visible" />
+
+
+                <ImageView
+                    android:id="@+id/compare_background"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:scaleType="fitStart"
+                    android:contentDescription="@string/sample_iv_desc" />
+
+                <ImageView
+                    android:id="@+id/imgBack"
+                    android:padding="@dimen/view_margin_large"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_back_key"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/sample_iv_desc"
+                    />
+
+                <TextView
+                    android:layout_marginTop="?actionBarSize"
+                    android:id="@+id/tv_compare_plan_title"
+                    style="@style/TSTextTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/compare_plans"
+                    android:textSize="@dimen/text_size_22"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/compare_plan_header_recycler"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_20"
+                    tools:itemCount="1"
+                    android:clipToPadding="false"
+                    android:orientation="vertical"
+                    app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_compare_plan_title"
+                    tools:listitem="@layout/item_compare_plan" />
+
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/compare_plan_recycler"
+                    android:layout_width="0dp"
+                    android:clipToPadding="false"
+                    app:layout_constraintTop_toTopOf="@id/compare_plan_header_recycler"
+                    app:layout_constraintBottom_toBottomOf="@id/compare_plan_header_recycler"
+                    android:layout_height="0dp"
+                    android:orientation="horizontal"
+                    app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/compare_plan_header_recycler"
+                    app:layout_constraintTop_toBottomOf="@id/tv_compare_plan_title"
+                    tools:listitem="@layout/item_compare_plan" />
+
+                <TextView
+                    android:id="@+id/tv_compare_plan_tnc"
+                    style="@style/TSTextDefault"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_12"
+                    android:layout_marginTop="@dimen/margin_14"
+                    android:paddingBottom="42dp"
+                    android:textColor="@color/purple_25"
+                    android:textSize="9sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/compare_plan_header_recycler"
+                    tools:text="Sunnxt is available on tv only" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+<!--        <View-->
+<!--            android:id="@+id/bg_blur"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="@dimen/btn_bg_height"-->
+<!--            android:background="@drawable/bg_bottomsheet"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent" />-->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_proceed"
+            android:layout_marginStart="@dimen/view_margin_xlarge"
+            android:layout_marginEnd="@dimen/view_margin_xlarge"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginBottom="@dimen/margin_28"
+            android:enabled="true"
+            android:text="@string/proceed"
+            android:textSize="@dimen/text_size_16"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.tatasky.binge.data.networking.models.response.FaqResponse.Question" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/faq_item_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_4"
+        android:background="@color/darkSecondary"
+        android:padding="@dimen/margin_18">
+
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/faq_title"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_16"
+            android:text="@{model.question}"
+            app:layout_constraintEnd_toStartOf="@id/expandFaqArrow"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <ImageView
+            android:id="@+id/expandFaqArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/ic_filter_expanded"
+            android:tint="@color/darkOnSecondary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/faq_title"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/faq_detail_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/margin_16"
+            android:text="@{model.answer}"
+            android:textSize="@dimen/text_size_12"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@id/expandFaqArrow"
+            app:layout_constraintStart_toStartOf="@id/faq_title"
+            app:layout_constraintTop_toBottomOf="@id/faq_title" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

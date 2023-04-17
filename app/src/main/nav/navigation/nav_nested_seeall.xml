@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_nested_seeall"
+    app:startDestination="@id/detailSeeAllFragment">
+    <fragment
+        android:id="@+id/detailSeeAllFragment"
+        android:name="com.tatasky.binge.ui.features.home.subpage.SeeAllFragment"
+        android:label="{title}"
+        tools:layout="@layout/fragment_see_all">
+
+        <action android:id="@+id/action_to_detail"
+            app:destination="@id/nav_details">
+            <argument
+                android:name="contentItem"
+                app:argType="com.tatasky.binge.data.networking.models.response.ContentItem" />
+            <argument android:name="fromGrid"
+                app:argType="boolean"
+                android:defaultValue="false"/>
+        </action>
+        <argument
+            android:name="railId"
+            app:argType="string" />
+        <argument
+            android:name="title"
+            android:defaultValue=""
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="sectionType"
+            android:defaultValue="EDITORIAL"
+            app:argType="string" />
+        <argument
+            android:name="isRecommendation"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="detailType"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="provider"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="placeHolder"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+
+        <argument
+            android:name="source"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null"/>
+
+        <argument
+            android:name="origin"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null"/>
+
+        <argument
+            android:name="taContentResponse"
+            app:argType="com.tatasky.binge.data.networking.models.response.RecommendationResponse"
+            app:nullable="true"
+            android:defaultValue="@null"/>
+        <argument
+            android:name="isMixedRail"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="isPrepand"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
+</navigation>

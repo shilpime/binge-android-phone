@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/shp_nav_drawer_header_bg"
+        tools:context=".ui.features.sidemenunavdrawer.NavDrawerFragment">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_margin_start"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/margin_20dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_margin_end"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/margin_20" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_margin_bottom"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="@dimen/margin_20" />
+
+        <include
+            android:id="@+id/header"
+            layout="@layout/layout_header_side_nav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <ScrollView
+            android:id="@+id/scrollview_menu_item"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scrollbars="none"
+            app:layout_constraintBottom_toTopOf="@id/footer"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toBottomOf="@id/header">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <include
+                    android:id="@+id/menu_item_with_recharge"
+                    layout="@layout/layout_nav_drawer_item_with_action_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="visible"
+                    app:btnActionText="@{@string/recharge}"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:menuActionLayoutVisible="@{true}"
+                    app:menuArrowVisible="@{true}"
+                    app:menuDividerVisible="@{true}"
+                    app:menuItemImgRes="@{@drawable/ic_wallet}"
+                    app:menuItemText="@{@string/text_tata_sky_balance}" />
+
+                <include
+                    android:id="@+id/menu_item_go_vip"
+                    layout="@layout/layout_nav_drawer_item_with_action_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/menu_item_with_recharge"
+                    app:menuActionLayoutVisible="@{false}"
+                    app:menuArrowVisible="@{true}"
+                    app:menuDividerVisible="@{true}"
+                    app:menuItemImgRes="@{@drawable/ic_crown}"
+                    app:menuItemText="@{@string/subscribe}" />
+
+                <include
+                    android:id="@+id/menu_item_with_renew"
+                    layout="@layout/layout_nav_drawer_item_with_action_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:btnActionText="@{@string/renew}"
+                    app:layout_constraintTop_toBottomOf="@id/menu_item_go_vip"
+                    app:menuArrowVisible="@{true}"
+                    app:menuDividerVisible="@{true}"
+                    app:menuItemImgRes="@{@drawable/ic_crown}"
+                    app:menuItemText="@{@string/my_plan}" />
+
+                <include
+                    android:id="@+id/menu_item_bingeList"
+                    layout="@layout/layout_nav_drawer_item_with_action_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/menu_item_with_renew"
+                    app:menuActionLayoutVisible="@{false}"
+                    app:menuArrowVisible="@{true}"
+                    app:menuDividerVisible="@{true}"
+                    app:menuItemImgRes="@{@drawable/ic_watchlist_menu}"
+                    app:menuItemText="@{@string/text_menu_binge_list}" />
+
+                <include
+                    android:id="@+id/menu_item_notification"
+                    layout="@layout/layout_nav_drawer_item_with_action_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/menu_item_bingeList"
+                    app:menuActionLayoutVisible="@{false}"
+                    app:menuArrowVisible="@{true}"
+                    app:menuDividerVisible="@{true}"
+                    app:menuItemImgRes="@{@drawable/ic_no_notification}"
+                    app:menuItemText="@{@string/text_menu_notification}" />
+
+                <include
+                    android:id="@+id/menu_item_settings"
+                    layout="@layout/layout_nav_drawer_item_with_action_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/menu_item_notification"
+                    app:menuActionLayoutVisible="@{false}"
+                    app:menuArrowVisible="@{true}"
+                    app:menuDividerVisible="@{true}"
+                    app:menuItemImgRes="@{@drawable/ic_settings}"
+                    app:menuItemText="@{@string/text_menu_settings}" />
+
+                <include
+                    android:id="@+id/menu_item_help_and_support"
+                    layout="@layout/layout_nav_drawer_item_with_action_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/menu_item_settings"
+                    app:menuActionLayoutVisible="@{false}"
+                    app:menuArrowVisible="@{true}"
+                    app:menuDividerVisible="@{true}"
+                    app:menuItemImgRes="@{@drawable/ic_help}" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+
+        <include
+            android:id="@+id/footer"
+            layout="@layout/layout_footer_side_nav"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toTopOf="@id/guideline_margin_bottom"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

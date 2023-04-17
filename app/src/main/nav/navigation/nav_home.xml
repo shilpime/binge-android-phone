@@ -1,0 +1,713 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/home"
+    app:startDestination="@id/action_sub_landing_home">
+
+
+    <fragment
+        android:id="@+id/action_sub_landing_home"
+        android:name="com.tatasky.binge.ui.features.home.sub.SubFragment"
+        android:label=""
+        tools:layout="@layout/fragment_subpage">
+
+        <!--Here deep linking is done for Home related screens or
+        for the Nav Graphs which are included somewhere else
+        So that while opening screen via deep linking other graphs
+        don't get added to stack-->
+
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/.*" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/home" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/home-page/{pageType}" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/my-subscription?action={actionValue}&amp;packName={packName}&amp;journeySourceRefId={journeySourceRefId}" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/recharge" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/detail/{contentType}/{id}/{partnerName}" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/detail/{contentType}/{id}" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/bingelist" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/language-genre/{languageGenreToBeSearched}/{languageGenreSectionType}" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/prime" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/parental-control" />
+        <!--Note: Adding this deeplink here to redirect from the Home and to avoid backstack issue,
+        On back press user will be navigated back to home, Also as these fragments are hosted on
+        LandingActivity where login is not required So to avoid opening of fragment without login
+        adding deeplink here and not directly on the destination/fragment-->
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/search" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/notification" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/login" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/content-language" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/transaction-history"/>
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/device-management"/>
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/profile"/>
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/setting"/>
+        <argument
+            android:name="packName"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="actionValue"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="journeySourceRefId"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="pageType"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="id"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="contentType"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="contentItem"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.data.networking.models.response.ContentItem"
+            app:nullable="true" />
+        <argument
+            android:name="partnerName"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="languageGenreToBeSearched"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="languageGenreSectionType"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_action_home_landing_to_seeAllFragment"
+            app:destination="@id/seeAllFragment">
+            <argument
+                android:name="railId"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                app:argType="string" />
+            <argument
+                android:name="sectionType"
+                app:argType="string" />
+            <argument
+                android:name="isRecommendation"
+                app:argType="boolean" />
+            <argument
+                android:name="detailType"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="provider"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="placeHolder"
+                app:argType="string"
+                app:nullable="true" />
+
+            <argument
+                android:name="source"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
+
+            <argument
+                android:name="origin"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
+        </action>
+        <action
+            android:id="@+id/action_action_home_landing_to_subHomeFragment"
+            app:destination="@id/action_sub_home_landing" />
+        <action
+            android:id="@+id/action_action_home_landing_to_appSeeAllFragment"
+            app:destination="@id/appSeeAllFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_firestick_journey"
+            app:destination="@id/fsInstallationActivity"
+            app:popUpToInclusive="false" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_languageGenreFragment"
+            app:destination="@id/nav_language_genre"
+            app:popUpToInclusive="false">
+            <argument
+                android:name="title"
+                app:argType="string" />
+            <argument
+                android:name="sectionType"
+                app:argType="string" />
+            <argument
+                android:name="pageName"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="bgImage"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="bgBottomImage"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="source"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="refId"
+                app:argType="string"
+                android:defaultValue=""
+                app:nullable="false"/>
+        </action>
+
+        <action
+            android:id="@+id/action_detailsFragment_to_nav_subscription"
+            app:destination="@id/subscriptionActivity"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/appSeeAllFragment"
+        android:name="com.tatasky.binge.ui.features.home.subpage.AppSeeAllFragment"
+        android:label="{title}"
+        tools:layout="@layout/fragment_see_all">
+
+        <action
+            android:id="@+id/action_action_home_landing_to_subHomeFragment"
+            app:destination="@id/action_sub_home_landing" />
+        <argument
+            android:name="railId"
+            app:argType="integer" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+<!--        <deepLink-->
+<!--            android:autoVerify="true"-->
+<!--            app:uri="{@string/app_intent_host}/app-see-all/{railId}?title={title}" />-->
+    </fragment>
+
+    <fragment
+        android:id="@+id/action_sub_home_landing"
+        android:name="com.tatasky.binge.ui.features.home.subpage.SubHomeFragment"
+        tools:layout="@layout/fragment_home">
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/partner/{provider}/{providerId}?pageType={pageType}" />
+        <argument
+            android:name="pageType"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="provider"
+            app:argType="string" />
+        <argument
+            android:name="img"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="providerId"
+            app:argType="string" />
+
+        <argument
+            android:name="categoryTitle"
+            app:argType="string"
+            app:nullable ="true"
+            android:defaultValue="@null"
+            />
+
+        <action
+            android:id="@+id/action_detailsFragment_to_nav_subscription"
+            app:destination="@id/subscriptionActivity"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_action_home_landing_to_seeAllFragment"
+            app:destination="@id/seeAllFragment">
+            <argument
+                android:name="railId"
+                app:argType="string" />
+            <argument
+                android:name="title"
+                app:argType="string" />
+            <argument
+                android:name="sectionType"
+                app:argType="string" />
+            <argument
+                android:name="isRecommendation"
+                app:argType="boolean" />
+            <argument
+                android:name="detailType"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="provider"
+                app:argType="string"
+                app:nullable="true" />
+
+            <argument
+                android:name="placeHolder"
+                app:argType="string"
+                app:nullable="true" />
+        </action>
+    </fragment>
+
+    <include app:graph="@navigation/nav_details" />
+
+    <include app:graph="@navigation/nav_language_genre" />
+
+    <action
+        android:id="@+id/action_to_detail"
+        app:destination="@id/nav_details">
+        <argument
+            android:name="contentItem"
+            app:argType="com.tatasky.binge.data.networking.models.response.ContentItem" />
+        <argument
+            android:name="fromGrid"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </action>
+
+    <activity
+        android:id="@+id/subscriptionActivity"
+        android:name="com.tatasky.binge.ui.features.subscription_freemium.FreemiumSubscriptionActivity"
+        android:label="">
+        <argument
+            android:name="fromLogin"
+            android:defaultValue="true"
+            app:argType="boolean" />
+        <argument
+            android:name="selectedAppId"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+
+        <argument
+            android:name="fromScreen"
+            android:defaultValue="Home"
+            app:argType="string" />
+
+        <argument
+            android:name="firstTimeLogin"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="initiateRecharge"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </activity>
+
+    <fragment
+        android:id="@+id/seeAllFragment"
+        android:name="com.tatasky.binge.ui.features.home.subpage.SeeAllFragment"
+        android:label=""
+        tools:layout="@layout/fragment_see_all">
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/see-all/{railId}?title={title}&amp;sectionType={sectionType}&amp;placeHolder={placeHolder}" />
+        <argument
+            android:name="railId"
+            app:argType="string" />
+        <argument
+            android:name="title"
+            android:defaultValue=""
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="sectionType"
+            android:defaultValue="EDITORIAL"
+            app:argType="string" />
+        <argument
+            android:name="isRecommendation"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="detailType"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="provider"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="placeHolder"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+
+        <argument
+            android:name="source"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+
+        <argument
+            android:name="origin"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="isMixedRail"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="isPrepand"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="taContentResponse"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.data.networking.models.response.RecommendationResponse"
+            app:nullable="true" />
+        <argument
+            android:name="backgroundImage"
+            android:defaultValue=""
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="layoutType"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="railPosition"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+
+        <argument
+            android:name="refId"
+            app:argType="string"
+            android:defaultValue=""
+            app:nullable="false"/>
+        <argument
+            android:name="packName"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+    </fragment>
+
+    <activity
+        android:id="@+id/fsInstallationActivity"
+        android:name="com.tatasky.binge.ui.features.fsinstallation.FSInstallationActivity"
+        android:label="" />
+
+    <action
+        android:id="@+id/action_selectLanguageBottomSheetDialog"
+        app:destination="@id/selectLanguageBottomSheetDialog" />
+
+    <dialog
+        android:id="@+id/selectLanguageBottomSheetDialog"
+        android:name="com.tatasky.binge.ui.features.home.bottomsheet.select_language.SelectLanguageBottomSheetDialog"
+        android:label="fragment_select_language_bottom_sheet_dialog"
+        tools:layout="@layout/fragment_select_language_bottom_sheet_dialog" />
+
+    <include app:graph="@navigation/nav_search" />
+    <include app:graph="@navigation/nav_freemium_subscription_managed_apps"/>
+    <action
+        android:id="@+id/action_managed_apps"
+        app:destination="@id/managedApps"
+        >
+        <argument
+            android:name="source"
+            app:nullable="true"
+            android:defaultValue="@null"
+            app:argType="string" />
+        <argument
+            android:name="journeySource"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="journeySourceRefId"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="skipDrawer"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </action>
+
+
+    <dialog
+        android:id="@+id/guestLoginBottomDialogFragment"
+        android:name="com.tatasky.binge.ui.features.onboarding.login.bottomsheet.GuestLoginBottomDialogFragment"
+        android:label="GuestLoginBottomDialogFragment"
+        tools:layout="@layout/fragment_guest_login_bottom_sheet_dialog">
+        <argument
+            android:name="isParentalPinSetupRequested"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="isParentalPinVerificaitionRequested"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="isLoggedIn"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="previouslyUsedMobileNumbersList"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.data.networking.models.response.UsedMobileNumber[]"
+            app:nullable="true" />
+        <argument
+            android:name="loginSource"
+            app:argType="string"
+            />
+        <argument
+            android:name="pack"
+            app:argType="com.tatasky.binge.data.networking.models.response.PartnerPacks"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="selectedTenure"
+            app:argType="com.tatasky.binge.data.networking.models.response.Tenure"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="subscriptionInfo"
+            app:argType="com.tatasky.binge.data.database.model.SubscriptionInfoModel"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="isLoginToHome"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_guestLoginBottomDialogFragment_to_managedAppFragment"
+            app:destination="@id/managedAppFragment"
+            app:launchSingleTop="true" >
+            <argument
+                android:name="isToSummaryPage"
+                android:defaultValue="false"
+                app:argType="boolean" />
+            <argument
+                android:name="cartId"
+                android:defaultValue=""
+                app:argType="string" />
+        </action>
+    </dialog>
+    <action
+        android:id="@+id/action_global_search"
+        app:destination="@id/search" />
+
+
+    <action
+        android:id="@+id/action_global_guestLoginBottomDialogFragment"
+        app:destination="@id/guestLoginBottomDialogFragment" />
+
+    <include app:graph="@navigation/nav_parental_control_menu" />
+    <action
+        android:id="@+id/action_global_parentalPinMenuFragment"
+        app:destination="@id/nav_parental_control_menu" />
+    <include app:graph="@navigation/nav_notifications" />
+    <action
+        android:id="@+id/action_global_notifications"
+        app:destination="@id/nav_notifications" />
+    <fragment
+        android:id="@+id/termsConditionFragment"
+        android:name="com.tatasky.binge.ui.features.more.TermsConditionFragment"
+        android:label="@string/terms_n_condition"
+        tools:layout="@layout/fragment_tnc" />
+    <action
+        android:id="@+id/action_global_termsConditionFragment"
+        app:destination="@id/termsConditionFragment"
+        app:launchSingleTop="true" />
+    <fragment
+        android:id="@+id/privacyPolicyFragment"
+        android:name="com.tatasky.binge.ui.features.more.PrivacyPolicyFragment"
+        android:label="@string/privacy_policy"
+        tools:layout="@layout/fragment_privacypolicy" />
+    <action
+        android:id="@+id/action_global_privacyPolicyFragment"
+        app:destination="@id/privacyPolicyFragment" />
+    <include app:graph="@navigation/nav_watchlist" />
+    <action
+        android:id="@+id/action_global_watchlist"
+        app:destination="@id/watchlist" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.tatasky.binge.ui.features.sidemenunavdrawer.SettingsFragment"
+        android:label="@string/text_menu_settings"
+        tools:layout="@layout/fragment_settings">
+
+        <action
+            android:id="@+id/action_settingsFragment_to_deviceListFragment"
+            app:destination="@id/deviceListFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_transactionHistoryFragment"
+            app:destination="@id/transactionHistoryFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_switchAccountFragment"
+            app:destination="@id/switchAccountFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_contentLanguage"
+            app:destination="@id/contentLanguage" >
+            <argument
+                android:name="title"
+                app:argType="string"
+                app:nullable="true"
+                android:defaultValue="@null"
+                />
+        </action>
+    </fragment>
+    <action
+        android:id="@+id/action_global_settingsFragment"
+        app:destination="@id/settingsFragment" />
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.tatasky.binge.ui.features.updateprofile.EditProfileFragment"
+        android:label="@string/edit_profile"
+        tools:layout="@layout/fragment_edit_profile">
+        <argument
+            android:name="profileModel"
+            app:argType="com.tatasky.binge.data.networking.models.response.SubscriberProfileListModel$Data" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_editProfileFragment"
+        app:destination="@id/editProfileFragment" />
+
+    <fragment
+        android:id="@+id/deviceListFragment"
+        android:name="com.tatasky.binge.ui.features.device_management.DeviceListFragment"
+        android:label="@string/device_management"
+        tools:layout="@layout/fragment_device_management"/>
+    <fragment
+        android:id="@+id/transactionHistoryFragment"
+        android:name="com.tatasky.binge.ui.features.transaction_history.TransactionHistoryFragment"
+        android:label="@string/transaction_history"
+        tools:layout="@layout/fragment_transaction_history">
+        <argument
+            android:name="aliasName"
+            app:argType="string"
+            android:defaultValue=""/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/contentLanguage"
+        android:name="com.tatasky.binge.ui.features.sidemenunavdrawer.contentlanguage.ContentLanguageFragment"
+        android:label="{title}"
+        tools:layout="@layout/fragment_content_language">
+    <argument
+        android:name="title"
+        app:argType="string"
+        app:nullable="true"
+        android:defaultValue="@null"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/switchAccountFragment"
+        android:name="com.tatasky.binge.ui.features.myaccount.profiles.SwitchAccountFragment"
+        android:label="@string/switch_account"
+        tools:layout="@layout/fragment_switch_account"/>
+    <fragment
+        android:id="@+id/faq_fragment"
+        android:name="com.tatasky.binge.ui.features.more.FaqFragment"
+        android:label="@string/text_menu_help_and_support"
+        tools:layout="@layout/fragment_faq">
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/faq" />
+        <deepLink
+            android:autoVerify="true"
+            app:uri="{@string/app_intent_host}/help-center/{useCase}?categoryName={useCaseParam}" />
+        <argument
+            android:name="useCase"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="useCaseParam"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_help_and_faq"
+        app:destination="@id/faq_fragment" />
+    <dialog
+        android:id="@+id/parentalControlBottomDialogFragment"
+        android:name="com.tatasky.binge.ui.features.parentalcontrol.bottomsheet.ParentalControlBottomDialogFragment"
+        tools:layout="@layout/fragment_parental_control_bottom_dialog">
+        <argument
+            android:name="actionBeforeOpeningBottomSheet"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="ageRatingValue"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="fromNudge"
+            app:argType="boolean"
+            android:defaultValue="false"
+          />
+        <argument
+            android:name="source"
+            android:defaultValue="CHANGE RESTRICTION"
+            app:argType="string"
+            app:nullable="true" />
+    </dialog>
+    <action
+        android:id="@+id/action_global_parentalControlBottomDialogFragment"
+        app:destination="@id/parentalControlBottomDialogFragment" />
+
+
+
+</navigation>

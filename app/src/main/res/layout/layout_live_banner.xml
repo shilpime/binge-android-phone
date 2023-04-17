@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="contentItem"
+            type="com.tatasky.binge.data.networking.models.response.ContentItem" />
+
+        <variable
+            name="title"
+            type="String" />
+
+        <variable name="imgUrl" type="String"/>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="liveIndicatorVisible"
+            type="Boolean" />
+
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants"
+        android:paddingHorizontal="@dimen/margin_20">
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/rail_margins"
+            android:backgroundTint="@color/darkBackground"
+            app:cardCornerRadius="@dimen/margin_10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeColor="@color/stroke_color"
+            app:strokeWidth="2dp">
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_regional_app_nudge_gradient">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:paddingStart="6dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_bg_gradient_live"
+                    android:translationZ="2dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v2"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v2"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_margin_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_begin="@dimen/margin_14" />
+
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_v2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".42" />
+
+                <ImageView
+                    android:id="@+id/iv_live_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_live_indicator"
+                    android:visibility="@{liveIndicatorVisible?View.VISIBLE:View.GONE, default=gone}"
+                    app:layout_constraintBottom_toBottomOf="@id/live_banner_title"
+                    app:layout_constraintEnd_toStartOf="@id/live_banner_title"
+                    app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                    app:layout_constraintTop_toTopOf="@id/live_banner_title"
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/live_banner_title"
+                    style="@style/TSTextBold"
+                    android:layout_width="0dp"
+                    android:maxLines="1"
+                    android:minLines="1"
+                    android:ellipsize="end"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/view_margin_smallest"
+                    android:layout_marginTop="@dimen/margin_8"
+                    android:layout_marginEnd="@dimen/view_margin_small"
+                    android:text="@{contentItem.bannerText}"
+                    android:textSize="@dimen/text_size_16"
+                    app:layout_constraintBottom_toTopOf="@id/live_banner_subtitle"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v2"
+                    app:layout_constraintStart_toEndOf="@id/iv_live_indicator"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_chainStyle="packed"
+                    app:layout_goneMarginStart="0dp"
+                    tools:text="Live Now!" />
+
+                <TextView
+                    android:id="@+id/live_banner_subtitle"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    android:maxLines="2"
+                    android:layout_marginBottom="@dimen/view_margin_smallest"
+                    android:minLines="2"
+                    android:ellipsize="end"
+                    android:layout_marginEnd="@dimen/view_margin_small"
+                    android:text="@{contentItem.title}"
+                    android:textSize="@dimen/text_size_12"
+                    app:layout_constraintBottom_toTopOf="@id/btn_watch_now"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v2"
+                    app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                    app:layout_constraintTop_toBottomOf="@id/live_banner_title"
+                    tools:text="Ind Vs. Pak Kajaria Cup, ODI 2 of 3" />
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_watch_now"
+                    android:layout_width="wrap_content"
+                    android:clickable="false"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    android:layout_marginBottom="@dimen/view_margin_medium"
+                    android:elevation="8dp"
+                    android:insetTop="1dp"
+                    android:insetBottom="1dp"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="0dp"
+                    android:text="@{contentItem.liveBannerButtonText}"
+                    android:textSize="@dimen/text_size_12"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                    app:layout_constraintTop_toBottomOf="@id/live_banner_subtitle"
+                    tools:text="Watch Live" />
+
+                <ImageView
+                    android:id="@+id/live_baner_iv"
+                    glideSrc="@{imgUrl}"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:scaleType="fitXY"
+                    app:layout_constraintDimensionRatio="16:9"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v2"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:src="@drawable/midscroll_sample_image" />
+
+                <ImageView
+                    android:id="@+id/iv_provider_logo"
+                    android:layout_width="0dp"
+                    android:layout_height="16dp"
+                    android:layout_marginTop="@dimen/margin_8"
+                    android:layout_marginEnd="@dimen/margin_8"
+                    android:scaleType="fitStart"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:src="@drawable/logo_tatasky_details" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+    </FrameLayout>
+
+</layout>

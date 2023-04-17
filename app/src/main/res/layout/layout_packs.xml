@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="status"
+            type="String" />
+
+        <variable
+            name="isExpired"
+            type="Boolean" />
+
+        <variable
+            name="pack"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/view_margin_small">
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:layout_constraintBottom_toBottomOf="@id/tv_tag"
+            app:layout_constraintTop_toTopOf="@id/tv_tag" />
+
+        <FrameLayout
+            android:id="@+id/framelayout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/pack_border"
+            app:layout_constraintBottom_toBottomOf="@id/cardView"
+            app:layout_constraintEnd_toEndOf="@id/cardView"
+            app:layout_constraintStart_toStartOf="@id/cardView"
+            app:layout_constraintTop_toTopOf="@id/cardView" />
+
+        <com.tatasky.binge.customviews.CustomMaterialCardView
+            android:id="@+id/cardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardElevation="1dp"
+            app:cardMaxElevation="1dp"
+            app:cardUseCompatPadding="true"
+            app:layout_constraintTop_toBottomOf="@id/barrier">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingStart="@dimen/view_margin_large"
+                android:paddingTop="@dimen/view_margin_xlarge"
+                android:paddingEnd="@dimen/view_margin_large"
+                android:paddingBottom="@dimen/view_margin_large">
+
+                <TextView
+                    android:id="@+id/tv_pack_name"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/view_margin_large"
+                    android:text="@{pack.packName}"
+                    android:textSize="@dimen/text_size_18"
+                    app:layout_constraintEnd_toStartOf="@id/tv_pack_price"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_pack_price"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{String.format(@string/rupees_cyclic, pack.formattedPrice, pack.renewalCycle.toLowerCase())}"
+                    android:textSize="@dimen/text_size_18"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_total_apps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="@dimen/view_margin_smallest"
+                    android:text="@{String.format(@string/no_of_apps_template, pack.appList.size())}"
+                    android:textColor="@color/offer_color"
+                    android:textSize="@dimen/text_size_16"
+                    app:layout_constraintStart_toStartOf="@id/tv_pack_name"
+                    app:layout_constraintTop_toBottomOf="@id/tv_pack_name" />
+
+                <com.tatasky.binge.customviews.ClickableRecyclerView
+                    android:id="@+id/recycler_packs"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:overScrollMode="never"
+                    app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_total_apps"
+                    app:spanCount="4" />
+
+                <ImageView
+                    android:id="@+id/iv_plus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="@dimen/view_margin_medium"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toTopOf="@id/extra_recycler_packs"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias=".10"
+                    app:layout_constraintTop_toBottomOf="@id/recycler_packs"
+                    app:srcCompat="@drawable/ic_plus" />
+
+                <com.tatasky.binge.customviews.ClickableRecyclerView
+                    android:id="@+id/extra_recycler_packs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:overScrollMode="never"
+                    app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/iv_plus"
+                    app:spanCount="4" />
+
+                <TextView
+                    android:id="@+id/tv_pack_description"
+                    style="@style/TSTextDefault"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_smallest"
+                    android:textSize="10sp"
+                    android:text="@{pack.extraInfo}"
+                    android:visibility="@{(pack.extraInfo!=null || !pack.extraInfo.empty)? View.VISIBLE : View.GONE, default=gone}"
+                    app:layout_constraintTop_toBottomOf="@id/extra_recycler_packs" />
+
+                <FrameLayout
+                    android:id="@+id/recycler_offers"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    app:layout_constraintTop_toBottomOf="@id/tv_pack_description" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/tv_know_more"
+                    style="@style/Widget.AppTheme.ButtonStyle.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="0dp"
+                    android:padding="0dp"
+                    android:text="@string/know_more"
+                    android:textSize="@dimen/text_size_16"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@id/recycler_offers" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.tatasky.binge.customviews.CustomMaterialCardView>
+
+        <TextView
+            android:id="@+id/tv_tag"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/pack_tag_background"
+            android:elevation="2dp"
+            android:paddingStart="@dimen/view_margin_small"
+            android:paddingTop="@dimen/view_margin_smallest"
+            android:paddingEnd="@dimen/view_margin_small"
+            android:paddingBottom="@dimen/view_margin_smallest"
+            android:text="@{status}"
+            android:textSize="@dimen/text_size_12"
+            android:visibility="@{(status==null || status.empty)?View.GONE:View.VISIBLE, default=gone}"
+            app:layout_constraintBottom_toTopOf="@id/cardView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/cardView"
+            tools:text="Subscribed"
+            tools:visibility="visible" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/switch_account"
+    app:startDestination="@id/switchAccount">
+    <fragment
+        android:id="@+id/switchAccount"
+        android:name="com.tatasky.binge.ui.features.myaccount.profiles.SwitchAccountFragment"
+        android:label=""
+        tools:layout="@layout/fragment_switch_account">
+        <action
+            android:id="@+id/action_switchAccount_to_deviceListFragment"
+            app:destination="@id/deviceListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/deviceListFragment"
+        android:name="com.tatasky.binge.ui.features.device_management.DeviceListFragment"
+        android:label="Device Management"
+        tools:layout="@layout/fragment_device_management" >
+        <argument
+            android:name="baid"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="isDeviceReviewOnMaxLimitReached"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument android:name="source"
+            app:argType="string"
+            app:nullable="false"
+            android:defaultValue="Device Management"/>
+    </fragment>
+</navigation>

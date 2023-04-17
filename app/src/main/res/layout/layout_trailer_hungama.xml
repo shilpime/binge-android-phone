@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.hungama.sdk.player.HungamaPlayerView
+            android:id="@+id/player_view_hungama"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:minHeight="80dp">
+            <include
+                layout="@layout/layout_network_error"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:layout_centerInParent="true"
+                android:id="@+id/network_error"
+                android:visibility="gone"/>
+            <RelativeLayout
+                android:id="@+id/rlController"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <include
+                    android:id="@+id/player_controller"
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    layout="@layout/exo_playback_control_view" />
+
+
+                <ImageView
+                    android:id="@+id/ui_loader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/progress_avd"
+                    android:layout_centerInParent="true" />
+            </RelativeLayout>
+        </com.hungama.sdk.player.HungamaPlayerView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

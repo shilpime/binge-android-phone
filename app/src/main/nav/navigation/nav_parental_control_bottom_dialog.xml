@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_parental_control_bottom_dialog"
+    app:startDestination="@id/parentalControlDialogOtpFragment">
+
+    <fragment
+        android:id="@+id/parentalControlVerificationFragment"
+        android:name="com.tatasky.binge.ui.features.parentalcontrol.bottomsheet.ParentalControlVerificationFragment"
+        tools:layout="@layout/fragment_parental_control_verification">
+        <argument
+            android:name="isPinChangeRequested"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="isPinResetRequested"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="isPinSetupRequested"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="isPinVerificationRequested"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_parentalControlVerificationFragment_to_parentalControlDialogOtpFragment"
+            app:destination="@id/parentalControlDialogOtpFragment"
+            app:popUpTo="@id/parentalControlVerificationFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/parentalControlDialogOtpFragment"
+        android:name="com.tatasky.binge.ui.features.parentalcontrol.bottomsheet.ParentalControlDialogOtpFragment"
+        tools:layout="@layout/fragment_parental_control_dialog_otp">
+        <action
+            android:id="@+id/action_parentalControlDialogOtpFragment_to_parentalControlVerificationFragment"
+            app:destination="@id/parentalControlVerificationFragment"
+            app:popUpTo="@id/parentalControlDialogOtpFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+</navigation>

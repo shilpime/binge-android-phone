@@ -1,0 +1,113 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="title"
+            type="String" />
+
+        <variable
+            name="contentItem1"
+            type="com.tatasky.binge.data.networking.models.response.ContentItem" />
+
+        <variable
+            name="contentItem2"
+            type="com.tatasky.binge.data.networking.models.response.ContentItem" />
+
+    </data>
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants"
+        android:paddingTop="@dimen/rail_margins">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clHomeGamingRoot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_home_gaming_rail"
+            android:paddingTop="6dp"
+            android:paddingBottom="@dimen/margin_14">
+
+            <TextView
+                android:id="@+id/tv_gaming_rail_title"
+                style="@style/TSTextBold"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_20"
+                android:layout_marginTop="@dimen/margin_10dp"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="@{title}"
+                android:textSize="@dimen/text_size_14"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Newly Added Games" />
+
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_new_game1"
+                glideSrc="@{contentItem1.image}"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/margin_16"
+                android:layout_marginTop="@dimen/margin_8"
+                android:layout_marginEnd="@dimen/margin_12"
+                android:scaleType="fitXY"
+                app:layout_constraintDimensionRatio="16:9"
+                app:layout_constraintEnd_toStartOf="@id/iv_new_game2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_gaming_rail_title"
+                app:shapeAppearanceOverlay="@style/customRoundedImageView" />
+
+            <TextView
+                android:id="@+id/tv_new_game1"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_4"
+                android:gravity="center"
+                android:text="@{contentItem1.title}"
+                android:textSize="@dimen/text_size_12"
+                app:layout_constraintEnd_toEndOf="@id/iv_new_game1"
+                app:layout_constraintStart_toStartOf="@id/iv_new_game1"
+                app:layout_constraintTop_toBottomOf="@id/iv_new_game1"
+                tools:text="New Game 1 asdfa asdf  asfd  asfd  fasdf asdf " />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_new_game2"
+                glideSrc="@{contentItem2.image}"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="@dimen/margin_16"
+                android:scaleType="fitXY"
+                app:layout_constraintDimensionRatio="16:9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_new_game1"
+                app:layout_constraintTop_toTopOf="@id/iv_new_game1"
+                app:shapeAppearanceOverlay="@style/customRoundedImageView" />
+
+            <TextView
+                android:id="@+id/tv_new_game2"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_4"
+                android:gravity="center"
+                android:text="@{contentItem2.title}"
+                android:textSize="@dimen/text_size_12"
+                app:layout_constraintEnd_toEndOf="@id/iv_new_game2"
+                app:layout_constraintStart_toStartOf="@id/iv_new_game2"
+                app:layout_constraintTop_toBottomOf="@id/iv_new_game2"
+                tools:text="New Game 1 asdfa asdf  asfd  asfd  fasdf asdf " />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
+</layout>

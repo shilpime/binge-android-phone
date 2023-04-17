@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="status"
+            type="String" />
+
+        <variable
+            name="isExpired"
+            type="Boolean" />
+
+        <variable
+            name="pack"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:minHeight="550dp"
+        android:layout_height="match_parent">
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardViewTag"
+            tools:visibility="visible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardElevation="2dp"
+            android:layout_marginTop="14dp"
+            app:cardCornerRadius="6dp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:cardMaxElevation="2dp"
+            app:layout_constraintTop_toTopOf="@id/cardView"
+            app:layout_constraintBottom_toTopOf="@id/cardView">
+
+            <TextView
+                android:background="@drawable/common_background_gradient"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="2dp"
+                style="@style/TSText"
+                android:text = "@string/current_plan"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:textSize="10sp"
+                />
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="14dp"
+            style="@style/PackCardStyle"
+            android:layout_marginHorizontal="@dimen/view_margin_smallest"
+            app:cardMaxElevation="1dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_bottom_gradient"
+                 android:paddingTop="@dimen/view_margin_xlarge"
+                android:paddingBottom="@dimen/view_margin_large">
+
+
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_v_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".05" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_v_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".95" />
+
+                <ImageView
+                    android:id="@+id/iv_crown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_premium_crown" />
+
+                <TextView
+                    android:id="@+id/tv_pack_name"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/view_margin_large"
+                    tools:text = "Premium VIP"
+                    android:text="@{pack.productName}"
+                    android:textSize="@dimen/text_size_16"
+                    android:layout_marginStart="@dimen/margin_10"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintBottom_toBottomOf="@id/iv_crown"
+                    app:layout_constraintStart_toEndOf="@id/iv_crown"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <View
+                    android:id="@+id/horizontalSeperater"
+                    android:layout_width="0dp"
+                    android:layout_height="0.5dp"
+                    android:layout_marginTop="@dimen/margin_10"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    android:background="@color/stroke_color"
+                    app:layout_constraintTop_toBottomOf="@id/tv_pack_name" />
+
+                <include
+                    android:id="@+id/fs_pack_info"
+                    layout="@layout/layout_pack_fs_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@id/horizontalSeperater"
+                    />
+
+                <TextView
+                    style="@style/TSTextMedium"
+                    android:id="@+id/tv_pack_subtitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_10"
+                    android:gravity="center"
+                    android:textSize="@dimen/text_size_14"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    app:layout_constraintTop_toBottomOf="@id/fs_pack_info"
+                    android:text = "@{pack.packHeaderMessage}"
+                    tools:text="Access all these apps on Mobile, TV and Web" />
+
+
+
+
+                <TextView
+                    style="@style/TSTextMedium"
+                    android:id="@+id/tv_total_apps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="@dimen/view_margin_smallest"
+                    android:textSize="@dimen/text_size_14"
+                    tools:text = "12 Apps"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    app:layout_constraintTop_toTopOf="parent"  />
+
+                <com.tatasky.binge.customviews.ClickableRecyclerView
+                    android:id="@+id/recycler_packs"
+                    tools:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:overScrollMode="never"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_pack_subtitle"
+                    android:layout_marginTop="@dimen/view_margin_smallest"
+                    android:minHeight="100dp"
+                    tools:spanCount="4" />
+
+                <TextView
+                    android:layout_marginBottom="@dimen/margin_6"
+                    style="@style/TSTextMedium"
+                    android:textColor="?colorOnSecondary"
+                    android:id="@+id/iv_plus"
+                    android:textSize="@dimen/text_size_16"
+                    android:layout_width="0dp"
+                    android:gravity="center"
+                    android:layout_marginTop="@dimen/view_margin_xlarge"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    app:layout_constraintTop_toBottomOf="@id/recycler_packs"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <com.tatasky.binge.customviews.ClickableRecyclerView
+                    android:id="@+id/extra_recycler_packs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    app:layout_constraintTop_toBottomOf="@id/iv_plus"
+                    android:gravity="center"
+                    android:visibility="invisible"
+                    tools:visibility="visible"
+                    android:overScrollMode="never"
+                    tools:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:spanCount="4" />
+
+                <LinearLayout
+                    android:layout_marginTop="@dimen/view_margin_large"
+                    android:id="@+id/ll_pack_bottom_container"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/extra_recycler_packs"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    app:layout_constraintVertical_bias="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    >
+                    <TextView
+                        android:id="@+id/tv_pack_price"
+                        style="@style/TSTextBold"
+                        android:layout_width="wrap_content"
+                        tools:text = "299/month"
+                        android:layout_height="wrap_content"
+                        htmlText="@{pack.amount}"
+                        android:textSize="@dimen/text_size_16"
+                        />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:layout_marginTop="@dimen/view_margin_medium"
+                        android:id="@+id/btn_proceed"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:text="@string/proceed"
+                         />
+
+                    <TextView
+                        android:gravity="center"
+                        android:id="@+id/tv_primary_disc"
+                        tools:text=" *Eligible for watch on TV using Amazon FireTV Stick – Tata Sky Edition or Binge+ Set Top Box"
+                        android:textColor="@color/tint_purple_25"
+                        android:layout_marginTop="@dimen/margin_10"
+                        android:textSize="@dimen/text_size_12"
+                        android:text = "@{pack.packFooterMessage}"
+                        style="@style/TSTextDefault"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+
+
+                    <TextView
+                        android:id="@+id/tv_pack_description"
+                        android:textColor="@color/tint_purple_25"
+                        style="@style/TSTextDefault"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_10"
+                        android:textSize="@dimen/text_size_12"
+                        android:gravity="center"
+                        android:text="@{pack.sunnextFooterMessage}"
+                        tools:text=" *SunNxt is available on TV only"
+                        tools:visibility="visible"
+                        android:visibility="@{(pack.sunnextFooterMessage!=null || !pack.sunnextFooterMessage.empty)? View.VISIBLE : View.GONE, default=gone}"
+                        />
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

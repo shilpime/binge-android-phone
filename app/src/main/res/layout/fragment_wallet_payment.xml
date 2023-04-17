@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View" />
+        <import type="android.text.TextUtils" />
+
+        <variable
+            name="dthBalance"
+            type="String" />
+        <variable
+            name="message"
+            type="String" />
+        <variable
+            name="subscriptionAmount"
+            type="String" />
+        <variable
+            name="viewShouldShow"
+            type="Boolean" />
+        <variable
+            name="viewModel"
+            type="com.tatasky.binge.ui.features.subscription_freemium.viewmodel.FreemiumSubscriptionViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/darkBackground">
+
+
+        <ImageButton
+            android:id="@+id/imgBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/sample_iv_desc"
+            android:padding="@dimen/view_margin_large"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_back_key" />
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/bg_parental_control_rating_item"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/payByTSBalHeading_TV"
+            android:layout_marginTop="60dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Payment Methods"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/imgBack"
+            app:layout_constraintStart_toEndOf="@id/imgBack"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/plantype_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/view_margin_large"
+            android:layout_marginTop="85dp"
+            android:layout_marginEnd="@dimen/view_margin_large"
+            app:cardCornerRadius="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@color/darkPrimaryDark"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/plan_type_label"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:gravity="center_vertical"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:text="@string/payable_amount"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <TextView
+                    android:id="@+id/amount_value"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:gravity="center_vertical"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:text=""
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        </androidx.cardview.widget.CardView>
+
+
+        <TextView
+            android:id="@+id/payByTSBalHeading_TV"
+            style="@style/TSTextMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/launcher_background"
+            android:paddingVertical="@dimen/dp_20"
+            android:paddingStart="@dimen/dp_20"
+            android:paddingEnd="@dimen/dp_20"
+            android:text="@string/pay_using_tata_sky_balance"
+            android:textSize="@dimen/dimens_16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="@dimen/view_margin_small"
+            app:layout_constraintTop_toBottomOf="@id/plantype_card" />
+
+        <ImageView
+            android:id="@+id/tsWallet_IV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_22"
+            android:layout_marginTop="@dimen/dimens_28dp"
+            android:contentDescription="@string/sample_iv_desc"
+            android:src="@drawable/ic_wallet"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/payByTSBalHeading_TV" />
+
+        <TextView
+            android:id="@+id/tsBalTitle_TV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_16"
+            android:layout_marginTop="@dimen/dp_18"
+            android:text="@string/text_tata_sky_balance"
+            android:textSize="@dimen/dimens_16sp"
+            app:layout_constraintStart_toEndOf="@id/tsWallet_IV"
+            app:layout_constraintTop_toBottomOf="@id/payByTSBalHeading_TV" />
+
+        <TextView
+            android:id="@+id/subID_TV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimens_6dp"
+            tools:text="Subscriber ID: 1117472983"
+            android:textColor="@color/pink_50"
+            android:textSize="@dimen/sp_14"
+            app:layout_constraintStart_toStartOf="@id/tsBalTitle_TV"
+            app:layout_constraintTop_toBottomOf="@id/tsBalTitle_TV" />
+
+        <TextView
+            android:id="@+id/message_TV"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimens_10dp"
+            android:visibility="@{viewShouldShow == true ? View.VISIBLE : View.GONE, default=gone}"
+            android:text="@{message}"
+            android:textColor="@{viewModel.getWalletBalance().peekContent().data.hasLowBalanceForThisTxn == true ? @color/darkError : @color/purple_25}"
+            android:textSize="@dimen/dimens_16sp"
+            android:layout_marginEnd="@dimen/dimen_18"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/subID_TV"
+            app:layout_constraintTop_toBottomOf="@id/subID_TV"
+            tools:text="Your subscription will be auto-renewed every month until you cancel"
+            tools:visibility="visible"/>
+
+        <Button
+            android:id="@+id/makePayment_Btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:paddingHorizontal="@dimen/dimens_42dp"
+            android:paddingVertical="@dimen/dimens_10dp"
+            android:text="@{viewModel.getWalletBalance().peekContent().data.hasLowBalanceForThisTxn == true ? @string/recharge : @string/make_payment}"
+            android:visibility="@{viewShouldShow == true ? View.VISIBLE : View.GONE, default=gone}"
+            app:layout_constraintStart_toStartOf="@id/message_TV"
+            app:layout_constraintTop_toBottomOf="@id/message_TV"
+            tools:visibility="visible"
+            tools:text="@string/make_payment" />
+
+        <TextView
+            android:id="@+id/tsBal_TV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:text="@{String.format(@string/rupees_non_bold, dthBalance)}"
+            android:visibility="@{dthBalance != null ? View.VISIBLE : View.GONE}"
+            tools:text="₹2487"
+            android:textSize="@dimen/dimens_16sp"
+            app:layout_constraintBottom_toBottomOf="@id/payByTSBal_CB"
+            app:layout_constraintEnd_toStartOf="@id/payByTSBal_CB"
+            app:layout_constraintTop_toTopOf="@id/payByTSBal_CB" />
+
+        <CheckBox
+            android:id="@+id/payByTSBal_CB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_28"
+            android:layout_marginEnd="@dimen/dp_20"
+            android:visibility="@{dthBalance != null ? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:button="@drawable/checkbox_selector"
+            app:layout_constraintTop_toBottomOf="@id/payByTSBalHeading_TV" />
+
+        <View
+            android:id="@+id/hr_Divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/dp_16"
+            android:background="@color/stroke_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/makePayment_Btn" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

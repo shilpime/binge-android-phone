@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+                name="headerText"
+                type="String"/>
+
+        <variable name="hint"
+                  type="String"/>
+
+        <variable
+                name="isVisible"
+                type="Boolean"/>
+        <variable
+                name="maxLength"
+                type="Integer"/>
+        <variable
+                name="maxLines"
+                type="Integer"/>
+        <variable
+                name="inputType"
+                type="Integer"/>
+        <import type="android.view.View"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/et_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="@{isVisible?View.VISIBLE:View.INVISIBLE}">
+
+        <TextView
+                android:id="@+id/et_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{headerText}"
+                android:textColor="?colorOnPrimary"
+                android:textSize="@dimen/text_size_14"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                style="@style/TSTextMedium"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+
+        <com.tatasky.binge.customviews.CustomTextInputLayout
+                android:id="@+id/til_number"
+                android:layout_width="@dimen/margin_0"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_small"
+                app:errorEnabled="true"
+                app:hintEnabled="false"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/et_header">
+            <com.tatasky.binge.customviews.FixedPrefixTextInputEditText
+                    android:id="@+id/et"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/edit_layout_height"
+                    android:hint="@{hint}"
+                    android:textColorHint="@color/hintColor"
+                    android:saveEnabled="false"
+                    android:imeOptions="actionNext"
+                    android:inputType="@{inputType}"
+                    android:maxLength="@{maxLength}"
+                    android:maxLines="@{maxLines}"
+                    android:tag="+91  "
+                    style="@style/TSTextMedium"
+            />
+        </com.tatasky.binge.customviews.CustomTextInputLayout>
+
+        <!--    <EditText-->
+        <!--                android:id="@+id/et"-->
+        <!--                android:layout_width="@dimen/margin_0"-->
+        <!--                android:layout_height="?actionBarSize"-->
+        <!--                android:layout_marginTop="@dimen/view_margin_small"-->
+        <!--                android:imeOptions="actionGo"-->
+        <!--                android:inputType="@{inputType}"-->
+        <!--                android:maxLength="@{maxLength}"-->
+        <!--                android:maxLines="@{maxLines}"-->
+        <!--                style="@style/TSTextMedium"-->
+        <!--                app:layout_constraintEnd_toEndOf="parent"-->
+        <!--                app:layout_constraintStart_toStartOf="parent"-->
+        <!--                app:layout_constraintTop_toBottomOf="@id/et_header"/>-->
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

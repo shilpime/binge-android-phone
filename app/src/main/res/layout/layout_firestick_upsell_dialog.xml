@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/root_dialog_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="8dp"
+            app:cardBackgroundColor="@color/darkHighlight"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" >
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/view_margin_large"
+                android:paddingBottom="@dimen/view_margin_xlarge">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideLine_end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".9" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideLine_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".1" />
+
+                <TextView
+                    android:id="@+id/tv_dialog_title"
+                    style="@style/TSTextMedium"
+                    android:layout_width="@dimen/margin_0"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_xlarge"
+                    android:gravity="center"
+                    android:text="@string/firestick_promo_text"
+                    android:textSize="@dimen/text_size_20"
+                    android:lineSpacingExtra="5sp"
+                    app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+                    app:layout_constraintStart_toStartOf="@id/guideLine_start"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+                <ImageView
+                    android:id="@+id/iv_dialog"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_xlarge"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/sample_iv_desc"
+                    app:srcCompat="@drawable/ic_ftv"
+                    app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+                    app:layout_constraintStart_toStartOf="@id/guideLine_start"
+                    app:layout_constraintTop_toBottomOf="@id/tv_dialog_title"/>
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_dialog_primary"
+                    style="@style/TSTextMedium"
+                    android:layout_width="@dimen/margin_0"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_marginTop="@dimen/view_margin_xlarge"
+                    android:text="@string/i_am_intrested"
+                    android:textSize="@dimen/text_size_16"
+                    app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+                    app:layout_constraintStart_toStartOf="@id/guideLine_start"
+                    app:layout_constraintTop_toBottomOf="@id/iv_dialog" />
+                <TextView
+                    android:id="@+id/btn_cancel"
+                    style="@style/TSTextMedium"
+                    android:textSize="@dimen/text_size_16"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="?android:textColorTertiary"
+                    android:layout_marginTop="@dimen/view_margin_xlarge"
+                    android:text="@string/cancel_underline"
+                    app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+                    app:layout_constraintStart_toStartOf="@id/guideLine_start"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/btn_dialog_primary"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

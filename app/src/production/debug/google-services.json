@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "29655743027",
+    "project_id": "binge-mobile-17221",
+    "storage_bucket": "binge-mobile-17221.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:29655743027:android:e360116a540dd63cac4146",
+        "android_client_info": {
+          "package_name": "com.tatasky.binge"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "29655743027-folp7gc64h3jkupo22kmdqtmm2jvh5dh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFaUv8j6ZLuWehejGTwCCopw5P3DJ_BBE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "29655743027-folp7gc64h3jkupo22kmdqtmm2jvh5dh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

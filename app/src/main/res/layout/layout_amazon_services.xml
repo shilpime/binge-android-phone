@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/service1_tv"
+    style="@style/TSTextMedium"
+    android:textColor="@color/text_color"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:drawablePadding="@dimen/view_margin_small"
+    android:gravity="center"
+    android:paddingHorizontal="@dimen/view_margin_large"
+    android:textSize="@dimen/text_size_12" />

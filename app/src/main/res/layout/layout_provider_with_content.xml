@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="railsModel"
+            type="com.tatasky.binge.ui.features.home.model.RailsModel" />
+    </data>
+
+    <com.tatasky.binge.customviews.CustomMaterialCardView
+        android:layout_width="match_parent"
+        android:descendantFocusability="blocksDescendants"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/rail_margins">
+
+        <RelativeLayout
+            android:id="@+id/clHomeRoot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/margin_12">
+            <TextView
+                android:id="@+id/home_recycler_view_title"
+                style="@style/TSTextTitle"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="@dimen/margin_20"
+                android:paddingBottom="@dimen/margin_12"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="@{railsModel.title}"
+                android:gravity="top"
+                android:layout_centerHorizontal="true"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Top Movies" />
+            <org.imaginativeworld.whynotimagecarousel.ImageCarousel
+                android:id="@+id/viewpager_providers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:showNavigationButtons="false"
+                app:showTopShadow="true"
+                app:bottomShadowAlpha="0"
+                app:topShadowAlpha="0"
+                app:showBottomShadow="true"
+                app:showIndicator="false"
+                app:scaleOnScroll="true"
+                app:scalingFactor="0.1"
+                app:autoWidthFixing="true"
+                app:carouselGravity="CENTER"
+                app:showCaption="true"
+                android:orientation="horizontal"
+                app:carouselType="SHOWCASE"
+                app:infiniteCarousel="true"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_below="@+id/home_recycler_view_title"
+                app:layout_constraintTop_toBottomOf="@+id/home_recycler_view_title"/>
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/viewpager_providers"
+                android:layout_marginHorizontal="@dimen/view_margin_medium"
+                android:layout_marginTop="6dp"
+                android:background="#444764"
+                app:layout_constraintTop_toBottomOf="@+id/viewpager_providers"/>
+
+            <View
+                android:layout_width="32dp"
+                android:layout_height="3dp"
+                android:id="@+id/indicator"
+                android:layout_marginTop="@dimen/margin_5"
+                android:layout_centerHorizontal="true"
+                android:background="@color/lightPrimaryPink"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_centerVertical="true"
+                android:layout_alignBaseline="@+id/divider"
+                android:layout_below="@id/viewpager_providers"
+                app:layout_constraintTop_toBottomOf="@+id/viewpager_providers" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_provider_contents"
+                setAdapter="@{railsModel.adapter}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_8"
+                android:nestedScrollingEnabled="false"
+                android:background="@android:color/transparent"
+                android:clipToPadding="false"
+                android:lineSpacingExtra="4dp"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/margin_20dp"
+                android:paddingEnd="4dp"
+                android:layout_below="@id/divider"
+                app:layout_constraintTop_toBottomOf="@+id/divider"
+                app:layout_constraintStart_toStartOf="parent"
+                app:spanCount="4"
+                app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+                />
+
+            <TextView
+                android:id="@+id/home_see_all"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableEnd="@drawable/ic_seeall_small"
+                android:gravity="top"
+                android:drawablePadding="@dimen/view_margin_smallest"
+                android:visibility="visible"
+                android:text="@string/view_all"
+                android:textColor="?android:textColorTertiary"
+                android:textSize="@dimen/text_size_14"
+                android:layout_below="@id/rv_provider_contents"
+                android:layout_centerHorizontal="true"
+                app:layout_constraintTop_toBottomOf="@+id/rv_provider_contents"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+        </RelativeLayout>
+    </com.tatasky.binge.customviews.CustomMaterialCardView>
+</layout>

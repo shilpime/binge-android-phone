@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:id="@+id/parent"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+<!--        <include-->
+<!--            android:id="@+id/toolbar_layout"-->
+<!--            layout="@layout/shadowed_toolbar"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content" />-->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:minHeight="?attr/actionBarSize"
+            android:paddingStart="@dimen/margin_5"
+            android:paddingEnd="@dimen/margin_5"
+            app:contentPaddingBottom="-3dp"
+            app:contentPaddingLeft="-3dp"
+            app:contentPaddingRight="@dimen/margin_5"
+            app:contentPaddingTop="-3dp">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/home_binge_logo"
+                android:layout_gravity="center"/>
+        </androidx.appcompat.widget.Toolbar>
+        <WebView
+            android:visibility="gone"
+            android:id="@+id/wv_managed_app"
+            android:layout_width="match_parent"
+            android:background="@color/black"
+            android:layout_height="match_parent"
+            android:textSize="@dimen/text_size_14" />
+
+    </LinearLayout>
+</layout>

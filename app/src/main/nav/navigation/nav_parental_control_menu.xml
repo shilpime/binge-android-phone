@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_parental_control_menu"
+    app:startDestination="@id/parentalControlSettingsFragment">
+
+    <fragment
+        android:id="@+id/parentalControlSettingsFragment"
+        android:name="com.tatasky.binge.ui.features.parentalcontrol.sidemenu.ParentalControlSettingsFragment"
+        android:label="Parental Control"
+        tools:layout="@layout/fragment_parental_control_settings">
+        <action
+            android:id="@+id/action_parentalControlSettingsFragment_to_parentalControlRatingFragment_with_popUpto"
+            app:destination="@id/parentalControlRatingFragment"
+            app:popUpTo="@id/parentalControlSettingsFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_parentalControlSettingsFragment_to_parentalControlRatingFragment"
+            app:destination="@id/parentalControlRatingFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/parentalControlRatingFragment"
+        android:name="com.tatasky.binge.ui.features.parentalcontrol.sidemenu.ParentalControlRatingFragment"
+        android:label="Parental Control"
+        tools:layout="@layout/fragment_parental_control_rating">
+        <argument
+            android:name="isPCRatingChange"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_parentalControlRatingFragment_to_parentalControlSettingsFragment"
+            app:popUpTo="@id/parentalControlSettingsFragment" />
+        <action
+            android:id="@+id/action_parentalControlRatingFragment_to_parentalControlSettingsFragmentWithPopUpTo"
+            app:destination="@id/parentalControlSettingsFragment"
+            app:popUpTo="@id/parentalControlRatingFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <dialog
+        android:id="@+id/parentalControlBottomDialogFragment"
+        android:name="com.tatasky.binge.ui.features.parentalcontrol.bottomsheet.ParentalControlBottomDialogFragment"
+        android:label="Parental Control"
+        tools:layout="@layout/fragment_parental_control_bottom_dialog">
+        <argument
+            android:name="actionBeforeOpeningBottomSheet"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="ageRatingValue"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+    </dialog>
+    <action
+        android:id="@+id/action_global_parentalControlBottomDialogFragment"
+        app:destination="@id/parentalControlBottomDialogFragment" />
+</navigation>

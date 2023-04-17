@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="headerText"
+            type="String" />
+
+        <variable
+            name="required"
+            type="Boolean" />
+
+        <variable
+            name="hint"
+            type="String" />
+
+        <variable
+            name="text"
+            type="String" />
+
+        <variable
+            name="isVisible"
+            type="Boolean" />
+
+        <variable
+            name="iconRes"
+            type="android.graphics.drawable.Drawable" />
+
+        <import type="android.view.View" />
+
+        <import type="android.text.InputType" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/et_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="@{isVisible?View.VISIBLE:View.GONE}">
+
+        <TextView
+            android:id="@+id/et_header"
+            style="@style/TSTextMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:textColor="?colorOnPrimary"
+            android:textSize="@dimen/text_size_16"
+            app:hint="@{headerText}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:required="@{required}" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/til"
+            android:layout_width="@dimen/margin_0"
+            android:layout_height="@dimen/edit_layout_height"
+            android:layout_marginTop="@dimen/view_margin_small"
+            android:background="@drawable/bg_rounded_10"
+            android:paddingStart="@dimen/view_margin_large"
+            android:paddingEnd="@dimen/view_margin_large"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_header">
+
+            <TextView
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@{hint}"
+                android:maxLines="2"
+                android:text="@{text}"
+                android:textColor="?colorOnPrimary"
+                android:textColorHint="@color/pink_50"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/iv_icon"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/iv_icon"
+                glideSrc="@{iconRes}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selectable_ripple"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_calendar" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?colorError"
+            android:textSize="@dimen/text_size_12"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/til" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

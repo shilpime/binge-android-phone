@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_round_bottom_sheet"
+        tools:context=".ui.features.onboarding.login.bottomsheet.GuestLoginOtpFragment">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_margin_start"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/margin_20dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_margin_end"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/margin_20" />
+
+        <include
+            android:id="@+id/header"
+            layout="@layout/layout_header_parental_control_dialog" />
+<!--
+        <TextView
+            android:id="@+id/tv_subtitle_guest_login_verify_otp"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="125dp"
+            android:gravity="center_vertical|start"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:textSize="@dimen/text_size_14"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/text_subtitle_guest_login_verify_otp" />-->
+
+        <include
+            android:id="@+id/layoutLoginOTP"
+            layout="@layout/layout_guest_login_otp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toBottomOf="@id/header"
+            />
+<!--
+        <TextView
+            android:id="@+id/tv_code_expiry_guest_login_verify_otp"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="64dp"
+            android:gravity="center_vertical|start"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:textSize="@dimen/text_size_14"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tv_resend_otp_guest_login_verify_otp"
+            app:layout_constraintStart_toStartOf="@id/cl_et_otp_container"
+            app:layout_constraintTop_toBottomOf="@id/cl_et_otp_container"
+            tools:text="@string/text_code_expiry_guest_login_verify_otp" />
+
+        <TextView
+            android:id="@+id/tv_error_guest_login_verify_otp"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="64dp"
+            android:gravity="center_vertical|start"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:textColor="@color/darkError"
+            android:textSize="@dimen/text_size_14"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tv_resend_otp_guest_login_verify_otp"
+            app:layout_constraintStart_toStartOf="@id/cl_et_otp_container"
+            app:layout_constraintTop_toBottomOf="@id/cl_et_otp_container"
+            tools:text="Incorrect OTP" />
+
+        <TextView
+            android:id="@+id/tv_resend_otp_guest_login_verify_otp"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="64dp"
+            android:enabled="false"
+            android:gravity="center_vertical|end"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:text="@string/resend_otp"
+            android:textColor="@color/button_color_tertiary"
+            android:textSize="@dimen/text_size_16"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/cl_et_otp_container"
+            app:layout_constraintTop_toBottomOf="@id/cl_et_otp_container" />-->
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

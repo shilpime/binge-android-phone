@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_2"
+        android:layout_marginBottom="@dimen/margin_2">
+
+        <View
+            android:id="@+id/view_background_guest_sid_item"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:background="@drawable/shp_dark_highlight_rect"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/title_guest_sid_listing_item"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/margin_15"
+            android:gravity="bottom|start"
+            android:maxLines="1"
+            android:textSize="@dimen/text_size_18"
+            app:layout_constraintBottom_toTopOf="@id/desc_guest_sid_listing_item"
+            app:layout_constraintEnd_toStartOf="@id/iv_status_guest_sid_listing"
+            app:layout_constraintStart_toStartOf="@id/view_background_guest_sid_item"
+            app:layout_constraintTop_toTopOf="@id/view_background_guest_sid_item"
+            tools:text="2244668800" />
+
+        <TextView
+            android:id="@+id/desc_guest_sid_listing_item"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/margin_15"
+            android:gravity="top|start"
+            android:maxLines="1"
+            android:textColor="@color/pink_50"
+            android:textSize="@dimen/text_size_14"
+            app:layout_constraintBottom_toBottomOf="@id/view_background_guest_sid_item"
+            app:layout_constraintEnd_toStartOf="@id/iv_status_guest_sid_listing"
+            app:layout_constraintStart_toStartOf="@id/view_background_guest_sid_item"
+            app:layout_constraintTop_toBottomOf="@id/title_guest_sid_listing_item"
+            tools:text="Binge Active" />
+
+        <ImageView
+            android:id="@+id/iv_status_guest_sid_listing"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_margin="@dimen/margin_15"
+            app:layout_constraintBottom_toBottomOf="@id/view_background_guest_sid_item"
+            app:layout_constraintEnd_toEndOf="@id/view_background_guest_sid_item"
+            app:layout_constraintTop_toTopOf="@id/view_background_guest_sid_item"
+            app:srcCompat="@drawable/ic_sid_list_item_selected" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

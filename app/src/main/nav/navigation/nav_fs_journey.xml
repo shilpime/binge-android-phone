@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_fs_journey"
+    app:startDestination="@id/fragment_fs_installation">
+
+
+    <fragment
+        android:id="@+id/fragment_fs_installation"
+        android:name="com.tatasky.binge.ui.features.fsinstallation.FSInstallationMethodFragment"
+        android:label=""
+        tools:layout="@layout/fragment_fs_installation">
+        <action
+            android:id="@+id/fs_installation_fragment_to_fs_address_fragment"
+            app:destination="@id/fragment_confirm_address" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_confirm_address"
+        android:name="com.tatasky.binge.ui.features.fsinstallation.FSConfirmAddressFragment"
+        android:label=""
+        tools:layout="@layout/fragment_confirm_address" >
+        <action
+            android:id="@+id/fs_installation_fragment_to_fs_schedule_fragment"
+            app:destination="@id/fsInstallationScheduleFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fsInstallationScheduleFragment"
+        android:name="com.tatasky.binge.ui.features.fsinstallation.FSInstalltionScheduleFragment"
+        android:label=""
+        tools:layout="@layout/fragment_schedule_installation">
+        <argument android:name="address"
+            app:argType="com.tatasky.binge.data.networking.models.response.AddressResponse"
+            app:nullable="false"/>
+    </fragment>
+</navigation>

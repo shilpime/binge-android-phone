@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.tatasky.binge.data.networking.models.response.SubscriberProfileListModel" />
+
+        <variable
+            name="largeScreen"
+            type="Boolean" />
+
+        <variable
+            name="viewModel"
+            type="com.tatasky.binge.ui.features.myaccount.MyAccountViewModel" />
+
+        <variable
+            name="sid"
+            type="String" />
+
+        <import type="com.tatasky.binge.utils.AppConstantsKt" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <include
+                android:id="@+id/profileLayout"
+                layout="@layout/layout_myaccount_profile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:model="@{model}"
+                app:largeScreen="@{largeScreen}"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:layout_margin="@dimen/margin_18"
+                app:layout_constraintTop_toBottomOf="@+id/profileLayout">
+
+                <TextView
+                    android:id="@+id/tvID"
+                    style="@style/TSTextMedium"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="@{@string/dth_id_append(sid ?? ``)}"
+                    android:textColor="@color/darkOnSecondary"
+                    android:textSize="@dimen/text_size_14"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.robinhood.ticker.TickerView
+                    android:id="@+id/ticker_balance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textSize="@dimen/text_size_24"
+                    app:ticker_animationDuration="500"
+                    app:ticker_animateMeasurementChange="true"
+                    style="@style/TSTextMedium"
+                    android:paddingBottom="@dimen/margin_2"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/iv_refresh"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintTop_toBottomOf="@+id/tvID" />
+
+<!--                <TextView-->
+<!--                    android:id="@+id/tvBalance"-->
+<!--                    style="@style/TSTextMedium"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginTop="@dimen/view_margin_smallest"-->
+<!--                    android:gravity="center"-->
+<!--                    android:text="@string/rupee_symbol"-->
+<!--                    android:paddingHorizontal="@dimen/view_margin_smallest"-->
+<!--                    android:textColor="@color/white"-->
+<!--                    android:textSize="@dimen/text_size_24"-->
+<!--                    app:layout_constraintEnd_toStartOf="@id/ticker_balance"-->
+<!--                    app:layout_constraintHorizontal_chainStyle="packed"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toBottomOf="@+id/tvID" />-->
+
+                <ImageView
+                    android:id="@+id/iv_refresh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/view_margin_small"
+                    app:srcCompat="@drawable/ic_refresh"
+                    app:layout_constraintBottom_toBottomOf="@id/ticker_balance"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/ticker_balance"
+                    app:layout_constraintTop_toTopOf="@id/ticker_balance" />
+
+                <TextView
+                    android:id="@+id/tvRechargeDue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_smallest"
+                    android:gravity="center"
+                    android:text="@{@string/recharge_due(``)}"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_size_12"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ticker_balance" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRecharge"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:text="@string/recharge"
+                    android:textSize="@dimen/text_size_16"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvRechargeDue" />
+
+                <include
+                    android:id="@+id/mySubscription"
+                    layout="@layout/layout_my_account_list_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/pick_image_button_size"
+                    android:layout_marginTop="@dimen/view_margin_xxlarge"
+                    app:image="@{@drawable/ic_my_subscription}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/btnRecharge"
+                    app:title="@{@string/my_subscription}" />
+
+                <include
+                    android:id="@+id/switchAccount"
+                    layout="@layout/layout_my_account_list_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/pick_image_button_size"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    android:visibility="gone"
+                    app:image="@{@drawable/ic_switch_account}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/mySubscription"
+                    app:title="@{@string/switch_account}" />
+
+
+                <include
+                    android:id="@+id/notification"
+                    layout="@layout/layout_my_account_list_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/pick_image_button_size"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    app:image="@{@drawable/ic_notifications}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/switchAccount"
+                    app:title="@{@string/notification}" />
+
+                <include
+                    android:id="@+id/transactionHistory"
+                    layout="@layout/layout_my_account_list_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/pick_image_button_size"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    app:image="@{@drawable/ic_trans_history}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/notification"
+                    app:profileModel="@{model}"
+                    app:title="@{@string/transaction_history}" />
+
+                <include
+                    android:id="@+id/myOffer"
+                    layout="@layout/layout_my_account_list_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/pick_image_button_size"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    android:visibility="gone"
+                    app:count="@{2}"
+                    app:image="@{@drawable/ic_my_offers}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/transactionHistory"
+                    app:title="@{@string/my_offers}" />
+
+                <include
+                    android:id="@+id/editProfile"
+                    layout="@layout/layout_my_account_list_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/pick_image_button_size"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    app:image="@{@drawable/ic_profile_settings}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/myOffer"
+                    app:profileModel="@{model}"
+                    app:title="@{@string/edit_profile}" />
+
+                <include
+                    android:id="@+id/management"
+                    layout="@layout/layout_my_account_list_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/pick_image_button_size"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    app:image="@{@drawable/ic_device_management}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/editProfile"
+                    app:title="@{@string/device_management}" />
+
+                <include
+                    android:id="@+id/link"
+                    layout="@layout/layout_my_account_list_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/pick_image_button_size"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    android:layout_marginBottom="@dimen/margin_2"
+                    android:visibility="gone"
+                    app:image="@{@drawable/ic_link_accounts}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/guideline_2"
+                    app:layout_constraintTop_toBottomOf="@+id/management"
+                    app:layout_constraintVertical_bias="0"
+                    app:profileModel="@{model}"
+                    app:title="@{@string/link_tatasky}" />
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent=".95" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</layout>

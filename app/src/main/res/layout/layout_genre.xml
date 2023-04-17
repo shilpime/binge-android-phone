@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="contentItem"
+            type="com.tatasky.binge.data.networking.models.response.ContentItem" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/rlParent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/selectable_ripple"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/frame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/ic_sqare_genre_lang_background">
+
+            <ImageView
+                android:id="@+id/iv_genre"
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:padding="2dp"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center_horizontal"
+                android:contentDescription="@string/sample_iv_desc" />
+
+
+            <TextView
+                android:id="@+id/tv_content_title"
+                style="@style/TSText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center_horizontal"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textFontWeight="500"
+                android:text="@{contentItem.title}"
+                android:textSize="@dimen/text_size_12"/>
+        </LinearLayout>
+    </LinearLayout>
+</layout>

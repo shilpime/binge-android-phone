@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="thumbImg" type="id" />
+    <item name="progressBar" type="id" />
+    <item name="tb_video_played" type="id">@id/exo_progress</item>
+    <item name="iv_ttn_pause" type="id">@id/exo_pause</item>
+    <item name="iv_ttn_play" type="id">@id/exo_play</item>
+    <item name="tv_played_time" type="id">@id/exo_position</item>
+    <item name="iv_full_screen_enter_exit" type="id">@id/iv_full_screen_enter_exit</item>
+    <item name="tv_live" type="id" />
+    <item name="iv_start_over" type="id" />
+    <item name="tv_video_quality" type="id" />
+    <item name="tv_video_language" type="id" />
+    <item name="fl_parent" type="id" />
+    <item name="tv_error_message" type="id" />
+    <item name="ll_bottom_controller" type="id" />
+    <item name="position" type="id">@id/position</item>
+
+</resources>

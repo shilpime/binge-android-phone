@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+        <import type="android.text.TextUtils"/>
+        <variable
+            name="selectionDialogVerbiages"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks.Verbiage.SelectionDialogBox" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/view_margin_large"
+        android:paddingBottom="@dimen/view_margin_large">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideLine_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".88" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideLine_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".12" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideLine_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".07" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideLine_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".93" />
+
+        <TextView
+            android:id="@+id/tv_dialog_title"
+            style="@style/TSTextMedium"
+            android:layout_width="@dimen/margin_0"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@{TextUtils.isEmpty(selectionDialogVerbiages.title)?@string/cancellation_selection_title:selectionDialogVerbiages.title}"
+            android:textSize="@dimen/text_size_20"
+            app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+            app:layout_constraintStart_toStartOf="@id/guideLine_start"
+            app:layout_constraintTop_toBottomOf="@id/guideLine_top" />
+
+        <include
+            android:id="@+id/layout_cancel_binge_pack"
+            layout="@layout/layout_cancellation_selection_item"
+            android:layout_width="@dimen/margin_0"
+            android:layout_marginTop="@dimen/view_margin_xxlarge"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+            app:layout_constraintStart_toStartOf="@id/guideLine_start"
+            app:layout_constraintTop_toBottomOf="@id/tv_dialog_title" />
+
+        <include
+            android:id="@+id/layout_cancel_prime_pack"
+            layout="@layout/layout_cancellation_selection_item"
+            android:layout_width="@dimen/margin_0"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+            app:layout_constraintStart_toStartOf="@id/guideLine_start"
+            app:layout_constraintTop_toBottomOf="@id/layout_cancel_binge_pack" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_dialog_primary"
+            style="@style/TSTextMedium"
+            android:layout_width="@dimen/margin_0"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/view_margin_xlarge"
+            android:enabled="false"
+            android:layout_marginBottom="@dimen/view_margin_xxlarge"
+            android:text="@string/proceed"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+            app:layout_constraintStart_toStartOf="@id/guideLine_start"
+            app:layout_constraintTop_toBottomOf="@id/layout_cancel_prime_pack" />
+
+        <TextView
+            android:id="@+id/btn_dialog_secondary"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_small"
+            android:text="@string/cancel_underline"
+            android:textColor="?android:textColorTertiary"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintBottom_toBottomOf="@id/guideLine_bottom"
+            app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+            app:layout_constraintStart_toStartOf="@id/guideLine_start"
+            app:layout_constraintTop_toBottomOf="@id/btn_dialog_primary" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

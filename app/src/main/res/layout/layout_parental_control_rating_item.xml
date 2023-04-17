@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+    </data>
+
+    <com.tatasky.binge.customviews.CustomMaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/view_margin_smallest"
+        android:elevation="@dimen/dp_10"
+        app:cardCornerRadius="@dimen/dp_12"
+        app:strokeColor="@color/stroke_color"
+        app:strokeWidth="@dimen/mtrl_textinput_box_stroke_width_focused">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/darkHighlight"
+            android:minHeight="56dp"
+            android:paddingStart="@dimen/view_margin_large"
+            android:paddingTop="@dimen/view_margin_small"
+            android:paddingEnd="@dimen/view_margin_large"
+            android:paddingBottom="@dimen/view_margin_small"
+            android:theme="@style/PackTheme">
+
+            <TextView
+                android:id="@+id/tv_rating_title"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:ellipsize="end"
+                android:gravity="start"
+                android:maxLines="1"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/cb_rating"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="U" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cb_rating"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@null"
+                android:button="@drawable/radio_button_selector"
+                android:clickable="false"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.tatasky.binge.customviews.CustomMaterialCardView>
+</layout>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="railsModel"
+            type="com.tatasky.binge.ui.features.home.model.RailsModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clRoot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/rail_margins"
+        android:layout_marginStart="@dimen/dp_14"
+        android:layout_marginEnd="@dimen/dp_14">
+        <com.tatasky.binge.customviews.CustomMaterialCardView
+            android:id="@+id/cv_bg_sports"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_14"
+            android:layout_marginEnd="@dimen/margin_14"
+            android:layout_marginBottom="10dp"
+            app:cardCornerRadius="@dimen/dimens_5dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_bg_sports"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="fitXY" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/ic_overlay_sports_card"
+                android:elevation="5dp" />
+        </com.tatasky.binge.customviews.CustomMaterialCardView>
+
+        <ImageView
+            android:id="@+id/iv_provider_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimens_20dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginBottom="5dp"
+            android:elevation="@dimen/dp_10"
+            app:layout_constraintBottom_toTopOf="@id/rv_sports_rail"
+            app:layout_constraintStart_toStartOf="@id/cv_bg_sports" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_sports_rail"
+            setAdapter="@{railsModel.adapter}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_6"
+            android:paddingBottom="@dimen/dp_6"
+            android:background="@android:color/transparent"
+            android:clipToPadding="true"
+            android:lineSpacingExtra="4dp"
+            android:orientation="horizontal"
+            android:elevation="@dimen/dp_10"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="@id/cv_bg_sports"
+            app:layout_constraintEnd_toEndOf="@id/cv_bg_sports"
+            app:layout_constraintStart_toStartOf="@id/cv_bg_sports" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_terms_condition"
+            style="@style/TSTextBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/terms_n_condition"
+            android:textColor="@color/button_color_tertiary"
+            android:textSize="@dimen/dimens_12sp"
+            android:textFontWeight="600"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_spacer"
+            style="@style/TSTextBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="@string/text_dot"
+            android:textFontWeight="600"
+            android:textColor="@color/button_color_tertiary"
+            android:textSize="@dimen/dimens_12sp"
+            app:layout_constraintBottom_toBottomOf="@id/tv_terms_condition"
+            app:layout_constraintStart_toEndOf="@id/tv_terms_condition"
+            app:layout_constraintTop_toTopOf="@id/tv_terms_condition" />
+
+        <TextView
+            android:id="@+id/tv_tv_privacy_policy"
+            style="@style/TSTextBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/privacy_policy"
+            android:textFontWeight="600"
+            android:textColor="@color/button_color_tertiary"
+            android:textSize="@dimen/dimens_12sp"
+            app:layout_constraintStart_toEndOf="@id/tv_spacer"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_footer_titles"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="tv_terms_condition,tv_tv_privacy_policy,tv_spacer" />
+
+        <TextView
+            android:id="@+id/tv_version_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textFontWeight="400"
+            android:textColor="@color/button_color_tertiary"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/barrier_footer_titles"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            tools:ignore="SmallSp"
+            tools:text="Version No. 02.1.2.100" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

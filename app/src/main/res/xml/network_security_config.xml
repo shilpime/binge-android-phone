@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">li-jit-cdn-lb.lionsgateplay.com</domain>
+        <domain includeSubdomains="true">tatasky-qa-kong-anywhere-proxy.videoready.tv</domain>
+        <domain includeSubdomains="true">mapi.hungama.com</domain>
+        <domain includeSubdomains="true">34.227.63.170</domain>
+        <domain includeSubdomains="true">surl.shemaroome.com</domain>
+        <domain includeSubdomains="true">rest-sgs1.ott.kaltura.com</domain>
+        <domain includeSubdomains="true">udrmv3-mu.kaltura.com</domain>
+        <domain includeSubdomains="true">qa-cdn-s3-ts.videoready.tv</domain>
+        <domain includeSubdomains="true">hoichoi-tataplay.akamaized.net</domain>
+        <domain includeSubdomains="true">assets.chaupal.tv</domain>
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">qapaasapi.myplex.com</domain>
+    </domain-config>
+    <debug-overrides>
+        <trust-anchors>
+            <!--            <!— Trust user added CAs while debuggable only → -->
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.notifications.NotificationViewModel" />
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.features.notifications.NotificationFragment">
+
+        <include
+            android:id="@+id/toolbar_layout"
+            layout="@layout/shadowed_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/group_mark_all_read"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="tv_mark_all_read,line_separator" />
+
+        <TextView
+            android:id="@+id/tv_select_all"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_20"
+            android:text="@string/select_all"
+            android:textColor="?android:textColorTertiary"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_mark_all_read"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_mark_all_read" />
+
+        <TextView
+            android:id="@+id/tv_mark_all_read"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_15"
+            android:layout_marginEnd="@dimen/margin_20"
+            android:text="@string/mark_read"
+            android:textColor="?android:textColorTertiary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar_layout" />
+
+        <View
+            android:id="@+id/line_separator"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/dimens_7dp"
+            android:background="@color/stroke_color"
+            app:layout_constraintEnd_toEndOf="@+id/tv_mark_all_read"
+            app:layout_constraintStart_toStartOf="@+id/tv_select_all"
+            app:layout_constraintTop_toBottomOf="@+id/tv_mark_all_read"
+            app:layout_goneMarginLeft="@dimen/margin_20" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_notification"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/view_margin_smallest"
+            android:adapter="@{vm.notificationAdapter}"
+            android:lineSpacingExtra="4dp"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/view_margin_smallest"
+            app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/line_separator"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/tv_empty"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/notification_empty"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar_layout" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

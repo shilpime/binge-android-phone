@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomSearchView">
+        <attr name="state_submitted" format="boolean"/>
+    </declare-styleable>
+    <declare-styleable name="PageIndicatorView">
+        <attr name="selected_page" format="integer"/>
+        <attr name="total_pages" format="integer"/>
+    </declare-styleable>
+</resources>

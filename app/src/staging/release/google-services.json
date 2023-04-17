@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "954420610390",
+    "firebase_url": "https://b-anywhere.firebaseio.com",
+    "project_id": "b-anywhere",
+    "storage_bucket": "b-anywhere.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:954420610390:android:c298e4af836fb9e11d42f7",
+        "android_client_info": {
+          "package_name": "com.tatasky.binge"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "954420610390-5abf4vlrecl1d0lgh197m332kn8r92cd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tatasky.binge",
+            "certificate_hash": "024c2da0bd94dde8555d28147e742f38882c2e21"
+          }
+        },
+        {
+          "client_id": "954420610390-9avcp2cbf2sems2poh2nkiurua58derb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLHyb3i-HSw6E_w5RRdbDMoLriq6ZZHYY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "954420610390-9avcp2cbf2sems2poh2nkiurua58derb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

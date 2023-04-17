@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_prime"
+    app:startDestination="@id/primeInterstitialFragment">
+    <fragment
+        android:id="@+id/transparentFragment"
+        android:name="com.tatasky.binge.ui.features.prime.view.TransparentFragment"
+        android:label=""
+        tools:layout="@layout/fragment_transparent">
+    </fragment>
+    <fragment
+        android:id="@+id/primeInterstitialFragment"
+        android:name="com.tatasky.binge.ui.features.prime.view.PrimeInterstitialFragment"
+        android:label=""
+        tools:layout="@layout/fragment_prime_interstitial">
+        <action
+            android:id="@+id/action_primeInterstitialFragment_to_primeRechargeFragment"
+            app:destination="@id/primeRechargeFragment"/>
+        <action
+            android:id="@+id/action_primeInterstitialFragment_to_primeTncFragment"
+            app:destination="@id/primeTncFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/primeRechargeFragment"
+        android:name="com.tatasky.binge.ui.features.prime.view.PrimeRechargeFragment"
+        android:label=""
+        tools:layout="@layout/fragment_prime_recharge">
+        <argument
+            android:name="primePack"
+            app:argType="com.tatasky.binge.data.networking.models.response.PrimePackItem" />
+        <argument
+            android:name="message"
+            app:argType="string"
+            app:nullable="false" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/primeTncFragment"
+        android:name="com.tatasky.binge.ui.features.prime.view.PrimeTncFragment"
+        android:label=""
+        tools:layout="@layout/fragment_prime_tnc">
+
+        <argument
+            android:name="url"
+            app:argType="string"
+            app:nullable="false" />
+
+    </fragment>
+</navigation>

@@ -1,0 +1,17 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/partnerLogo_IV"
+        android:layout_width="@dimen/dp_40"
+        android:layout_height="@dimen/dp_40"
+        android:layout_marginHorizontal="@dimen/dimens_5dp"
+        android:scaleType="fitXY"
+        app:shapeAppearanceOverlay="@style/customPartnerRoundedLogo"
+        tools:src="@drawable/ic_sony_liv"/>
+</layout>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/text1"
+    android:layout_width="match_parent"
+    style="@style/TSTextMedium"
+    android:layout_height="wrap_content"
+    android:ellipsize="marquee"
+    android:paddingStart="@dimen/view_margin_large"
+    android:textColorHint="@color/pink_50"
+    android:paddingEnd="@dimen/view_margin_large"
+    android:singleLine="true"
+    android:textAlignment="inherit"
+    android:textColor="?colorOnPrimary"
+    android:textSize="@dimen/text_size_16" />

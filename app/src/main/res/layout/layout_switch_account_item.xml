@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.tatasky.binge.data.networking.models.response.LoginResponse.BingeSubscription" />
+
+        <import type="android.view.View" />
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_5"
+        android:padding="@dimen/view_margin_smallest">
+
+        <FrameLayout
+            android:id="@+id/fl_profileImage"
+            android:layout_width="@dimen/switch_profile_width_height"
+            android:layout_height="@dimen/switch_profile_width_height"
+            android:layout_marginStart="@dimen/view_margin_smallest"
+            android:background="@drawable/account_switch_circle"
+            android:padding="@dimen/padding_5dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/profileImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY" />
+
+            <TextView
+                android:id="@+id/tvLetterr"
+                style="@style/TSTextBold"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="P"
+                android:textSize="@dimen/text_size_30"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/fl_profileText"
+            android:layout_width="@dimen/switch_profile_width_height"
+            android:layout_height="@dimen/switch_profile_width_height"
+            android:layout_marginStart="@dimen/view_margin_smallest"
+            android:background="@drawable/ic_genre_background"
+            android:padding="@dimen/padding_5dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tvLetter"
+                style="@style/TSTextBold"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="P"
+                android:textSize="@dimen/text_size_30"
+                android:visibility="visible" />
+
+        </FrameLayout>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="end"
+            app:constraint_referenced_ids="fl_profileImage,fl_profileText" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/view_margin_small"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/barrier"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvID"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/view_margin_small"
+                android:layout_marginTop="@dimen/view_margin_smallest"
+                android:drawableLeft="@drawable/ic_device"
+                android:drawablePadding="@dimen/margin_6"
+                android:gravity="start"
+                android:text="@{@string/id_append(model.baId)}"
+                android:textColor="@color/pink_50"
+                android:textSize="@dimen/text_size_14" />
+           <!-- android:drawableLeft="@{model.subscriptionType.equals(`mobile`)? @drawable/ic_device : @drawable/ic_device}"-->
+
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvUserName"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/view_margin_small"
+                android:layout_marginTop="@dimen/margin_4"
+                android:gravity="start"
+                android:text="@{model.aliasName}"
+                android:textSize="@dimen/text_size_14" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imgCheck"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="@dimen/view_margin_smallest"
+            app:srcCompat="@drawable/ic_check_large"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

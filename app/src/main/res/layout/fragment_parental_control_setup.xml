@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.features.parentalcontrol.sidemenu.ParentalControlSetupFragment">
+
+        <include
+            android:id="@+id/toolbar_layout"
+            layout="@layout/shadowed_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_margin_start"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/margin_20dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_margin_end"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/margin_20" />
+
+        <ImageView
+            android:id="@+id/iv_logo_fragment_parental_control_setup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_layout"
+            app:srcCompat="@drawable/ic_lock" />
+
+        <TextView
+            android:id="@+id/tv_header_title_fragment_parental_control_setup"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="@string/title_parental_pin_setup"
+            android:textSize="@dimen/text_size_22"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toBottomOf="@id/iv_logo_fragment_parental_control_setup" />
+
+        <TextView
+            android:id="@+id/tv_subtitle_fragment_parental_control_setup"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:lineHeight="19.2dp"
+            android:lineSpacingExtra="1sp"
+            android:text="@string/text_subtitle_parental_control_setup"
+            android:textColor="@color/pink_50"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toBottomOf="@id/tv_header_title_fragment_parental_control_setup" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_proceed_fragment_parental_control_setup"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="@dimen/margin_20dp"
+            android:layout_marginBottom="@dimen/margin_20dp"
+            android:enabled="true"
+            android:text="@string/btn_proceed_text_fragment_parental_control_setup"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toBottomOf="@id/tv_subtitle_fragment_parental_control_setup" />
+
+        <TextView
+            android:id="@+id/tv_subtitle_two_fragment_parental_control_setup"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:lineSpacingExtra="5sp"
+            android:text="@string/text_subtitle_two_parental_control_setup"
+            android:textColor="@color/pink_50"
+            android:textSize="@dimen/text_size_13"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/tv_description_fragment_parental_control_setup"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start" />
+
+
+        <TextView
+            android:id="@+id/tv_description_fragment_parental_control_setup"
+            style="@style/TSText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:gravity="center"
+            android:lineSpacingExtra="6sp"
+            android:text="@string/text_description_fragment_parental_control_setup"
+            android:textColor="@color/pink_50"
+            android:textSize="@dimen/text_size_13"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/view_margin_smallest">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:srcCompat="@color/pink_50"
+            android:id="@+id/iv_divider"
+            android:layout_marginBottom="@dimen/view_margin_small"
+            android:layout_marginTop="@dimen/view_margin_small"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/tv_charges_for"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@id/tv_charges"
+            android:layout_below="@id/iv_divider"
+            android:layout_marginEnd="@dimen/view_margin_large"
+            android:gravity="start"
+            android:textSize="@dimen/text_size_16" />
+        <TextView
+            android:id="@+id/tv_charges"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_below="@id/iv_divider"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:textSize="@dimen/text_size_16" />
+    </RelativeLayout>
+</layout>

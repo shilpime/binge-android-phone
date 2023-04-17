@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable name="viewModel" type="com.tatasky.binge.ui.features.home.subpage.SeeAllViewModel"/>
+    </data>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:transitionGroup="true"
+        android:paddingBottom="56dp"
+        android:orientation="vertical">
+        <include
+            android:id="@+id/toolbar_layout"
+            layout="@layout/shadowed_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_below="@id/toolbar_layout"
+            android:layout_height="wrap_content">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/view_margin_medium"
+                android:paddingEnd="@dimen/view_margin_medium"
+                android:paddingTop="@dimen/view_margin_medium">
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/cl_subscribed_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginBottom="32dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/subscribed_view_title"
+                        style="@style/TSTextTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="@string/subscribed"
+                        android:paddingBottom="4dp"
+                        android:includeFontPadding="false"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
+                    <ImageView
+                        android:id="@+id/divider"
+                        android:contentDescription="@string/sample_iv_desc"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/margin_2"
+                        android:layout_marginTop="4dp"
+                        android:scaleType="fitXY"
+                        app:srcCompat="@drawable/ic_divider"
+                        android:baselineAlignBottom="true"
+                        app:layout_constraintTop_toBottomOf="@id/subscribed_view_title"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"/>
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_16"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/divider">
+                        <TextView
+                            android:id="@+id/tv_subscribe_msg"
+                            style="@style/TSTextMedium"
+                            android:layout_width="match_parent"
+                            android:layout_margin="@dimen/margin_16"
+                            android:layout_height="64dp"
+                            android:textSize="@dimen/text_size_16"
+                            android:gravity="center"
+                            android:text="@string/subscribe_app_message"/>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/subscribed_recycler"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:spanCount="2"
+                            setAdapter="@{viewModel.mAdapter}"
+                            android:orientation="vertical"
+                            app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+                            app:reverseLayout="false"/>
+                    </RelativeLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/cl_unsubscribed_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/cl_subscribed_view"
+                    android:visibility="gone">
+                    <TextView
+                        android:id="@+id/unsubscribed_view_title"
+                        style="@style/TSTextTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="@string/unsubscribed"
+                        android:paddingBottom="4dp"
+                        android:includeFontPadding="false"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
+                    <ImageView
+                        android:id="@+id/divider2"
+                        android:contentDescription="@string/sample_iv_desc"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/margin_2"
+                        android:layout_marginTop="4dp"
+                        android:scaleType="fitXY"
+                        app:srcCompat="@drawable/ic_divider"
+                        android:baselineAlignBottom="true"
+                        app:layout_constraintTop_toBottomOf="@id/unsubscribed_view_title"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"/>
+
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/unsubscribed_recycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:spanCount="2"
+                        setAdapter="@{viewModel.mAdapterUnsubscribed}"
+                        android:orientation="vertical"
+                        app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+                        app:reverseLayout="false"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:layout_marginTop="@dimen/margin_16"
+                        app:layout_constraintTop_toBottomOf="@id/divider2"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+        <TextView
+            android:id="@+id/tvNoData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/no_content_available"
+            android:textSize="@dimen/text_size_16"
+            android:visibility="gone"
+            style="@style/TSTextMedium"/>
+    </RelativeLayout>
+</layout>

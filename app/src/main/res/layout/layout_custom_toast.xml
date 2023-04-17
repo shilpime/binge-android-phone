@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.tatasky.binge.customviews.CustomSnackbarView
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:paddingBottom="60dp"
+    android:theme="@style/AppTheme"
+    android:layout_gravity="center_horizontal"
+    xmlns:android="http://schemas.android.com/apk/res/android" />

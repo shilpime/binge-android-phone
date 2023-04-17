@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="version" type="String"/>
+        <variable name="autoPlayOn" type="Boolean"/>
+    </data>
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <include
+            android:id="@+id/toolbar_layout"
+            layout="@layout/shadowed_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/margin_0"
+                android:layout_above="@id/btn_sign_out"
+                android:layout_below="@id/toolbar_layout"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="@dimen/view_margin_large"
+                android:layout_marginTop="@dimen/margin_36"
+                android:layout_marginEnd="@dimen/view_margin_large">
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                <include android:id="@+id/tile_notification"
+                         layout="@layout/layout_setting_menu"
+                         app:iconRes="@{@drawable/ic_notification_settings}"
+                         app:title="@{@string/notification_settings}"/>
+
+                <include android:id="@+id/tile_auto_play_trailer"
+                         layout="@layout/layout_setting_switch"
+                         app:iconRes="@{@drawable/ic_auto_trailer}"
+                         app:isChecked="@{autoPlayOn}"
+                         app:title="@{@string/auto_play_trailers}"/>
+
+                <include android:id="@+id/tile_contact_us"
+                         layout="@layout/layout_setting_menu"
+                         app:iconRes="@{@drawable/ic_faq}"
+                         app:title="@{@string/contact_us}"/>
+
+                <include android:id="@+id/tile_policy"
+                         layout="@layout/layout_setting_menu"
+                         app:iconRes="@{@drawable/ic_privacy_policy}"
+                         app:title="@{@string/privacy_policy}"/>
+
+                <include android:id="@+id/tile_t_n_c"
+                         layout="@layout/layout_setting_menu"
+                         app:iconRes="@{@drawable/ic_privacy_policy}"
+                         app:title="@{@string/terms_n_condition}"/>
+            </LinearLayout>
+        </ScrollView>
+
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_sign_out"
+                style="@style/Widget.AppTheme.ButtonStyle.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/tv_version"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/signout"
+        />
+
+        <TextView
+                android:id="@+id/tv_version"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/iv_tbaa"
+                android:layout_centerHorizontal="true"
+                android:text="@{version}"
+                android:textColor="?colorOnSecondary"/>
+
+        <ImageView
+                android:id="@+id/iv_tbaa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/logo_margin"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/sample_iv_desc"
+                android:maxWidth="@dimen/logo_max_width"
+                android:maxHeight="@dimen/logo_max_height"
+                app:srcCompat="@drawable/small_binge_logo"/>
+    </RelativeLayout>
+</layout>

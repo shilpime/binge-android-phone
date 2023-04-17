@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="maxAllowedRMNLength"
+            type="Integer" />
+
+        <variable
+            name="viewModel"
+            type="com.tatasky.binge.ui.features.onboarding.login.bottomsheet.GuestLoginViewModel" />
+
+        <import type="android.view.View" />
+
+        <import type="android.text.InputType" />
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_snackbar_custom_with_two_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shp_dark_highlight_rect"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="44dp"
+        android:paddingStart="16dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="16dp">
+
+
+        <ImageView
+            android:id="@+id/iv_large_snackbar_custom_with_two_actions"
+            android:layout_width="49dp"
+            android:layout_height="49dp"
+            app:layout_constraintVertical_bias="0.12"
+            android:layout_marginBottom="29dp"
+            app:layout_constraintBottom_toBottomOf="@id/et_desc_snackbar_custom_with_two_actions"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:srcCompat="@drawable/ic_nudge_subs_expired" />
+
+        <TextView
+            android:id="@+id/tv_title_snackbar_custom_with_two_actions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_10"
+            android:layout_marginEnd="@dimen/margin_4"
+            android:layout_marginBottom="8dp"
+            android:gravity="fill_horizontal"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_14"
+            app:layout_constraintBottom_toTopOf="@id/et_desc_snackbar_custom_with_two_actions"
+            app:layout_constraintEnd_toStartOf="@id/iv_close_snackbar_custom_with_two_actions"
+            app:layout_constraintStart_toEndOf="@id/iv_large_snackbar_custom_with_two_actions"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="Title"
+            tools:visibility="visible" />
+
+        <EditText
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="10dp"
+            android:id="@+id/et_desc_snackbar_custom_with_two_actions"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="38dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/shp_dark_highlight_rect_digits"
+            android:imeOptions="actionDone"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:textColorHint="@color/hintColor"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btn_action_snackbar_custom_with_two_actions"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_title_snackbar_custom_with_two_actions"
+            android:autofillHints="emailAddress"
+            android:inputType="textEmailAddress" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_action_snackbar_custom_with_two_actions"
+            style="@style/Widget.AppTheme.OutlineButton"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:textSize="@dimen/text_size_14"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/et_desc_snackbar_custom_with_two_actions"
+            app:layout_constraintBottom_toBottomOf="@id/et_desc_snackbar_custom_with_two_actions"
+            tools:text="Submit" />
+
+        <ImageView
+            android:id="@+id/iv_close_snackbar_custom_with_two_actions"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:padding="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_title_snackbar_custom_with_two_actions"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_cross" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

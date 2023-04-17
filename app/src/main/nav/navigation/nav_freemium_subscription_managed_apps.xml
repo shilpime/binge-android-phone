@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/managedApps"
+    app:startDestination="@id/subscriptionTypeSelectorFragment">
+
+    <fragment
+        android:id="@+id/managedAppFragment"
+        android:name="com.tatasky.binge.ui.features.subscription_freemium.ManagedAppFragment"
+        android:label="ManagedAppFragment"
+        tools:layout="@layout/fragment_managed_app">
+        <argument
+            android:name="journeySource"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="accessToken"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="journeySourceRefId"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="isToSummaryPage"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="pageUrl"
+            android:defaultValue=""
+            app:argType="string" />
+        <action
+            android:id="@+id/action_managedAppFragment_to_guestLoginBottomDialogFragment"
+            app:destination="@id/guestLoginBottomDialogFragment"
+            app:launchSingleTop="true" />
+        <argument
+            android:name="skipDrawer"
+            android:defaultValue="false"
+            app:argType="boolean" />
+
+    </fragment>
+
+
+
+    <dialog
+        android:id="@+id/subscriptionTypeSelectorFragment"
+        android:name="com.tatasky.binge.ui.features.subscription_freemium.SubscriptionTypeSelectorFragment"
+        android:label="SubscriptionTypeSelectorFragment"
+        tools:layout="@layout/fragment_subscription_type_selector">
+        <argument
+            android:name="source"
+            app:argType="string"/>
+        <argument
+            android:name="journeySource"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="journeySourceRefId"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="skipDrawer"
+            android:defaultValue="false"
+            app:argType="boolean" />
+
+        <action
+            android:id="@+id/action_subscriptionTypeSelectorFragment_to_subscriptionTenureBottomSheetDialog"
+            app:destination="@id/subscriptionTenureBottomSheetDialog" />
+        <action
+            android:id="@+id/action_subscriptionTypeSelectorFragment_to_guestLoginBottomDialogFragment"
+            app:popUpTo="@id/subscriptionTypeSelectorFragment"
+            app:popUpToInclusive="true"
+            app:destination="@id/guestLoginBottomDialogFragment" />
+
+        <action
+            android:id="@+id/action_subscriptionTypeSelectorFragment_to_managedAppFragment"
+            app:destination="@id/managedAppFragment"
+            >
+            <argument
+                android:name="journeySource"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="journeySourceRefId"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="accessToken"
+                android:defaultValue=""
+                app:argType="string" />
+
+            <argument
+                android:name="pageUrl"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="cartId"
+                android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="isToSummaryPage"
+                android:defaultValue="false"
+                app:argType="boolean" />
+            <argument
+                android:name="skipDrawer"
+                android:defaultValue="false"
+                app:argType="boolean" />
+        </action>
+    </dialog>
+
+    <dialog
+        android:id="@+id/guestLoginBottomDialogFragment"
+        android:name="com.tatasky.binge.ui.features.onboarding.login.bottomsheet.GuestLoginBottomDialogFragment"
+        android:label="LoginBottomSheetDialogFragment"
+        tools:layout="@layout/fragment_guest_login_bottom_sheet_dialog">
+        <argument
+            android:name="isParentalPinSetupRequested"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="isParentalPinVerificaitionRequested"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="isLoggedIn"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="previouslyUsedMobileNumbersList"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.data.networking.models.response.UsedMobileNumber[]"
+            app:nullable="true" />
+        <argument
+            android:name="loginSource"
+            app:argType="string" />
+        <!--Fixme: NEWSUB, Remove extra params-->
+        <argument
+            android:name="pack"
+            app:argType="com.tatasky.binge.data.networking.models.response.PartnerPacks"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="selectedTenure"
+            app:argType="com.tatasky.binge.data.networking.models.response.Tenure"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="subscriptionInfo"
+            app:argType="com.tatasky.binge.data.database.model.SubscriptionInfoModel"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+        <argument
+            android:name="isLoginToHome"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_guestLoginBottomDialogFragment_to_managedAppFragment"
+            app:destination="@id/managedAppFragment"
+            app:launchSingleTop="true" >
+            <argument
+                android:name="isToSummaryPage"
+                android:defaultValue="false"
+                app:argType="boolean" />
+            <argument
+                android:name="cartId"
+                android:defaultValue=""
+                app:argType="string" />
+        </action>
+
+    </dialog>
+</navigation>

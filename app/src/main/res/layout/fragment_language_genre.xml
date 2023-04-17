@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.search.model.SearchViewModel"/>
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="56dp"
+        android:clipToPadding="false"
+        android:transitionGroup="true"
+        android:animateLayoutChanges="true">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/toolbar_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:elevation="10dp"
+            >
+            <include
+                layout="@layout/transparent_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/group_filters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="iv_bg_top_image,bg_overlay,iv_bg_top_bottom_image" />
+
+        <ImageView
+            android:id="@+id/iv_bg_top_image"
+            android:layout_width="0dp"
+            android:layout_height="120dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@id/tv_filters"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/toolbar_layout" />
+
+
+        <ImageView
+            android:id="@+id/iv_bg_top_bottom_image"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:scaleType="fitCenter"
+            android:layout_marginEnd="15dp"
+            android:layout_marginBottom="10dp"
+            android:elevation="7dp"
+            app:layout_constraintBottom_toBottomOf="@id/iv_bg_top_image"
+            app:layout_constraintEnd_toEndOf="@id/iv_bg_top_image" />
+
+        <View
+            android:id="@+id/bg_overlay"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/ic_overlay_sports_card"
+            android:elevation="5dp"
+            android:rotation="180"
+            app:layout_constraintBottom_toBottomOf="@id/iv_bg_top_image"
+            app:layout_constraintEnd_toEndOf="@id/iv_bg_top_image"
+            app:layout_constraintStart_toStartOf="@id/iv_bg_top_image"
+            app:layout_constraintTop_toTopOf="@id/iv_bg_top_image" />
+
+        <TextView
+            android:id="@+id/tv_filters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:text="Filter"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@id/filters"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_bg_top_image" />
+
+        <LinearLayout
+            android:id="@+id/filters"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_filters">
+
+            <include
+                android:id="@+id/language_filters"
+                layout="@layout/layout_filters"
+                app:title="@{vm.languageFilterTitle}" />
+        </LinearLayout>
+
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/gp_free_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="tv_off_settings_item,tv_on_settings_item,switchView"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:id="@+id/tv_off_settings_item"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:maxLines="1"
+            android:text="All Content"
+            android:textColor="@color/binge_blue_10"
+            android:textSize="@dimen/text_size_14"
+            app:layout_constraintBottom_toBottomOf="@id/switchView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/switchView" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchView"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginTop="0dp"
+            app:layout_constraintStart_toEndOf="@id/tv_off_settings_item"
+            app:layout_constraintTop_toBottomOf="@id/filters" />
+
+        <TextView
+            android:id="@+id/tv_on_settings_item"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="Free"
+            android:textSize="@dimen/text_size_13"
+            app:layout_constraintBottom_toBottomOf="@id/switchView"
+            app:layout_constraintStart_toEndOf="@id/switchView"
+            app:layout_constraintTop_toTopOf="@id/switchView" />
+
+
+        <ImageView
+            android:id="@+id/progressBarBottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:paddingBottom="@dimen/view_margin_large"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_centerHorizontal="true"
+            app:srcCompat="@drawable/progress_avd"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/searchRecyclerView"
+            setAdapter="@{vm.getSearchAdapter()}"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/margin_0"
+            android:layout_marginStart="@dimen/margin_16"
+            android:layout_marginEnd="@dimen/margin_16"
+            android:orientation="vertical"
+            app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+            app:layout_constraintBottom_toTopOf="@+id/progressBarBottom"
+            app:layout_constraintTop_toBottomOf="@id/switchView"
+            app:reverseLayout="false"
+            app:spanCount="2"/>
+
+        <include
+            android:visibility="gone"
+            layout="@layout/layout_network_status"
+            android:id="@+id/networkView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/filters" />
+
+        <TextView
+            android:id="@+id/tvNoData"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_36"
+            android:gravity="center"
+            android:visibility="gone"
+            android:lineSpacingExtra="2sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:text="@string/lg_no_data"
+            android:textSize="@dimen/text_size_18"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

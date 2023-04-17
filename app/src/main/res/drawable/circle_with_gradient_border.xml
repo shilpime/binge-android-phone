@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <rotate android:fromDegrees="40">
+        <shape android:shape="oval">
+            <solid
+                android:color="?colorPrimary"/>
+            <!--<gradient
+                android:angle="180"
+                android:centerColor="@color/color_expiring_red"
+                android:endColor="@color/color_orange"
+                android:startColor="@color/color_blue" />-->
+            <padding
+                android:bottom="2dp"
+                android:left="2dp"
+                android:right="2dp"
+                android:top="2dp" />
+        </shape>
+        </rotate>
+    </item>
+
+    <item android:id="@android:id/background">
+        <shape android:shape="oval">
+            <solid android:color="@color/darkHighlight" />
+        </shape>
+    </item>
+    <item
+        android:bottom="@dimen/margin_24"
+        android:drawable="@drawable/ic_adult_profile"
+        android:gravity="center_vertical|center_horizontal"
+        android:left="@dimen/margin_20"
+        android:right="@dimen/margin_20"
+        android:top="@dimen/margin_16">
+
+    </item>
+
+</layer-list>

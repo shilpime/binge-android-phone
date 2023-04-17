@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="regionalAppInfo"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks.RegionalAppInfo" />
+
+        <variable
+            name="proRataValue"
+            type="Integer" />
+
+        <import type="android.view.View" />
+
+        <import type="com.tatasky.binge.utils.SubscriptionPackStatusEnum" />
+
+        <import type="android.text.TextUtils" />
+
+        <variable
+            name="pack"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks" />
+    </data>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardView"
+            style="@style/PackCardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:animateLayoutChanges="true"
+                android:paddingTop="@dimen/view_margin_xlarge"
+                android:paddingBottom="@dimen/view_margin_xlarge">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_v_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_begin="21dp" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_v_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_end="21dp" />
+
+
+                <TextView
+                    android:id="@+id/tv_pack_name"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:drawablePadding="@dimen/view_margin_small"
+                    android:gravity="start|center_vertical"
+                    android:text="@{pack.productName}"
+                    android:textSize="@dimen/text_size_12"
+                    android:singleLine="false"
+                    android:textColor="@color/pack_text_color"
+                    app:drawableStartCompat="@drawable/crown_with_bg"
+                    app:layout_constraintEnd_toStartOf="@id/tv_pack_price"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintWidth_percent=".48"
+                    app:layout_constraintBottom_toTopOf="@id/barrier_name_price"
+                    tools:text="Standard VIP" />
+
+                <TextView
+                    android:id="@+id/tv_pack_price"
+                    style="@style/TSTextBold"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    htmlText="@{pack.amountWithoutTimePeriod}"
+                    android:textSize="@dimen/text_size_22"
+                    android:gravity="end"
+                    android:textColor="@color/pack_text_color"
+                    app:layout_constraintBaseline_toBaselineOf="@id/tv_pack_name"
+                    app:layout_constraintEnd_toStartOf="@id/tv_pack_duration"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/tv_pack_name"
+                    app:layout_constraintBottom_toTopOf="@id/barrier_name_price"
+                    tools:text="299"
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/tv_pack_duration"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size_12"
+                    android:text="@{@string/space+pack.amountTimePeriod}"
+                    android:textColor="@color/pack_text_color"
+                    app:layout_constraintBaseline_toBaselineOf="@id/tv_pack_name"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/barrier_name_price"
+                    tools:text=" /month"
+                    tools:visibility="visible" />
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/barrier_name_price"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="tv_pack_name, tv_pack_price" />
+
+                <View
+                    android:id="@+id/divider"
+                    android:layout_width="0dp"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                    android:layout_height="1px"
+                    android:layout_marginTop="@dimen/view_margin_small"
+                    android:background="@color/stroke_color"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_name_price" />
+
+                <TextView
+                    android:id="@+id/tv_total_apps"
+                    style="@style/TSTextBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_10"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_20"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/tv_pack_price"
+                    android:text="@{pack.getSelectedComponent.appCount}"
+                    tools:text="22"
+                    tools:visibility="visible" />
+                <TextView
+                    android:id="@+id/tv_apps"
+                    style="@style/TSTextBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_12"
+                    android:text="@{@string/space+pack.getSelectedComponent.appsVerbiage}"
+                    app:layout_constraintStart_toEndOf="@id/tv_total_apps"
+                    app:layout_constraintTop_toBottomOf="@id/tv_pack_price"
+                    app:layout_constraintBaseline_toBaselineOf="@id/tv_total_apps"
+                    tools:text="Apps"
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/tv_platform"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:textColor="@color/pack_text_color"
+                    android:gravity="start"
+                    android:textSize="@dimen/text_size_12"
+                    android:text="@{@string/space+pack.deviceDetails.enhancedPlatformName}"
+                    app:layout_constraintBaseline_toBaselineOf="@id/tv_total_apps"
+                    app:layout_constraintStart_toEndOf="@id/tv_apps"
+                    app:layout_constraintTop_toBottomOf="@id/tv_pack_price"
+                    app:layout_constraintEnd_toStartOf="@id/tv_renewal_cycle"
+                    tools:text="on Mobile Web and TV*"
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/tv_renewal_cycle"
+                    style="@style/TSTextMedium"
+                    htmlText="@{pack.packValidity}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_smallest"
+                    android:gravity="end"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_12"
+                    app:layout_constraintBaseline_toBaselineOf="@id/tv_total_apps"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toEndOf="@id/tv_platform"
+                    app:layout_constraintTop_toTopOf="@id/tv_total_apps"
+                    tools:text="Renewal on 11/12/2022" />
+
+                <ImageView
+                    android:id="@+id/iv_device_image"
+                    android:layout_width="16dp"
+                    android:layout_height="18dp"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:scaleType="fitStart"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/tv_total_apps"
+                    tools:srcCompat="@drawable/ic_device"
+                    android:visibility="gone"
+                    />
+
+                <TextView
+                    android:id="@+id/tv_device_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/iv_device_image"
+                    app:layout_constraintTop_toTopOf="@id/iv_device_image"
+                    app:layout_constraintBottom_toBottomOf="@id/iv_device_image"
+                    tools:text="Mobile and Web"
+                    android:layout_marginStart="@dimen/margin_6"
+                    android:textColor="@color/pack_text_color"
+                    style="@style/TSTextDefault"
+                    android:textSize="@dimen/text_size_14"
+                    android:visibility="gone"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tv_device_count"
+                    tools:text = "4 Devices"
+                    style="@style/TSTextDefault"
+                    android:textSize="@dimen/text_size_14"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    app:layout_constraintTop_toBottomOf="@id/tv_renewal_cycle"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    app:layout_constraintBaseline_toBaselineOf="@id/tv_device_label"
+                    android:textColor="@color/pack_text_color"
+                    android:text="@{pack.deviceDetails.deviceCount}"
+                    android:visibility="gone"
+                    />
+
+
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_packs"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:layout_marginEnd="@dimen/margin_2"
+                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                    app:spanCount="5"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layoutAnimation="@anim/pack_anim"
+                    android:overScrollMode="never"
+                    app:layout_constraintTop_toBottomOf="@id/iv_device_image" />
+
+
+                <TextView
+                    android:id="@+id/tv_expiry_reminder"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:text="@{pack.expiryFooterMessage}"
+                    android:textSize="@dimen/text_size_14"
+                    android:textColor="@{pack.planCTADetails.renewPlanOption == true || pack.planCTADetails.revokeTextHighlighted == true || pack.inactive == true ? @color/darkError : @color/pack_text_color, default=@color/pack_text_color}"
+                    android:visibility="@{TextUtils.isEmpty(pack.expiryFooterMessage)?View.GONE : View.VISIBLE, default= gone}"
+                    android:gravity="center"
+                    tools:visibility="visible"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    app:layout_constraintTop_toBottomOf="@id/tv_get_plan_verbiage"
+                    tools:text="Expires in 3 days" />
+
+                <TextView
+                    android:id="@+id/tv_sunNxt_info"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_smallest"
+                    android:gravity="center"
+                    android:text="@{pack.sunnxtFooterMessage}"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_14"
+                    android:visibility="@{TextUtils.isEmpty(pack.sunnxtFooterMessage)?View.GONE : View.VISIBLE, default= gone}"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/tv_expiry_reminder"
+                    tools:text="Expires in 3 days"
+                    tools:visibility="visible" />
+
+
+
+                <TextView
+                    android:id="@+id/tv_mxplayer_info"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_smallest"
+                    android:gravity="center"
+                    android:text="@{pack.deviceDetails.mxPlatformName}"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_14"
+                    android:visibility="@{TextUtils.isEmpty(pack.deviceDetails.mxPlatformName)?View.GONE : View.VISIBLE, default= gone}"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/tv_sunNxt_info"
+                    tools:text="Expires in 3 days"
+                    tools:visibility="visible" />
+
+
+                <TextView
+                    android:id="@+id/tv_eligibility"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:text="@{pack.productFooterMessage}"
+                    android:textColor="@{pack.planCTADetails.renewPlanOption==true || pack.planCTADetails.revokeTextHighlighted == true ? (@color/darkError) : @color/darkOnSecondary}"
+                    android:textSize="@dimen/text_size_16"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:gravity="center"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    app:layout_constraintTop_toBottomOf="@id/recycler_packs"
+                    />
+
+                <TextView
+                    android:id="@+id/tv_get_plan_verbiage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:text="@{pack.planCTADetails.getPlanVerbiage}"
+                    android:textSize="@dimen/text_size_14"
+                    android:gravity="center"
+                    android:textColor="@color/pack_text_color"
+                    tools:visibility="visible"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    app:layout_constraintTop_toBottomOf="@id/recycler_packs"
+                    />
+
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_renew"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:text="@{!TextUtils.isEmpty(pack.planCTADetails.renewPlanText) ? pack.planCTADetails.renewPlanText : @string/renew_plan, default=@string/renew_plan}"
+                    android:visibility="@{pack.planCTADetails.renewPlanOption?View.VISIBLE:View.GONE, default=gone}"
+                    app:layout_constraintTop_toBottomOf="@id/tv_mxplayer_info"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    tools:visibility="visible" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_get_plan"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:text="@{!TextUtils.isEmpty(pack.planCTADetails.getPlanText) ? pack.planCTADetails.getPlanText : @string/get_plan, default=@string/get_plan}"
+                    android:visibility="@{pack.planCTADetails.getPlanOption?View.VISIBLE:View.GONE, default=gone}"
+                    app:layout_constraintTop_toBottomOf="@id/btn_renew"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_revoke_cancellation"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:text="@{!TextUtils.isEmpty(pack.planCTADetails.revokePlanText) ? pack.planCTADetails.revokePlanText : @string/revoke_link, default=@string/revoke_link}"
+                    android:visibility="@{pack.planCTADetails.revokePlanOption?View.VISIBLE:View.GONE, default=gone}"
+                    app:layout_constraintTop_toBottomOf="@id/btn_get_plan"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_check_other_options"
+                    style="@style/Widget.AppTheme.ButtonStyle.Text.Pack"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@{TextUtils.isEmpty(pack.planCTADetails.otherPlanOptionVerbiage) ? @string/check_other_options:pack.planCTADetails.otherPlanOptionVerbiage}"
+                    tools:text="Check all plans"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    android:visibility="@{pack.planCTADetails.renewPlanOption?View.VISIBLE:View.GONE, default=gone}"
+                    app:layout_constraintTop_toBottomOf="@id/btn_revoke_cancellation"
+                    />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_regional_apps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    app:layout_constraintTop_toBottomOf="@id/btn_check_other_options"
+                    app:layout_constraintStart_toEndOf="@id/guideline_v_1"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_v_2"
+                    tools:visibility="visible"
+                    style="@style/Widget.AppTheme.OutlineButton"
+                    android:textSize="16sp"
+                    android:paddingLeft="22dp"
+                    android:paddingRight="22dp"
+                    android:lineHeight="16dp"
+                    android:text="@{TextUtils.isEmpty(regionalAppInfo.enableRegionalAppCTAVerbiage) ? @string/regional_app:regionalAppInfo.enableRegionalAppCTAVerbiage}"
+                    android:visibility="@{regionalAppInfo.enableRegionalAppCTA?View.VISIBLE:View.GONE, default=gone}"
+                    />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+</layout>

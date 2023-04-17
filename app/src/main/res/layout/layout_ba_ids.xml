@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.tatasky.binge.data.networking.models.response.LoginResponse.BingeSubscription" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:gravity="center">
+
+       <include
+           android:id="@+id/layoutAccount"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           app:model="@{model}"
+           layout="@layout/layout_switch_account_item"/>
+    </RelativeLayout>
+</layout>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="verbiagesData"
+            type="com.tatasky.binge.data.networking.models.response.PaidPackSelectionNudge" />
+
+        <import type="android.text.Html" />
+    </data>
+
+    <com.tatasky.binge.customviews.CustomMaterialCardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_14"
+        android:layout_marginEnd="@dimen/margin_16"
+        android:elevation="@dimen/card_elevation_8"
+        app:cardCornerRadius="@dimen/corner_radius_16"
+        app:strokeColor="@color/stroke_color"
+        app:strokeWidth="@dimen/mtrl_textinput_box_stroke_width_focused">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clSelectPaidPackRoot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/top_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="@dimen/margin_10" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/bottom_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="@dimen/margin_11" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="@dimen/button_height"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginStart="@dimen/margin_8"
+                android:layout_marginEnd="@dimen/margin_8"
+                android:indeterminateOnly="false"
+                android:max="100"
+                android:progressDrawable="@drawable/progress_bar_circular_free_trial"
+                app:layout_constraintBottom_toBottomOf="@id/bottom_guideline"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/top_guideline" />
+
+            <TextView
+                android:id="@+id/ft_days_text_view"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_12"
+                android:includeFontPadding="false"
+                android:text="@{Integer.toString(verbiagesData.availableDays)}"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_18"
+                app:layout_constraintEnd_toEndOf="@id/progressBar"
+                app:layout_constraintStart_toStartOf="@id/progressBar"
+                app:layout_constraintTop_toTopOf="@id/progressBar" />
+
+            <TextView
+                android:id="@+id/ft_days_left_text_view"
+                style="@style/TSText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:text="@{verbiagesData.availableDays>1L?@string/days:@string/nudge_day}"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_9"
+                app:layout_constraintEnd_toEndOf="@id/progressBar"
+                app:layout_constraintStart_toStartOf="@id/progressBar"
+                app:layout_constraintTop_toBottomOf="@id/ft_days_text_view" />
+
+            <TextView
+                android:id="@+id/ft_end_date_text_view"
+                style="@style/TSText"
+                android:layout_width="@dimen/margin_0"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_2"
+                android:layout_marginTop="@dimen/margin_2"
+                android:layout_marginEnd="0dp"
+                android:text="@{verbiagesData.title}"
+                android:textColor="@color/offer_color"
+                android:textSize="@dimen/text_size_12"
+                app:layout_constraintEnd_toStartOf="@id/btn_select_subscription"
+                app:layout_constraintStart_toEndOf="@id/progressBar"
+                app:layout_constraintTop_toTopOf="@id/top_guideline" />
+
+            <TextView
+                android:id="@+id/ft_desc_text_view"
+                style="@style/TSTextMedium"
+                android:layout_width="@dimen/margin_0"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_2"
+                android:layout_marginEnd="0dp"
+                android:text="@{verbiagesData.desc}"
+                android:textSize="@dimen/text_size_14"
+                app:layout_constraintBottom_toBottomOf="@id/bottom_guideline"
+                app:layout_constraintEnd_toStartOf="@id/btn_select_subscription"
+                app:layout_constraintStart_toStartOf="@id/ft_end_date_text_view"
+                app:layout_constraintTop_toBottomOf="@id/ft_end_date_text_view" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_select_subscription"
+                style="@style/Widget.AppTheme.ButtonStyle.Text"
+                htmlText="@{verbiagesData.button==null?@string/select: verbiagesData.button}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/margin_0"
+                app:layout_constraintBottom_toBottomOf="@id/bottom_guideline"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/top_guideline" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.tatasky.binge.customviews.CustomMaterialCardView>
+</layout>

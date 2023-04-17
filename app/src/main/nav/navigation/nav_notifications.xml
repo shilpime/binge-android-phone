@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_notifications"
+    app:startDestination="@id/notificationFragment">
+        <fragment
+            android:id="@+id/notificationFragment"
+            android:name="com.tatasky.binge.ui.features.notifications.NotificationFragment"
+            android:label="@string/notification"
+            tools:layout="@layout/fragment_notifications">
+           <!-- <action
+                android:id="@+id/action_notificationFragment_to_action_account_landing"
+                app:destination="@id/action_account_landing" />-->
+            <action
+                android:id="@+id/action_notificationFragment_to_editNotificationsDialog"
+                app:destination="@id/editNotificationsDialog" />
+            <action
+                android:id="@+id/action_notificationFragment_to_notificationSettingsFragment"
+                app:destination="@id/notificationSettingsFragment" />
+            <action
+                android:id="@+id/action_to_detail"
+                app:destination="@id/nav_details">
+                <argument
+                    android:name="contentItem"
+                    app:argType="com.tatasky.binge.data.networking.models.response.ContentItem" />
+                <argument android:name="fromGrid"
+                    app:argType="boolean"
+                    android:defaultValue="false"/>
+            </action>
+        </fragment>
+        <dialog
+            android:id="@+id/editNotificationsDialog"
+            android:name="com.tatasky.binge.ui.features.notifications.EditNotificationsDialog"
+            android:label="EditNotificationsDialog"
+            tools:layout="@layout/layout_edit_notification_dialog" />
+
+    <fragment android:id="@+id/notificationSettingsFragment"
+        tools:layout="@layout/fragment_notification_settings"
+        android:name="com.tatasky.binge.ui.features.more.NotificationSettingsFragment"
+        android:label="Notification Settings"/>
+
+    <include app:graph="@navigation/nav_details"/>
+
+    </navigation>

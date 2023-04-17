@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.text.InputType"/>
+    </data>
+    <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/view_margin_form"
+                android:layout_marginEnd="@dimen/view_margin_form"
+                android:orientation="vertical">
+
+            <com.tatasky.binge.customviews.PageIndicatorView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/margin_38"
+                android:orientation="horizontal"
+                bind:selected_page="1"
+                bind:total_pages="2" />
+
+            <TextView
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/margin_28"
+                    android:gravity="center_horizontal"
+                    android:lineSpacingExtra="5sp"
+                    android:text="@string/enter_mobile_string"
+                    android:textSize="@dimen/text_size_28"/>
+
+            <TextView
+                    style="@style/TSTextDefault"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:layout_marginBottom="@dimen/view_margin_xxlarge"
+                    android:gravity="center_horizontal"
+                    android:lineSpacingExtra="5sp"
+                    android:text="@string/enter_details_string"
+                    android:textSize="@dimen/text_size_16"/>
+
+            <include
+                    android:id="@+id/et_number"
+                    layout="@layout/layout_edittextbox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_24"
+                    bind:headerText="@{@string/mobile_no_sub_id}"
+                    bind:inputType="@{InputType.TYPE_CLASS_NUMBER}"
+                    bind:isVisible="@{true}"
+                    bind:maxLength="@{10}"
+                    bind:maxLines="@{1}"/>
+
+
+            <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOtp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_marginTop="@dimen/view_margin_large"
+                    android:text="@string/send_otp"/>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

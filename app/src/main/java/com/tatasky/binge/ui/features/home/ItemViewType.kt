@@ -1,0 +1,44 @@
+package com.tatasky.binge.ui.features.home
+
+enum class ItemViewType{
+        HERO_BANNER,
+        ALL_CHANNELS,
+        RAIL,
+        CONTINUE_WATCHING,
+        WIDGET,
+        LANGUAGE,
+        GENRE,
+        PROVIDER,
+        PROVIDER_UNSUBSCRIBED,
+        PRIME,
+        FREE_TRIAL,
+        PAID_TRIAL,
+        FREE_TRIAL_UPGRADE,
+        LANGUAGE_SECTION,//TODO :needs to be removed
+        LANGUAGE_NUDGE,
+        CHARACTER,
+        PROVIDER_SPECIFIC_RAIL,
+        BACKGROUND_BANNER_RAIL,
+        TITLE_RAIL,
+        SHUFFLE_RAIL,
+        PROVIDER_BROWSE_APPS,
+        PACK_RAIL,
+        MID_BANNER_RAIL,
+        MID_BANNER_GAMES,
+        MID_BANNER_PROMO,
+        GENRE_RAIL_FOR_GAMES,
+        GAME_NUDGE,
+        GAMES,
+        NEWLY_ADDED_GAMES,
+        GAME_OF_THE_WEEK,
+        FAVOURITES,
+        MID_SCROLL_BANNER,
+        CATEGORY,
+        BINGE_TOP_10_RAIL,
+        HB_SEE_ALL,
+        LIVE_EVENT_RAIL,
+        LIVE_EVENT_BANNER
+
+
+
+    }

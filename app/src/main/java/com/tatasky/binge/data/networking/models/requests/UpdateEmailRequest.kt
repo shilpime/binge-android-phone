@@ -1,0 +1,19 @@
+package com.tatasky.binge.data.networking.models.requests
+
+import com.google.gson.annotations.SerializedName
+
+data class UpdateEmailRequest(
+    @SerializedName("emailId")
+    val emailId: String,
+
+    @SerializedName("rmn")
+    val rmn: String,
+
+    @SerializedName("subscriberId")
+    val subscriberId: String,
+    @SerializedName("baId")
+    val baId: String,
+
+    @SerializedName("subscriberName")
+    val subscriberName: String? = null
+)

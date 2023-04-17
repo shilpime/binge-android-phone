@@ -1,0 +1,59 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="railsModel"
+            type="com.tatasky.binge.ui.features.search.model.LanguageGenreRailModel" />
+
+        <variable
+            name="list"
+            type="com.tatasky.binge.ui.features.search.model.GenreModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clHomeRoot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/rail_margins"
+        android:paddingEnd="@dimen/margin_0">
+
+        <TextView
+            android:id="@+id/search_recycler_view_title"
+            style="@style/TSTextTitle"
+            android:paddingStart="@dimen/view_margin_large"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:paddingEnd="@dimen/view_margin_medium"
+            android:paddingBottom="4dp"
+            android:text="@{railsModel.title}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Top Movies" />
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:paddingStart="@dimen/view_margin_large"
+            setAdapter="@{railsModel.adapter}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_6"
+            android:layout_marginBottom="@dimen/view_margin_medium"
+            android:background="@android:color/transparent"
+            android:clipToPadding="false"
+            android:lineSpacingExtra="4dp"
+            android:orientation="horizontal"
+            android:paddingEnd="14dp"
+            android:paddingBottom="24dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/search_recycler_view_title" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

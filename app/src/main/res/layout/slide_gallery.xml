@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <import type="com.tatasky.binge.utils.UtilityKt"/>
+        <import type="android.view.View"/>
+    </data>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.tatasky.binge.customviews.MyGallery
+                    android:id="@+id/mygallery"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fadingEdge="horizontal|vertical"
+                    android:fadingEdgeLength="20dp"/>
+
+                <View
+                    android:id="@+id/window_left"
+                    android:layout_width="@dimen/banner_window_width"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/mygallery"
+                    android:layout_alignTop="@id/mygallery"
+                    android:background="@drawable/sp_viewpager_window_left"/>
+                <View
+                    android:id="@+id/window_right"
+                    android:layout_width="@dimen/banner_window_width"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/mygallery"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignTop="@id/mygallery"
+                    android:background="@drawable/sp_viewpager_window_left"
+                    android:rotation="180"/>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:orientation="horizontal"
+                >
+
+                <androidx.legacy.widget.Space
+                    android:id="@+id/space1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    />
+
+                <LinearLayout
+                    android:id="@+id/layout_dots"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center"
+                    android:layout_marginEnd="16dp"
+                    android:padding="2dp"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+                </LinearLayout>
+
+                <androidx.legacy.widget.Space
+                    android:id="@+id/space2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    />
+                <androidx.legacy.widget.Space
+                    android:id="@+id/space3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    />
+
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+</layout>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="contentItem"
+            type="com.tatasky.binge.data.networking.models.response.ContentItem" />
+
+        <variable
+            name="item"
+            type="String" />
+    </data>
+
+    <com.tatasky.binge.customviews.CustomMaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        app:cardCornerRadius="20dp">
+
+        <TextView
+            style="@style/TSText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:paddingStart="18dp"
+            android:paddingTop="@dimen/view_margin_small"
+            android:paddingEnd="18dp"
+            android:paddingBottom="@dimen/view_margin_small"
+            android:text="@{item}"
+            android:textSize="15sp"
+            tools:text="English" />
+    </com.tatasky.binge.customviews.CustomMaterialCardView>
+</layout>

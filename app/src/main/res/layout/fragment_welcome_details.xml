@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="selectedPack"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks" />
+
+        <import type="android.view.View" />
+        <import type="android.text.TextUtils" />
+
+    </data>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cyop_clRoot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_round_corner"
+            android:paddingBottom="38dp"
+
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/dp_20"/>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="@dimen/dp_20"/>
+            <ImageView
+                android:id="@+id/iv_fiber_logo"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="30dp"
+                android:contentDescription="@string/sample_iv_desc"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:background="@color/transparent"/>
+
+
+            <TextView
+                android:id="@+id/cyop_tv_title"
+
+                style="@style/TSTextMedium"
+                android:textColor="@color/white"
+                android:lineHeight="26sp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_medium"
+                android:fontFamily="@font/volteplay_medium"
+                android:maxWidth="@dimen/dimens_250dp"
+                android:textAlignment="center"
+                android:textSize="@dimen/text_size_22"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintTop_toBottomOf="@+id/iv_fiber_logo"
+                android:text="@{selectedPack.fibreDetails.header}"/>
+
+
+            <TextView
+                android:id="@+id/cyop_tv_desc"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_10"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="20dp"
+                android:fontFamily="@font/volteplay_medium"
+                android:maxWidth="@dimen/dimens_250dp"
+                android:textAlignment="center"
+                android:lineHeight="19sp"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintTop_toBottomOf="@+id/cyop_tv_title"
+                android:textColor="@color/text_purple"
+                android:text="@{selectedPack.fibreDetails.message1}"/>
+
+            <TextView
+                android:id="@+id/cyop_tv_msg_2"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_10"
+                android:layout_marginEnd="34dp"
+                android:layout_marginStart="34dp"
+                android:fontFamily="@font/volteplay_medium"
+                android:maxWidth="@dimen/dimens_250dp"
+                android:textAlignment="center"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintTop_toBottomOf="@+id/cyop_tv_desc"
+                android:textColor="@color/text_purple"
+                android:text="@{selectedPack.fibreDetails.message2}"/>
+
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:id="@+id/cardView"
+                    android:layout_marginTop="@dimen/margin_20"
+                    app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                    app:layout_constraintTop_toBottomOf="@+id/cyop_tv_msg_2"
+                    >
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_fiber_apps"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                        app:spanCount="5"
+                        android:layout_marginStart="18dp"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginEnd="6dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/fiber_tv_more"
+                        style="@style/TSTextMedium"
+                        android:layout_width="0dp"
+
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginBottom="14dp"
+                        android:fontFamily="@font/volteplay_medium"
+                        android:textColor="@color/text_purple"
+                        android:textSize="@dimen/text_size_16"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/rv_fiber_apps"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+            <Button
+                android:id="@+id/btn_start_watching"
+                style="@style/TSTextBold"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginHorizontal="28dp"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/volteplay_bold"
+                android:textSize="@dimen/dimens_16sp"
+                android:textAllCaps="false"
+                app:backgroundTint="@color/darkAccent"
+                app:cornerRadius="@dimen/dp_50"
+                android:maxWidth="280dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardView"
+                tools:ignore="SpeakableTextPresentCheck"
+                android:text="@{selectedPack.fibreDetails.button}"/>
+
+
+            <TextView
+                android:id="@+id/cyop_tv_valid"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:lineSpacingExtra="3sp"
+                android:text="@{selectedPack.packValidity}"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintTop_toBottomOf="@+id/btn_start_watching" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</layout>

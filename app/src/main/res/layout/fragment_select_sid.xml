@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.onboarding.login.LoginViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:transitionGroup="true"
+        android:layout_marginStart="@dimen/view_margin_xlarge"
+        android:layout_marginEnd="@dimen/view_margin_xlarge">
+
+            <ImageView
+                android:id="@+id/iv_tbaa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/sample_iv_desc"
+                app:srcCompat="@drawable/medium_binge_logo"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/guideline_2"
+                app:layout_constraintVertical_bias="1" />
+
+            <com.tatasky.binge.customviews.PageIndicatorView
+                android:id="@+id/ll_page_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_large"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/iv_tbaa"
+                app:selected_page="1"
+                app:total_pages="4" />
+
+
+            <TextView
+                android:id="@+id/tvTitle"
+                style="@style/TSTextMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_medium"
+                android:gravity="center"
+                android:text="@string/your_tatasky_subscriptions"
+                android:textSize="@dimen/text_size_28"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ll_page_indicator" />
+
+            <TextView
+                android:id="@+id/tv_multiple"
+                style="@style/TSTextMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/view_margin_xlarge"
+                android:layout_marginTop="@dimen/view_margin_large"
+                android:layout_marginEnd="@dimen/view_margin_xlarge"
+                android:gravity="center"
+                android:lineSpacingExtra="5sp"
+                android:text="@string/title_multiple_id"
+                android:textColor="?colorOnSecondary"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layoutAnimation="@anim/layout_animation_slide_in"
+                android:layout_marginTop="@dimen/view_margin_medium"
+                setAdapter="@{vm.getSelectSIDAdapter()}"
+                app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"
+                app:layout_constraintBottom_toTopOf="@id/btnNext"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_multiple" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNext"
+                android:layout_width="@dimen/margin_0"
+                android:layout_height="@dimen/button_height"
+                android:text="@string/proceed"
+                android:enabled="false"
+                app:layout_constraintBottom_toTopOf="@id/guideline_3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".9" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.01" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

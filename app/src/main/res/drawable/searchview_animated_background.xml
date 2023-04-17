@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<transition xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/searchview_background_focused"
+        android:state_first="true"
+        android:id="@+id/state_idle"
+        android:state_middle="false"/>
+    <item android:drawable="@drawable/searchview_background_transparent"
+        android:state_middle="true"
+        android:id="@+id/state_other"
+        android:state_first="false"/>
+</transition>

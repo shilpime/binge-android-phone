@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="selectedPack"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks" />
+
+        <variable
+            name="firstTimeLogin"
+            type="Boolean" />
+
+        <variable
+            name="primeVisible"
+            type="Boolean" />
+
+        <import type="android.text.InputType" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:paddingBottom="@dimen/view_margin_small"
+                android:layout_height="match_parent">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent=".01" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_h_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.9" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_v_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".05" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_v_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".95" />
+
+                <ImageView
+                    android:id="@+id/logo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/guideline_2"
+                    app:srcCompat="@drawable/medium_binge_logo" />
+
+                <com.tatasky.binge.customviews.PageIndicatorView
+                    android:id="@+id/ll_page_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/logo"
+                    app:selected_page="4"
+                    app:total_pages="4" />
+
+
+                <TextView
+                    android:id="@+id/tv_sub_landing_title"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:gravity="center"
+                    android:lineSpacingExtra="4sp"
+                    android:text="@{firstTimeLogin?@string/welcome:@string/my_subscription, default=null}"
+                    android:textSize="@dimen/text_size_28"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/ll_page_indicator" />
+
+                <include
+                    android:id="@+id/selected_pack_card"
+                    layout="@layout/layout_selected_pack_card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_xlarge"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/tv_sub_landing_title"
+                    app:pack="@{selectedPack}" />
+
+                <include
+                    android:id="@+id/selected_pack_card_new"
+                    layout="@layout/layout_selected_pack_card_with_combo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/tv_sub_landing_title"
+                    app:pack="@{selectedPack}" />
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/barrier"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="selected_pack_card,selected_pack_card_new" />
+
+                <include
+                    android:id="@+id/amazon_packs"
+                    layout="@layout/layout_amazon_pack"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    app:isVisible="@{primeVisible}"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/barrier" />
+
+                <TextView
+                    android:id="@+id/tv_msg"
+                    style="@style/TSTextDefault"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/view_margin_medium"
+                    android:layout_marginTop="@dimen/view_margin_xxlarge"
+                    android:layout_marginEnd="@dimen/view_margin_medium"
+                    android:layout_marginBottom="@dimen/view_margin_large"
+                    android:gravity="center"
+                    android:lineSpacingExtra="2sp"
+                    android:textColor="?colorOnSecondary"
+                    android:textSize="@dimen/text_size_14"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/amazon_packs"
+                    app:layout_constraintVertical_bias="0" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_cancel_subscription"
+                    style="@style/Widget.AppTheme.ButtonStyle.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:text="@string/cancel_subscription"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_msg" />
+
+                <TextView
+                    android:id="@+id/tv_no_subscription_msg"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/view_margin_xxlarge"
+                    android:layout_marginTop="@dimen/view_margin_xlarge"
+                    android:layout_marginEnd="@dimen/view_margin_xxlarge"
+                    android:gravity="center"
+                    android:lineSpacingExtra="4sp"
+                    android:padding="@dimen/view_margin_medium"
+                    android:text="@string/no_subscription_msg"
+                    android:textColor="@color/pink_50"
+                    android:textSize="@dimen/text_size_16"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v_1"
+                    app:layout_constraintTop_toBottomOf="@id/tv_sub_landing_title" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_select_subscription"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:text="@string/select_subscription"
+                    app:layout_constraintBottom_toBottomOf="@id/guideline_h_2"
+                    app:layout_constraintEnd_toEndOf="@id/guideline_v_2"
+                    app:layout_constraintStart_toStartOf="@id/guideline_v_1" />
+
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/gp_no_subscription"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:constraint_referenced_ids="btn_select_subscription, tv_no_subscription_msg" />
+
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/gp_active_subscription"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:constraint_referenced_ids="selected_pack_card" />
+
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/gp_active_subscription_new"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:constraint_referenced_ids="selected_pack_card_new" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:visibility="visible"
+            android:layout_gravity="bottom"
+            android:background="@color/darkHighlight"
+            android:padding="@dimen/view_margin_xlarge"
+            android:visibility="@{firstTimeLogin?View.VISIBLE:View.GONE, default=gone}">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_proceed"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:text="@string/start_watching" />
+        </FrameLayout>
+    </LinearLayout>
+</layout>

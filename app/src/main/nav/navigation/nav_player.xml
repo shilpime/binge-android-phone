@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/playerHungamaFragment"
+    android:id="@+id/nav_player">
+    <fragment
+        android:id="@+id/playerHungamaFragment"
+        android:name="com.tatasky.binge.ui.features.player.HungamaPlayerFragment"
+        tools:layout="@layout/fragment_hungama_player"
+        >
+        <argument
+            android:name="playerData"
+            app:argType="com.tatasky.binge.ui.features.player.PlayerModel"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/tempplayerFragment"
+        android:name="com.tatasky.binge.ui.features.player.PlayerFragment"
+        tools:layout="@layout/fragment_player"
+        >
+        <argument
+            android:name="playerData"
+            app:argType="com.tatasky.binge.ui.features.player.PlayerModel"/>
+    </fragment>
+    <fragment
+        android:id="@+id/playerFragment"
+        android:name="com.tatasky.binge.ui.features.ttnplayer.TTNPlayerFragment"
+        tools:layout="@layout/fragment_ttnplayer">
+        <argument
+            android:name="playerData"
+            app:argType="com.tatasky.binge.ui.features.player.PlayerModel" />
+    </fragment>
+</navigation>

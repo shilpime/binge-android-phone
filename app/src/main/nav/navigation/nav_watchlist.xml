@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/watchlist"
+    app:startDestination="@id/watchlistFragment">
+
+    <fragment
+        android:id="@+id/watchlistFragment"
+        android:name="com.tatasky.binge.ui.features.watchlist.WatchlistFragment"
+        android:label="@string/watchlist">
+    </fragment>
+    <!--<include app:graph="@navigation/nav_details" />
+    <action
+        android:id="@+id/action_to_detail"
+        app:destination="@id/nav_details">
+        <argument
+            android:name="contentItem"
+            app:argType="com.tatasky.binge.data.networking.models.response.ContentItem" />
+        <argument android:name="fromGrid"
+            app:argType="boolean"
+            android:defaultValue="true"/>
+    </action>-->
+</navigation>

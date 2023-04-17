@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/account"
+    app:startDestination="@id/action_account_landing">
+
+    <fragment
+        android:id="@+id/action_account_landing"
+        android:name="com.tatasky.binge.ui.features.myaccount.MyAccountFragment"
+        android:label=""
+        tools:layout="@layout/fragment_my_account">
+        <action
+            android:id="@+id/action_action_account_landing_to_editProfileFragment"
+            app:destination="@id/editProfileFragment"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_action_account_landing_to_transactionHistoryFragment"
+            app:destination="@id/transactionHistoryFragment" />
+        <action
+            android:id="@+id/action_action_account_landing_to_nav_link_account"
+            app:destination="@id/nav_link_account" />
+        <action
+            android:id="@+id/action_action_account_landing_to_notificationFragment"
+            app:destination="@id/nav_notifications" />
+        <action
+            android:id="@+id/action_action_account_landing_to_deviceManagementFragment"
+            app:destination="@id/deviceListFragment"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_my_account_switch_account"
+            app:destination="@+id/switchAccount"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_action_account_landing_to_subscription"
+            app:destination="@id/subscriptionActivity"
+            app:popUpTo="@+id/action_account_landing"
+            app:popUpToInclusive="false"/>
+<!--        <deepLink-->
+<!--            android:autoVerify="true"-->
+<!--            app:uri="{@string/app_intent_host}/account" />-->
+
+    </fragment>
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.tatasky.binge.ui.features.updateprofile.EditProfileFragment"
+        android:label="@string/edit_profile"
+        tools:layout="@layout/fragment_edit_profile">
+        <argument
+            android:name="profileModel"
+            app:argType="com.tatasky.binge.data.networking.models.response.SubscriberProfileListModel$Data" />
+        <action
+            android:id="@+id/action_editProfileFragment_to_change_password"
+            app:destination="@id/change_password">
+            <argument
+                android:name="rmn"
+                app:argType="string" />
+        </action>
+    </fragment>
+    <include app:graph="@navigation/nav_changepassword" />
+
+    <fragment
+        android:id="@+id/transactionHistoryFragment"
+        android:name="com.tatasky.binge.ui.features.transaction_history.TransactionHistoryFragment"
+        android:label="@string/transaction_history"
+        tools:layout="@layout/fragment_transaction_history">
+
+        <argument
+            android:name="aliasName"
+            app:argType="string" />
+    </fragment>
+    <include app:graph="@navigation/nav_link_account" />
+    <fragment
+        android:id="@+id/deviceListFragment"
+        android:name="com.tatasky.binge.ui.features.device_management.DeviceListFragment"
+        android:label="Device Management"
+        tools:layout="@layout/fragment_device_management" />
+
+    <include app:graph="@navigation/nav_notifications" />
+    <activity
+        android:id="@+id/switchAccount"
+        android:name="com.tatasky.binge.ui.features.switchaccount.SwitchAccountActivity"
+        android:label=""
+        tools:layout="@layout/fragment_switch_account">
+    </activity>
+    <activity
+        android:id="@+id/subscriptionActivity"
+        android:name="com.tatasky.binge.ui.features.subscription_freemium.FreemiumSubscriptionActivity"
+        android:label="">
+        <argument
+            android:name="fromLogin"
+            android:defaultValue="true"
+            app:argType="boolean" />
+        <argument
+            android:name="selectedAppId"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="fromScreen"
+            android:defaultValue="Home"
+            app:argType="string"/>
+        <argument
+            android:defaultValue="false"
+            android:name="initiateRecharge"
+            app:argType="boolean"/>
+        <argument
+            android:name="firstTimeLogin"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </activity>
+</navigation>

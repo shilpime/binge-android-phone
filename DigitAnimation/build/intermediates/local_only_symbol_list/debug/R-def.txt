@@ -1,0 +1,5 @@
+R_DEF: Internal format may change without notice
+local
+attr? ticker_animateMeasurementChange
+attr? ticker_animationDuration
+styleable ticker_TickerView ticker_animationDuration ticker_animateMeasurementChange android:gravity android:shadowColor android:shadowDx android:shadowDy android:shadowRadius android:textAppearance android:textColor android:textSize android:textStyle

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="title"
+            type="String" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatCheckedTextView
+            android:id="@android:id/text1"
+            style="@style/TSTextMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/single_choice_background"
+            android:checkMark="@drawable/single_choice_selector"
+            android:fontFamily="@font/volteplay_medium"
+            android:text="@{title}"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:padding="@dimen/view_margin_small"
+            android:textColor="@color/dialog_color_selector"
+            android:textSize="@dimen/text_size_18" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/darkWidgetUnchecked"/>
+    </LinearLayout>
+</layout>

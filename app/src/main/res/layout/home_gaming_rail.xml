@@ -1,0 +1,77 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="railsModel"
+            type="com.tatasky.binge.ui.features.home.model.RailsModel" />
+    </data>
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants"
+        android:paddingTop="@dimen/rail_margins">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clHomeGamingRoot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_home_gaming_rail"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp">
+
+            <TextView
+                android:id="@+id/tv_gaming_rail_title"
+                style="@style/TSTextTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_20"
+                android:ellipsize="end"
+                android:gravity="top"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="@{railsModel.title}"
+                app:layout_constraintEnd_toStartOf="@+id/home_see_all"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Top Movies" />
+
+            <TextView
+                android:id="@+id/home_see_all"
+                style="@style/TSTextMedium"
+                increaseTouch="@{8}"
+                android:layout_width="80dp"
+                android:layout_height="20dp"
+                android:drawablePadding="@dimen/view_margin_smallest"
+                android:gravity="top"
+                android:paddingStart="@dimen/dp_1"
+                android:paddingEnd="@dimen/view_margin_large"
+                android:text="@string/empty_arrow"
+                android:textSize="@dimen/text_size_14"
+                android:visibility="visible"
+                app:drawableEndCompat="@drawable/ic_seeall"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/home_gaming_recycler_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_14"
+                android:adapter="@{railsModel.adapter}"
+                android:background="@android:color/transparent"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/margin_20"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_gaming_rail_title"
+                tools:listitem="@layout/item_game_square" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
+</layout>

@@ -1,0 +1,184 @@
+def _EXECUTABLE = "bash"
+def _APP_PROJ_PATH = "${projectDir.absolutePath}"
+def _APP_PROJ_PATH_ASSET_COPY_DIR = "${_APP_PROJ_PATH}/src/main/assets"
+def _PROD_DIST_DIR = "/home/srikant/Stuffs/IrdetoToolChain"
+//def _PROD_DIST_DIR = "/home/renu/Renu/Projects/TataSky/anywhere/bingeAWProject/IrdetoToolChain"
+
+def _PROD_DIST_SHARED_LIB_DIR = "${_PROD_DIST_DIR}/lib/android/libs/"
+
+afterEvaluate {
+//    if (project.hasProperty("assembleUatDebug")) {
+//        tasks.assembleUatDebug.dependsOn acaCopyPsLibAndData
+//    }
+//    if (project.hasProperty("assembleStagingDebug")) {
+//        tasks.assembleStagingDebug.dependsOn acaCopyPsLibAndData
+//    }
+//    if (project.hasProperty("assembleProductionDebug")) {
+//        tasks.assembleProductionDebug.dependsOn acaCopyPsLibAndData
+//    }
+
+    if (project.hasProperty("assembleStagingRelease")) {
+        tasks.assembleStagingRelease.dependsOn acaCopyNonPsLibAndData
+    }
+
+    if (project.hasProperty("assembleProductionRelease")) {
+        tasks.assembleProductionRelease.dependsOn acaCopyNonPsLibAndData
+    }
+
+    if (project.hasProperty("assembleUatRelease")) {
+        tasks.assembleUatRelease.dependsOn acaCopyNonPsLibAndData
+    }
+
+//    if (project.hasProperty("assembleStagingDebug")) {
+//        tasks.assembleStagingDebug.dependsOn acaCopyPsLibAndData
+//    }
+}
+
+////////////////////////////////
+// assembleDebug   -> acaCopyPsLibAndData (task) -> acaCopyPsLibAndDataClosure () -> acaCopyLibAndDataClosure
+// assembleRelease -> acaCopyNonPsLibAndData (task) -> acaCopyNonPsLibAndDataClosure () -> acaCopyLibAndDataClosure
+
+
+
+def acaCopyLibAndDataClosure = { File[] folder, String[] abis, String sharedLib, String[] voucher ->
+    exec {
+        executable "$_EXECUTABLE"
+        args "-c", " rm -rf ${_APP_PROJ_PATH_ASSET_COPY_DIR}/data/ && mkdir -p ${_APP_PROJ_PATH_ASSET_COPY_DIR}/data/"
+    }
+
+    for (int i = 0; i < voucher.length; i++) {
+        String sharelibFolder = folder[i].getAbsolutePath()
+        String architecture = abis[i]
+        println("sharelibFolder : " + sharelibFolder)
+
+        def libArch = "arm"
+        //generate bin folder according to platform, source folder is bin-mac or bin-linux
+        def hashStdOut = new ByteArrayOutputStream()
+        exec {
+            executable "$_EXECUTABLE"
+            args "-c", "uname -a "
+            standardOutput = hashStdOut
+        }
+        def strOutput=hashStdOut.toString()
+        def _DEVELOP_PLATFORM
+        if(strOutput.contains("Darwin"))
+        {
+            _DEVELOP_PLATFORM = "mac"
+        }
+        else
+        {
+            _DEVELOP_PLATFORM = "linux"
+        }
+        def binDir = new File("${_PROD_DIST_DIR}/bin")
+        if(binDir.exists())
+        {
+            println "binDir already exists"
+        }
+        else
+        {
+            println "binDir not exists"
+            println "copy bin-${_DEVELOP_PLATFORM} to bin"
+            exec {
+                executable "$_EXECUTABLE"
+                args "-c", "cp -r '${_PROD_DIST_DIR}/bin-${_DEVELOP_PLATFORM}' '${_PROD_DIST_DIR}/bin' && chmod -R a+w ${_PROD_DIST_DIR}"
+            }
+        }
+        exec {
+            executable "$_EXECUTABLE"
+            args "-c", " cd ${_PROD_DIST_DIR}/provision/ && mkdir -p data && ./createACV.sh ${sharelibFolder} ${sharedLib} android ${libArch}"
+        }
+
+        exec {
+            executable "$_EXECUTABLE"
+            args "-c", " cp -rf ${_PROD_DIST_DIR}/provision/data/acv.dat" + " ${_APP_PROJ_PATH_ASSET_COPY_DIR}/data/" + voucher[i]
+        }
+        exec {
+            executable "$_EXECUTABLE"
+            args "-c", " rm -rf ${_APP_PROJ_PATH}/libs/" + architecture + "/ && mkdir -p ${_APP_PROJ_PATH}/libs/" + architecture + " &&  cp -rf ${_PROD_DIST_DIR}/lib/android/libs/" + architecture + "/" + sharedLib + " ${_APP_PROJ_PATH}/libs/" + architecture
+        }
+    }
+
+    exec {
+        executable "$_EXECUTABLE"
+        args "-c", "mkdir -p ${_APP_PROJ_PATH}/libs && cp -rf ${_PROD_DIST_DIR}/lib/android/libs/api.jar ${_APP_PROJ_PATH}/libs/api.jar"
+    }
+}
+
+def acaCopyPsLibAndDataClosure = {
+    def armeabi_v7a = new File("${_PROD_DIST_SHARED_LIB_DIR}" + "armeabi-v7a")
+    def arm64_v8a = new File("${_PROD_DIST_SHARED_LIB_DIR}" + "arm64-v8a")
+    def vouchers = new String[2]
+    def archFolders = new File[2]
+    def abis = new String[2]
+    def count = 0
+
+    if (armeabi_v7a.exists()) {
+        vouchers[count] = 'acv_ps_armeabi-v7a.dat'
+        archFolders[count] = armeabi_v7a
+        abis[count] = "armeabi-v7a"
+        count++
+    }
+    if (arm64_v8a.exists()) {
+        vouchers[count] = 'acv_ps_arm64-v8a.dat'
+        archFolders[count] = arm64_v8a
+        abis[count] = "arm64-v8a"
+        count++
+    }
+
+    if (count > 0) {
+        def vouchersExist = new String[count]
+        def archExist = new File[count]
+        def abiExist = new String[count]
+        for (int i = 0; i < count; i++) {
+            vouchersExist[i] = vouchers[i]
+            archExist[i] = archFolders[i]
+            abiExist[i] = abis[i]
+        }
+        acaCopyLibAndDataClosure(archExist, abiExist, "libiac_ps.so", vouchersExist)
+    }
+}
+
+def acaCopyNonPsLibAndDataClosure = {
+    def armeabi_v7a = new File("${_PROD_DIST_SHARED_LIB_DIR}" + "armeabi-v7a")
+    def arm64_v8a = new File("${_PROD_DIST_SHARED_LIB_DIR}" + "arm64-v8a")
+    def vouchers = new String[2]
+    def archFolders = new File[2]
+    def abis = new String[2]
+    def count = 0
+
+    if (armeabi_v7a.exists()) {
+        vouchers[count] = 'acv_armeabi-v7a.dat'
+        archFolders[count] = armeabi_v7a
+        abis[count] = "armeabi-v7a"
+        count++
+    }
+    if (arm64_v8a.exists()) {
+        vouchers[count] = 'acv_arm64-v8a.dat'
+        archFolders[count] = arm64_v8a
+        abis[count] = "arm64-v8a"
+        count++
+    }
+    if (count > 0) {
+        def vouchersExist = new String[count]
+        def archExist = new File[count]
+        def abiExist = new String[count]
+        for (int i = 0; i < count; i++) {
+            vouchersExist[i] = vouchers[i]
+            archExist[i] = archFolders[i]
+            abiExist[i] = abis[i]
+        }
+        acaCopyLibAndDataClosure(archExist, abiExist, "libiac.so", vouchersExist)
+    }
+}
+
+task acaCopyNonPsLibAndData {
+    doLast {
+        acaCopyNonPsLibAndDataClosure()
+    }
+}
+
+task acaCopyPsLibAndData {
+    doLast {
+        acaCopyPsLibAndDataClosure()
+    }
+}

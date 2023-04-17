@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/device_management"
+    app:startDestination="@id/deviceListFragment">
+    <fragment
+        android:id="@+id/deviceListFragment"
+        android:name="com.tatasky.binge.ui.features.device_management.DeviceListFragment"
+        android:label="@string/device_management"
+        tools:layout="@layout/fragment_device_management"/>
+</navigation>

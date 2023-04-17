@@ -1,0 +1,81 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="contentItem"
+            type="com.tatasky.binge.data.networking.models.response.ContentItem" />
+
+        <import type="android.view.View" />
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clHomeGamingRoot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/margin_6"
+        android:paddingBottom="@dimen/margin_6">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_item_game_sqaure"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:scaleType="fitXY"
+            app:shapeAppearanceOverlay="@style/customRoundedImageView"
+            tools:src="@drawable/game_item_sample" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lv_game_fav"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/ic_game_fav_bg"
+            app:layout_constraintBottom_toBottomOf="@id/iv_item_game_sqaure"
+            app:layout_constraintEnd_toEndOf="@id/iv_item_game_sqaure"
+            app:lottie_autoPlay="false"
+            app:lottie_fileName="game_fav_heart.json"
+            app:lottie_loop="false"
+            app:lottie_progress="0"
+            app:lottie_speed="4"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:id="@+id/tv_game_title"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_6"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{contentItem.title}"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_item_game_sqaure"
+            tools:text="Fruit Ninja" />
+
+        <TextView
+            android:id="@+id/tv_game_subtitle"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_2"
+            android:text="@{contentItem.gamePlayCount}"
+            android:textColor="@color/darkOnSecondary"
+            android:textSize="9sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_game_title"
+            tools:text="Fruit Ninja" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

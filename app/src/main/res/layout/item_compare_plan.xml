@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="@dimen/view_margin_smallest"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/compare_item_border"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="match_parent"
+            android:background="@drawable/plan_item_selector"
+            android:layout_height="match_parent"
+            android:padding="1dp">
+
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/compare_item_card"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:strokeWidth="1dp"
+                android:elevation="0dp"
+                app:cardElevation="0dp"
+                android:background="@color/transparent"
+                app:strokeColor="@color/stroke_color"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/ll_compare_plans"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:clickable="false"
+                        android:id="@+id/tv_top_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/margin_18"
+                        android:gravity="center"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Premium \n 12 Apps \n Rs. 299/month" >
+
+                        <ImageView
+                            style="@style/TSTextMedium"
+                            android:textSize="@dimen/text_size_14"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:srcCompat = "@drawable/ic_premium_crown"
+                            />
+
+                        <TextView
+                            android:layout_marginTop="-4dp"
+                            android:maxLines="1"
+                            tools:text="Premium"
+                            android:textSize="@dimen/text_size_14"
+                            style="@style/TSTextMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tv_pack_name"
+                            />
+
+                        <TextView
+                            android:maxLines="1"
+                            tools:text="12 Apps"
+                            android:textSize="@dimen/text_size_14"
+                            style="@style/TSTextMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tv_app_count"
+                            />
+
+                        <TextView
+                            android:maxLines="1"
+                            android:layout_marginTop="@dimen/view_margin_small"
+                            tools:text="Rs. 299/month"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tv_pack_price"
+                            />
+
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:clickable="false"
+                        android:id="@+id/tv_middle_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tv_top_text"
+                        tools:itemCount="4"
+                        tools:listitem="@layout/compare_plan_tick">
+
+
+                    </androidx.recyclerview.widget.RecyclerView>
+
+                    <View
+                        android:id="@+id/compare_plan_divider0"
+                        app:layout_constraintTop_toBottomOf="@id/tv_middle_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/stroke_color"/>
+
+                    <TextView
+                        android:clickable="false"
+                        android:id="@+id/tv_devices"
+                        style="@style/TSText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_14"
+                        android:layout_marginTop="@dimen/margin_8"
+                        android:layout_marginEnd="@dimen/margin_14"
+                        android:paddingBottom="@dimen/margin_14"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:minLines="5"
+                        android:text = "Devices"
+                        android:gravity="center_vertical|center"
+                        android:textSize="@dimen/text_size_12"
+                        app:layout_constraintTop_toBottomOf="@id/tv_middle_text"
+                        />
+
+                    <View
+                        android:id="@+id/compare_plan_divider"
+                        app:layout_constraintTop_toBottomOf="@id/tv_devices"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/stroke_color"/>
+
+                    <TextView
+                        android:clickable="false"
+                        android:id="@+id/tv_devices_count"
+                        style="@style/TSText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_14"
+                        android:layout_marginTop="@dimen/margin_8"
+                        android:layout_marginEnd="@dimen/margin_14"
+                        android:paddingBottom="@dimen/margin_14"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:minLines="5"
+                        android:text = "No. of Devices"
+                        android:gravity="center_vertical|center"
+                        android:textSize="@dimen/text_size_12"
+                        app:layout_constraintTop_toBottomOf="@id/tv_devices"
+                        />
+                    <View
+                        android:id="@+id/compare_plan_divider1"
+                        app:layout_constraintTop_toBottomOf="@id/tv_devices_count"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/stroke_color"/>
+
+
+                    <!--visibility is gone-->
+                    <TextView
+                        android:clickable="false"
+                        android:id="@+id/tv_bottom_text"
+                        style="@style/TSText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_14"
+                        android:layout_marginTop="@dimen/margin_8"
+                        android:layout_marginEnd="@dimen/margin_14"
+                        android:layout_marginBottom="@dimen/margin_14"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        android:textSize="@dimen/text_size_9"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:minLines="5"
+                        android:visibility="gone"
+                        app:layout_constraintTop_toBottomOf="@id/tv_devices_count"
+                        tools:text="Eligible to watch on TV using Amazon FireTV Stick – Tata Sky Edition or Binge+ Set Top Box" />
+
+                    <!--visibility is gone-->
+                    <ImageView
+                        android:id="@+id/iv_large_screen"
+                        android:layout_width="wrap_content"
+                        android:minHeight="50dp"
+                        android:minWidth="50dp"
+                        android:layout_marginTop="@dimen/view_margin_small"
+                        android:layout_marginBottom="@dimen/view_margin_small"
+                        android:scaleType="fitXY"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        android:visibility="gone"
+                        />
+
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

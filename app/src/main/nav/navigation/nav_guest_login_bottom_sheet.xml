@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/login_bottom_sheet_nav_graph"
+    app:startDestination="@id/guestLoginPreviouslyUsedMobileFragment">
+
+    <fragment
+        android:id="@+id/guestLoginFragment"
+        android:name="com.tatasky.binge.ui.features.onboarding.login.bottomsheet.GuestLoginFragment"
+        android:label="GuestLoginFragment"
+        tools:layout="@layout/fragment_guest_login">
+        <action
+            android:id="@+id/action_guestLoginSidListingFragment_to_guestBAIDListingFragment"
+            app:destination="@id/guestBAIDListingFragment" />
+        <action
+            android:id="@+id/action_guestLoginFragment_to_guestLoginSidListingFragment"
+            app:destination="@id/guestLoginSidListingFragment" />
+        <action
+            android:id="@+id/action_guestLoginFragment_to_licenseAgreementActivity"
+            app:destination="@id/licenseAgreementActivity" />
+        <argument
+            android:name="selectedRmnDetails"
+            app:argType="com.tatasky.binge.data.networking.models.response.UsedMobileNumber"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="subscriptionInfo"
+            app:argType="com.tatasky.binge.data.database.model.SubscriptionInfoModel"
+            android:defaultValue="@null"
+            app:nullable="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/guestLoginSidListingFragment"
+        android:name="com.tatasky.binge.ui.features.onboarding.login.bottomsheet.GuestSidListingFragment"
+        android:label="GuestLoginSidListingFragment"
+        tools:layout="@layout/fragment_guest_login_sid_listing">
+        <action
+            android:id="@+id/action_guestLoginSidListingFragment_to_guestBAIDListingFragment"
+            app:destination="@id/guestBAIDListingFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/guestLoginVerifyOtpFragment"
+        android:name="com.tatasky.binge.ui.features.onboarding.login.bottomsheet.GuestLoginOtpFragment"
+        android:label="fragment_guest_login_verify_otp"
+        tools:layout="@layout/fragment_guest_login_verify_otp">
+        <action
+            android:id="@+id/action_guest_otp_to_sid_listing"
+            app:destination="@id/guestLoginSidListingFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/guestLoginPreviouslyUsedMobileFragment"
+        android:name="com.tatasky.binge.ui.features.onboarding.login.bottomsheet.UsedRMNListingFragment"
+        android:label="GuestLoginPreviouslyUsedMobileFragment"
+        tools:layout="@layout/fragment_guest_login_previously_used_mobile">
+        <action
+            android:id="@+id/action_guestLoginPreviouslyUsedMobileFragment_to_guestLoginFragment"
+            app:destination="@id/guestLoginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/parentalPinSetupFragment"
+        android:name="com.tatasky.binge.ui.features.parentalcontrol.bottomsheet.ParentalPinSetupFragment"
+        android:label="ParentalPinSetupFragment"
+        tools:layout="@layout/fragment_parental_pin_setup">
+        <action
+            android:id="@+id/action_parentalPinSetupFragment_self"
+            app:destination="@id/parentalPinSetupFragment"
+            app:popUpTo="@id/parentalPinSetupFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/parentalPinSuccessFragment"
+        android:name="com.tatasky.binge.ui.features.parentalcontrol.bottomsheet.ParentalPinSuccessFragment"
+        android:label="ParentalPinSuccessFragment"
+        tools:layout="@layout/fragment_parental_pin_success" />
+    <action
+        android:id="@+id/action_global_parentalPinSetupFragment"
+        app:destination="@id/parentalPinSetupFragment" />
+    <action
+        android:id="@+id/action_global_guestLoginVerifyOtpFragment"
+        app:destination="@id/guestLoginVerifyOtpFragment" />
+    <action
+        android:id="@+id/action_global_parentalPinSuccessFragment"
+        app:destination="@id/parentalPinSuccessFragment" />
+    <fragment
+        android:id="@+id/guestBAIDListingFragment"
+        android:name="com.tatasky.binge.ui.features.onboarding.login.bottomsheet.GuestBAIDListingFragment"
+        android:label="GuestBAIDListingFragment"
+        tools:layout="@layout/fragment_guest_login_baid_listing">
+    </fragment>
+    <activity
+        android:id="@+id/licenseAgreementActivity"
+        android:name="com.tatasky.binge.ui.features.onboarding.LicenseAgreementActivity"
+        android:label="@string/license_agreement"
+        tools:layout="@layout/activity_license_agreement"/>
+</navigation>

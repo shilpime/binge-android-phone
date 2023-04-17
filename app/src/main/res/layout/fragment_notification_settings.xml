@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data></data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <include
+            android:id="@+id/toolbar_layout"
+            layout="@layout/shadowed_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/margin_0"
+            android:layout_below="@id/toolbar_layout"
+            android:layout_above="@id/iv_tbaa"
+            android:layout_marginStart="@dimen/view_margin_large"
+            android:layout_marginTop="@dimen/view_margin_xxlarge"
+            android:layout_marginEnd="@dimen/view_margin_large">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <include
+                        android:id="@+id/sw_transaction_notification"
+                        layout="@layout/layout_notification_switch"
+                        android:visibility="gone"
+                        app:title="@{@string/allow_transactional_notification}" />
+
+                    <include
+                        android:id="@+id/sw_watch_notification"
+                        layout="@layout/layout_notification_switch"
+                        app:title="@{@string/allow_watch_notification}" />
+
+                    <include
+                        android:id="@+id/sw_offers_notification"
+                        layout="@layout/layout_notification_switch"
+                        android:visibility="gone"
+                        app:title="@{@string/allow_my_offers_notification}" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TSTextMedium"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/view_margin_xxlarge"
+                        android:layout_marginBottom="@dimen/view_margin_smallest"
+                        android:text="@string/receive_updates"
+                        android:textSize="@dimen/text_size_20" />
+
+                    <TextView
+                        style="@style/TSTextDefault"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/view_margin_medium"
+                        android:text="@string/receive_updates_message"
+                        android:textSize="@dimen/text_size_16" />
+
+                    <include
+                        android:id="@+id/cb_transaction_notification"
+                        layout="@layout/layout_notification_checkbox"
+                        app:title="@{@string/tata_sky_binge_updates}" />
+
+                    <include
+                        android:id="@+id/cb_offers_notification"
+                        layout="@layout/layout_notification_checkbox"
+                        app:title="@{@string/tata_sky_binge_offers}" />
+
+                    <include
+                        android:id="@+id/cb_survey_notification"
+                        layout="@layout/layout_notification_checkbox"
+                        app:title="@{@string/tata_sky_binge_surveys}" />
+
+                    <TextView
+                        android:id="@+id/tv_communication_info"
+                        style="@style/TSTextDefault"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/view_margin_smallest"
+                        android:text="@string/communication_sent_to_message"
+                        android:textSize="@dimen/text_size_16" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <ImageView
+            android:id="@+id/iv_tbaa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:layout_margin="@dimen/logo_margin"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/sample_iv_desc"
+            android:maxWidth="@dimen/logo_max_width"
+            android:maxHeight="@dimen/logo_max_height"
+            app:srcCompat="@drawable/small_binge_logo" />
+    </RelativeLayout>
+</layout>

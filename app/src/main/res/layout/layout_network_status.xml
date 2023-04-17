@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="@dimen/margin_32">
+
+    <ImageView
+        android:id="@+id/iv_wifi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/view_margin_medium"
+        android:contentDescription="@string/sample_iv_desc"
+        app:srcCompat="@drawable/ic_internet" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        style="@style/TSTextMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/view_margin_medium"
+        android:gravity="center"
+        android:text="@string/network_title"
+        android:textSize="@dimen/text_size_20" />
+
+    <TextView
+        android:id="@+id/tv_message"
+        style="@style/TSTextMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/view_margin_small"
+        android:gravity="center"
+        android:text="@string/network_error_message"
+        android:textColor="@color/darkOnSecondary"
+        android:textSize="@dimen/text_size_16" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_retry"
+        style="@style/TSTextMedium"
+        android:layout_width="170dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="@dimen/view_margin_medium"
+        android:layout_marginTop="@dimen/view_margin_large"
+        android:layout_marginBottom="@dimen/view_margin_medium"
+        android:text="@string/retry"
+        android:textSize="@dimen/text_size_16"
+        android:visibility="gone" />
+</LinearLayout>

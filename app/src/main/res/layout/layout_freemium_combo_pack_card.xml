@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="proRataValue"
+            type="Integer" />
+
+        <import type="android.view.View" />
+
+        <import type="com.tatasky.binge.utils.SubscriptionPackStatusEnum" />
+
+        <import type="android.text.TextUtils" />
+
+        <variable
+            name="pack"
+            type="com.tatasky.binge.data.networking.models.response.PartnerPacks" />
+    </data>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardView"
+            style="@style/PackCardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:animateLayoutChanges="true"
+                android:paddingTop="@dimen/view_margin_large"
+                android:paddingBottom="@dimen/view_margin_small">
+
+                <TextView
+                    android:id="@+id/tv_combo_title"
+                    style="@style/TSTextTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/view_margin_large"
+                    android:drawablePadding="@dimen/view_margin_small"
+                    android:gravity="start|center_vertical"
+                    android:text="@{pack.productName}"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_12"
+                    app:drawableStartCompat="@drawable/crown_with_bg"
+                    app:layout_constraintEnd_toStartOf="@id/tv_combo_price"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintWidth_percent=".48"
+                    tools:text="Malyalam Hindi English Basic HD" />
+
+
+                <TextView
+                    android:id="@+id/tv_combo_price"
+                    style="@style/TSTextBold"
+                    htmlText="@{pack.amountWithoutTimePeriod}"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_22"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toStartOf="@id/tv_combo_time"
+                    app:layout_constraintStart_toEndOf="@id/tv_combo_title"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Rs. 499" />
+
+                <TextView
+                    android:id="@+id/tv_combo_time"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/view_margin_large"
+                    android:text="@{@string/space+pack.amountTimePeriod}"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_12"
+                    app:layout_constraintBaseline_toBaselineOf="@id/tv_combo_price"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/tv_combo_price"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="monthly" />
+
+
+                <TextView
+                    android:id="@+id/tv_combo_date"
+                    style="@style/TSTextMedium"
+                    htmlText="@{pack.packValidity}"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_10"
+                    android:layout_marginEnd="@dimen/view_margin_large"
+                    android:gravity="end"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_12"
+                    app:layout_constraintBaseline_toBaselineOf="@id/tv_combo_count_verbiage"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/tv_combo_count_verbiage"
+                    tools:text="Renewal on 20/05/2020 " />
+
+
+                <TextView
+                    android:id="@+id/tv_combo_app_count"
+                    style="@style/TSTextBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/view_margin_large"
+                    android:layout_marginTop="@dimen/margin_10"
+                    android:text="@{pack.getSelectedComponent.appCount +@string/space+pack.getSelectedComponent.appsVerbiage }"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_12"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_combo_title"
+                    tools:text="12 Apps" />
+
+                <TextView
+                    android:id="@+id/tv_combo_count_verbiage"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_10"
+                    android:text="@{@string/space+pack.deviceDetails.enhancedPlatformName}"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_12"
+                    app:layout_constraintEnd_toStartOf="@id/tv_combo_date"
+                    app:layout_constraintStart_toEndOf="@id/tv_combo_app_count"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_combo_title"
+                    tools:text="12 Entertainment Apps  " />
+
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_packs"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="@dimen/view_margin_large"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:layout_marginEnd="@dimen/margin_2"
+                    android:gravity="center"
+                    android:layoutAnimation="@anim/pack_anim"
+                    android:overScrollMode="never"
+                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_combo_app_count"
+                    app:spanCount="5" />
+
+
+                <TextView
+                    android:id="@+id/tv_combo_app_disclaimer"
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/view_margin_large"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_12"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/recycler_packs"
+                    android:layout_marginTop="@dimen/view_margin_medium"
+                    android:text="@{pack.extraInfo}"
+                    tools:text="* SunNxt is only available on TV" />
+
+
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/gp_netflix_combo_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{pack.netflixCombo? View.VISIBLE : View.GONE, default=gone}"
+                    app:constraint_referenced_ids="iv_combo_divider,cv_netflix_info,tv_netflix_desc"
+                    tools:visibility="visible" />
+
+                <include
+                    android:id="@+id/iv_combo_divider2"
+                    layout="@layout/combo_plus_divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/margin_10"
+                    android:layout_marginStart="@dimen/margin_10"
+                    android:layout_marginTop="@dimen/margin_14"
+                    app:layout_constraintTop_toBottomOf="@id/tv_combo_app_disclaimer" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cv_netflix_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/view_margin_large"
+                    android:layout_marginTop="@dimen/margin_10"
+                    android:layout_marginEnd="@dimen/view_margin_large"
+                    app:cardCornerRadius="@dimen/margin_10"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/iv_combo_divider2"
+                    app:strokeColor="@color/stroke_color"
+                    app:strokeWidth="1dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/darkSurface"
+                        android:paddingHorizontal="@dimen/view_margin_large"
+                        android:paddingVertical="@dimen/margin_10">
+
+                        <ImageView
+                            android:id="@+id/iv_netflix_logo"
+                            glideSrc="@{pack.netflixData.imageUrl}"
+                            android:layout_width="80dp"
+                            android:layout_height="21dp"
+                            android:scaleType="fitXY"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            style="@style/TSTextDefault"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/margin_6"
+                            android:text="@{pack.netflixData.deviceVerbiage}"
+                            android:textSize="@dimen/text_size_12"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/iv_netflix_logo"
+                            tools:text="Watch on upto 3 devices at the same time" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:id="@+id/tv_netflix_desc"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/view_margin_large"
+                    android:layout_marginTop="@dimen/margin_6"
+                    android:layout_marginEnd="@dimen/margin_10"
+                    android:textColor="@color/pack_text_color"
+                    android:textSize="@dimen/text_size_12"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/cv_netflix_info"
+                    android:text="@{pack.netflixData.verbiage}"
+                    tools:text="Watch content on Netflix app directly" />
+
+                <include
+                    android:id="@+id/iv_combo_divider"
+                    layout="@layout/combo_plus_divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_10"
+                    android:layout_marginEnd="@dimen/margin_10"
+                    android:layout_marginTop="@dimen/margin_14"
+                    app:layout_constraintTop_toBottomOf="@id/tv_netflix_desc" />
+
+
+                <TextView
+                    android:id="@+id/tv_combo_channel_count"
+                    style="@style/TSText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/view_margin_large"
+                    android:layout_marginTop="@dimen/margin_10"
+                    android:gravity="start"
+                    android:textSize="@dimen/text_size_18"
+                    android:textColor="@color/pack_text_color"
+                    app:layout_constraintEnd_toStartOf="@id/recycler_channels"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/iv_combo_divider"
+                    android:text = "@{pack.comboPackChannelsInfo.ottChannelsVerbiage}"
+                    tools:text="145 TV Channels" />
+
+                <TextView
+                    android:id="@+id/tv_combo_pack_footer"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/view_margin_large"
+                    android:layout_marginTop="@dimen/margin_10"
+                    android:textSize="@dimen/text_size_12"
+                    android:layout_marginEnd="@dimen/view_margin_large"
+                    android:paddingBottom="20dp"
+                    android:textColor="@color/pack_text_color"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_combo_channel_count"
+                    android:text="@{pack.comboPackChannelsInfo.verbiage}"
+                    tools:text="Channels are available for viewing on TV with your Tata Play Set Top Box" />
+
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_channels"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/view_margin_xxlarge"
+                    android:layout_marginEnd="@dimen/view_margin_large"
+                    android:orientation="horizontal"
+                    app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"
+                    app:layout_constraintBottom_toBottomOf="@id/tv_combo_channel_count"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="1"
+                    app:layout_constraintStart_toEndOf="@id/tv_combo_channel_count"
+                    app:layout_constraintTop_toTopOf="@id/tv_combo_channel_count"
+                    app:reverseLayout="false"
+                    tools:listitem="@layout/layout_channel_count"
+                    tools:itemCount="2" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+</layout>

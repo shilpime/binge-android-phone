@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.notifications.NotificationViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:transitionGroup="true"
+        android:layout_height="match_parent">
+
+<!--        <include-->
+<!--            android:id="@+id/toolbar_layout"-->
+<!--            layout="@layout/shadowed_toolbar"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content" />-->
+
+<!--        <com.google.android.material.card.MaterialCardView-->
+<!--            android:layout_width="match_parent"-->
+<!--            app:cardElevation="8dp"-->
+<!--            android:id="@+id/ll_tab"-->
+<!--            android:layout_below="@id/toolbar_layout"-->
+<!--            android:layout_height="wrap_content">-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="@dimen/margin_30"-->
+<!--                android:visibility="gone"-->
+<!--                android:theme="@style/ToolbarStyle"-->
+<!--                android:orientation="horizontal">-->
+
+<!--                <RelativeLayout-->
+<!--                    android:id="@+id/rl_watch"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:layout_weight="0.5">-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/tv_watch"-->
+<!--                        style="@style/TSTextMedium"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_centerInParent="true"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="@string/watch"-->
+<!--                        android:textSize="@dimen/text_size_16" />-->
+
+<!--                    <View-->
+<!--                        android:id="@+id/watch_view"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="2dp"-->
+<!--                        android:layout_alignStart="@+id/tv_watch"-->
+<!--                        android:layout_alignEnd="@+id/tv_watch"-->
+<!--                        android:layout_alignParentBottom="true"-->
+<!--                        android:background="?colorPrimary"-->
+<!--                        android:visibility="visible" />-->
+
+<!--                </RelativeLayout>-->
+
+<!--                <RelativeLayout-->
+<!--                    android:id="@+id/rl_transaction"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:layout_weight="0.5">-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/tv_transaction"-->
+<!--                        style="@style/TSTextMedium"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_centerInParent="true"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="@string/transaction"-->
+<!--                        android:textColor="@color/darkOnSecondary"-->
+<!--                        android:textSize="@dimen/text_size_16" />-->
+
+<!--                <View-->
+<!--                    android:id="@+id/transaction_view"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="2dp"-->
+<!--                    android:layout_alignStart="@+id/tv_transaction"-->
+<!--                    android:layout_alignEnd="@+id/tv_transaction"-->
+<!--                    android:layout_alignParentBottom="true"-->
+<!--                    android:background="?colorPrimary"-->
+<!--                    android:visibility="gone" />-->
+
+<!--                </RelativeLayout>-->
+
+<!--            </LinearLayout>-->
+<!--        </com.google.android.material.card.MaterialCardView>-->
+
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/watch_recycler"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_above="@+id/card_settings"-->
+<!--            android:layout_below="@+id/ll_tab"-->
+<!--            android:layout_marginTop="@dimen/view_margin_smallest"-->
+<!--            android:background="@android:color/transparent"-->
+<!--            android:clipToPadding="false"-->
+<!--            android:lineSpacingExtra="4dp"-->
+<!--            android:orientation="vertical"-->
+<!--            android:paddingTop="@dimen/view_margin_smallest"-->
+<!--            android:paddingBottom="16dp"-->
+<!--            app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager" />-->
+
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/transaction_recycler"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_above="@+id/card_settings"-->
+<!--            android:layout_below="@+id/ll_tab"-->
+<!--            android:layout_marginTop="@dimen/view_margin_smallest"-->
+<!--            android:background="@android:color/transparent"-->
+<!--            android:clipToPadding="false"-->
+<!--            android:lineSpacingExtra="4dp"-->
+<!--            android:orientation="vertical"-->
+<!--            android:paddingTop="@dimen/view_margin_smallest"-->
+<!--            android:paddingBottom="16dp"-->
+<!--            android:visibility="gone"-->
+<!--            app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"-->
+<!--            app:reverseLayout="false" />-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/tv_empty"-->
+<!--            style="@style/TSTextMedium"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_centerInParent="true"-->
+<!--            android:gravity="center"-->
+<!--            android:text="@string/notification_empty"-->
+<!--            android:visibility="gone" />-->
+
+<!--        <com.google.android.material.card.MaterialCardView-->
+<!--            android:id="@+id/card_settings"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_alignParentBottom="true"-->
+<!--            android:layout_marginBottom="-8dp"-->
+<!--            android:visibility="gone"-->
+<!--            app:cardCornerRadius="@dimen/view_margin_small">-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:gravity="center_vertical"-->
+<!--                android:orientation="vertical"-->
+<!--                android:paddingStart="@dimen/view_margin_small"-->
+<!--                android:paddingTop="@dimen/view_margin_small"-->
+<!--                android:paddingEnd="@dimen/view_margin_small"-->
+<!--                android:paddingBottom="@dimen/view_margin_large">-->
+
+<!--                <RelativeLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginStart="2dp"-->
+<!--                    android:padding="@dimen/margin_4">-->
+
+<!--                    <androidx.appcompat.widget.AppCompatCheckBox-->
+<!--                        android:id="@+id/checkbox"-->
+<!--                        style="@style/TSTextMedium"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:button="@drawable/ic_select_all"-->
+<!--                        android:paddingStart="12dp"-->
+<!--                        android:text="@string/select_all"-->
+<!--                        android:visibility="visible" />-->
+
+<!--                    <TextView-->
+<!--                        style="@style/TSTextMedium"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginStart="@dimen/margin_10"-->
+<!--                        android:layout_toEndOf="@+id/checkbox"-->
+<!--                        android:text="@string/select_all"-->
+<!--                        android:textSize="@dimen/text_size_14"-->
+<!--                        android:visibility="gone" />-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/remove"-->
+<!--                    style="@style/TSTextMedium"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_alignParentEnd="true"-->
+<!--                    android:paddingEnd="@dimen/margin_10"-->
+<!--                    android:text="@string/remove"-->
+<!--                    android:textColor="?colorPrimary"-->
+<!--                    android:textSize="@dimen/text_size_14" />-->
+<!--            </RelativeLayout>-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/mark_all_read"-->
+<!--                    style="@style/TSTextMedium"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginStart="2dp"-->
+<!--                    android:layout_marginTop="2dp"-->
+<!--                    android:drawableStart="@drawable/ic_read"-->
+<!--                    android:drawablePadding="@dimen/margin_10"-->
+<!--                    android:padding="@dimen/margin_4"-->
+<!--                    android:text="@string/mark_read"-->
+<!--                    android:textSize="@dimen/text_size_14" />-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/notification_setting"-->
+<!--                    style="@style/TSTextMedium"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginStart="2dp"-->
+<!--                    android:layout_marginTop="2dp"-->
+<!--                    android:drawableStart="@drawable/ic_notification_settings"-->
+<!--                    android:drawablePadding="@dimen/margin_10"-->
+<!--                    android:padding="@dimen/margin_4"-->
+<!--                    android:text="@string/view_notification"-->
+<!--                    android:textSize="@dimen/text_size_14" />-->
+<!--            </LinearLayout>-->
+<!--        </com.google.android.material.card.MaterialCardView>-->
+    </RelativeLayout>
+</layout>

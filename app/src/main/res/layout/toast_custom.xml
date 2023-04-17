@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/toast_cl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/toast_background"
+        android:minHeight="44dp"
+        android:paddingStart="@dimen/view_margin_xlarge"
+        android:paddingTop="@dimen/margin_10"
+        android:paddingEnd="@dimen/view_margin_xlarge"
+        android:paddingBottom="@dimen/margin_10">
+
+        <ImageView
+            android:id="@+id/toast_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="48dp"
+            android:maxHeight="48dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/toast_tv"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/toast_tv"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/view_margin_medium"
+            android:fontFamily="@font/volteplay_medium"
+            android:gravity="center"
+            android:textColor="?colorOnSurface"
+            android:textSize="@dimen/text_size_16"
+            tools:text="Account refresh completed"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/toast_iv"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_goneMarginStart="0dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

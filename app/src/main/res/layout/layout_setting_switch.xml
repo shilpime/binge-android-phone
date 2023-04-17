@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+>
+    <data>
+        <variable
+                name="title"
+                type="String"/>
+        <variable name="isChecked" type="Boolean"/>
+        <variable name="iconRes"
+                  type="android.graphics.drawable.Drawable"/>
+
+    </data>
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/settings_menu_height"
+            android:id="@+id/root"
+            android:layout_marginBottom="@dimen/view_margin_small"
+            android:background="@color/darkHighlight"
+            android:paddingStart="@dimen/view_margin_medium"
+            android:paddingEnd="@dimen/view_margin_medium">
+        <ImageView
+                android:id="@+id/iv_icon"
+                glideSrc="@{iconRes}"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_centerVertical="true"
+        />
+        <TextView
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/view_margin_medium"
+                android:layout_toEndOf="@id/iv_icon"
+                android:text="@{title}"
+                android:textSize="@dimen/text_size_16"/>
+        <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/sw_settings"
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:checked="@{isChecked}"/>
+    </RelativeLayout>
+</layout>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="headerText"
+            type="String"/>
+        <import type="android.text.InputType"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/view_margin_form"
+        android:layout_marginEnd="@dimen/view_margin_form">
+
+        <com.tatasky.binge.customviews.PageIndicatorView
+            android:id="@+id/ll_page_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_38"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:selected_page="2"
+            app:total_pages="2">
+
+        </com.tatasky.binge.customviews.PageIndicatorView>
+
+        <TextView
+            android:id="@+id/tv_otp_code"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/margin_28"
+            android:layout_marginBottom="@dimen/view_margin_medium"
+            android:gravity="center_horizontal"
+            android:lineSpacingExtra="5sp"
+            android:text="@{headerText}"
+            android:textSize="@dimen/text_size_28"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ll_page_indicator"/>
+
+        <include
+            android:id="@+id/et_otp"
+            layout="@layout/layout_edittextbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_36"
+            app:hint="@{@string/otp_hint}"
+            app:inputType="@{InputType.TYPE_CLASS_NUMBER}"
+            app:isVisible="@{true}"
+            app:layout_constraintTop_toBottomOf="@id/tv_otp_code"
+            app:maxLength="@{6}"
+            app:maxLines="@{1}"/>
+
+        <TextView
+            android:id="@+id/tv_resend_otp"
+            style="@style/TSTextMedium"
+            android:layout_width="@dimen/margin_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_4"
+            android:text="@string/resend_otp"
+            android:textColor="?android:textColorTertiary"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_otp"/>
+
+        <TextView
+            android:id="@+id/otp_expiry_msg"
+            style="@style/TSTextMedium"
+            android:layout_width="@dimen/margin_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_15"
+            android:textSize="@dimen/text_size_16"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_resend_otp"/>
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnVerifyOtp"
+            android:layout_width="@dimen/margin_0"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/margin_15"
+            android:text="@string/link_accounts"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/otp_expiry_msg"/>
+
+
+        <TextView
+            style="@style/TSTextDefault"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/view_margin_medium"
+            android:gravity="center_horizontal"
+            android:lineSpacingExtra="5sp"
+            android:text="@string/link_tata_sky_string"
+            android:textColor="@color/darkOnSecondary"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnVerifyOtp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -122,7 +122,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/tv_amount_title"
                 app:layout_constraintTop_toTopOf="@id/tv_amount_title"
-                tools:text="@{drawerData.colorTitleValue}" />
+                tools:text="@{drawerData.baseAmountColorValue}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_header_apps"
@@ -134,7 +134,7 @@
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_amount_title"
-                app:spanCount="4" />
+                app:spanCount="@integer/grid_provider_subscription" />
 
             <TextView
 
@@ -420,7 +420,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                        app:spanCount="4"
+                        app:spanCount="@integer/grid_provider_subscription"
                         android:layout_marginStart="14dp"
                         android:layout_marginTop="14dp"
                         android:layout_marginEnd="@dimen/margin_2"

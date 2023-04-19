@@ -2,20 +2,17 @@ package com.tatasky.binge.ui.features.onboarding.login.bottomsheet
 
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
 import com.tatasky.binge.R
 import com.tatasky.binge.data.networking.models.ErrorModel
 import com.tatasky.binge.data.networking.models.response.UsedMobileNumber
 import com.tatasky.binge.databinding.FragmentGuestLoginPreviouslyUsedMobileBinding
-import com.tatasky.binge.ui.base.frameworks.SingleEvent
 import com.tatasky.binge.ui.base.frameworks.base.BaseFragment
 import com.tatasky.binge.ui.features.onboarding.login.LoginAnalytics
-import com.tatasky.binge.ui.features.onboarding.login.bottomsheet.temp.GuestLoginBottomSheetResult
 import com.tatasky.binge.utils.navigateSafe
+import com.tatasky.binge.utils.setImageWithPlaceHolder
 import javax.inject.Inject
 
 class UsedRMNListingFragment :
@@ -97,7 +94,10 @@ class UsedRMNListingFragment :
             )
 
         binding.viewModel = viewModel
-
+        binding.header.logo.setImageWithPlaceHolder(
+            viewModel.getVerbiageFromConfig()?.loginScreen?.logo,
+            R.drawable.medium_binge_logo
+            )
         if (viewModel.isParentalPinSetupRequested) {
             binding.header.tvHeaderTitle.text = getString(R.string.header_title_parental_pin_setup)
         }

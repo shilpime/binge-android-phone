@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View"/>
+        <variable name="numberOfBingeAccount" type="Integer" />
+        <variable name="autoPlayOn" type="Boolean"/>
+        <variable name="notificationOn" type="Boolean"/>
+        <variable
+            name="contentLangTitle"
+            type="String" />
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.myaccount.MyAccountViewModel" />
+
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <LinearLayout
+            android:id="@+id/setting"
+            android:layout_width="0dp"
+            android:background="@drawable/bg_tab_shadow_toolbar"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintWidth_percent="@dimen/tab_setting_side_pane"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/sV"
+            >
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/toolbar_layout"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:background="@color/transparent">
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:minHeight="?attr/actionBarSize"
+                    android:paddingStart="@dimen/margin_5"
+                    android:paddingEnd="@dimen/margin_5"
+                    android:background="@color/transparent"
+                    app:contentPaddingRight="@dimen/margin_5"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:theme="@style/TabSettingToolbarStyle"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:context=".ui.features.sidemenunavdrawer.SettingsFragment">
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline_margin_start"
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_begin="@dimen/screen_horizontal_margin" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline_margin_end"
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_end="@dimen/screen_horizontal_margin" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+                        app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <include
+                            android:id="@+id/view_edit_profile"
+                            layout="@layout/layout_settings_item"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:menuArrowVisible="@{true}"
+                            app:menuDividerVisible="@{true}"
+                            app:menuItemImgRes="@{@drawable/ic_profile}"
+                            app:menuItemText="@{vm.getSettingsPageVerbiage().editProfile}" />
+
+                        <include
+                            android:id="@+id/view_content_language"
+                            layout="@layout/layout_settings_item"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:menuArrowVisible="@{false}"
+                            app:menuDividerVisible="@{true}"
+                            app:menuItemImgRes="@{@drawable/ic_content_language}"
+                            app:menuItemText="@{vm.getSettingsPageVerbiage().videoLang}" />
+
+                        <include
+                            android:id="@+id/view_device_management"
+                            layout="@layout/layout_settings_item"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:menuArrowVisible="@{false}"
+                            app:menuDividerVisible="@{true}"
+                            app:menuItemImgRes="@{@drawable/ic_device_management}"
+                            app:menuItemText="@{vm.getSettingsPageVerbiage().manageDevices}" />
+
+                        <include
+                            android:id="@+id/view_parental_pin"
+                            layout="@layout/layout_settings_item"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:menuArrowVisible="@{false}"
+                            app:menuDividerVisible="@{true}"
+                            app:menuItemImgRes="@{@drawable/ic_parental_lock}"
+                            app:menuItemText="@{vm.getSettingsPageVerbiage().parentalControl}" />
+
+                        <include
+                            android:id="@+id/view_switch_account"
+                            layout="@layout/layout_settings_item"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:visibility="@{numberOfBingeAccount > 1 ? View.VISIBLE : View.GONE, default=gone}"
+                            app:menuArrowVisible="@{false}"
+                            app:menuDividerVisible="@{true}"
+                            app:menuItemImgRes="@{@drawable/ic_switch_account}"
+                            app:menuItemText="@{@string/switch_account}"
+                            tools:visibility="visible" />
+
+                        <include
+                            android:id="@+id/view_auto_trailer"
+                            layout="@layout/layout_settings_item_with_toggle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:isChecked="@{autoPlayOn}"
+                            app:menuDividerVisible="@{true}"
+                            app:menuItemImgRes="@{@drawable/ic_auto_trailer}"
+                            app:menuItemSwitchEnabled="@{true}"
+                            app:menuItemText="@{vm.getSettingsPageVerbiage().autoPlay}" />
+
+                        <include
+                            android:id="@+id/view_notification_settings"
+                            layout="@layout/layout_settings_item_with_toggle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:isChecked="@{notificationOn}"
+                            app:menuDividerVisible="@{true}"
+                            app:menuItemImgRes="@{@drawable/ic_notification_settings}"
+                            app:menuItemSwitchEnabled="@{true}"
+                            app:menuItemText="@{vm.getSettingsPageVerbiage().notificationSett}" />
+
+                        <include
+                            android:id="@+id/view_transaction_history"
+                            layout="@layout/layout_settings_item"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:menuArrowVisible="@{false}"
+                            app:menuDividerVisible="@{true}"
+                            app:menuItemImgRes="@{@drawable/ic_trans_history}"
+                            app:menuItemText="@{vm.getSettingsPageVerbiage().transactionHist}" />
+                        <TextView
+                            android:id="@+id/tv_account_refresh"
+                            style="@style/tab_settingText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="@dimen/padding_20dp"
+                            android:layout_marginStart="@dimen/margin_2"
+                            android:paddingTop="@dimen/margin_18"
+                            android:paddingBottom="@dimen/margin_18"
+                            tools:text="Account Refresh"
+                            android:gravity="center_vertical"
+                            android:text="@{vm.setRefreshAccountCTAText()}"
+                            android:textColor="@color/white_75"
+                            app:drawableStartCompat="@drawable/ic_refresh_account" />
+
+                        <TextView
+                            android:id="@+id/tv_log_out"
+                            style="@style/tab_settingText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="@dimen/padding_20dp"
+                            android:layout_marginStart="@dimen/margin_2"
+                            android:paddingTop="@dimen/margin_18"
+                            android:paddingBottom="@dimen/margin_18"
+                            tools:text="Logout"
+                            android:gravity="center_vertical"
+                            android:text="@{vm.getSettingsPageVerbiage().logout}"
+                            android:textColor="@color/white_75"
+                            app:drawableStartCompat="@drawable/ic_sign_out_settings" />
+                    </LinearLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            </ScrollView>
+
+
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="8dp"
+            android:scrollbars="none"
+            android:id="@+id/sV"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/setting"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0">
+
+            <FrameLayout
+                android:id="@+id/SidePaneContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:maxWidth="500dp" />
+        </ScrollView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

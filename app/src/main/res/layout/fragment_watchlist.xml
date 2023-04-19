@@ -46,15 +46,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_above="@+id/progressBarBottom"
-                    android:layout_marginStart="@dimen/margin_16"
-                    android:layout_marginEnd="@dimen/margin_16"
+                    android:layout_marginHorizontal="@dimen/grid_horizontal_margin"
                     android:layout_marginTop="@dimen/view_margin_large"
+                    tools:listitem="@layout/layout_rail_item_temp"
                     app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
                     setAdapter="@{vm.watchlistAdapter}"
                     app:reverseLayout="false"
                     android:orientation="vertical"
-                    app:spanCount="2"/>
-                <!--setAdapter="@{vm.getSearchAdapter()}"-->
+                    app:spanCount="@integer/grid_landscape"/>
+
                 <LinearLayout
                     android:id="@+id/ll_empty"
                     android:layout_width="match_parent"
@@ -71,6 +71,7 @@
                         app:srcCompat="@drawable/ic_watchlist_icon" />
 
                     <TextView
+                        android:id="@+id/tv_bingeListEmpty"
                         style="@style/TSTextMedium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -79,10 +80,11 @@
                         android:layout_marginEnd="@dimen/dimens_20dp"
                         android:gravity="center"
                         android:lineSpacingExtra="6sp"
-                        android:text="@string/watchlist_empty"
+                        tools:text="@string/watchlist_empty"
                         android:textSize="@dimen/text_size_22" />
 
                     <TextView
+                        android:id="@+id/tv_bingeListDesc"
                         style="@style/TSTextMedium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -90,20 +92,20 @@
                         android:layout_marginTop="10dp"
                         android:layout_marginEnd="@dimen/dimens_20dp"
                         android:gravity="center"
-                        android:text="@string/watchlist_empty_msg"
+                        tools:text="@string/watchlist_empty_msg"
                         android:textColor="@color/text_watchlist_light"
                         android:textSize="@dimen/text_size_16" />
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_discover_to_add"
-                        style="@style/Widget.AppTheme.ButtonStyle.Icon"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/button_height"
-                        android:text="@string/watchlist_empty_btn_text"
+                        android:layout_height="@dimen/dimen_46dp"
+                        android:insetTop="@dimen/dimen_0dp"
+                        android:insetBottom="@dimen/dimen_0dp"
+                        tools:text="@string/watchlist_empty_btn_text"
                         android:layout_marginTop="@dimen/dimens_20dp"
                         android:layout_marginEnd="@dimen/dimens_20dp"
-                        android:layout_marginStart="@dimen/dimens_20dp"
-                        />
+                        android:layout_marginStart="@dimen/dimens_20dp"/>
                 </LinearLayout>
             </RelativeLayout>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

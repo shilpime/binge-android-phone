@@ -26,6 +26,7 @@
     <string name="replay">Replay</string>
     <string name="pack_price">₹ %s month</string>
     <string name="subscribe">Subscribe</string>
+    <string name="appletv_btn_verbiage">Activate Apple TV+</string>
     <string name="recommendation">You May Like This</string>
     <string name="description">Description</string>
     <string name="home">Home</string>
@@ -455,7 +456,7 @@
     <string name="btn_cancel">Cancel</string>
     <string name="other_episodes">Episodes</string>
     <string name="total_payable">Total payable</string>
-    <string name="payable_amount">Payable amount</string>
+    <string name="payable_amount">Payable amount\u0020\u0020\u0020&#8377;%1$s</string>
     <string name="free_trial_expiry_msg">You will be charged ₹ %1$s per month for Tata Play Binge after the free trial.</string>
     <string name="free_trial_downgrade_error_msg">You will continue the free trial on the %1$s plan. Modification request will be effective after free trial.</string>
     <string name="sufficient_wallet_balance_summary">Amount will be deducted from your Tata Play Balance</string>
@@ -707,6 +708,7 @@
     <string name="text_prefix_previously_used_mobile">+91</string>
     <string name="string_premium">Premium</string>
     <string name="text_subtitle_guest_login_verify_otp">Please enter the OTP sent to +91 %s</string>
+    <string name="please_enter_otp">%1$s +91 %2$s</string>
 
     <!--    NavDrawer states-->
     <string name="nav_open">Open</string>
@@ -765,7 +767,6 @@
     <string name="text_menu_notification">Notifications</string>
     <string name="text_menu_settings">Settings</string>
     <string name="text_menu_help_and_support">Get Help and Support</string>
-    <string name="text_account_refresh">Account Refresh</string>
     <string name="text_logout">Log Out</string>
     <string name="text_standard_vip">Standard VIP</string>
     <string name="text_dot">\u2022</string>
@@ -816,10 +817,10 @@
     <string name="cancellation_revoked">Cancellation revoked</string>
 
     <string name="search_hint_text">Search a Show, Movie or Game</string>
+    <string name="search_min_char_text">Please enter atleast 1 character to search</string>
     <string name="first_episode_free">1st Episode Free</string>
     <string name="select_categories">Select Categories</string>
     <string name="pay_using_tata_sky_balance">PAY USING TATA PLAY BALANCE</string>
-    <string name="language_widget_text">"Personalise your video\nwith your preferred languages "</string>
 
     <!--  Nudges texts  -->
     <string name="btn_notification_nudge_text">Allow</string>
@@ -863,4 +864,14 @@
     <string name="coach_mark_mic_title">Voice Search</string>
     <string name="coach_mark_mic_description">Tap &amp; speak to search</string>
     <string name="space">\u0020</string>
+    <string name="live_channel_duration_time">%1$s - %2$s</string>
+    <string name="no_entitlement_found">No entitlements found</string>
+    <string name="content">content</string>
+    <string name="live_channels">Live Channels</string>
+    <string name="play_store_app_market_url_placeholder">https://play.google.com/store/apps/details?id=%1$s</string>
+    <string name="app_install_title_placeholder">Install %1$s</string>
+    <string name="game_of_week">GAME_OF_THE_WEEK</string>
+    <string name="newly_added_game">NEWLY_ADDED_GAMES</string>
+    <string name="account_refresh_successful">Account refresh successful</string>
+    <string name="logo">logo</string>
 </resources>

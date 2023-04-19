@@ -8,6 +8,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.fragment.navArgs
 import com.tatasky.binge.R
+import com.tatasky.binge.analytics.util.emptyContentAnalyticsModel
 import com.tatasky.binge.data.networking.models.response.ContentItem
 import com.tatasky.binge.databinding.FragmentDetailEpisodeBottomSheetDialogBinding
 import com.tatasky.binge.helper.imageLoad
@@ -19,7 +20,7 @@ import com.tatasky.binge.utils.expandBottomSheet
 import com.tatasky.binge.utils.getCloudinaryUrl
 import dagger.android.support.AndroidSupportInjection
 
-class DetailEpisodeBottomSheetDialogFragment: BaseBottomSheetDialogFragment<FragmentDetailEpisodeBottomSheetDialogBinding,PlayerViewModel>()  {
+class DetailEpisodeBottomSheetDialogFragment: BaseBottomSheetDialogFragment<FragmentDetailEpisodeBottomSheetDialogBinding,PlayerViewModel>(tabSupported = true)  {
 
 
     private val args by navArgs<DetailEpisodeBottomSheetDialogFragmentArgs>()
@@ -38,13 +39,16 @@ class DetailEpisodeBottomSheetDialogFragment: BaseBottomSheetDialogFragment<Frag
         super.onAttach(context)
     }
 
-    override fun getTheme(): Int {
-        return R.style.AppBottomSheetDialogTheme
-    }
+//    override fun getTheme(): Int {
+//        return R.style.AppBottomSheetDialogTheme
+//    }
 
     private fun setListeners(){
         binding.ivEpisode.root.setOnClickListener {
-            args.episodeClick.selectedEpisode(currentEpisode)
+            args.episodeClick.selectedEpisode(
+                currentEpisode,
+                args.contentAnalyticsModel ?: emptyContentAnalyticsModel()
+            )
             dialog?.dismiss()
         }
 

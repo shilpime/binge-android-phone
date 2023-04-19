@@ -46,12 +46,11 @@ import com.tatasky.binge.ui.base.frameworks.base.BaseFragment
 import com.tatasky.binge.ui.features.home.LandingActivity
 import com.tatasky.binge.ui.features.subscription_freemium.viewmodel.ManagedAppViewModel
 import com.tatasky.binge.utils.*
+import javax.inject.Inject
 import kotlinx.android.synthetic.main.activity_recharge.*
 import kotlinx.android.synthetic.main.layout_search_view_episode.view.*
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.*
-import javax.inject.Inject
 
 
 class ManagedAppFragment : BaseFragment<FragmentManagedAppBinding, ManagedAppViewModel>() {
@@ -68,6 +67,7 @@ class ManagedAppFragment : BaseFragment<FragmentManagedAppBinding, ManagedAppVie
     @Inject
     lateinit var pubnubHelper: PubnubHelper
     var journeySource: String? = ""
+    var source: String? = ""
     var journeySourceRefId: String? = ""
     var accessToken: String? = ""
     var pageUrl: String? = ""
@@ -91,6 +91,12 @@ class ManagedAppFragment : BaseFragment<FragmentManagedAppBinding, ManagedAppVie
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        context?.let {
+            if (isTablet(it))
+            {
+                activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+        }
         val forward = MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
             duration = 500
         }
@@ -109,11 +115,21 @@ class ManagedAppFragment : BaseFragment<FragmentManagedAppBinding, ManagedAppVie
             onBackPressedCallback
         )
         activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        activity?.let {
+            if(isTablet(it))
+                it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        context?.let {
+            if (isTablet(it))
+            {
+                activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+        }
     }
 
 
@@ -197,6 +213,10 @@ class ManagedAppFragment : BaseFragment<FragmentManagedAppBinding, ManagedAppVie
                 findNavController().currentBackStackEntry?.savedStateHandle?.remove<Boolean>("loginDismiss")
                 mHandler.postDelayed(object : Runnable {
                     override fun run() {
+                        findNavController().previousBackStackEntry?.savedStateHandle?.set(
+                            "updateSubscription",
+                            it
+                        )
                         goBack()
                     }
                 }, 200)
@@ -225,7 +245,8 @@ class ManagedAppFragment : BaseFragment<FragmentManagedAppBinding, ManagedAppVie
                                 isLoggedIn = sharedPrefs.getLoginStatus(),
                                 subscriptionInfo = subscriptionInfo,
                                 previouslyUsedMobileNumbersList = response.data?.mobileNUmberList?.toTypedArray(),
-                                loginSource = SOURCE_MANAGED_APPS
+                                loginSource = SOURCE_MANAGED_APPS,
+                                source=source
                             )
                         )
                     }
@@ -253,7 +274,8 @@ class ManagedAppFragment : BaseFragment<FragmentManagedAppBinding, ManagedAppVie
                                 isLoggedIn = sharedPrefs.getLoginStatus(),
                                 previouslyUsedMobileNumbersList = null,
                                 subscriptionInfo = subscriptionInfo,
-                                loginSource = SOURCE_MANAGED_APPS
+                                loginSource = SOURCE_MANAGED_APPS,
+                                source=source
                             )
                         )
                     }
@@ -349,6 +371,7 @@ class ManagedAppFragment : BaseFragment<FragmentManagedAppBinding, ManagedAppVie
 
 
     override fun onResume() {
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         super.onResume()
         binding.toolbar.let {
             it.background = ColorDrawable(resources.getColor(R.color.launcher_background))
@@ -356,7 +379,7 @@ class ManagedAppFragment : BaseFragment<FragmentManagedAppBinding, ManagedAppVie
             it.setNavigationOnClickListener {
                 goBack()
             }
-//            it.title = "https://tataplaybinge.com"
+            it.title = ""
         }
 
         //User coming back from payment fail or cancelled payment
@@ -381,9 +404,11 @@ class ManagedAppFragment : BaseFragment<FragmentManagedAppBinding, ManagedAppVie
         }
         parent = activity as? BaseActivity<*>?
         journeySource = managedAppsArgs.journeySource
+        source = managedAppsArgs.source
         journeySourceRefId = managedAppsArgs.journeySourceRefId
         accessToken = managedAppsArgs.accessToken
         pageUrl = managedAppsArgs.pageUrl
+
         parent?.let {
             cartId = it.cartId
             (it as? LandingActivity)?.let { landing ->
@@ -561,13 +586,15 @@ class ManagedAppFragment : BaseFragment<FragmentManagedAppBinding, ManagedAppVie
                                             null,
                                             null,
                                             sharedPrefs = sharedPrefs,
-                                            cartId = cartId
+                                            cartId = cartId,
+                                            fromScreen = source
                                         ).apply {
                                             putExtra(KEY_IS_RENEW, false)
                                         }
                                     )
-                                    lifecycleScope.launch {
+                                    lifecycleScope.launchWhenResumed {
                                         delay(400)
+                                        binding.root.alpha = 0f
                                         findNavController().popBackStack()
                                     }
                                 }
@@ -628,15 +655,15 @@ class ManagedAppFragment : BaseFragment<FragmentManagedAppBinding, ManagedAppVie
 
 
     fun getForm(url: String): String {
-        var formScript = "<hmtl>\n" +
-                "<head>\n" +
-                "<script>\n" +
-                "function clickFunction(){\n" +
-                "      var form = document.getElementById(\"myform\");\n" +
-                "      form.submit();\n" +
-                " }\n" +
-                "</script>\n" +
-                "<form style=\"background-color:black;min-height:100vh\" id=\"myform\" action=\"" + url + "\" method=\"post\">\n"
+        var formScript = "<html>\n" +
+            "<head>\n" +
+            "<script>\n" +
+            "function clickFunction(){\n" +
+            "      var form = document.getElementById(\"myform\");\n" +
+            "      form.submit();\n" +
+            " }\n" +
+            "</script>\n" +
+            "<form style=\"background-color:black;min-height:100vh\" id=\"myform\" action=\"" + url + "\" method=\"post\">\n"
         if (managedAppsArgs.isToSummaryPage || movedToLogin) {
             movedToLogin = false
             formScript =
@@ -662,7 +689,6 @@ class ManagedAppFragment : BaseFragment<FragmentManagedAppBinding, ManagedAppVie
     inner class MyChrome internal constructor() : WebChromeClient() {
         private var mCustomView: View? = null
         private var mCustomViewCallback: WebChromeClient.CustomViewCallback? = null
-        protected var mFullscreenContainer: FrameLayout? = null
         private var mOriginalOrientation = 0
         private var mOriginalSystemUiVisibility = 0
         override fun getDefaultVideoPoster(): Bitmap? {

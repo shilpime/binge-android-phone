@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
-import com.tatasky.binge.customviews.MyGallery
 import com.tatasky.binge.data.networking.models.response.LeftMenuItem
 import com.tatasky.binge.utils.SingleClickListener
 import com.tatasky.binge.utils.TYPE_GAMES

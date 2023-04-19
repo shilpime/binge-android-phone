@@ -6,7 +6,9 @@ import android.graphics.Typeface
 import android.media.MediaCodec.*
 import android.media.MediaDrm
 import android.os.*
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
@@ -17,10 +19,7 @@ import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.Format
-import com.google.android.exoplayer2.RendererCapabilities
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.text.CaptionStyleCompat
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -40,9 +39,10 @@ import com.tatasky.binge.data.networking.models.response.RrmSessionInfo
 import com.tatasky.binge.databinding.FragmentTtnplayerBinding
 import com.tatasky.binge.databinding.ToastWatchlistBinding
 import com.tatasky.binge.helper.imageLoad
-import com.tatasky.binge.hoichoi.HoichoiRequest
+import com.tatasky.binge.data.networking.models.requests.HoichoiRequest
 import com.tatasky.binge.shemaroo.helper.ShemarooHelper
 import com.tatasky.binge.ui.base.frameworks.extensions.*
+import com.tatasky.binge.ui.features.player.MyScaleGestureDetector
 import com.tatasky.binge.ui.features.player.PlayerBaseFragment
 import com.tatasky.binge.ui.features.player.PlayerModel
 import com.tatasky.binge.ui.features.player.listeners.PlayerDurationWatcher
@@ -68,6 +68,7 @@ import kotlin.math.min
 
 class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPlayerListener, PlayerListener.TimeChangeListener {
 
+    private var retryCount: Int = 0
     private var l3Support: Int = 0
     private var jwtFailureAttempts: Int = 0
     private var isPlayerPaused: Boolean = false
@@ -223,10 +224,23 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
             onPlayerMuteStateChanged(!isChecked)
         }
 
+        val scaleDetector = ScaleGestureDetector(context,
+            MyScaleGestureDetector { scaleFactor ->
+                if (scaleFactor > MyScaleGestureDetector.optimumPinchZoomScaleFactor)
+                    zoomInPinch()
+                else
+                    zoomOut()
+            }
+        )
+        playerBinding.playerView.setOnTouchListener { _, event ->
+            if (event.pointerCount == 1)
+                false
+            else scaleDetector.onTouchEvent(event)
+        }
         playerBinding.playerView.findViewById<ImageView>(R.id.iv_zoom).setOnClickListener {
             when (playerBinding.playerView.resizeMode) {
                 AspectRatioFrameLayout.RESIZE_MODE_FIT -> zoomIn()
-                AspectRatioFrameLayout.RESIZE_MODE_FILL -> zoomOut()
+                else -> zoomOut()
             }
         }
 //        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
@@ -235,10 +249,12 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
     private fun createAndPrepareTTNPlayer(savedInstanceState: Bundle?) {
         firstTimeCW = true
         isPlayerEnded = false
+        callProbeEventOnce = true
         ttnPlayerHelper = TtnPlayerHelper.Builder(
             requireContext(),
             playerBinding.playerView,
             playerModel?.getCookies(),
+            PROVIDER_CHAUPAL.equals(playerModel?.getProvider(), true),
             PROVIDER_CHAUPAL.equals(playerModel?.getProvider(), true)
         )
             .setRepeatModeOn(false)
@@ -258,9 +274,16 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
             .setSecurityLevel(securityLevel)
             .setDrmInfo(playerModel?.getKid(), playerModel?.getToken(), playerModel?.getDrmProxyUrl())
             .createAndPrepare()
+
+
+        ttnPlayerHelper?.getPlayer()?.let{
+            playerDurationWatcher = PlayerDurationWatcher(it, this)
+            probePlayerEventInitSdk(it,playerModel, ttnPlayerHelper!!.getBandwidthMeter(), sharedPrefs.getOriginalSubscriberId())
+        }
         createTtnPlayerCalled(false)
         ttnPlayerHelper?.playerPlay()
         trackSelector = ttnPlayerHelper?.getTrackSelector()
+
         ttnPlayerHelper?.getTrackSelector()?.buildUponParameters()?.let {
             subtitleLang = preferredSubtitleLanguage?:""
             if (preferredSubtitleLanguage != null) {
@@ -281,10 +304,10 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
         if(mIsInFullScreenMode){
             ttnPlayerHelper?.setFullScreenFlag(Configuration.ORIENTATION_LANDSCAPE)
         }
-        ttnPlayerHelper?.getPlayer()?.let{
-            playerDurationWatcher = PlayerDurationWatcher(it, this)
-        }
+        probePlayerEventPlayClicked()
+
     }
+
 
     private fun setSecurityLevelForEnforceL3() {
         if(securityLevel == null) {
@@ -383,8 +406,19 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
         })
         viewModel.getLastWatchResponse().observe(viewLifecycleOwner, Observer { it ->
             e("fetchLastWatch", "inside getLastWatchResponse")
-            if (PROVIDER_HUNGAMA.equals(detailsResponse?.data?.metaDetails?.provider, true) || PROVIDER_EROSNOW.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
-                findNavController().navigateSafe(TTNPlayerFragmentDirections.actionToDetail1(detailFragmentArgs.contentItem.apply { this?.provider = detailsResponse?.data?.metaDetails?.provider?:"" }))
+            if (PROVIDER_HUNGAMA.equals(
+                    detailsResponse?.data?.metaDetails?.provider,
+                    true
+                ) || PROVIDER_EROSNOW.equals(detailsResponse?.data?.metaDetails?.provider, true)
+            ) {
+                findNavController().navigateSafe(
+                    TTNPlayerFragmentDirections.actionToDetail1(
+                        detailFragmentArgs.contentItem.apply {
+                            this?.provider = detailsResponse?.data?.metaDetails?.provider ?: ""
+                        },
+                        contentAnalyticsModel = detailFragmentArgs.contentAnalyticsModel
+                    )
+                )
                 return@Observer
             }
             handlePrimaryButtonText()
@@ -617,16 +651,17 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
         if(errorView.root.isVisibile()) return
         trackOnPlayerFailure(
             playerModel!!,
-            if(isConcurrency) errorMessage?: COMMON_ERROR_TITLE else getString(R.string.concurrency_error),
+            if(!isConcurrency) errorMessage?: COMMON_ERROR_TITLE else getString(R.string.concurrency_error),
             contentItem
         )
         trackOnPlayerError(
             playerModel,
             errorCode.toString(),
-            if(isConcurrency) errorMessage?: COMMON_ERROR_TITLE else getString(R.string.concurrency_error),
+            if(!isConcurrency) errorMessage?: COMMON_ERROR_TITLE else getString(R.string.concurrency_error),
             PARA_PI_ERROR_ORIGIN,
             PARA_ERROR_TYPE_PLAYER
         )
+
         if (errorMessage == null) return
 
         viewModel.hideLoader()
@@ -707,6 +742,7 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
         playerBinding.playerView.findViewById<View?>(R.id.iv_thumbnail)?.hide()
         setClickListener(binding.btnPlayerController)
         binding.btnPlayerController.setText("Pause", null)
+        binding.btnPlayerController.icon = null
         if (firstTimeCW) {
             firstTimeCW = false
             actionCWhandler.postDelayed(cwHitRunner, 10000)
@@ -821,6 +857,10 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
 
     private fun playerEnded() {
         if(isPlayerEnded) return
+        if(callProbeEventOnce) {
+            callProbeEventOnce = false
+            probePlayerEventStopped()
+        }
         e("playerEnded","inside playerEnded isPlayerEnded:$isPlayerEnded")
         isPlayerEnded = true
         if (nextEpisodeAvailable) {
@@ -830,6 +870,7 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
             binding.btnPlayerController.setOnClickListener(nextEpisodeClickListener)
             viewModel.timer?.start()
         } else {
+            setClickListener(binding.btnPlayerController)
             playerBinding.playerView.findViewById<View>(R.id.iv_thumbnail)?.show()
             playerBinding.playerView.findViewById<View>(R.id.llReplay).show()
             binding.btnPlayerController.tag = REPLAY_TAG
@@ -843,7 +884,6 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
         shemaroohandler.removeCallbacks(shemaroomeRunner)
         val totalDuration = (playerModel?.getTotalDuration() ?: (ttnPlayerHelper?.duration ?: 1) / 1000).toInt()
         publishWatchedContent(null, totalDuration, totalDuration, viewModel)
-//        releasePlayer()
     }
 
     override fun onPlayerStateIdle(currentWindowIndex: Int) {
@@ -912,22 +952,57 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
 
             else -> errorMessage = exception.localizedMessage ?: getString(R.string.error_generic)
         }
+        val playbackRetryCount = sharedPrefs.getConfigResponse()?.data?.config?.playbackRetryCount ?: 2
+        if(errorCode == PLAYER_DEFAULT_ERROR_CODE && retryCount < playbackRetryCount){
+            retryCount++
+            if(PROVIDER_VOOTSELECT.equals(playerModel?.getProvider(), true)){
+                //fetch data again from api and initialize it
+                releasePlayer()
+                //release player here and regenerate token and again play the content
+                playVootContent(
+                    detailsResponse?.data?.metaDetails?.providerContentId ?: "",
+                    false,
+                    isPlayButtonClick,
+                    playerModel?.getContentType() ?: "TV_SHOWS",
+                    partnerSubscriptionType = playerModel?.getPartnerSubType()
+                )
+            }
+            else{
+                //Again initialize player
+                videoQuality = null
+                releasePlayer()
+                playerModel?.let { navigateToPlayer(it) }
+            }
 
-        updateErrorModel(
-            viewModel.VIDEO_UNAVAILABLE_TITLE,
-            parseError(errorCode, errorMessage),
-            false,
-            errorCode.toString()
-        )
+        }
+        else {
+            updateErrorModel(
+                viewModel.VIDEO_UNAVAILABLE_TITLE,
+                parseError(errorCode, errorMessage),
+                false,
+                errorCode.toString()
+            )
+        }
     }
 
 
     override fun createTtnPlayerCalled(isToPrepare: Boolean) {
-
+        /*ProbeSDK changes*/
+        //Need to test it properly
+//        probPlayerEventConfigEstDownloadRate()
+//        val loadControl = ttnPlayerHelper?.mLoadBuilder
+//        loadControl?.let { probPlayerEventsConfigBuffer(it) }
+        /*End of Changes Probe SDK*/
     }
 
     override fun releaseTtnPlayerCalled() {
         d(TAG, "releaseExoPlayerCalled")
+
+        if(callProbeEventOnce) {
+            callProbeEventOnce = false
+            probePlayerEventStopped()
+        }
+//        probePlayerEventStopped()
         val quality=fetchVideoQualityUsingBitrate(ttnPlayerHelper?.getPlayer()?.videoFormat?.bitrate?:0)
         stopTime = getTimeInUTC(System.currentTimeMillis(), ANALYTICS_TIME_FORMAT)
         e("Laksh",quality.toString())
@@ -954,6 +1029,7 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
                 )
             )
         }
+
     }
 
     override fun onVideoResumeDataLoaded(window: Int, position: Long, isResumeWhenReady: Boolean) {
@@ -1091,6 +1167,24 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
         dialog?.cancel()
     }
 
+    override fun changeToTabletPortraitMode() {
+        super.changeToTabletPortraitMode()
+        ttnPlayerHelper?.setFullScreenFlag(Configuration.ORIENTATION_LANDSCAPE)
+        if (isPlayerStarted) {
+            binding.miniProgressPlayer.show()
+        }
+        playerBinding.nextEpisodeScreen.isPortrait = false
+        playerBinding.playerView.apply {
+            findViewById<View>(R.id.iv_zoom)?.hide()
+            findViewById<View>(R.id.tv_title)?.show()
+            findViewById<View>(R.id.exo_fullscreen_iv)?.show()
+            findViewById<ConstraintLayout>(R.id.viewProgress)?.hide()
+            findViewById<LinearLayout>(R.id.ll_player_menu)?.hide()
+        }
+
+        dialog?.cancel()
+    }
+
     private fun openAudioOption() {
         if (ttnPlayerHelper != null) {
             if (audioLanguage.list == null) {
@@ -1113,12 +1207,12 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
                 )
             else
                 showPopUp(
-                trackSelector,
-                trackSelections,
-                audioLanguage,
-                subtitleList,
-                true
-            )
+                    trackSelector,
+                    trackSelections,
+                    audioLanguage,
+                    subtitleList,
+                    true
+                )
             if (!isPlayerPaused) {
                 isAutoPaused = true
                 ttnPlayerHelper?.playerPause()
@@ -1254,6 +1348,11 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
             isAutoPaused = false
             ttnPlayerHelper?.playerPlay()
         }
+    }
+
+    override fun zoomInPinch() {
+        playerBinding.playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+        playerBinding.playerView.findViewById<ImageView>(R.id.iv_zoom).setImageResource(R.drawable.ic_zoom_out)
     }
 
     override fun zoomIn() {
@@ -1434,9 +1533,15 @@ class TTNPlayerFragment : PlayerBaseFragment<FragmentTtnplayerBinding>(), TtnPla
         else {//This is for playAuthType = none
             playerModel?.setEpids(contentItem.playerDetails?.offerIds?.epids)
             playerModel?.let {
-                playGenericPartnerWithAuthType(contentItem.provider,
+                playGenericPartnerWithAuthType(
+                    contentItem.provider,
                     contentItem.playerDetails?.dashWidewinePlayUrl
-                    ?: contentItem.playerDetails?.playUrl,it)
+                        ?: contentItem.playerDetails?.playUrl,
+                    it,
+                    contentItem.partnerDeepLinkUrl,
+                    contentItem.liveContent,
+                    it.getContentType() ?: TYPE_TV_SHOWS
+                )
             }
         }
     }

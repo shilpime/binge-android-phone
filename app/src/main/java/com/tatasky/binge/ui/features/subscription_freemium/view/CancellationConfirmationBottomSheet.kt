@@ -1,6 +1,7 @@
 package com.tatasky.binge.ui.features.subscription_freemium.view
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -8,16 +9,14 @@ import com.tatasky.binge.R
 import com.tatasky.binge.databinding.FragmentCancellationConfirmationBottomSheetBinding
 import com.tatasky.binge.databinding.FragmentCancellationConfirmationBottomSheetBindingImpl
 import com.tatasky.binge.ui.base.frameworks.base.BaseBottomSheetDialogFragment
+import com.tatasky.binge.ui.base.frameworks.extensions.hide
 import com.tatasky.binge.ui.features.subscription.model.Cancellation
 import com.tatasky.binge.ui.features.subscription_freemium.viewmodel.FreemiumSubscriptionViewModel
-import com.tatasky.binge.utils.SERVER_DATE_TIME_FORMAT
-import com.tatasky.binge.utils.expandBottomSheet
-import com.tatasky.binge.utils.getCurrentDateInFormat
-import com.tatasky.binge.utils.getDifferenceBetweenTwoDates
+import com.tatasky.binge.utils.*
 import dagger.android.support.AndroidSupportInjection
 import java.util.*
 
-class CancellationConfirmationBottomSheet : BaseBottomSheetDialogFragment<FragmentCancellationConfirmationBottomSheetBinding,FreemiumSubscriptionViewModel>(){
+class CancellationConfirmationBottomSheet : BaseBottomSheetDialogFragment<FragmentCancellationConfirmationBottomSheetBinding,FreemiumSubscriptionViewModel>(tabSupported = true){
 
     val args by navArgs<CancellationConfirmationBottomSheetArgs>()
 //
@@ -50,6 +49,22 @@ class CancellationConfirmationBottomSheet : BaseBottomSheetDialogFragment<Fragme
     override fun toBeCalledOnce() {
         expandBottomSheet(dialog)
         binding.pack = sharedPrefs.getSubscribedPack()
+        context?.let {
+            if(isTablet(it)){
+                binding.pack?.let { partnerPacks ->{
+                    if(partnerPacks.planCTADetails?.cancellationOptions?.addOnCancelHeaderText.isNullOrEmpty()
+                        && partnerPacks.planCTADetails?.cancellationOptions?.cancelHeaderText.isNullOrEmpty()) {
+                        Log.d("TAG", "toBeCalledOnce: PlanCTADETIAL is empty")
+                        binding.tvContentTitle.hide()
+                    }
+                   }
+                }
+
+                if(binding.pack!!.planCTADetails?.cancellationOptions?.addOnCancelFooterMessage.isNullOrEmpty()
+                    && binding.pack!!.planCTADetails?.cancellationOptions?.cancelFooterMessage.isNullOrEmpty())
+                    binding.tvDescription.hide()
+            }
+        }
         binding.isPrimeCancellation = args.isPrimeCancellation
         binding.btnLater.setOnClickListener {
             viewModel.subscriptionAnalytics.trackMyPlanCancelPlanLater(

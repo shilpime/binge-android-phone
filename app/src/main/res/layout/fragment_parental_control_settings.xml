@@ -9,176 +9,194 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".ui.features.parentalcontrol.sidemenu.ParentalControlSettingsFragment">
-
-        <include
-            android:id="@+id/toolbar_layout"
-            layout="@layout/shadowed_toolbar"
+        android:layout_height="match_parent">
+        <FrameLayout
+            android:id="@+id/SidePaneContainer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_margin_start"
-            android:layout_width="1dp"
+            android:visibility="gone"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="@dimen/margin_20dp" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_margin_end"
-            android:layout_width="1dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_parentLayout"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            app:layout_constraintGuide_end="@dimen/margin_20" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:context=".ui.features.parentalcontrol.sidemenu.ParentalControlSettingsFragment"
+            tools:layout_editor_absoluteY="-16dp">
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_margin_bottom"
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_end="@dimen/margin_20" />
+            <include
+                android:id="@+id/toolbar_layout"
+                layout="@layout/shadowed_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-        <ImageView
-            android:id="@+id/iv_pc_rating_fragment_parental_control_setup"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            app:layout_constraintBottom_toBottomOf="@id/tv_pc_rating_value"
-            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
-            app:layout_constraintTop_toTopOf="@id/tv_pc_rating_fragment_parental_control_setup"
-            app:srcCompat="@drawable/ic_view_restrictions" />
 
-        <ImageView
-            android:id="@+id/iv_arrow_pc_rating_fragment_parental_control_setup"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            app:layout_constraintBottom_toBottomOf="@id/tv_pc_rating_value"
-            app:layout_constraintEnd_toEndOf="@id/guideline_margin_end"
-            app:layout_constraintTop_toTopOf="@id/tv_pc_rating_fragment_parental_control_setup"
-            app:srcCompat="@drawable/ic_arrow_right" />
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_margin_start"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/tab_padding" />
 
-        <TextView
-            android:id="@+id/tv_pc_rating_fragment_parental_control_setup"
-            style="@style/TSTextMedium"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_20dp"
-            android:layout_marginTop="@dimen/margin_20dp"
-            android:layout_marginEnd="@dimen/margin_20"
-            android:gravity="start"
-            android:lineSpacingExtra="3sp"
-            android:text="@string/text_menu_item_parental_control_settings_restrictions"
-            android:textSize="@dimen/text_size_16"
-            android:paddingBottom="1dp"
-            app:layout_constraintEnd_toStartOf="@id/iv_arrow_pc_rating_fragment_parental_control_setup"
-            app:layout_constraintStart_toEndOf="@id/iv_pc_rating_fragment_parental_control_setup"
-            app:layout_constraintTop_toBottomOf="@id/toolbar_layout" />
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_margin_end"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="@dimen/tab_padding_right" />
 
-        <TextView
-            android:id="@+id/tv_pc_rating_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_20dp"
-            android:layout_marginEnd="@dimen/margin_20dp"
-            android:background="@drawable/shp_rating_bg"
-            android:maxLines="1"
-            android:paddingStart="8dp"
-            android:paddingTop="4dp"
-            android:paddingEnd="8dp"
-            android:paddingBottom="4dp"
-            android:textColor="@color/tint_purple_5"
-            android:textSize="@dimen/text_size_12"
-            app:layout_constraintStart_toEndOf="@id/iv_pc_rating_fragment_parental_control_setup"
-            app:layout_constraintTop_toBottomOf="@id/tv_pc_rating_fragment_parental_control_setup"
-            tools:text="16+" />
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_margin_bottom"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="@dimen/margin_20" />
 
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/group_parental_rating_items"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:constraint_referenced_ids="tv_pc_rating_value, tv_pc_rating_fragment_parental_control_setup, iv_arrow_pc_rating_fragment_parental_control_setup, iv_pc_rating_fragment_parental_control_setup" />
+            <TextView
+                android:id="@+id/textView"
+                style="@style/TSText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/tab_padding_left"
+                android:text="@string/btn_parental_pin"
+                android:textSize="@dimen/tab_toolbar_text"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toolbar_layout" />
 
-        <View
-            android:id="@+id/view_divider"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="14dp"
-            android:background="@color/stroke_color"
-            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
-            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
-            app:layout_constraintTop_toBottomOf="@id/tv_pc_rating_value" />
+            <ImageView
+                android:id="@+id/iv_pc_rating_fragment_parental_control_setup"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                app:layout_constraintBottom_toBottomOf="@id/tv_pc_rating_value"
+                app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                app:layout_constraintTop_toTopOf="@id/tv_pc_rating_fragment_parental_control_setup"
+                app:srcCompat="@drawable/ic_view_restrictions" />
 
-        <ImageView
-            android:id="@+id/iv_pc_status_fragment_parental_control_setup"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            app:layout_constraintBottom_toBottomOf="@id/tv_pc_status_fragment_parental_control_setup"
-            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
-            app:layout_constraintTop_toTopOf="@id/tv_pc_status_fragment_parental_control_setup"
-            app:srcCompat="@drawable/ic_parental_lock" />
+            <ImageView
+                android:id="@+id/iv_arrow_pc_rating_fragment_parental_control_setup"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                app:layout_constraintBottom_toBottomOf="@id/tv_pc_rating_value"
+                app:layout_constraintEnd_toEndOf="@id/guideline_margin_end"
+                app:layout_constraintTop_toTopOf="@id/tv_pc_rating_fragment_parental_control_setup"
+                app:srcCompat="@drawable/ic_arrow_right" />
 
-        <ImageView
-            android:id="@+id/iv_arrow_pc_status_fragment_parental_control_setup"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            app:layout_constraintBottom_toBottomOf="@id/tv_pc_status_fragment_parental_control_setup"
-            app:layout_constraintEnd_toEndOf="@id/guideline_margin_end"
-            app:layout_constraintTop_toTopOf="@id/tv_pc_status_fragment_parental_control_setup"
-            app:srcCompat="@drawable/ic_arrow_right" />
+            <TextView
+                android:id="@+id/tv_pc_rating_fragment_parental_control_setup"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_20dp"
+                android:layout_marginTop="@dimen/margin_20dp"
+                android:layout_marginEnd="@dimen/margin_20"
+                android:gravity="start"
+                android:lineSpacingExtra="3sp"
+                android:paddingBottom="1dp"
+                android:text="@string/text_menu_item_parental_control_settings_restrictions"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintEnd_toStartOf="@id/iv_arrow_pc_rating_fragment_parental_control_setup"
+                app:layout_constraintStart_toEndOf="@id/iv_pc_rating_fragment_parental_control_setup"
+                app:layout_constraintTop_toBottomOf="@id/textView" />
 
-        <TextView
-            android:id="@+id/tv_pc_status_fragment_parental_control_setup"
-            style="@style/TSTextMedium"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp"
-            android:gravity="start"
-            android:text="@string/text_menu_item_parental_control_settings"
-            android:lineSpacingExtra="3sp"
-            android:textSize="@dimen/text_size_16"
-            app:layout_constraintEnd_toStartOf="@id/iv_arrow_pc_status_fragment_parental_control_setup"
-            app:layout_constraintStart_toEndOf="@id/iv_pc_status_fragment_parental_control_setup"
-            app:layout_constraintTop_toBottomOf="@id/view_divider"
-            app:layout_goneMarginTop="@dimen/margin_20dp" />
+            <TextView
+                android:id="@+id/tv_pc_rating_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_20dp"
+                android:layout_marginEnd="@dimen/margin_20dp"
+                android:background="@drawable/shp_rating_bg"
+                android:maxLines="1"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="4dp"
+                android:textColor="@color/tint_purple_5"
+                android:textSize="@dimen/text_size_12"
+                app:layout_constraintStart_toEndOf="@id/iv_pc_rating_fragment_parental_control_setup"
+                app:layout_constraintTop_toBottomOf="@id/tv_pc_rating_fragment_parental_control_setup"
+                tools:text="16+" />
 
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/group_parental_pin_items"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:constraint_referenced_ids="iv_pc_status_fragment_parental_control_setup, iv_arrow_pc_status_fragment_parental_control_setup, tv_pc_status_fragment_parental_control_setup" />
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/group_parental_rating_items"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="tv_pc_rating_value, tv_pc_rating_fragment_parental_control_setup, iv_arrow_pc_rating_fragment_parental_control_setup, iv_pc_rating_fragment_parental_control_setup" />
 
-        <!--        <TextView-->
-        <!--            android:id="@+id/tv_subtitle_two_fragment_parental_control_settings"-->
-        <!--            style="@style/TSTextMedium"-->
-        <!--            android:layout_width="0dp"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_marginBottom="10dp"-->
-        <!--            android:gravity="center"-->
-        <!--            android:lineSpacingExtra="6sp"-->
-        <!--            android:text="@string/text_subtitle_two_parental_control_setup"-->
-        <!--            android:textColor="@color/light_blue_grey"-->
-        <!--            android:textSize="@dimen/text_size_13"-->
-        <!--            android:textStyle="bold"-->
-        <!--            app:layout_constraintBottom_toTopOf="@id/tv_description_fragment_parental_control_settings"-->
-        <!--            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"-->
-        <!--            app:layout_constraintStart_toEndOf="@id/guideline_margin_start" />-->
+            <View
+                android:id="@+id/view_divider"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="14dp"
+                android:background="@color/stroke_color"
+                app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+                app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                app:layout_constraintTop_toBottomOf="@id/tv_pc_rating_value" />
 
-        <TextView
-            android:id="@+id/tv_description_fragment_parental_control_settings"
-            style="@style/TSText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:gravity="center"
-            android:lineSpacingExtra="6sp"
-            android:text="@string/text_description_fragment_parental_control_setup"
-            android:textColor="@color/pink_50"
-            android:textSize="@dimen/text_size_13"
-            app:layout_constraintBottom_toBottomOf="@id/guideline_margin_bottom"
-            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
-            app:layout_constraintStart_toEndOf="@id/guideline_margin_start" />
+            <ImageView
+                android:id="@+id/iv_pc_status_fragment_parental_control_setup"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                app:layout_constraintBottom_toBottomOf="@id/tv_pc_status_fragment_parental_control_setup"
+                app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                app:layout_constraintTop_toTopOf="@id/tv_pc_status_fragment_parental_control_setup"
+                app:srcCompat="@drawable/ic_parental_lock" />
+
+            <ImageView
+                android:id="@+id/iv_arrow_pc_status_fragment_parental_control_setup"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                app:layout_constraintBottom_toBottomOf="@id/tv_pc_status_fragment_parental_control_setup"
+                app:layout_constraintEnd_toEndOf="@id/guideline_margin_end"
+                app:layout_constraintTop_toTopOf="@id/tv_pc_status_fragment_parental_control_setup"
+                app:srcCompat="@drawable/ic_arrow_right" />
+
+            <TextView
+                android:id="@+id/tv_pc_status_fragment_parental_control_setup"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:gravity="start"
+                android:lineSpacingExtra="3sp"
+                android:text="@string/text_menu_item_parental_control_settings"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintEnd_toStartOf="@id/iv_arrow_pc_status_fragment_parental_control_setup"
+                app:layout_constraintStart_toEndOf="@id/iv_pc_status_fragment_parental_control_setup"
+                app:layout_constraintTop_toBottomOf="@id/view_divider"
+                app:layout_goneMarginTop="@dimen/margin_20dp" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/group_parental_pin_items"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="iv_pc_status_fragment_parental_control_setup, iv_arrow_pc_status_fragment_parental_control_setup, tv_pc_status_fragment_parental_control_setup" />
+
+            <TextView
+                android:id="@+id/tv_description_fragment_parental_control_settings"
+                style="@style/TSText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:lineSpacingExtra="6sp"
+                android:text="@string/text_description_fragment_parental_control_setup"
+                android:textColor="@color/pink_50"
+                android:textSize="@dimen/text_size_13"
+                app:layout_constraintBottom_toBottomOf="@id/guideline_margin_bottom"
+                app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+                app:layout_constraintStart_toEndOf="@id/guideline_margin_start" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

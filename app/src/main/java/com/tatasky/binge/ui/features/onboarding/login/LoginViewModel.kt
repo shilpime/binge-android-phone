@@ -542,4 +542,8 @@ open class LoginViewModel @Inject constructor(
 
     }*/
 
+    fun setVerbiageForLoginScreen(): ConfigResponse.LoginScreen? {
+        return sharedPrefs.getConfigResponse()?.data?.config?.loginScreen
+    }
+
 }

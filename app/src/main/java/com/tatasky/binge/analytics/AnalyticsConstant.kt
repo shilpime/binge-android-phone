@@ -20,6 +20,8 @@ const val NAME = "NAME"
 const val FNAME = "FIRST-NAME"
 const val LNAME = "LAST-NAME"
 const val ANALYTICS_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+const val HH_MM_WITH_MERIDIAN_TIME_FORMAT = "hh:mm a"
+const val HH_MM_WITHOUT_MERIDIAN_TIME_FORMAT = "hh:mm"
 const val FREE_TRIAL = "FREE-TRIAL"
 const val PACK_NAME = "PACK-NAME"
 const val PACK_TYPE = "PACK-TYPE"
@@ -44,7 +46,9 @@ const val SUBSCRIPTION_ID = "SUBSCRIPTION-ID"
 const val PLATFORM = "PLATFORM"
 const val MOE_PLATFORM = "Freemium_Android"
 const val DEVICE_TYPE = "Android"
+const val DEVICE_TYPE_TABLET = "ANDROID-TABLET"
 const val PLATFORM_ANDROID = "Android"
+const val PLATFORM_ANDROID_TABLET = "ANDROID-TABLET"
 const val PLATFORM_ANDROID_CAPS = "ANDROID"
 
 const val START_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss"
@@ -128,8 +132,15 @@ ATV User - YES/NO*/
 
 const val YES = "YES"
 const val NO = "NO"
+const val DOWN = "DOWN"
+const val UP = "UP"
 const val PROFILE_REGULAR = "Regular"
 const val COMMON_ERROR_MSG ="Something Went Wrong"
+
+/*Keyboard states*/
+const val PARA_CLOSED = "CLOSED"
+const val PARA_OPEN = "OPEN"
+
 
 /*Splash Screen Events*/
 const val EVENT_APP_LAUNCH = "APP-LAUNCH"    //done
@@ -192,7 +203,11 @@ const val PLAY = "PLAY"
 const val CHANGE_RESTRICTION = "CHANGE RESTRICTION"
 const val LOGIN_OTP_REQUESTED = "LOGIN-OTP-REQUESTED"
 
-
+// Apple Tv Events
+const val EVENT_ACTIVATE_APPLE_TV_SUBSCRIPTION_CLICK="ACTIVATE-APPLE-TV-SUBSCRIPTION-CLICK"
+const val EVENT_APPLE_PLAY_CTA_CLICK="APPLE-PLAY-CTA-CLICK"
+const val EVENT_APPLE_ACTIVATE_NOW_CLICK="APPLE-ACTIVATE-NOW-CLICK"
+const val EVENT_LINK_APPLE_TV_ACCOUNT_CLICK="LINK-APPLE-TV-ACCOUNT-CLICK"
 
 /*Subscription Screen events*/
 const val EVENT_MODIFY_INITIATE = "MODIFY-PACK-INITIATE"
@@ -301,6 +316,16 @@ const val EVENT_SEARCH_HOME_CLICKS = "SEARCH-HOME-CLICKS"   //need to track
 const val EVENT_SEARCH_RESULT_CLICKS = "SEARCH-RESULT-CLICKS"   //done
 const val EVENT_SEARCH_HOME = "SEARCH-HOME"     //Done
 const val EVENT_SEARCH_RESULT_SWIPE = "SEARCH-RESULT-SWIPE" //Done
+
+/*Search Suggestion Events*/
+const val EVENT_AUTO_SUGGESTION_INITIATE = "AUTO-SUGGESTION-INITIATE"
+const val EVENT_AUTO_SUGGESTION_SCROLLED = "AUTO-SUGGESTION-SCROLLED"
+const val EVENT_AUTO_SUGGESTION_CLICKED = "AUTO-SUGGESTION-CLICKED"
+
+const val PARA_SCROLL_DIRECTION = "SCROLL-DIRECTION"
+const val PARA_KEYBOARD_STATE = "KEYBOARD-STATE"
+
+
 /*Home & PI Events*/
 const val EVENT_HOME_SCREEN_VISIT = "HOME-PAGE-VIEW"
 const val EVENT_RAIL_WATCHED = "VIEW-RAIL-CONTENT"
@@ -614,9 +639,13 @@ const val GENRE_SELECTED = "GENRE-SELECTED"
 const val RAIL_LANGUAGE_POSITION = "RAIL-LANGUAGE-POSITION"
 const val RAIL_GENRE_POSITION = "RAIL-GENRE-POSITION"
 const val PAGE_RESULT_SWIPE = "PAGE-RESULT-SWIPE"
+const val PARA_ZEE5_TAG = "Zee5Tag"
+const val PARA_APPLE_COUPON_STATUS = "APPLE-COUPON-STATUS"
+
 
 /*Home Values*/
-const val HERO = "Hero"
+const val HERO = "HERO"
+const val BANNER = "BANNER"
 const val RAIL = "Rail"
 const val APPS = "Apps"
 const val HERO_BANNER_NUMBER = "Hero-Banner-number"
@@ -634,6 +663,7 @@ const val SERIES = "SERIES"
 
 /*Search Parameters*/
 const val PARA_KEYWORD = "KEYWORD"
+const val PARA_SEARCH_KEYWORD = "SEARCH-KEYWORD"
 const val PARA_SCREEN_NAME = "SCREEN-NAME"
 const val PARA_SEARCH_ACCESS = "SEARCH-ACCESS"
 const val PARA_SEARCH_COUNT = "SEARCH-COUNT"
@@ -645,6 +675,13 @@ const val PARA_FILTER_LANGUAGE = "FILTER-LANGUAGE"
 const val PARA_FILTER_GENRE = "FILTER-GENRE"
 const val ALL_CONTENT_STATE = "ALL CONTENT"
 const val FREE_STATE = "FREE"
+
+const val PARA_CLICK_POSITION = "CLICK-POSITION"
+const val PARA_TITLE = "TITLE"
+const val PARA_SUGGESTOR_TYPE = "SUGGESTOR-TYPE"
+const val PARA_CONTENT_ID = "CONTENT-ID"
+const val PARA_MATCHES = "MATCHES"
+const val PARA_MATCH_COUNT = "MATCH-COUNT"
 
 
 /*Search Values*/
@@ -837,8 +874,6 @@ const val COACH_MARK_OUTSIDE_CLICK = "COACH-MARK-OUTSIDE-CLICK"
 const val COACH_MARK_NAME = "COACH-MARK-NAME"
 const val DISPLAY_COUNT = "DISPLAY-COUNT"
 const val REVENUE = "REVENUE"
-
-
 const val DRAWER_MYOP="DRAWER#MYOP"
 const val DRAWER_CYOP="DRAWER#CYOP"
 const val MYPLAN_CHANGE ="MYPLAN#CHANGE"
@@ -846,8 +881,9 @@ const val MYPLAN_REGIONAL ="MYPLAN#REGIONAL"
 const val HOME_CONTENT ="HOME#CONTENT"
 const val SCREEN_PLAN ="SCREEN#PLAN"
 const val MYPLAN_TENURE ="MYPLAN#TENURE"
-
 const val CURATED_PACK_SELECTION="curated-pack-selection"
 const val CONTENT_PLAY="content-play"
 const val MYPLAN_EDIT =" my-plan-edit"
 const val TICK_NUDGE ="nudge"
+const val TATAPLAY = "TATAPLAY"
+const val SEARCH_SUGGESTION = "SEARCH-SUGGESTIONS"

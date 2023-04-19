@@ -2,11 +2,20 @@ package com.tatasky.binge.utils
 
 import com.tatasky.binge.analytics.ANALYTICS_TIME_FORMAT
 import com.tatasky.binge.analytics.DEAFULT_DATE_FORMAT_FROM_BE
+import com.tatasky.binge.analytics.HH_MM_WITH_MERIDIAN_TIME_FORMAT
 import com.tatasky.binge.analytics.START_DATE_FORMAT
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.regex.Pattern
 import kotlin.math.abs
+
+fun Long?.getEpochTimeInFormat(pattern: String = HH_MM_WITH_MERIDIAN_TIME_FORMAT /*return 05:00 AM/PM*/) =
+    this?.let {
+        val date = Date(it)
+        val sdf = SimpleDateFormat(pattern, Locale.ROOT)
+        sdf.format(date)
+    }
 
 fun getCurrentDateInMillis(): Long{
     val currentDate = Calendar.getInstance()

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="contentItem"
+            type="com.tatasky.binge.data.networking.models.response.ContentItem" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/view_margin_large"
+        app:cardCornerRadius="@dimen/corner_radius_14"
+        app:cardElevation="@dimen/card_elevation"
+        app:strokeColor="@color/darkOnSecondary"
+        app:strokeWidth="2dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/rlImage"
+            android:layout_width="@dimen/rail_genre_item_width"
+            android:layout_height="@dimen/rail_genre_item_height"
+            android:background="@color/genre_card_bg">
+
+            <ImageView
+                android:id="@+id/img"
+                android:layout_width="@dimen/genre_icon_width"
+                android:layout_height="@dimen/genre_icon_height"
+                android:layout_marginBottom="@dimen/view_margin_smallest"
+                android:contentDescription="@string/sample_iv_desc"
+                android:scaleType="fitCenter"
+                app:layout_constraintBottom_toTopOf="@id/tv_content_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed"
+                android:layout_marginTop="@dimen/view_margin_medium"
+                />
+
+            <TextView
+                android:id="@+id/tv_content_title"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/margin_6"
+                android:layout_marginTop="@dimen/view_margin_smallest"
+                android:layout_marginBottom="@dimen/margin_8"
+                android:ellipsize="end"
+                android:gravity="center"
+                app:layout_constraintTop_toBottomOf="@id/img"
+                android:maxLines="1"
+                android:text="@{contentItem.title}"
+                android:textSize="@dimen/text_size_20"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="Action" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</layout>

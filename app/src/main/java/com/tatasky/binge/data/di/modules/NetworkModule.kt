@@ -255,6 +255,73 @@ open class NetworkModule(private val baseUrl: String) {
                             requestBuilder.addHeader(KEY_HEADER_PLATFORM, HEADER_VALUE_PLATFORM_TA)
                         }
 
+                        HEADER_TYPE_IPAD -> {
+                            if (sharedPref.getLoginStatus()) {
+                                requestBuilder.addHeader(
+                                    KEY_HEADER_PROFILE_ID,
+                                    sharedPref.getProfileId()!!
+                                )
+
+                                requestBuilder.addHeader(KEY_HEADER_DTH_STATUS,
+                                    sharedPref.getDthStatusFreemium())
+
+                                if (NON_DTH_USER.equals(sharedPref.getDthStatusFreemium(), true)) {
+                                    requestBuilder.addHeader(KEY_HEADER_BAID,
+                                        sharedPref.getBaId())
+                                }
+
+                                requestBuilder.addHeader(
+                                    KEY_HEADER_AUTH,
+                                    "bearer " + (sharedPref.getAccessToken()!!)
+                                )
+                                var bingeProduct = "FREE"
+                                if(SubscriptionPackStatusEnum.ACTIVE.status.equals(sharedPref.getSubscribedPack()?.subscriptionStatus, true))
+                                    bingeProduct = sharedPref.getSubscribedPack()?.subscribedBingeProduct ?: ""
+                                requestBuilder.addHeader(
+                                    KEY_HEADER_BINGE_PRODUCT,
+                                    bingeProduct
+                                )
+
+                                requestBuilder.addHeader(
+                                    KEY_HEADER_TICK_TICK,
+                                    (sharedPref.getSubscribedPack()?.flexiPlan?:false).toString()
+                                )
+                                if(sharedPref.getSubscribedPack()?.flexiPlan == true){
+                                    var partners = ArrayList<String>()
+                                    sharedPref?.getSubscribedPack()?.getSelectedComponentAppList?.let {
+                                        for(partner in it){
+                                            partner.partnerName?.let { it1 -> partners.add(it1) }
+                                        }
+                                    }
+                                    requestBuilder.addHeader(
+                                        KEY_HEADER_PARTNERS,
+                                        partners.joinToString (",")
+                                    )
+                                }
+                            } else {
+                                requestBuilder.addHeader(KEY_HEADER_DTH_STATUS,
+                                    GUEST_USER)
+                                sharedPref.getAnonymousId()?.let {
+                                    requestBuilder.addHeader(KEY_HEADER_ANONYMOUS_ID, it)
+                                }
+                                sharedPref.getGuestProfileId()?.let {
+                                    requestBuilder.addHeader(
+                                        KEY_HEADER_PROFILE_ID,
+                                        it
+                                    )
+                                }
+
+
+                            }
+                            if(isTablet(context)){
+                                requestBuilder.addHeader(KEY_DEVICE_TYPE, HEADER_VALUE_DEVICE_TYPE_TABLET)
+                                requestBuilder.addHeader(KEY_HEADER_PLATFORM, HEADER_VALUE_PLATFORM_TA_TABLET)
+                            }else{
+                                requestBuilder.addHeader(KEY_DEVICE_TYPE, HEADER_VALUE_DEVICE_TYPE)
+                                requestBuilder.addHeader(KEY_HEADER_PLATFORM, HEADER_VALUE_PLATFORM_TA)
+                            }
+                        }
+
                         HEADER_TYPE_TVOD -> {
                             requestBuilder.addHeader(
                                 KEY_HEADER_AUTH,

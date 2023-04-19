@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.*
 import android.provider.Settings
 import android.view.LayoutInflater
+import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
@@ -30,6 +31,7 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.google.android.exoplayer2.ui.TimeBar
 import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.hungama.sdk.player.HungamaPlayerManager
@@ -416,6 +418,10 @@ class HungamaPlayerFragment : PlayerBaseFragment<FragmentHungamaPlayerBinding>()
         HungamaPlayerManager.getInstance().setWakeMode(C.WAKE_MODE_NONE)
         HungamaPlayerManager.getInstance().stop()
         HungamaPlayerManager.getInstance().releasePlayer()
+        if(callProbeEventOnce) {
+            callProbeEventOnce = false
+            probePlayerEventStopped()
+        }
 //        unRegisterDisplayListener()
         mPlayerController = null
 //        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
@@ -441,7 +447,8 @@ class HungamaPlayerFragment : PlayerBaseFragment<FragmentHungamaPlayerBinding>()
         startProgressing(true)
         try {
             isReleasePlayer = false
-            playerBinding.playerView.b.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH
+            playerBinding.playerView.b.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+            callProbeEventOnce = true
             HungamaPlayerManager.getInstance().loadContent(contentVO, this)
         } catch (e: SecurityException) {
             checkRuntimePermission(requireActivity())
@@ -575,6 +582,11 @@ class HungamaPlayerFragment : PlayerBaseFragment<FragmentHungamaPlayerBinding>()
     override fun zoomOut() {
         playerBinding.playerView.b.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
         playerBinding.playerView.findViewById<ImageView>(R.id.iv_zoom).setImageResource(R.drawable.ic_zoom_in)
+    }
+
+    override fun zoomInPinch() {
+        playerBinding.playerView.b.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+        playerBinding.playerView.findViewById<ImageView>(R.id.iv_zoom).setImageResource(R.drawable.ic_zoom_out)
     }
 
     private fun startProgressing(shouldProgress: Boolean) {
@@ -818,7 +830,6 @@ class HungamaPlayerFragment : PlayerBaseFragment<FragmentHungamaPlayerBinding>()
         playerBinding.playerController.findViewById<ImageView>(R.id.iv_zoom)?.setOnClickListener {
             when (playerBinding.playerView.b.resizeMode) {
                 AspectRatioFrameLayout.RESIZE_MODE_FIT -> zoomIn()
-                AspectRatioFrameLayout.RESIZE_MODE_FILL -> zoomOut()
                 else -> zoomOut()
             }
         }
@@ -956,6 +967,20 @@ class HungamaPlayerFragment : PlayerBaseFragment<FragmentHungamaPlayerBinding>()
         playerBinding.playerController.findViewById<View>(R.id.tv_title)?.show()
         playerBinding.playerController.findViewById<ConstraintLayout>(R.id.viewProgress)?.hide()
         playerBinding.playerController.findViewById<LinearLayout>(R.id.ll_player_menu)?.hide()
+        dialog?.cancel()
+    }
+
+    override fun changeToTabletPortraitMode() {
+        super.changeToTabletPortraitMode()
+        if (isPlayerStarted) {
+            binding.miniProgressPlayer.show()
+        }
+        playerBinding.nextEpisodeScreen.isPortrait = false
+        playerBinding.playerView.findViewById<View>(R.id.iv_zoom)?.hide()
+        playerBinding.playerView.findViewById<View>(R.id.tv_title)?.show()
+        playerBinding.playerView.findViewById<View>(R.id.exo_fullscreen_iv)?.show()
+        playerBinding.playerView.findViewById<ConstraintLayout>(R.id.viewProgress)?.hide()
+        playerBinding.playerView.findViewById<LinearLayout>(R.id.ll_player_menu)?.hide()
         dialog?.cancel()
     }
 
@@ -1265,6 +1290,8 @@ class HungamaPlayerFragment : PlayerBaseFragment<FragmentHungamaPlayerBinding>()
             mPlayerController = HungamaPlayerManager.getInstance()
             HungamaPlayerManager.getInstance().initializePlayer()
             HungamaPlayerManager.getInstance().preparePlayer(playerBinding.playerView, this)
+            probePlayerEventInitSdk(HungamaPlayerManager.getInstance().a.i, playerModel,
+                bandWidthMeter = DefaultBandwidthMeter(), sharedPrefs.getOriginalSubscriberId())
             /*AdView removed as per Nikhil's ask*/
             /*if(!isContentSubscribed && !isRestart && FREE_AVOD.equals(detailsResponse?.data?.metaDetails?.partnerSubscriptionType, true)) {
                 showAdView()
@@ -1273,6 +1300,7 @@ class HungamaPlayerFragment : PlayerBaseFragment<FragmentHungamaPlayerBinding>()
             }
             else*/
             HungamaPlayerManager.getInstance().start()
+            probePlayerEventPlayClicked()
             HungamaPlayerManager.getInstance().setWakeMode(C.WAKE_MODE_NETWORK)
             defaultVolume = HungamaPlayerManager.getInstance().a.i?.volume ?: 0f
             if(!isSoundOn) {

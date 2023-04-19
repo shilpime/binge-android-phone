@@ -4,12 +4,10 @@ import com.tatasky.binge.BuildConfig
 import com.tatasky.binge.data.networking.ApplicationApis
 import com.tatasky.binge.data.networking.models.requests.*
 import com.tatasky.binge.data.networking.models.response.*
-import com.tatasky.binge.epicon.PartnerContentAnalyticsRequest
-import com.tatasky.binge.hoichoi.HoichoiPlayebackResponse
-import com.tatasky.binge.hoichoi.HoichoiRequest
+import com.tatasky.binge.data.networking.models.response.HoichoiPlayebackResponse
+import com.tatasky.binge.data.networking.models.requests.HoichoiRequest
 import com.tatasky.binge.shemaroo.helper.ShemarooAnalyticsBody
 import com.tatasky.binge.data.networking.models.response.ChaupalUrlResponse
-import com.tatasky.binge.epicon.PlanetMarathiAnalyticsRequest
 import com.tatasky.binge.lionsgatehelper.LionsgateAnalyticsBody
 import com.tatasky.binge.shemaroo.modal.ShemarooSafeUrlResponse
 import com.tatasky.binge.ui.features.home.bottomsheet.select_language.models.SaveLanguageBody
@@ -22,7 +20,6 @@ import com.tatasky.binge.voot.model.VootRequest
 import io.reactivex.Single
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
-import retrofit2.http.Query
 import java.util.*
 import javax.inject.Singleton
 
@@ -30,8 +27,8 @@ import javax.inject.Singleton
 @Singleton
 class CommonService(private val applicationApis: ApplicationApis) {
 
-    fun getLeftMenuItem(): Single<LeftMenuResponse> {
-        return applicationApis.getLeftMenuItem()
+    fun getLeftMenuItem(deviceType:String): Single<LeftMenuResponse> {
+        return applicationApis.getLeftMenuItem(deviceType)
     }
 
     fun getConfig(): Single<ConfigResponse> {
@@ -225,6 +222,10 @@ class CommonService(private val applicationApis: ApplicationApis) {
         )
     }
 
+    fun getSearchSuggestions(queryString : String) : Single<RecommendationResponse>{
+        return applicationApis.getSearchSuggestions(queryString)
+    }
+
 
     fun fetchEligiblePackListing(baid:String,subscriptionType:String): Single<EligiblePackResponse>{
         return applicationApis.fetchEligiblePack(baid,subscriptionType)
@@ -296,7 +297,7 @@ class CommonService(private val applicationApis: ApplicationApis) {
         return applicationApis.callWorkOrderFS(baId, workOrderRequest)
     }
 
-    fun initiateRecharge(sid: String,amount: String): Single<RechargeResponse>{
+    fun initiateRecharge(sid: String, amount: String?): Single<RechargeResponse>{
         return applicationApis.initiateRecharge(sid, amount)
     }
 
@@ -713,7 +714,8 @@ class CommonService(private val applicationApis: ApplicationApis) {
                 request.showType,
                 request.provider,
                 request.pageLimit,
-                request.body
+                request.body,
+                request.masterGenre
             )
 
             request.pageType == null -> return applicationApis.getRecommendationsForUseCase(
@@ -863,19 +865,24 @@ class CommonService(private val applicationApis: ApplicationApis) {
     }
 
 
-    fun fetchGameFavs(request: WatchRequest): Single<RecommendationResponse>{
-        return applicationApis.fetchGameFavs(
-            request.profileId,request.subscriberId,
-            request.pagingState, request.offset)
+    fun fetchGameFavsOrCw(
+        request: WatchRequest,
+        isGameCw: Boolean
+    ): Single<RecommendationResponse> {
+        return applicationApis.fetchGameFavsOrCw(
+            request.profileId, request.subscriberId,
+            request.pagingState, request.offset, isGameCw
+        )
     }
 
-    fun addGameToFav(
+    fun addGameToFavOrCw(
         profileId: String,
         sid: String,
         contentId: String,
-        contentType: String
+        contentType: String,
+        cwEnabled : Boolean
     ): Single<GameFavResponse> {
-        return applicationApis.addGameToFav(profileId, sid, contentId, contentType)
+        return applicationApis.addGameToFavOrCw(profileId, sid, contentId, contentType, cwEnabled)
     }
 
     fun generateVootPwaToken(request: HashMap<String, String>) : Single<VootPwaResponse>{
@@ -899,8 +906,8 @@ class CommonService(private val applicationApis: ApplicationApis) {
     }
 
 
-    fun getEditorialRailData(railId : String) : Single<RecommendationResponse>{
-        return applicationApis.getRailData(railId)
+    fun getEditorialRailData(railId: String, limit: Int?) : Single<RecommendationResponse>{
+        return applicationApis.getRailData(railId, limit)
     }
 
     fun fetchGenreRailData() : Single<RecommendationResponse> {
@@ -913,12 +920,40 @@ class CommonService(private val applicationApis: ApplicationApis) {
 
     fun fetchGenericPartnerDRMAPI(
         providerContentId: String?,
-        provider: String
+        provider: String,
+        contentTypeId: String,
+        contentType: String
     ): Single<GenericPartnerDRMResponse> {
         return applicationApis.fetchGenericPartnerDRMAPI(
-            GenericDRMRequest(providerContentId?:"", provider)
+            GenericDRMRequest(
+                providerContentId ?: "",
+                provider,
+                contentTypeId = contentTypeId,
+                contentType = contentType
+            )
         )
     }
 
+    fun getAppleRedemptionUrl(
+        request : AppleRedemptionRequest,
+        originalSubscriberId: String
+    ): Single<AppleRedemptionResponse>{
+        return applicationApis.getAppleRedemptionUrl(request,originalSubscriberId)
+    }
 
+    fun getLiveChannelContentDetails(channelId: String) =
+        applicationApis.getLiveChannelContentDetails(channelId)
+
+    fun fetchPlaybackUrlsForDigitalFeed(
+        partnerName: String,
+        channelId: String,
+    ): Single<DigitalFeedPlaybackUrlsResponse> {
+        val baseUrl = if (BuildConfig.FLAVOR.equals("uat", true))
+            "https://uat-tm.tapi.videoready.tv"
+        else
+            "https://tm.tapi.videoready.tv"
+        return applicationApis.fetchPlaybackUrlsForDigitalFeed(
+            "$baseUrl/digital-feed-services/api/partner/player/details/${partnerName}/${channelId}",
+        )
+    }
 }

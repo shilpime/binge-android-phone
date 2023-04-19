@@ -37,7 +37,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dimens_42dp">
+                android:layout_height="@dimen/home_toolbar_height">
 
                 <ImageView
                     android:id="@+id/hamberger_menu"
@@ -81,6 +81,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:visibility="gone"
+                    tools:visibility="visible"
                     />
 
 
@@ -116,13 +117,12 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:menu="@menu/menu_bottom_items" />
 
-
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/lv_game_tab"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:paddingTop="4dp"
-            android:elevation="12dp"
+            android:layout_width="@dimen/dimens_56dp"
+            android:layout_height="@dimen/dimens_56dp"
+            android:paddingTop="@dimen/dimens_4dp"
+            android:elevation="@dimen/margin_12"
             android:scaleX="2.5"
             android:scaleY="2.5"
             android:visibility="invisible"
@@ -130,20 +130,10 @@
             app:lottie_fileName="game_nav_anim.json"
             app:lottie_loop="true"
             app:lottie_progress="0"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="@id/bottomNav"
             tools:ignore="MissingConstraints" />
 
-        <!--<com.tatasky.binge.customviews.CustomProgressView
-                android:id="@+id/progressBar"
-                android:layout_width="@dimen/progress_width_height"
-                android:layout_height="@dimen/progress_width_height"
-                app:cpv_animAutostart="true"
-                app:cpv_thickness="2dp"
-                android:visibility="gone"
-                app:cpv_indeterminate="true"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>-->
         <ImageView
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"

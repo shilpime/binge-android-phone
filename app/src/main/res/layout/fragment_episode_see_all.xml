@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.05" />
+            app:layout_constraintGuide_begin="@dimen/screen_horizontal_margin" />
 
 
         <androidx.constraintlayout.widget.Guideline
@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.95" />
+            app:layout_constraintGuide_end="@dimen/margin_2" />
 
 
         <include
@@ -69,7 +69,7 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/episode_search_recycler"
-                app:spanCount="2"
+                app:spanCount="@integer/grid_landscape"
                 app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
@@ -86,6 +86,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/view_margin_large"
             app:tabGravity="start"
+            android:layout_marginStart="@dimen/view_margin_smallest"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/searchView" />
 
@@ -100,7 +101,7 @@
             app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:layout_constraintTop_toBottomOf="@id/tabLayoutSeasons"
-            app:spanCount="2"
+            app:spanCount="@integer/grid_landscape"
             app:layout_constraintBottom_toTopOf="@id/progressBarBottom"
             tools:listitem="@layout/layout_related_fragment" />
 

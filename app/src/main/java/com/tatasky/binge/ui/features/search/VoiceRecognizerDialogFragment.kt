@@ -161,7 +161,7 @@ class VoiceRecognizerDialogFragment :
     private fun onFailure(error: Int) {
         binding.voiceview.stopRecording()
         binding.stateTv.setText(R.string.try_saying_text)
-        binding.displayTv.setText(R.string.tap_on_mic)
+        binding.displayTv.setText(viewModel.setVerbiageForSearchPage()?.tapMicrophone)
         binding.displayTv.visibility = View.VISIBLE
     }
     fun getErrorText(errorCode: Int): String {

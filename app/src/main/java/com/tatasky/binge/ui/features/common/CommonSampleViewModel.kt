@@ -778,4 +778,8 @@ class CommonSampleViewModel @Inject constructor(
 
     }
 
+    fun getConfigFromPreference(): ConfigResponse.Config? {
+        return sharedPrefs.getConfigResponse()?.data?.config
+    }
+
 }

@@ -2,17 +2,18 @@ package com.tatasky.binge.ui.features.home.home_trailer
 
 import android.content.Context
 import android.net.Uri
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.DefaultLoadControl
-import com.google.android.exoplayer2.DefaultRenderersFactory
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.dash.DashMediaSource
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import com.tatasky.binge.ui.features.player.PlayerModel
+import com.tatasky.binge.utils.probePlayerEventInitSdk
+import com.tatasky.binge.utils.probePlayerEventPlayClicked
+import com.tatasky.binge.utils.probePlayerEventStopped
 
 
 class MediaPlayerImpl : IMediaPlayer {
@@ -52,6 +53,7 @@ class MediaPlayerImpl : IMediaPlayer {
 
     override fun releasePlayer() {
         if (this::mExoPlayer.isInitialized) {
+            probePlayerEventStopped()
             mExoPlayer.stop()
 //            mExoPlayer.release()
         }
@@ -71,7 +73,20 @@ class MediaPlayerImpl : IMediaPlayer {
         val renderersFactory = DefaultRenderersFactory(mContext)
         mExoPlayer =
             SimpleExoPlayer.Builder(mContext, renderersFactory).setLoadControl(loadControl).build()
+        sID?.let { it ->
+            probePlayerEventInitSdk(
+                mExoPlayer as SimpleExoPlayer, playerModel,
+                bandWidthMeter = DefaultBandwidthMeter(), it
+            )
+            probePlayerEventPlayClicked()
+        }
     }
 
+    private var playerModel: PlayerModel? = null
+    private var sID : String? = null
+    fun setPlayerModel(iplayerModel : PlayerModel?, sId:String?) {
+        this.playerModel = iplayerModel
+        this.sID = sId
+    }
 
 }

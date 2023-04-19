@@ -9,16 +9,19 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_language"
-        android:layout_width="164dp"
-        android:layout_height="54dp"
-        android:layout_margin="@dimen/margin_8"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/tab_lang_height"
+        android:layout_marginBottom="@dimen/margin_card_rail"
+        android:layout_marginTop="@dimen/margin_card_rail"
+        android:layout_marginEnd="@dimen/margin_card_rail"
+        android:layout_marginStart="@dimen/margin_card_rail"
         android:background="@drawable/selector_item_solid">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cv_language"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:cardCornerRadius="6dp"
+            android:layout_width="@dimen/dimen_0dp"
+            android:layout_height="@dimen/dimen_0dp"
+            app:cardCornerRadius="@dimen/dimens_6dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -42,11 +45,11 @@
         <ImageView
             android:id="@+id/iv_native_name"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginStart="@dimen/dimens_5dp"
-            android:layout_marginTop="2dp"
+            android:layout_height="@dimen/dimen_0dp"
+            android:layout_marginStart="@dimen/margin_5"
+            android:layout_marginTop="@dimen/dimen_2dp"
             android:layout_marginEnd="@dimen/margin_12"
-            android:layout_marginBottom="2dp"
+            android:layout_marginBottom="@dimen/dimen_2dp"
             android:elevation="@dimen/dimens_5dp"
             app:layout_constraintBottom_toBottomOf="@+id/tv_title"
             app:layout_constraintEnd_toEndOf="parent"

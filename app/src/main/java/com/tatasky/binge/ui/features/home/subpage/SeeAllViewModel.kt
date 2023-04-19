@@ -8,6 +8,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.tatasky.binge.analytics.EVENT_VALUE_SEE_ALL
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
 import com.tatasky.binge.data.database.model.GamesMixpanelInfoModel
 import com.tatasky.binge.data.networking.CallbackWrapper
 import com.tatasky.binge.data.networking.models.ErrorModel
@@ -22,6 +23,7 @@ import com.tatasky.binge.ui.base.frameworks.base.BaseViewModel
 import com.tatasky.binge.ui.features.home.ItemLayoutType
 import com.tatasky.binge.ui.features.home.ItemViewType
 import com.tatasky.binge.ui.features.home.adapter.ItemGridAdapter
+import com.tatasky.binge.ui.features.home.model.RailItemsModel
 import com.tatasky.binge.utils.*
 import io.reactivex.BackpressureStrategy
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -54,6 +56,7 @@ class SeeAllViewModel @Inject constructor(
     var isInitialized = false
     var continueWatching = false
     var gameFav = false
+    var gameCw = false
     var watchlistRail = false
     var configType = EventConstants.TYPE_EDITORIAL
     var source = EVENT_VALUE_SEE_ALL
@@ -87,7 +90,9 @@ class SeeAllViewModel @Inject constructor(
             transitions: List<Pair<View, String>>?,
             railTitle: String,
             origin: String?,
-            gamesMixpanelInfoModel: GamesMixpanelInfoModel?
+            gamesMixpanelInfoModel: GamesMixpanelInfoModel?,
+            railItemsModel: RailItemsModel?,
+            contentAnalyticsModel: ContentAnalyticsModel
         ) {
             val extras = if (!transitions.isNullOrEmpty())
                 FragmentNavigatorExtras(*transitions.toTypedArray())
@@ -98,7 +103,17 @@ class SeeAllViewModel @Inject constructor(
             iListItem.contentPosition = (iItemPosition+1).toString()
             iListItem.railPosition = iSectionPosition.toString()
             iListItem.refId = refId
-            _clickedItem.postValue(SingleEvent(ContentItemTransitions(iListItem, extras, iSectionSource,gamesMixpanelInfoModel)))
+            _clickedItem.postValue(
+                SingleEvent(
+                    ContentItemTransitions(
+                        iListItem,
+                        extras,
+                        iSectionSource,
+                        gamesMixpanelInfoModel,
+                        contentAnalyticsModel = contentAnalyticsModel
+                    )
+                )
+            )
         }
     }
 
@@ -188,12 +203,38 @@ class SeeAllViewModel @Inject constructor(
     private fun showRecyclerLoading() {
         /*mAdapter.addLoading()*/
     }
+    private fun crownCalculation(it : HomeResponse.Items?) {
+        val mNonSubscribedPartnerList = sharedPrefs.getNonSubscribedPartnerList()
+
+        val isGuestUser = sharedPrefs.getLoginStatus()
+        val currentSub = sharedPrefs.getSubscribedPack()
+        val currentSubStatus = (currentSub != null) && !currentSub.isInactive
+        val freeEpVerb = sharedPrefs.getConfigResponse()?.data?.config?.firstEpisodeFreeVerbiage.toString()
+
+        fun checkCrownConditions(it : ContentItem){
+            it.appleRedemptionStatus = sharedPrefs.getSubscribedPack()?.appleRedemptionStatus
+            it.isPartnerSubscribed = currentSubStatus && (mNonSubscribedPartnerList?.contains(it.provider.lowercase()) == false)
+            it.isCrown = isShowCrownOnContent(
+                it.isPartnerSubscribed,
+                isGuestUser,
+                it.provider,
+                it.partnerSubscriptionType,
+                it.appleRedemptionStatus
+            )
+        }
+
+        it?.filteredContentItems?.forEach {
+            checkCrownConditions(it)
+        }
+    }
 
 
-    fun updateList(railResponse: RecommendationResponse) {
+    fun updateList(railResponse: RecommendationResponse, contentAnalyticsModel: ContentAnalyticsModel) {
         pagingState = railResponse.data?.pagingState
         mAdapter.removeLoading()
         if ((railResponse.data?.filteredContentItems?.size ?: 0) >= 0) {
+            crownCalculation(railResponse.data)
+
             if (pageOffset == 0) {
                 if(railResponse.data?.sectionType == ItemViewType.TITLE_RAIL.name){
                     mAdapter.updateLayoutType(ItemLayoutType.TITLE_RAIL.name)
@@ -206,11 +247,20 @@ class SeeAllViewModel @Inject constructor(
                 totalRails = railResponse.data?.totalCount ?: 0
                 _changedTotalRailsCount.postValue(SingleEvent(totalRails))
                 if(continueWatching)
-                    mAdapter.updateListForDiff(railResponse.data?.filteredContentItems ?: mutableListOf())
+                    mAdapter.updateListForDiff(
+                        railResponse.data?.filteredContentItems ?: mutableListOf(),
+                        contentAnalyticsModel = contentAnalyticsModel
+                    )
                 else
-                    mAdapter.updateList(railResponse.data?.filteredContentItems ?: mutableListOf())
+                    mAdapter.updateList(
+                        railResponse.data?.filteredContentItems ?: mutableListOf(),
+                        contentAnalyticsModel
+                    )
             } else {
-                mAdapter.addToList(railResponse.data?.filteredContentItems ?: mutableListOf())
+                mAdapter.addToList(
+                    railResponse.data?.filteredContentItems ?: mutableListOf(),
+                    contentAnalyticsModel
+                )
             }
 
             if (railResponse.data?.filteredContentItems?.size ?: 0 < railResponse.data?.contentItem?.size ?: 0) {
@@ -233,24 +283,30 @@ class SeeAllViewModel @Inject constructor(
         setProgressing(false)
     }
 
-    fun updateAppsList(railResponse: AppResponse) {
+    fun updateAppsList(railResponse: AppResponse, contentAnalyticsModel: ContentAnalyticsModel) {
         mAdapter.removeLoading()
         mAdapter.isSubscribed(true)
         mAdapter.updateLayoutType(ItemLayoutType.APP_RAIL.name)
         if (pageOffset == 0) {
-            mAdapter.updateList(railResponse.subscribedContent ?: mutableListOf())
+            mAdapter.updateList(
+                railResponse.subscribedContent,
+                contentAnalyticsModel
+            )
 
         } else {
-            mAdapter.addToList(railResponse.subscribedContent ?: mutableListOf())
+            mAdapter.addToList(
+                railResponse.subscribedContent,
+                contentAnalyticsModel
+            )
         }
 
         mAdapterUnsubscribed.removeLoading()
         mAdapterUnsubscribed.updateLayoutType(ItemLayoutType.APP_RAIL.name)
         if (pageOffset == 0) {
-            mAdapterUnsubscribed.updateList(railResponse.unsubscribedContent)
+            mAdapterUnsubscribed.updateList(railResponse.unsubscribedContent, contentAnalyticsModel)
 
         } else {
-            mAdapterUnsubscribed.addToList(railResponse.unsubscribedContent)
+            mAdapterUnsubscribed.addToList(railResponse.unsubscribedContent, contentAnalyticsModel)
         }
         setProgressing(false)
     }
@@ -274,7 +330,43 @@ class SeeAllViewModel @Inject constructor(
             offset = pageOffset,
             isForceRefresh = false
         )
-        useCase.fetchGameFavs(request)
+        useCase.fetchGameFavsOrCw(request)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeWith(object : CallbackWrapper<RecommendationResponse>() {
+                override fun onSuccessResponse(t: RecommendationResponse) {
+//                    t.data?.let { it ->
+//                        val dummyRecommendationResponse = RecommendationResponse()
+//                        dummyRecommendationResponse.data = HomeResponse.Items()
+//                        dummyRecommendationResponse.data?.let { it1 ->
+//                            it1.contentItem = it.list
+//                        }
+
+                        _railResponse.postValue(SingleEvent(t))
+//                    }
+                }
+
+                override fun onError(error: ErrorModel?) {
+                    setError(error)
+                }
+
+            })
+
+    }
+
+
+
+    @SuppressLint("CheckResult")
+    fun fetchGameCw() {
+        gameCw = true
+        val request =  WatchRequest(
+            subscriberId = sharedPrefs.getOriginalSubscriberId(),
+            profileId = sharedPrefs.getProfileId()!!,
+            pagingState = pagingState,
+            offset = pageOffset,
+            isForceRefresh = false
+        )
+        useCase.fetchGameFavsOrCw(request,true)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeWith(object : CallbackWrapper<RecommendationResponse>() {

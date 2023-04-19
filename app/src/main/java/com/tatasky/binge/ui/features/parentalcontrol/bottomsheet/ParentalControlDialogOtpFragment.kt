@@ -1,6 +1,5 @@
 package com.tatasky.binge.ui.features.parentalcontrol.bottomsheet
 
-import android.content.IntentFilter
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.text.Editable
@@ -21,12 +20,13 @@ import com.tatasky.binge.ui.base.frameworks.extensions.closeKeyboard
 import com.tatasky.binge.ui.base.frameworks.extensions.disable
 import com.tatasky.binge.ui.base.frameworks.extensions.enable
 import com.tatasky.binge.ui.base.frameworks.extensions.invisible
+import com.tatasky.binge.ui.base.frameworks.extensions.showKeyboard
 import com.tatasky.binge.ui.features.onboarding.login.LoginAnalytics
 import com.tatasky.binge.ui.features.onboarding.login.bottomsheet.GuestLoginViewModel
 import com.tatasky.binge.ui.features.parentalcontrol.ParentalControlViewModel
 import com.tatasky.binge.utils.*
-import java.util.*
 import javax.inject.Inject
+import java.util.*
 
 class ParentalControlDialogOtpFragment :
     BaseFragment<FragmentParentalControlDialogOtpBinding, ParentalControlViewModel>(),
@@ -73,6 +73,14 @@ class ParentalControlDialogOtpFragment :
             it.getContentIfNotHandled()?.let {
                 setOtp("")
                 resendCount++
+                binding.layoutLoginOTP.tvResendOtpGuestLoginVerifyOtp.apply {
+                    disable()
+                    text = it.data?.resendOtpHeading
+                }
+                binding.layoutLoginOTP.clEtOtpContainer.etOtpDig1.apply {
+                    requestFocus()
+                    showKeyboard()
+                }
                 val configCount = viewModel.sharedPrefs.getOtpResentCount()
                 if (resendCount >= configCount) {
                     binding.layoutLoginOTP.tvResendOtpGuestLoginVerifyOtp.disable()
@@ -128,12 +136,15 @@ class ParentalControlDialogOtpFragment :
 
         binding.header.tvHeaderTitle.text = getString(R.string.enter_otp)
         context?.let { con ->
-            binding.header.logo.setImageDrawable(getDrawable(con, R.drawable.ic_lock))
+            if (isTablet(con))
+                binding.header.logo.setImageDrawable(getDrawable(con, R.drawable.ic_tab_binge_logo))
+            else
+                binding.header.logo.setImageDrawable(getDrawable(con, R.drawable.ic_lock))
         }
         String.format(
             Locale.US,
             getString(R.string.text_subtitle_guest_login_verify_otp),
-            sharedPrefs.getClearRMN().maskPhoneNumber()
+            sharedPrefs.getClearRMN()
         ).let { subtitle ->
             binding.layoutLoginOTP.tvSubtitleGuestLoginVerifyOtp.text = subtitle
         }
@@ -249,7 +260,8 @@ class ParentalControlDialogOtpFragment :
     private fun setError(enabled: Boolean, errorMsg: String? = null) {
         binding.apply {
             layoutLoginOTP.tvErrorGuestLoginVerifyOtp.text = errorMsg ?: ""
-            layoutLoginOTP.tvErrorGuestLoginVerifyOtp.visibility = if (enabled) View.VISIBLE else View.GONE
+            layoutLoginOTP.tvErrorGuestLoginVerifyOtp.visibility =
+                if (enabled) View.VISIBLE else View.GONE
             layoutLoginOTP.tvCodeExpiryGuestLoginVerifyOtp.visibility =
                 if (!enabled) View.VISIBLE else View.GONE
             layoutLoginOTP.clEtOtpContainer.apply {
@@ -340,7 +352,7 @@ class ParentalControlDialogOtpFragment :
                     etOtpDig6.id -> {
                         if (text.length == 1)
                             etOtpDig5.requestFocus()
-                        else if(text.isEmpty()){
+                        else if (text.isEmpty()) {
                             etOtpDig5.clearFocus()
                             binding.root.closeKeyboard()
                         }

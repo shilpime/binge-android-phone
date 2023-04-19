@@ -2,16 +2,25 @@ package com.tatasky.binge.ui.features.home.adapter
 
 import android.content.Context
 import android.content.res.Configuration
+import android.hardware.SensorManager
 import android.os.Handler
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.BaseAdapter
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import android.widget.TextView
+import androidx.lifecycle.MutableLiveData
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.EVENT_VALUE_RAIL_HB
 import com.tatasky.binge.analytics.SOURCE_GAMES
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
 import com.tatasky.binge.customviews.MyGallery
 import com.tatasky.binge.data.database.model.GamesMixpanelInfoModel
 import com.tatasky.binge.data.networking.models.response.ContentItem
@@ -21,17 +30,30 @@ import com.tatasky.binge.databinding.LayoutHomeHeroBinding
 import com.tatasky.binge.domain.repositories.PrefsRepo
 import com.tatasky.binge.interfaces.CommonContentViewListener
 import com.tatasky.binge.interfaces.CommonDTOClickListener
+import com.tatasky.binge.ui.base.frameworks.SingleEvent
+import com.tatasky.binge.ui.base.frameworks.extensions.hide
 import com.tatasky.binge.ui.base.frameworks.extensions.isFullyVisibleOnScreen
-import com.tatasky.binge.ui.base.frameworks.extensions.isVisibleOnScreen
-import com.tatasky.binge.utils.*
-import kotlinx.android.synthetic.main.fragment_search.view.*
+import com.tatasky.binge.ui.base.frameworks.extensions.show
+import com.tatasky.binge.utils.EventConstants
+import com.tatasky.binge.utils.NON_DTH_USER
+import com.tatasky.binge.utils.OrientationManager
+import com.tatasky.binge.utils.PROVIDER_PRIME
+import com.tatasky.binge.utils.SubscriptionPackStatusEnum
+import com.tatasky.binge.utils.dpToPx
+import com.tatasky.binge.utils.e
+import com.tatasky.binge.utils.getCloudinaryUrl
+import com.tatasky.binge.utils.getDisplayMatics
+import com.tatasky.binge.utils.getLifecycleOwner
+import com.tatasky.binge.utils.isTablet
+import com.tatasky.binge.utils.isValidContent
+import com.tatasky.binge.utils.updateProviderImage
 import java.util.*
-import kotlin.collections.ArrayList
 
 class HomeHeroView : FrameLayout {
     private var layout_point: LinearLayout? = null
     private var gallery: MyGallery? = null
     var len: Int = 0
+    private lateinit var orientationManager: OrientationManager
     private var dots: ArrayList<ImageView> = ArrayList()
     internal var currentItem = 0// The currently selected viewPager item
     /**
@@ -75,26 +97,11 @@ class HomeHeroView : FrameLayout {
         View.inflate(context, R.layout.slide_gallery, this)
         this.layout_point = this.findViewById<View>(R.id.layout_dots) as LinearLayout
         this.gallery = findViewById<View>(R.id.mygallery) as MyGallery
-
-        if (isTablet(context)) {
-            val width = getDisplayMatics().widthPixels
-            this.gallery!!.layoutParams =
-                RelativeLayout.LayoutParams(width, (width.toDouble() * 0.5 * 0.56).toInt())
-            this.gallery!!.setSpacing(20)
-        } else {
-
-            this.gallery!!.setSpacing(-1)
-            findViewById<View>(R.id.space1).visibility = View.GONE
-            findViewById<View>(R.id.space2).visibility = View.GONE
-            findViewById<View>(R.id.space3).visibility = View.GONE
-        }
+        addSpaceValidation(false)
         this.gallery!!.isSoundEffectsEnabled = false
 
         this.gallery!!.setListener { startSlide(false) }
-
-
     }
-
     fun reset() {
         layout_point!!.removeAllViews()
         dots.clear()
@@ -126,7 +133,8 @@ class HomeHeroView : FrameLayout {
         hbViewListener: CommonContentViewListener,
         dthStatus: String?,
         initialBannerPosition : Int?,
-        sharedPrefs: PrefsRepo
+        sharedPrefs: PrefsRepo,
+        contentAnalyticsModel: ContentAnalyticsModel
     ) {
         updateSbscriberList(sharedPrefs)
         var filteredContentItems: List<ContentItem> = ArrayList()
@@ -183,7 +191,6 @@ class HomeHeroView : FrameLayout {
                     )
                 selectPage()
             }
-
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
@@ -206,7 +213,7 @@ class HomeHeroView : FrameLayout {
 //                            ViewCompat.getTransitionName(view.findViewById(R.id.aiv_layout_home_hero_banner))?:""
 //                        )
 //                    ),
-                item.title,
+                    item.title,
                     gamesMixpanelInfoModel = GamesMixpanelInfoModel(
                         pageName = SOURCE_GAMES,
                         railTitle = item.title,
@@ -219,7 +226,8 @@ class HomeHeroView : FrameLayout {
                         gameRating = filteredContentItems[position].gameRating,
                         releaseYear = filteredContentItems[position].releaseYear?:"",
                         source = SOURCE_GAMES
-                    )
+                    ),
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             }
         setSelectedPosition()
@@ -278,37 +286,21 @@ class HomeHeroView : FrameLayout {
 
                 heroBinding.tempid.text = railId
 
+                var width = getDisplayMatics().widthPixels
+                if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    width = getDisplayMatics().heightPixels
+                }
                 if (convertView == null) {
                     convertView = heroBinding.root
-                    var width = getDisplayMatics().widthPixels
-                    if (isTablet(context)) {
-                        heroBinding.aivLayoutHomeHeroBanner.layoutParams =
-                            RelativeLayout.LayoutParams(
-                                (width * 0.5).toInt(),
-                                (width.toDouble() * 0.5 * 0.56).toInt()
-                            )
-                        heroBinding.imgOverlay.layoutParams =
-                            RelativeLayout.LayoutParams(
-                                (width * 0.5).toInt(),
-                                (width.toDouble() * 0.5 * 0.56).toInt()
-                            )
-                    } else {
-                        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            width = getDisplayMatics().heightPixels
-                        }
-                        heroBinding.aivLayoutHomeHeroBanner.layoutParams =
-                            RelativeLayout.LayoutParams(
-                                (width * 0.9999).toInt() + 1,
-                                (width.toDouble() * 0.9999 * 0.56).toInt()
-                            )
-                        heroBinding.imgOverlay.layoutParams = RelativeLayout.LayoutParams(
+                    heroBinding.aivLayoutHomeHeroBanner.layoutParams =
+                        RelativeLayout.LayoutParams(
                             (width * 0.9999).toInt() + 1,
                             (width.toDouble() * 0.9999 * 0.56).toInt()
                         )
-                    }
-
-
-
+                    heroBinding.imgOverlay.layoutParams = RelativeLayout.LayoutParams(
+                        (width * 0.9999).toInt() + 1,
+                        (width.toDouble() * 0.9999 * 0.56).toInt()
+                    )
                     heroBinding.aivLayoutHomeHeroBanner.setOnTouchListener { v, event ->
                         if (event.action == MotionEvent.ACTION_DOWN) {
                             //                          iv.setAlpha(70);
@@ -325,27 +317,21 @@ class HomeHeroView : FrameLayout {
                 val url: String
 
                 val imageUrl = if(item.appImageBM.isNullOrEmpty())  item.image else item.appImageBM
-                if (isTablet(context)) {
-                    val width = getDisplayMatics().widthPixels
-
-                    url = getCloudinaryUrl(
-                        cloudinaryUrl,
-                        width, (width * 0.56).toInt(),
-                        imageUrl
-                    )
-                } else {
-                    val width: Int
-                    if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        width = getDisplayMatics().heightPixels
-                    } else {
-                        width = getDisplayMatics().widthPixels
-                    }
-                    url = getCloudinaryUrl(
-                        cloudinaryUrl,
-                        width, (width * 0.56).toInt(),
-                        imageUrl
-                    )
-                }
+//                if (istablet(context)) {
+//                    val width = getdisplaymatics().widthpixels
+//
+//                    url = getcloudinaryurl(
+//                        cloudinaryurl,
+//                        width, (width * 0.56).toint(),
+//                        imageurl
+//                    )
+//                } else {
+                url = getCloudinaryUrl(
+                    cloudinaryUrl,
+                    width, (width * 0.56).toInt(),
+                    imageUrl
+                )
+//                }
                 heroBinding.aivLayoutHomeHeroBanner.transitionName = item.id + "image"
                 heroBinding.imgUrl = url
                 heroBinding.provider = item.provider
@@ -434,7 +420,32 @@ class HomeHeroView : FrameLayout {
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         slideHandler.removeCallbacks(slideRun)
-
+        context?.let {
+            if (isTablet(it)) {
+                if (::orientationManager.isInitialized)
+                    orientationManager.disable()
+            }
+        }
     }
 
+    fun addSpaceValidation(isNotifyImageAdapter: Boolean){
+        if (isTablet(context) && (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)) {
+            this.gallery?.setSpacing(20)
+            findViewById<View>(R.id.space1).show()
+            findViewById<View>(R.id.space2).show()
+            findViewById<View>(R.id.space3).show()
+        } else {
+            this.gallery?.setSpacing(-1)
+            findViewById<View>(R.id.space1).hide()
+            findViewById<View>(R.id.space2).hide()
+            findViewById<View>(R.id.space3).hide()
+        }
+
+        if(isNotifyImageAdapter){
+            gallery?.let { mygallery ->
+               (mygallery.adapter as ImageAdapter).notifyDataSetChanged()
+            }
+        }
+
+    }
 }

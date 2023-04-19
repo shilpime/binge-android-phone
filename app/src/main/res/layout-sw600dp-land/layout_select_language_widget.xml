@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:descendantFocusability="blocksDescendants"
+        android:layout_height="wrap_content">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clRoot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="@dimen/rail_margins">
+
+
+            <com.tatasky.binge.customviews.CustomMaterialCardView
+                android:id="@+id/cardView"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/select_language_height"
+                android:layout_marginStart="@dimen/margin_10"
+                android:layout_marginTop="@dimen/margin_16"
+                android:layout_marginEnd="@dimen/margin_10"
+                android:elevation="@dimen/card_elevation_8"
+                app:cardCornerRadius="@dimen/corner_radius_4"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/select_language_height"
+                    android:rotation="180"
+                    android:background="@drawable/ic_language_background"/>
+
+            </com.tatasky.binge.customviews.CustomMaterialCardView>
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="9dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/cardView"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0"
+                app:srcCompat="@drawable/ic_select_language" />
+
+            <TextView
+                android:id="@+id/tv_select_language_meta"
+                style="@style/TSTextBold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/view_margin_xxlarge"
+                android:layout_marginEnd="@dimen/view_margin_large"
+                android:shadowColor="@color/black"
+                android:shadowDx="10"
+                android:shadowDy="10"
+                android:shadowRadius="15"
+                app:layout_constrainedWidth="true"
+                android:elevation="@dimen/dimens_10dp"
+                android:text="@string/language_widget_text"
+                android:textSize="@dimen/tab_text_size_18"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/cardView"
+                app:layout_constraintEnd_toStartOf="@id/tv_select_languages"
+                app:layout_constraintTop_toTopOf="@+id/cardView" />
+
+            <TextView
+                android:id="@+id/tv_select_languages"
+                style="@style/TSTextBold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="@dimen/margin_16"
+                android:drawablePadding="@dimen/dimens_8dp"
+                android:gravity="end"
+                android:elevation="9dp"
+                android:text="@string/select_languages"
+                android:textColor="@color/tint_pink_light"
+                android:textSize="@dimen/tab_text_size_18"
+                app:layout_constraintBottom_toBottomOf="@id/tv_select_language_meta"
+                app:layout_constraintEnd_toEndOf="@id/cardView"
+                app:layout_constraintTop_toTopOf="@id/tv_select_language_meta"
+                app:drawableEndCompat="@drawable/see_all_inset_arrow"
+                android:drawableTint="@color/tint_pink_light"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </FrameLayout>
+</layout>

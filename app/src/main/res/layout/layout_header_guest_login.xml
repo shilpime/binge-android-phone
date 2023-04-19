@@ -51,10 +51,10 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="34dp"
+            android:contentDescription="@string/logo"
             app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
             app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/medium_binge_logo" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/partner_RV"

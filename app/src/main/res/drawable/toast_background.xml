@@ -1,8 +1,76 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <corners android:radius="@dimen/margin_22"/>
-    <solid android:color="@color/watchlist_background"/>
-    <stroke
-        android:width="1dp"
-        android:color="@color/stroke_color"/>
-</shape>
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="328dp"
+    android:height="48dp"
+    android:viewportWidth="328"
+    android:viewportHeight="48"
+    >
+
+    <group>
+
+        <clip-path
+            android:pathData="M8 0H320C324.418 0 328 3.58172 328 8V40C328 44.4183 324.418 48 320 48H8C3.58172 48 0 44.4183 0 40V8C0 3.58172 3.58172 0 8 0Z"
+            />
+
+        <group
+            android:translateX="0.962"
+            android:translateY="1.082"
+            android:pivotX="164"
+            android:pivotY="24"
+            android:scaleX="2.006"
+            android:scaleY="2.027"
+            android:rotation="-175.635"
+            >
+
+            <path
+                android:pathData="M0 0V48H328V0"
+                >
+
+                <aapt:attr name="android:fillColor">
+
+                    <gradient
+                        android:type="linear"
+                        android:startX="82"
+                        android:startY="24"
+                        android:endX="246"
+                        android:endY="24"
+                        >
+
+                        <item
+                            android:color="#A22736"
+                            android:offset="0"
+                            />
+
+                        <item
+                            android:color="#220046"
+                            android:offset="1"
+                            />
+
+                    </gradient>
+
+                </aapt:attr>
+
+            </path>
+
+        </group>
+
+        <path
+            android:pathData="M8 0H320C324.418 0 328 3.58172 328 8V40C328 44.4183 324.418 48 320 48H8C3.58172 48 0 44.4183 0 40V8C0 3.58172 3.58172 0 8 0Z"
+            android:strokeWidth="2"
+            android:strokeColor="#564372"
+            />
+
+    </group>
+
+</vector>
+
+    <!--
+    <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+        <corners android:radius="@dimen/margin_22"/>
+        <solid android:color="@color/watchlist_background"/>
+        <stroke
+            android:width="1dp"
+            android:color="@color/stroke_color"/>
+    </shape>-->
+

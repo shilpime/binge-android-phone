@@ -2,6 +2,7 @@ package com.tatasky.binge.interfaces
 
 import android.view.View
 import androidx.navigation.fragment.FragmentNavigator
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
 import com.tatasky.binge.data.networking.models.response.ContentItem
 
 interface CommonFilterClickListener {
@@ -14,10 +15,13 @@ interface CommonFilterClickListener {
     )
 }
 
-data class FilterItemTransitions(val contentItem: String,
-                                 val type: String,
-                                 val extras: FragmentNavigator.Extras,
-                                 val bgImage: String = "",
-                                 val bgBottomImage: String = "",
-                                 val railTitle:String ="",
-                                 val categoryPageType: String)
+data class FilterItemTransitions(
+    val contentItem: String,
+    val type: String,
+    val extras: FragmentNavigator.Extras,
+    val bgImage: String = "",
+    val bgBottomImage: String = "",
+    val railTitle: String = "",
+    val categoryPageType: String,
+    val contentAnalyticsModel: ContentAnalyticsModel
+)

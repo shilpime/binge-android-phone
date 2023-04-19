@@ -29,11 +29,12 @@ class GamesViewModel @Inject constructor(
 
     @SuppressLint("CheckResult")
     fun addGameToFav(item: ContentItem) {
-        useCase.addFavGame(
+        useCase.addFavGameOrCw(
             sharedPref.getProfileId() ?: "",
             sharedPref.getOriginalSubscriberId(),
             item.id,
-            item.contentType
+            item.contentType,
+            false
         )
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -42,6 +43,28 @@ class GamesViewModel @Inject constructor(
                     _addFavGame.postValue(SingleEvent(t.data?.status ?: false))
                 }
 
+                override fun onError(error: ErrorModel?) {
+                    setError(error)
+                }
+
+            })
+
+    }
+
+    @SuppressLint("CheckResult")
+    fun addGameToCW(item: ContentItem) {
+        useCase.addFavGameOrCw(
+            sharedPref.getProfileId() ?: "",
+            sharedPref.getOriginalSubscriberId(),
+            item.id,
+            item.contentType,
+            true
+        )
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeWith(object : CallbackWrapper<GameFavResponse>(){
+                override fun onSuccessResponse(t: GameFavResponse) {
+                }
                 override fun onError(error: ErrorModel?) {
                     setError(error)
                 }

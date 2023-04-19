@@ -2,16 +2,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_root"
+        android:layout_marginStart="@dimen/view_margin_medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-    </data>
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/partnerLogo_IV"
-        android:layout_width="@dimen/dp_40"
-        android:layout_height="@dimen/dp_40"
-        android:layout_marginHorizontal="@dimen/dimens_5dp"
-        android:scaleType="fitXY"
-        app:shapeAppearanceOverlay="@style/customPartnerRoundedLogo"
-        tools:src="@drawable/ic_sony_liv"/>
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/partnerLogo_IV"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:layout_marginHorizontal="5dp"
+            app:shapeAppearanceOverlay="@style/customPartnerRoundedLogo"
+            tools:src="@drawable/ic_sony_liv" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

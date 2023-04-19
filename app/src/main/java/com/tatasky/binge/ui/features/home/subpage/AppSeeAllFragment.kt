@@ -11,6 +11,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.transition.MaterialSharedAxis
 import com.tatasky.binge.BuildConfig
 import com.tatasky.binge.R
+import com.tatasky.binge.analytics.util.emptyContentAnalyticsModel
 import com.tatasky.binge.data.networking.models.ErrorModel
 import com.tatasky.binge.data.networking.models.response.RecommendationResponse
 import com.tatasky.binge.databinding.FragmentAppSeeAllBinding
@@ -159,7 +160,7 @@ class AppSeeAllFragment : BaseFragment<FragmentAppSeeAllBinding, SeeAllViewModel
         binding.subscribedRecycler.scrollToPosition(0)
         railResponse.data?.layoutType = ItemLayoutType.APP_RAIL.name
 
-        viewModel.updateAppsList(appResponse)
+        viewModel.updateAppsList(appResponse, emptyContentAnalyticsModel())
     }
 
 }

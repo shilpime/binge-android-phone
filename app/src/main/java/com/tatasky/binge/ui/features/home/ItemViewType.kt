@@ -32,13 +32,14 @@ enum class ItemViewType{
         NEWLY_ADDED_GAMES,
         GAME_OF_THE_WEEK,
         FAVOURITES,
+        GAMEZOP_CONTINUE_PLAYING, //TODO GAME RP : BE TO PROVIDE
         MID_SCROLL_BANNER,
         CATEGORY,
         BINGE_TOP_10_RAIL,
         HB_SEE_ALL,
         LIVE_EVENT_RAIL,
-        LIVE_EVENT_BANNER
-
-
-
+        LIVE_EVENT_BANNER,
+        BINGE_CHANNEL,
+        DARSHAN_CHANNEL,
+        MERGE_GAME_RAIL
     }

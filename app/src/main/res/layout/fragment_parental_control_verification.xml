@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.parentalcontrol.ParentalControlViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -54,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:gravity="center"
-            android:text="@string/title_parental_pin_verification"
+            android:text="@{vm.setTextToEnterThePin().enter}"
             android:textSize="@dimen/text_size_22"
             app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
             app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
@@ -69,7 +71,7 @@
             android:gravity="center"
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
-            android:text="@string/text_subtitle_parental_pin_setup"
+            android:text="@{vm.setTextToEnterThePin().enterDigit}"
             android:textSize="@dimen/text_size_14"
             app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
             app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
@@ -154,7 +156,7 @@
             android:layout_marginBottom="29dp"
             android:background="@color/transparent"
             android:gravity="center"
-            android:text="@string/text_forgot_parental_pin_setup"
+            android:text="@{vm.setTextToEnterThePin().forgot}"
             android:textColor="?android:textColorTertiary"
             android:textSize="@dimen/text_size_16"
             app:layout_constraintBottom_toBottomOf="parent"

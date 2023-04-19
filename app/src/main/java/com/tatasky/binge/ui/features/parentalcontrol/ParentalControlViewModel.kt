@@ -37,6 +37,7 @@ class ParentalControlViewModel @Inject constructor(
 
     var actionBeforeOpeningBottomSheet: String? = null
     var fromNudge : Boolean? = null
+
     var isParentalControlSuccess: Boolean = false
     val parentalControlBottomDialogResult = MutableLiveData<SingleEvent<String>>()
 
@@ -128,27 +129,6 @@ class ParentalControlViewModel @Inject constructor(
                                     )
                                 )
                             )
-                            //handle error codes here, added them fro reference
-//                            when (t.code) {
-//                                20096 -> { /*Null or Empty binge subscriber id.*/
-//                                }
-//                                20097 -> { /*Binge Subscriber not found.*/
-//                                }
-//                                11002 -> { /*Parental lock code must be of four digit numeric.*/
-//                                }
-//                                40005 -> { /*RMN must be of 10 digits.*/
-//                                }
-//                                40008 -> { /*OTP cannot be left empty.*/
-//                                }
-//                                10003 -> { /*Please enter a 6-digit OTP*/
-//                                }
-//                                20100 -> { /*No Subscriber profile found against this Subscriber Id*/
-//                                }
-//                                20009 -> { /*Null or empty ba id.*/
-//                                }
-//                                20008 -> { /*Invalid ba id.*/
-//                                }
-//                            }
                         }
                     }
 
@@ -182,6 +162,7 @@ class ParentalControlViewModel @Inject constructor(
                     override fun onSuccessResponse(t: BaseResponse) {
                         setProgressing(false)
                         if (t.code == CODE_SUCCESS) {
+                            sharedPrefs.sethandleRatingScreenTablet("no")
                             _validateParentalPinResponse.postValue(SingleEvent(t))
                         } else {
                             _validateParentalPinError.postValue(
@@ -192,21 +173,6 @@ class ParentalControlViewModel @Inject constructor(
                                     )
                                 )
                             )
-                            //handle error codes here, added them fro reference
-//                            when (t.code) {
-//                                20096 -> { /*Null or Empty binge subscriber id.*/
-//                                }
-//                                11002 -> { /*Parental lock code must be of four digit numeric.*/
-//                                }
-//                                20100 -> { /*No Subscriber profile found against this Subscriber Id.*/
-//                                }
-//                                20009 -> { /*Null or empty ba id.*/
-//                                }
-//                                20008 -> { /*Invalid ba id.*/
-//                                }
-//                                11004 -> { /*Inavlid parental lock code.*/
-//                                }
-//                            }
                         }
                     }
 
@@ -298,4 +264,6 @@ class ParentalControlViewModel @Inject constructor(
                 })
         }
     }
+
+    fun setTextToEnterThePin() = sharedPrefs.getConfigResponse()?.data?.config?.parental
 }

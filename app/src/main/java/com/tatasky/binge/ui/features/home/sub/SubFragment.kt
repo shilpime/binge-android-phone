@@ -1,14 +1,16 @@
 package com.tatasky.binge.ui.features.home.sub
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Point
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
@@ -21,6 +23,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.transition.MaterialSharedAxis
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.*
+import com.tatasky.binge.analytics.util.getDeeplinkContentAnalyticsModel
 import com.tatasky.binge.data.networking.models.ErrorModel
 import com.tatasky.binge.data.networking.models.requests.SetAppRatingRequest
 import com.tatasky.binge.data.networking.models.response.ContentItem
@@ -38,10 +41,10 @@ import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.features.common.CommonSampleViewModel
 import com.tatasky.binge.ui.features.home.ItemViewType
 import com.tatasky.binge.ui.features.home.LandingActivity
+import com.tatasky.binge.ui.features.home.adapter.HomeAdapter
 import com.tatasky.binge.ui.features.home.bottomsheet.HomeBottomSheetViewModel
 import com.tatasky.binge.ui.features.more.SettingsViewModel
 import com.tatasky.binge.utils.*
-import kotlinx.android.synthetic.main.activity_home.*
 import com.tatasky.binge.utils.TextUtils.isNotEmptyAndIsDigitAndIsGreaterThanZero
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.coroutines.delay
@@ -66,6 +69,45 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
     private  val subFragmentArgs by navArgs<SubFragmentArgs>()
     private val mHandler = Handler(Looper.getMainLooper())
 
+    companion object {
+        var pointNormal: Point? = null
+        var pointTop10: Point? = null
+        var pointNormalForGenre: Point? = null
+        var pointCharacterGenre: Point? = null
+        var pointNormalCategory: Point? = null
+        var pointLargeThumbnail: Point? = null
+        var pointCircularProviderIcon: Point? = null
+        var pointPortraitMixedThumbnail: Point? = null
+        var pointMidScrollCard: Point? = null
+        var pointGameSquare : Point? = null
+        var pointTitleRail : Point? = null
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pointNormal = getNormalThumbnailDimension(requireActivity())
+        pointTop10 = getLargeThumbnailTop10Dimension(requireActivity())
+        pointNormalForGenre = getNormalThumbnailForGenreDimension(requireActivity())
+        pointCharacterGenre = getCharcterGenrePoint(requireActivity())
+        pointNormalCategory = getNormalThumbnailForCategoryDimension(requireActivity())
+        pointLargeThumbnail = getLargeThumbnailDimension(requireActivity())
+        pointCircularProviderIcon = getCircularProviderIconPoint(requireActivity())
+        pointPortraitMixedThumbnail = getPortraitMixedThumbnailDimension(requireActivity())
+        pointMidScrollCard = getMidscrollCardDimension(requireActivity())
+        pointGameSquare = getSquareGameThumbnailDimension(requireActivity())
+        context?.let{ ctx->
+            pointTitleRail = getTitleRailItemDimension(ctx)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        context?.let {
+            e(TAG, "unregisterBroadcast ACTION_SUBSCRIPTION_UPDATED_DO_REFRESH")
+            localBroadcastHelper.unregisterBroadcast(it, broadcastReceiver)
+        }
+    }
+
     override fun onNetworkError(errorMessage: String, isRetry: Boolean) {
         super.onNetworkError(errorMessage, isRetry)
         viewModel.isPullToRefresh = false
@@ -84,6 +126,9 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
     }
 
     override fun toBeCalledOnce() {
+        activity?.let {
+            viewModel.isDeviceTablet= isTablet(it)
+        }
         try {
             /**
              * Prime deeplink handling moved to:
@@ -102,14 +147,16 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                             ?: "",
                         "Deeplink",
                         source = getSource(findNavController().currentDestination?.id),
-                        refId = ""
+                        refId = "",
+                        contentAnalyticsModel = getDeeplinkContentAnalyticsModel()
                     )
                 )
             }
             if (subFragmentArgs.contentItem != null)
                 findNavController().navigateSafe(
                     SubFragmentDirections.actionToDetail(
-                        subFragmentArgs.contentItem!!
+                        subFragmentArgs.contentItem!!,
+                        contentAnalyticsModel = getDeeplinkContentAnalyticsModel()
                     )
                 )
 
@@ -124,7 +171,8 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                             id = subFragmentArgs.id!!
                             contentType = subFragmentArgs.contentType!!
                             provider = subFragmentArgs.partnerName!!
-                        }
+                        },
+                        contentAnalyticsModel = getDeeplinkContentAnalyticsModel()
                     )
                 )
             }
@@ -136,7 +184,8 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                             id = subFragmentArgs.id!!
                             contentType = subFragmentArgs.contentType!!
                             provider = ""
-                        }
+                        },
+                        contentAnalyticsModel = getDeeplinkContentAnalyticsModel()
                     )
                 )
             }
@@ -147,7 +196,38 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
         viewModel.subscribed = viewModel.sharedPrefs.isActivePack()  &&
                 sharedPrefs.getPartnerIdsList()?.size?:0 > 0
         viewModel.unsubscribed = !viewModel.subscribed
+//        viewModel.setpackUpdated(sharedPrefs.getLoginStatus())
         setupBottomMenuItemsAndInitView()
+        context?.let {
+            e(TAG, "registerBroadcast ACTION_SUBSCRIPTION_UPDATED_DO_REFRESH")
+            localBroadcastHelper.registerBroadcast(
+                it,
+                broadcastReceiver,
+                localBroadcastHelper.ACTION_SUBSCRIPTION_UPDATED_DO_REFRESH
+            )
+        }
+    }
+
+    private val broadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            when (p1?.action) {
+                localBroadcastHelper.ACTION_SUBSCRIPTION_UPDATED_DO_REFRESH -> {
+                    lifecycleScope.launchWhenResumed {
+                        e(TAG, "Received ACTION_SUBSCRIPTION_UPDATED_DO_REFRESH")
+                        e(TAG, "isNotDataRefreshingOrLoading ${isNotDataRefreshingOrLoading()}")
+                        subscriptionUpdatedDoRefresh()
+                    }
+                }
+                else -> Unit
+            }
+        }
+    }
+
+    private fun subscriptionUpdatedDoRefresh() {
+        viewModel.setpackUpdated(true)
+        //refresh Page
+        if(isNotDataRefreshingOrLoading())
+            doPullToRefreshWithFSChecks()
     }
 
     private fun handleNoData() {
@@ -189,13 +269,13 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                 viewModel.setPageName(pageName?:"Home")
                 viewModel.setPageNameDrp(pageName?:"")
                 e("fetchHomeData", "using nav inside SubFragment updateInPack : $it")
-                viewModel.fetchHierarchyData(true)
+                viewModel.fetchHierarchyData(true, context?.let { it1 -> isTablet(it1) })
 //                viewModel.fetchHomeData(true)
             }
 
             viewModel.miscAnalytics.trackMixPanelHomePageView(
                 pageName ?: "",
-                drpEnabled = if (viewModel.checkDRPpages(sharedPrefs.getConfigResponse()?.data?.config?.drpPartnerPages)) YES else NO
+                drpEnabled = if (viewModel.checkDRPpages()) YES else NO
             )
 
 
@@ -317,6 +397,15 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
             binding.tvNoData.hide()
         }
 
+        var mergeList: MutableList<HomeResponse.Items> = mutableListOf()
+        for(i in 0..homeResponse.data!!.items?.size!!-1) {
+            if(homeResponse.data!!.items?.get(i)?.sectionSource?.equals(GAME_OF_THE_WEEK_SECTION,true) == true){
+                homeResponse.data!!.items?.get(i)?.let { mergeList.add(it) }
+            }
+            if(homeResponse.data!!.items?.get(i)?.sectionSource?.equals(NEWLY_ADDED_GAMES_SECTION,true) == true){
+                homeResponse.data!!.items?.get(i)?.let { mergeList.add(it) }
+            }
+        }
 
         if (homeResponse.data?.offset ?: 0 == 0) {
             if (::endlessScrollListener.isInitialized) {
@@ -399,22 +488,21 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
             mCurrentPreferredLanguages = sharedPrefsLanguages
         }
         e("fetchHomeData", "isFirstTime: $isFirstTime, viewModel.isUserLoggedIn : ${viewModel.isUserLoggedIn} ")
-
-        if (viewModel.checkDRPpages(sharedPrefs.getConfigResponse()?.data?.config?.drpPartnerPages)) {
-            if (checkDrpCacheThreshold()) {
-                e("DRP : ", "Page refreshed cache Duration exeeded")
-                refreshPage()
-            }
-        }
+        viewModel.setpackUpdated(sharedPrefs.getLoginStatus())
         if(!isFirstTime && sharedPrefs.getLoginStatus() != viewModel.isUserLoggedIn) {
             refreshPage()
             (activity as? LandingActivity)?.showFirestickOfferDialogByFrequency()
+        } else if (!isFirstTime && viewModel.checkDRPpages() && checkDrpCacheThreshold()) {
+            e("DRP : ", "Page refreshed cache Duration exeeded")
+            refreshPage()
         }
         else {
             if(viewModel.isContinueWatching)
                 viewModel.refreshContinueWatching()
             if(viewModel.isGameFav)
                 viewModel.refreshGameFav()
+            if(viewModel.isGameRP)
+                viewModel.refreshGameCW()
             if(viewModel.isTvodRail  && sharedPrefs.getLoginStatus())
                 viewModel.refreshTvodRail()
             if(viewModel.isWatchlist  && sharedPrefs.getLoginStatus())
@@ -443,6 +531,9 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
         (activity as? LandingActivity)?.handleSubscribeButtonVisibility()
         viewModel.getAdapter().handleHomeTrailerPlayBack(false)
         showInAppRatingDialogWithEligibilityCheck()
+        (binding.homeRecyclerView.adapter as? HomeAdapter)?.let {
+            it.notifyBannerChanges()
+        }
     }
 
     private fun showInAppRatingDialogWithEligibilityCheck() {
@@ -508,6 +599,13 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
 //                && totalItemCount > viewModel.pageOffset
 
     override fun setObserver() {
+
+        viewModel.resetHomeRvPosition().observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let{
+                binding.homeRecyclerView.scrollToPosition(0)
+            }
+        })
+
         commonViewModel?.getSubscribeBtnVisibility()?.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let{
                 viewModel.setGameWidgetVisibilityInAdapter(it)
@@ -523,6 +621,16 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                 if(it)
                     viewModel.refreshGameFav()
             })
+
+        findNavController().currentBackStackEntry
+            ?.savedStateHandle
+            ?.getLiveData<Boolean>(KEY_REFRESH_GAME_CW)
+            ?.observe(viewLifecycleOwner, Observer {
+                if(it)
+                    viewModel.refreshGameCW()
+            })
+
+
 
         commonViewModel?.getFakeRefreshHome()?.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { it ->
@@ -557,10 +665,7 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                         "viewModel.isOnProgress : ${viewModel.isOnProgress} " +
                         "viewModel.pageOffset : ${viewModel.pageOffset} "
                 )
-                viewModel.setpackUpdated(true)
-                //refresh Page
-                if(isNotDataRefreshingOrLoading())
-                    doPullToRefreshWithFSChecks()
+                subscriptionUpdatedDoRefresh()
             }
         })
 
@@ -588,32 +693,29 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                 }
             }
         })
-        viewModel.getClickedItem().observe(viewLifecycleOwner, Observer
-        {
-
+        viewModel.getClickedItem().observe(viewLifecycleOwner, Observer {
             val forward = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
                 this.duration = 250
             }
             enterTransition = forward
-
             val backward = MaterialSharedAxis(MaterialSharedAxis.Z, false).apply {
                 this.duration = 250
             }
             returnTransition = backward
             reenterTransition = backward
 //            exitTransition = backward
-
-
-            it.getContentIfNotHandled()?.let { contentIfNotHandled ->
-                if (contentIfNotHandled.contentItem.contentType == TYPE_GAMES) {
+            it.getContentIfNotHandled()?.let { clickedItem ->
+                if (clickedItem.contentItem.contentType == TYPE_GAMES) {
                     if(sharedPrefs.getLoginStatus()) {
-                        getGamesActivityIntent(requireContext(), contentIfNotHandled.contentItem, contentIfNotHandled.gamesMixpanelInfoModel)?.let{
-                            startActivity(
-                                it
-                            )
+                        getGamesActivityIntent(
+                            requireContext(),
+                            clickedItem.contentItem,
+                            clickedItem.gamesMixpanelInfoModel
+                        )?.let {
+                            startActivity(it)
                         }
                     } else {
-                        contentIfNotHandled.gamesMixpanelInfoModel?.let{
+                        clickedItem.gamesMixpanelInfoModel?.let{
                             viewModel.miscAnalytics.trackGameClick(
                                 pageName = it.pageName,
                                 railTitle = it.railTitle,
@@ -624,10 +726,10 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                                 gamePartner = it.gamePartner,
                                 gamePosition = it.gamePosition,
                                 gameRating = it.gameRating,
-                                gameTitle = contentIfNotHandled.contentItem.title,
+                                gameTitle = clickedItem.contentItem.title,
                                 freeGame = YES,
                                 releaseYear = it.releaseYear,
-                                deviceType = PLATFORM_ANDROID_CAPS,
+                                deviceType = sharedPrefs.getDeviceType()?.uppercase()?:"",
                                 source = it.source,
                                 packPrice = FREEMIUM,
                                 packName = FREEMIUM
@@ -636,8 +738,8 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                         commonViewModel?.getPreviouslyUsedMobileNumbers()
                     }
                 }
-                else if (contentIfNotHandled.sectionSource == EventConstants.TYPE_SELECT_PAID_PACK
-                    || contentIfNotHandled.sectionSource == EventConstants.TYPE_START_FREE_TRIAL
+                else if (clickedItem.sectionSource == EventConstants.TYPE_SELECT_PAID_PACK
+                    || clickedItem.sectionSource == EventConstants.TYPE_START_FREE_TRIAL
                 ) {
                     activity?.let { activity ->
                         startActivity(
@@ -652,69 +754,68 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                             )
                         )
                     }
-                }
-                else if (contentIfNotHandled.sectionSource.equals(
-                        ItemViewType.CATEGORY.name
-                    )){
+                } else if (clickedItem.sectionSource.equals(ItemViewType.CATEGORY.name, true)) {
                     findNavController().navigateSafe(
                         SubFragmentDirections.actionActionHomeLandingToSubHomeFragment(
-                            contentIfNotHandled.contentItem.pageType,//pageType
+                            clickedItem.contentItem.pageType,//pageType
                             "", //Empty for categories
                             "", // Empty for categories
                             "", // Empty for categories
-                            contentIfNotHandled.contentItem.title
+                            clickedItem.contentItem.title
                         )
                     )
                     (activity as? LandingActivity)?.parentalControlSnackbarUtil?.hideParentalControlSnackbar()
-
-                } else if (contentIfNotHandled.sectionSource.equals(
+                } else if (clickedItem.sectionSource.equals(
                         ItemViewType.LANGUAGE.name,
                         true
                     ) ||
-                    contentIfNotHandled.sectionSource.equals(ItemViewType.GENRE.name, true)
-                    || contentIfNotHandled.sectionSource.equals(ItemViewType.GENRE_RAIL_FOR_GAMES.name,true)
+                    clickedItem.sectionSource.equals(ItemViewType.GENRE.name, true)
+                    || clickedItem.sectionSource.equals(ItemViewType.GENRE_RAIL_FOR_GAMES.name,true)
                 ) {
                     findNavController().navigateSafe(
                         SubFragmentDirections.actionHomeFragmentToLanguageGenreFragment(
-                            contentIfNotHandled.contentItem.title,
-                            contentIfNotHandled.sectionSource,
+                            clickedItem.contentItem.title,
+                            clickedItem.sectionSource,
                             viewModel.searchPageName ?: "",
-                            contentIfNotHandled.contentItem.backgroundImage?:"",
-                            contentIfNotHandled.contentItem.image,
+                            clickedItem.contentItem.getLangGenreBackDrop(clickedItem.sectionSource)
+                                ?: "",
+                            clickedItem.contentItem.getLangGenreIcon(clickedItem.sectionSource),
                             source = getSource(findNavController().currentDestination?.id),
-                            refId = contentIfNotHandled.contentItem.refId
+                            refId = clickedItem.contentItem.refId,
+                            contentAnalyticsModel = clickedItem.contentAnalyticsModel
                         )
                     )
                     (activity as? LandingActivity)?.parentalControlSnackbarUtil?.hideParentalControlSnackbar()
                 }
                 /*Sprint 1 Freemium - Popular Character*/
-                else if (contentIfNotHandled.sectionSource.equals(ItemViewType.CHARACTER.name, true)) {
+                else if (clickedItem.sectionSource.equals(ItemViewType.CHARACTER.name, true)) {
                     findNavController().navigateSafe(
                         SubFragmentDirections.actionHomeFragmentToLanguageGenreFragment(
                             "Chhota Bheem",
-                            contentIfNotHandled.sectionSource,
+                            clickedItem.sectionSource,
                             viewModel.searchPageName ?: "",
-                            contentIfNotHandled.contentItem.image,
+                            clickedItem.contentItem.image,
                             source = getSource(findNavController().currentDestination?.id),
-                            refId = contentIfNotHandled.contentItem.refId
+                            refId = clickedItem.contentItem.refId,
+                            contentAnalyticsModel = clickedItem.contentAnalyticsModel
                         )
                     )
                     (activity as? LandingActivity)?.parentalControlSnackbarUtil?.hideParentalControlSnackbar()
                 }
-                else if (contentIfNotHandled.contentItem.contentType == TYPE_SUB_PAGE) {
+                else if (clickedItem.contentItem.contentType == TYPE_SUB_PAGE) {
                     findNavController().navigateSafe(
                         SubFragmentDirections.actionActionHomeLandingToSubHomeFragment(
-                            contentIfNotHandled.contentItem.pageType,//pageType
-                            contentIfNotHandled.contentItem.provider,
-                            contentIfNotHandled.contentItem.image,
-                            contentIfNotHandled.contentItem.partnerId ?: "",
-                            contentIfNotHandled.contentItem.title
+                            clickedItem.contentItem.pageType,//pageType
+                            clickedItem.contentItem.provider,
+                            clickedItem.contentItem.image,
+                            clickedItem.contentItem.partnerId ?: "",
+                            clickedItem.contentItem.title
                         )
                     )
                     (activity as? LandingActivity)?.parentalControlSnackbarUtil?.hideParentalControlSnackbar()
-                } else if (contentIfNotHandled.sectionSource == EventConstants.TYPE_SELECT_LANGUAGE_POP_UP) {
+                } else if (clickedItem.sectionSource == EventConstants.TYPE_SELECT_LANGUAGE_POP_UP) {
                     showLanguageBottomSheet()
-                } else if (contentIfNotHandled.sectionSource == ItemViewType.GAME_NUDGE.name){
+                } else if (clickedItem.sectionSource == ItemViewType.GAME_NUDGE.name){
 
 
 
@@ -722,20 +823,22 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                         sharedPrefs=sharedPrefs,
                         activity=activity,
                         context = context,
-                        partnerId = contentIfNotHandled?.contentItem?.partnerId ?: "",
+                        partnerId = clickedItem?.contentItem?.partnerId ?: "",
                         fromScreen = SOURCE_GAME_NUDGE,
                         startPackListing = true
                     )
 
 
                 } else
-                    if (contentIfNotHandled.sectionSource == EventConstants.TYPE_MID_SCROLL_BANNER) {
-                        when (contentIfNotHandled.contentItem.screenName) {
+                    if (clickedItem.sectionSource == EventConstants.TYPE_MID_SCROLL_BANNER) {
+                        when (clickedItem.contentItem.screenName) {
                             MID_SCROLL_DETAIL_SCREEN -> {
                                 findNavController().navigateSafe(
                                     SubFragmentDirections.actionToDetail(
-                                        contentIfNotHandled.contentItem
-                                    ), contentIfNotHandled.extras
+                                        clickedItem.contentItem,
+                                        contentAnalyticsModel = clickedItem.contentAnalyticsModel
+                                    ),
+                                    clickedItem.extras
                                 )
                             }
                             MID_SCROLL_MOVIES -> {
@@ -763,28 +866,28 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                                     sharedPrefs=sharedPrefs,
                                     activity=activity,
                                     context = context,
-                                    partnerId = contentIfNotHandled?.contentItem?.partnerId ?: "",
+                                    partnerId = clickedItem?.contentItem?.partnerId ?: "",
                                     fromScreen = SOURCE_MIDSCROLL_NUDGE,
                                     startPackListing = true,
                                     checkFdo = true
                                 )
                             }
                         }
-                    } else if (contentIfNotHandled.sectionSource == EventConstants.TYPE_MID_SCROLL) {
+                    } else if (clickedItem.sectionSource == EventConstants.TYPE_MID_SCROLL) {
 
                         checkManagedAppEligibility(
                             sharedPrefs=sharedPrefs,
                             activity=activity,
                             context = context,
-                            partnerId = contentIfNotHandled?.contentItem?.partnerId ?: "",
+                            partnerId = clickedItem?.contentItem?.partnerId ?: "",
                             fromScreen = SOURCE_MIDSCROLL_NUDGE,
                             startPackListing = true,
                             checkFdo = true,
-                            packName =  contentIfNotHandled.contentItem.packName ?: ""
+                            packName =  clickedItem.contentItem.packName ?: ""
                         )
 
 
-                    } else if (contentIfNotHandled.sectionSource == EventConstants.TYPE_MID_SCROLL_GAMES) {
+                    } else if (clickedItem.sectionSource == EventConstants.TYPE_MID_SCROLL_GAMES) {
                         Handler().postDelayed(
                             {
                                 (requireActivity() as LandingActivity).setSelectedTab(R.id.gametab)
@@ -794,8 +897,11 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                     } else {
                         findNavController().navigateSafe(
                             SubFragmentDirections.actionToDetail(
-                                contentIfNotHandled.contentItem
-                            ), contentIfNotHandled.extras
+                                clickedItem.contentItem,
+                                railItemsModel = clickedItem.railItemsModel,
+                                contentAnalyticsModel = clickedItem.contentAnalyticsModel
+                            ),
+                            clickedItem.extras
                         )
                         (activity as? LandingActivity)?.parentalControlSnackbarUtil?.hideParentalControlSnackbar()
                     }
@@ -847,7 +953,8 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                             layoutType = seeAllTransition.layoutType,
                             railPosition = seeAllTransition.railPosition.toString(),
                             refId = seeAllTransition.refId,
-                            packName = seeAllTransition.packName
+                            packName = seeAllTransition.packName,
+                            contentAnalyticsModel = seeAllTransition.contentAnalyticsModel
                         )
                     )
                     (activity as? LandingActivity)?.parentalControlSnackbarUtil?.hideParentalControlSnackbar()
@@ -925,7 +1032,8 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                 (activity as LandingActivity).showCategoryBottomSheet()
             }
             else {
-                viewModel.fetchHierarchyData(false)
+                viewModel.setUserManualRefresh1(true)
+                viewModel.fetchHierarchyData(false, context?.let { it1 -> isTablet(it1) })
 //                viewModel.fetchHomeData(false)
             }
         }
@@ -1053,7 +1161,7 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
             viewModel.getAdapter().clear()
             (activity as? LandingActivity)?.showFirestickOfferDialogByFrequency()
         }
-        viewModel.fetchHierarchyData(true)
+        viewModel.fetchHierarchyData(true, context?.let { it1 -> isTablet(it1) })
         (activity as? LandingActivity)?.handleSubscribeButtonVisibility()
     }
 
@@ -1063,7 +1171,7 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
                 sharedPrefs.getPartnerIdsList()?.size?:0 > 0
         viewModel.unsubscribed = !viewModel.subscribed
         e("fetchHomeData", "using refresh inside SubFragment updateInPack")
-        viewModel.fetchHierarchyData(true)
+        viewModel.fetchHierarchyData(true, context?.let { it1 -> isTablet(it1) })
     }
 
     private fun showLanguageBottomSheet(){
@@ -1141,6 +1249,20 @@ class SubFragment: BaseFragment<FragmentSubpageBinding, SubViewModel>(){
 
                         )
                 )
+            }
+        }
+
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        activity?.let {
+            if(isTablet(it)){
+                pointGameSquare=getSquareGameThumbnailDimension(requireActivity())
+                (binding.homeRecyclerView.adapter as? HomeAdapter)?.let {
+                    it.notifyOrientationChange(binding.homeRecyclerView)
+                    it.notifyBannerChanges()
+                }
             }
         }
 

@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
 
     <data>
 
+        <variable
+            name="viewModel"
+            type="com.tatasky.binge.ui.features.onboarding.login.bottomsheet.GuestLoginViewModel" />
+
+        <import type="android.view.View" />
+
+        <import type="android.text.InputType" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -30,21 +38,6 @@
         <include
             android:id="@+id/header"
             layout="@layout/layout_header_parental_control_dialog" />
-<!--
-        <TextView
-            android:id="@+id/tv_subtitle_guest_login_verify_otp"
-            style="@style/TSTextMedium"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="125dp"
-            android:gravity="center_vertical|start"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"
-            android:textSize="@dimen/text_size_14"
-            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
-            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="@string/text_subtitle_guest_login_verify_otp" />-->
 
         <include
             android:id="@+id/layoutLoginOTP"
@@ -54,60 +47,7 @@
             app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
             app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
             app:layout_constraintTop_toBottomOf="@id/header"
-            />
-<!--
-        <TextView
-            android:id="@+id/tv_code_expiry_guest_login_verify_otp"
-            style="@style/TSTextMedium"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="64dp"
-            android:gravity="center_vertical|start"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"
-            android:textSize="@dimen/text_size_14"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/tv_resend_otp_guest_login_verify_otp"
-            app:layout_constraintStart_toStartOf="@id/cl_et_otp_container"
-            app:layout_constraintTop_toBottomOf="@id/cl_et_otp_container"
-            tools:text="@string/text_code_expiry_guest_login_verify_otp" />
-
-        <TextView
-            android:id="@+id/tv_error_guest_login_verify_otp"
-            style="@style/TSTextMedium"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="64dp"
-            android:gravity="center_vertical|start"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"
-            android:textColor="@color/darkError"
-            android:textSize="@dimen/text_size_14"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/tv_resend_otp_guest_login_verify_otp"
-            app:layout_constraintStart_toStartOf="@id/cl_et_otp_container"
-            app:layout_constraintTop_toBottomOf="@id/cl_et_otp_container"
-            tools:text="Incorrect OTP" />
-
-        <TextView
-            android:id="@+id/tv_resend_otp_guest_login_verify_otp"
-            style="@style/TSTextMedium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="64dp"
-            android:enabled="false"
-            android:gravity="center_vertical|end"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"
-            android:text="@string/resend_otp"
-            android:textColor="@color/button_color_tertiary"
-            android:textSize="@dimen/text_size_16"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@id/cl_et_otp_container"
-            app:layout_constraintTop_toBottomOf="@id/cl_et_otp_container" />-->
+            bind:isEligibleForFreeTrial="@{false}"
+            bind:resendOtp="@{viewModel.setVerbiageForLoginScreen().resendOtp}" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

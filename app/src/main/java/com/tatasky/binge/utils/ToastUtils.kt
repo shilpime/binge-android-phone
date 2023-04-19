@@ -9,30 +9,55 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.tatasky.binge.R
 import com.tatasky.binge.customviews.CustomSnackbar
 import com.tatasky.binge.customviews.CustomSnackbarUpgradeTrial
 import com.tatasky.binge.databinding.LayoutToastSuccessFailureBinding
 import com.tatasky.binge.ui.base.frameworks.base.BaseActivity
+import com.tatasky.binge.ui.base.frameworks.extensions.hide
+import com.tatasky.binge.ui.base.frameworks.extensions.show
 
 fun showToast(
     context: Context?,
     msz: String,
     imgResource: Int? = null,
-    layoutParam: ConstraintLayout.LayoutParams? = null/*Margin and other properties are only available for Constraint, Linear etc layout*/
+    /*Margin and other properties are only available for Constraint, Linear etc layout*/
+    layoutParam: ConstraintLayout.LayoutParams? = null,
+    viewGroup: ViewGroup? = null,
 ) {
     context?.let {
-        (it as BaseActivity<*>).window.decorView.findViewById<View>(android.R.id.content)
-            ?.let { rootView ->
-                CustomSnackbar.make(rootView as ViewGroup, msz, imgResource, layoutParam).show()
-            }
+        viewGroup?.let { viewGroup ->
+            viewGroup.show()
+            CustomSnackbar
+                .make(viewGroup, msz, imgResource, layoutParam, isTablet(it))
+                .addCallback(object : BaseTransientBottomBar.BaseCallback<CustomSnackbar>() {
+                    override fun onDismissed(transientBottomBar: CustomSnackbar?, event: Int) {
+                        viewGroup.hide()
+                        super.onDismissed(transientBottomBar, event)
+                    }
+                })
+                .show()
+        } ?: run {
+            (it as BaseActivity<*>).window.decorView.findViewById<View>(android.R.id.content)
+                ?.let { rootView ->
+                    CustomSnackbar.make(rootView as ViewGroup, msz, imgResource, layoutParam).show()
+                }
+        }
     }
 }
-fun showToastOverDialog(dialog: Dialog, msz: String, imgResource: Int? = null) {
+
+fun showToastOverDialog(
+    dialog: Dialog,
+    msz: String,
+    imgResource: Int? = null,
+    layoutParam: ConstraintLayout.LayoutParams
+) {
     dialog.window?.decorView?.let { rootView ->
-        CustomSnackbar.make(rootView as ViewGroup, msz, imgResource).show()
+        CustomSnackbar.make(rootView as ViewGroup, msz, imgResource,layoutParam).show()
     }
 }
+
 
 fun showCustomToast(context: Context?, layout: View?, gravity: Int = Gravity.NO_GRAVITY, isBottomNavVisible: Boolean = true): Toast {
     val toast = Toast(context)
@@ -72,8 +97,10 @@ fun showCustomLoginToast(context: Context, message: String, isSuccess: Boolean, 
     view.textLoginSuccessfulToast.text = message
     if (isSuccess) {
         view.imageTickLoginSuccessfulToast.setImageResource(R.drawable.ic_tick_login_success)
+        view.viewBackgroundLoginSuccessfulToast.setBackgroundResource(R.drawable.toast_login_bg)
     } else {
         view.imageTickLoginSuccessfulToast.setImageResource(R.drawable.ic_warning_login_failure)
+        view.viewBackgroundLoginSuccessfulToast.setBackgroundResource(R.drawable.toast_background)
     }
     showCustomToast(context, view?.root, Gravity.FILL_HORIZONTAL, isBottomNavVisible)
 }

@@ -14,6 +14,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.exoplayer2.Format
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.TrackGroupArray
@@ -36,8 +37,10 @@ import com.tatasky.binge.ui.features.player.model.AudioLanguage
 import com.tatasky.binge.ui.features.player.model.Bitrate
 import com.tatasky.binge.ui.features.player.model.VideoQuality
 import com.tatasky.binge.utils.*
+import com.tatasky.binge.utils.ContentUtil.isLiveContent
 import com.ttn.ttnplayer.player.TtnPlayerHelper
 import com.ttn.ttnplayer.util.L3_MAX_BITRATE
+import com.ttn.ttnplayer.util.ProviderSpecificRestrictions.PROVIDER_CHAUPAL_RESTRICTIONS
 import java.net.InetAddress
 
 abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
@@ -76,6 +79,7 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
     protected var prevWatchDuration = 0
     protected var ttnPlayerHelper: TtnPlayerHelper? = null
     protected var isPlayerEnded = false
+    protected var callProbeEventOnce = false
     protected var nextEpisodeClickListener : View.OnClickListener? =null
     protected var defaultVolume = 0f
     protected var isSoundOn = true
@@ -123,9 +127,11 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
 
     var preferredSubtitleLanguage: String? = null
     var preferredAudioLanguage: String? = null
+    var scaleDetector: MyScaleGestureDetector? = null
 
     abstract fun zoomIn()
     abstract fun zoomOut()
+    abstract fun zoomInPinch()
 
     /**
      * Triggers event based on content watch duration.
@@ -406,7 +412,7 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
             (intialBufferDuration / 60).toString(),
             numberOfPauses.toString(),
             numberOfResumes.toString(),
-            contentItem?.railName ?: "",
+            detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
             (contentItem?.origin ?: "").toUpperCase(),
             contentItem?.source?.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
             playerModel.getAudioLanguages(),
@@ -424,10 +430,14 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
             contentItem?.contentPosition?:"",
             detailsResponse?.data?.metaDetails?.rating ?: "",
             detailsResponse?.data?.metaDetails?.releaseYear ?: "",
-            PLATFORM_ANDROID,
+            sharedPrefs.getDeviceType() ?: "",
             detailsResponse?.data?.metaDetails?.actor,
             if (sharedPrefs.getAutoPlayTrailerOn() && isTrailerInitialized) YES else NO,
-            NO,
+            liveContent = if (isLiveContent(
+                    contentItem?.contentType,
+                    contentItem?.liveContent == true
+                )
+            ) YES else NO,
             seekbarProgress ?: "0",
             selectedQuality,
             contentItem?.contentConfigType ?: ""
@@ -449,7 +459,7 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
             (intialBufferDuration / 60).toString(),
             numberOfPauses.toString(),
             numberOfResumes.toString(),
-            contentItem?.railName ?: "",
+            detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
             (contentItem?.origin ?: "").toUpperCase(),
             contentItem?.source?.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
             playerModel.getAudioLanguages(),
@@ -467,10 +477,14 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
             contentItem?.contentPosition?:"",
             detailsResponse?.data?.metaDetails?.rating ?: "",
             detailsResponse?.data?.metaDetails?.releaseYear ?: "",
-            PLATFORM_ANDROID,
+            sharedPrefs.getDeviceType() ?: "",
             detailsResponse?.data?.metaDetails?.actor,
             if (sharedPrefs.getAutoPlayTrailerOn() && isTrailerInitialized) YES else NO,
-            NO,
+            liveContent = if (isLiveContent(
+                    contentItem?.contentType,
+                    contentItem?.liveContent == true
+                )
+            ) YES else NO,
             seekbarProgress ?: "0%",
             selectedQuality,
             contentItem?.contentConfigType ?: ""
@@ -570,6 +584,9 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
             audioOptionsView.layoutParams = audioParam
             recyclerView.layoutManager = layoutManager
             recyclerView.adapter = playerOptionAdapter
+            (recyclerView.getItemAnimator() as SimpleItemAnimator).setSupportsChangeAnimations(
+                false
+            )
             dialog?.findViewById<LinearLayout>(R.id.ll_options_container)
                 ?.addView(audioOptionsView)
             val subtitleOptionsView =
@@ -733,7 +750,7 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
             numberOfPauses,
             numberOfResumes,
             playerModel?.getProvider() ?: "",
-            contentItem?.railName ?: "",
+            detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
             (contentItem?.origin ?: "").toUpperCase(),
             contentItem?.source?.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
             playerModel?.getAudioLanguages(),
@@ -753,10 +770,14 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
             contentItem?.contentPosition?:"",
             detailsResponse?.data?.metaDetails?.rating ?: "",
             detailsResponse?.data?.metaDetails?.releaseYear ?: "",
-            PLATFORM_ANDROID,
+            sharedPrefs.getDeviceType() ?: "",
             detailsResponse?.data?.metaDetails?.actor,
             if (sharedPrefs.getAutoPlayTrailerOn() && isTrailerInitialized) YES else NO,
-            NO,
+            liveContent = if (isLiveContent(
+                    contentItem?.contentType,
+                    contentItem?.liveContent == true
+                )
+            ) YES else NO,
             seekbarProgress ?: "0%",
             selectedQuality,
             contentItem?.contentConfigType ?: ""
@@ -788,7 +809,7 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
             numberOfPauses.toString(),
             numberOfResumes.toString(),
             playerModel?.getProvider() ?: "",
-            contentItem?.railName ?: "",
+            detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
             (contentItem?.origin ?: "").toUpperCase(),
             contentItem?.source?.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
             playerModel?.getAudioLanguages(),
@@ -808,10 +829,14 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
             contentItem?.contentPosition?:"",
             detailsResponse?.data?.metaDetails?.rating ?: "",
             detailsResponse?.data?.metaDetails?.releaseYear ?: "",
-            PLATFORM_ANDROID,
+            sharedPrefs.getDeviceType() ?: "",
             detailsResponse?.data?.metaDetails?.actor,
             if (sharedPrefs.getAutoPlayTrailerOn() && isTrailerInitialized) YES else NO,
-            NO,
+            liveContent = if (isLiveContent(
+                    contentItem?.contentType,
+                    contentItem?.liveContent == true
+                )
+            ) YES else NO,
             seekbarProgress ?: "0%",
             selectedQuality,
             contentItem?.contentConfigType ?: ""
@@ -855,7 +880,7 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
             numberOfPauses.toString(),
             numberOfResumes.toString(),
             playerModel?.getProvider() ?: "",
-            contentItem?.railName?:"",
+            detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?:"",
             (contentItem?.origin?:"").toUpperCase(),
             contentItem?.source?.takeIf { it.isNotEmpty() }?:"Deeplink",
             playerModel?.getAudioLanguages(),
@@ -875,10 +900,14 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
             contentItem?.contentPosition?:"",
             detailsResponse?.data?.metaDetails?.rating ?: "",
             detailsResponse?.data?.metaDetails?.releaseYear ?: "",
-            PLATFORM_ANDROID,
+            sharedPrefs.getDeviceType() ?: "",
             detailsResponse?.data?.metaDetails?.actor,
             if (sharedPrefs.getAutoPlayTrailerOn() && isTrailerInitialized) YES else NO,
-            NO,
+            liveContent = if (isLiveContent(
+                    contentItem?.contentType,
+                    contentItem?.liveContent == true
+                )
+            ) YES else NO,
             PlayerUtils.getCurrentSeekBarProgressInPercentage(
                 playerModel?.getResumeTime(),
                 ((playerModel?.getTotalDuration() ?: 0) * 1000)
@@ -958,12 +987,16 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
             contentRating = detailsResponse?.data?.metaDetails?.rating ?: "",
             contentParentTitle = playerModel?.getParentTitle()
                 ?: detailsResponse?.data?.metaDetails?.getParentTitle() ?: "",
-            deviceType = PLATFORM_ANDROID,
+            deviceType = sharedPrefs.getDeviceType() ?: "",
             actors = detailsResponse?.data?.metaDetails?.actor?.joinToString(separator = ",") ?: "",
             packPrice = sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
             source = contentItem.source.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
             packName = sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
-            liveContent = NO,
+            liveContent = if (isLiveContent(
+                    contentItem.contentType,
+                    detailsResponse?.data?.metaDetails?.isLiveContent
+                )
+            ) YES else NO,
             contentLanguagePrimary = detailsResponse?.data?.metaDetails?.audio?.getOrNull(0),
             freeContent = if (isContentSubscribed) YES else NO,
             releaseYear = detailsResponse?.data?.metaDetails?.releaseYear ?: "",
@@ -999,12 +1032,16 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
             contentRating = detailsResponse?.data?.metaDetails?.rating ?: "",
             contentParentTitle = playerModel?.getParentTitle()
                 ?: detailsResponse?.data?.metaDetails?.getParentTitle() ?: "",
-            deviceType = PLATFORM_ANDROID,
+            deviceType = sharedPrefs.getDeviceType() ?: "",
             actors = detailsResponse?.data?.metaDetails?.actor?.joinToString(separator = ",") ?: "",
             packPrice = sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
             source = contentItem.source.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
             packName = sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
-            liveContent = NO,
+            liveContent = if (isLiveContent(
+                    contentItem.contentType,
+                    detailsResponse?.data?.metaDetails?.isLiveContent
+                )
+            ) YES else NO,
             contentLanguagePrimary = detailsResponse?.data?.metaDetails?.audio?.getOrNull(0),
             freeContent = if (isContentSubscribed) YES else NO,
             releaseYear = detailsResponse?.data?.metaDetails?.releaseYear ?: "",
@@ -1113,7 +1150,8 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
     open fun initVideo(
         trackGroups: TrackGroupArray,
         trackSelections: TrackSelectionArray?,
-        isL3DRM : Boolean = false
+        isL3DRM : Boolean = false,
+        provider: String? = null
     ) {
         this.trackSelections = trackSelections
         if (videoQuality != null) return
@@ -1127,7 +1165,11 @@ abstract class PlayerBaseFragment<PVB : ViewDataBinding> : DetailsFragment(),
                 e("ExoPlayerImpl", "groupIndex : $groupIndex , trackIndex:$trackIndex, format : $format")
                 if ("video/avc".equals(format.sampleMimeType, ignoreCase = true)) {
                     var height = format.height
-                    if(isL3DRM && (format.bitrate > L3_MAX_BITRATE || format.height > 480)) continue
+                    if ((isL3DRM && (format.bitrate > L3_MAX_BITRATE || format.height > 480)) ||
+                        (provider?.equals(PROVIDER_CHAUPAL, true) == true &&
+                                format.width > PROVIDER_CHAUPAL_RESTRICTIONS.first ||
+                                format.height > PROVIDER_CHAUPAL_RESTRICTIONS.second)
+                    ) continue
                     if(height < 0)
                         height = fetchVideoQualityUsingBitrate(format.bitrate)
                     if(trackIndex < group.length-1){

@@ -309,9 +309,10 @@ open class CancellationBaseViewModel constructor(
     fun getDthStatus() = sharedPrefs.getDthStatus()
 
     @SuppressLint("CheckResult")
-    fun startRecharge(source: String? = null /*Source from where the user initiated recharge*/, amount: String? = null) {
+    /*Source from where the user initiated recharge*/
+    fun startRecharge(source: String? = null, amount: String? = null) {
         setProgressing(true)
-        case.initiateRecharge(sharedPrefs.getOriginalSubscriberId())
+        case.initiateRecharge(sharedPrefs.getOriginalSubscriberId(), amount)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeWith(object : CallbackWrapper<RechargeResponse>() {

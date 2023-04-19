@@ -52,6 +52,10 @@
             android:defaultValue="@null"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="fromHeader"
+            app:argType="boolean"
+            android:defaultValue="false"/>
     </dialog>
     <action
         android:id="@+id/action_global_parentalControlBottomDialogFragment"

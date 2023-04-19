@@ -1,0 +1,109 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="railsModel"
+            type="com.tatasky.binge.ui.features.home.model.RailsModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:paddingTop="@dimen/rail_margins"
+        android:paddingStart="@dimen/screen_horizontal_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <View
+            android:id="@+id/middle_view"
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:background="@color/transparent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/iv_genre_wheel"
+            app:layout_constraintStart_toStartOf="@id/iv_genre_wheel"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <ImageView
+            android:id="@+id/iv_genre_rail_bg"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/genre_background"
+            android:translationZ="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/iv_genre_wheel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/middle_view"
+            app:layout_constraintTop_toTopOf="@id/iv_genre_wheel" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/home_recycler_view"
+            setAdapter="@{railsModel.adapter}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/genre_items_wheel_padding"
+            android:translationZ="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/middle_view"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:listitem="@layout/layout_genre_landscape" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="@id/iv_genre_wheel"
+            app:layout_constraintGuide_percent=".28"
+            app:layout_constraintStart_toStartOf="@id/iv_genre_wheel" />
+
+
+        <ImageView
+            android:id="@+id/iv_genre_wheel"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:src="@drawable/ic_genre_wheel"
+            android:translationZ="2dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@id/guide"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="@dimen/dimen_2dp"
+            android:src="@drawable/ic_round_black"
+            android:translationZ="1dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/guide"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <TextView
+            android:id="@+id/tv_title"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_10"
+            android:gravity="center"
+            android:text="@{railsModel.title}"
+            android:textSize="@dimen/text_size_14"
+            android:translationZ="2dp"
+            app:layout_constraintBottom_toBottomOf="@id/iv_genre_rail_bg"
+            app:layout_constraintEnd_toEndOf="@id/iv_genre_wheel"
+            app:layout_constraintStart_toStartOf="@id/iv_genre_wheel"
+            app:layout_constraintTop_toTopOf="@id/iv_genre_rail_bg"
+            tools:text="Browse By \n Genre" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

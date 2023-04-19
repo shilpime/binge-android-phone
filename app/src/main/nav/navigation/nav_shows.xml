@@ -5,6 +5,7 @@
     android:id="@+id/shows"
     app:startDestination="@id/action_sub_landing_shows">
 
+
     <fragment
         android:id="@+id/action_sub_landing_shows"
         android:name="com.tatasky.binge.ui.features.home.sub.SubFragment"
@@ -161,6 +162,9 @@
                 app:argType="string"
                 android:defaultValue=""
                 app:nullable="false"/>
+            <argument
+                android:name="contentAnalyticsModel"
+                app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
         </action>
 
         <action
@@ -262,6 +266,16 @@
             android:name="fromGrid"
             android:defaultValue="false"
             app:argType="boolean" />
+        <argument
+            android:name="railItemsModel"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.ui.features.home.model.RailItemsModel"
+            app:nullable="true" />
+        <argument
+            android:name="contentAnalyticsModel"
+            android:defaultValue="@null"
+            app:nullable="true"
+            app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
     </action>
 
     <activity
@@ -384,6 +398,11 @@
             app:argType="string"
             android:defaultValue="@null"
             app:nullable="true"/>
+        <argument
+            android:name="contentAnalyticsModel"
+            android:defaultValue="@null"
+            app:nullable="true"
+            app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
     </fragment>
 
     <activity
@@ -474,17 +493,28 @@
             android:name="isLoginToHome"
             android:defaultValue="false"
             app:argType="boolean" />
+        <argument
+            android:name="source"
+            app:nullable="true"
+            android:defaultValue="@null"
+            app:argType="string" />
         <action
             android:id="@+id/action_guestLoginBottomDialogFragment_to_managedAppFragment"
             app:destination="@id/managedAppFragment"
             app:launchSingleTop="true" >
-            <argument
+        <argument
                 android:name="isToSummaryPage"
                 android:defaultValue="false"
                 app:argType="boolean" />
             <argument
                 android:name="cartId"
                 android:defaultValue=""
+                app:argType="string" />
+
+            <argument
+                android:name="source"
+                app:nullable="true"
+                android:defaultValue="@null"
                 app:argType="string" />
         </action>
     </dialog>
@@ -552,6 +582,7 @@
     <action
         android:id="@+id/action_global_watchlist"
         app:destination="@id/watchlist" />
+
     <fragment
         android:id="@+id/editProfileFragment"
         android:name="com.tatasky.binge.ui.features.updateprofile.EditProfileFragment"
@@ -620,6 +651,10 @@
             android:defaultValue="CHANGE RESTRICTION"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="fromHeader"
+            app:argType="boolean"
+            android:defaultValue="false"/>
     </dialog>
     <action
         android:id="@+id/action_global_parentalControlBottomDialogFragment"

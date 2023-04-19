@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="640dp"
+    android:height="456dp"
+    android:viewportWidth="640"
+    android:viewportHeight="456"
+    >
+  <group>
+    <clip-path
+        android:pathData="M20 0H620C631.046 0 640 8.95431 640 20V436C640 447.046 631.046 456 620 456H20C8.95431 456 0 447.046 0 436V20C0 8.95431 8.95431 0 20 0Z"
+        />
+    <group
+        android:translateX="0.04"
+        android:translateY="-0.222"
+        android:pivotX="320"
+        android:pivotY="228"
+        android:scaleX="2.006"
+        android:scaleY="2.187"
+        android:rotation="4.52"
+        >
+      <path
+          android:pathData="M0 0V456H640V0"
+          >
+        <aapt:attr name="android:fillColor">
+          <gradient
+              android:type="linear"
+              android:startX="160"
+              android:startY="228"
+              android:endX="480"
+              android:endY="228"
+              >
+            <item
+                android:color="#8E81A1"
+                android:offset="0"
+                />
+            <item
+                android:color="#564372"
+                android:offset="0.401"
+                />
+            <item
+                android:color="#220046"
+                android:offset="0.782"
+                />
+            <item
+                android:color="#030106"
+                android:offset="0.995"
+                />
+          </gradient>
+        </aapt:attr>
+      </path>
+    </group>
+    <path
+        android:pathData="M20 0H620C631.046 0 640 8.95431 640 20V436C640 447.046 631.046 456 620 456H20C8.95431 456 0 447.046 0 436V20C0 8.95431 8.95431 0 20 0Z"
+        android:strokeWidth="2"
+        android:strokeColor="#564372"
+        />
+  </group>
+</vector>

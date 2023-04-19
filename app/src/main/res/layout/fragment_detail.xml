@@ -87,18 +87,7 @@
             app:touch_target_height="18dp"
             app:unplayed_color="@color/unplayed_color" />
 
-        <ImageView
-            android:id="@+id/iv_poster_overlay"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:contentDescription="@string/sample_iv_desc"
-            android:scaleType="fitXY"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/iv_poster"
-            app:layout_constraintEnd_toEndOf="@id/iv_poster"
-            app:layout_constraintStart_toStartOf="@id/iv_poster"
-            app:layout_constraintTop_toTopOf="@id/iv_poster"
-            app:srcCompat="@drawable/ic_overlay_card" />
+
 
         <FrameLayout
             android:id="@+id/player_frame"
@@ -143,15 +132,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        app:layout_constraintGuide_begin="@dimen/margin_20" />
+                        app:layout_constraintGuide_begin="@dimen/dp_10" />
 
                     <androidx.constraintlayout.widget.Guideline
                         android:id="@+id/guideLine_end"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        app:layout_constraintGuide_end="@dimen/margin_20" />
-
+                        app:layout_constraintGuide_end="@dimen/dp_10" />
 
                     <include
                         android:id="@+id/iv_mx_upsell_banner"
@@ -163,7 +151,6 @@
                         app:layout_constraintEnd_toStartOf="@id/guideLine_end"
                         app:layout_constraintStart_toEndOf="@id/guideLine_start"
                         app:layout_constraintTop_toTopOf="parent" />
-
 
                     <TextView
                         android:id="@+id/tvEpisodeFree"
@@ -324,66 +311,84 @@
                         app:layout_constraintEnd_toEndOf="@id/guideLine_end"
                         app:layout_constraintStart_toStartOf="@id/guideLine_start"
                         app:layout_constraintTop_toBottomOf="@id/ll_moreinfo">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnPrimary"
-                            style="@style/Widget.AppTheme.ButtonStyle.Icon"
-                            android:layout_width="@dimen/margin_0"
-                            android:layout_height="@dimen/button_height"
-                            android:layout_marginEnd="@dimen/view_margin_large"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@id/barrier"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_goneMarginEnd="0dp" />
-
-                        <com.tatasky.binge.customviews.CustomProgressButton
-                            android:id="@+id/btn_playerController"
-                            style="@style/Widget.AppTheme.ButtonStyle.Icon"
-                            android:layout_width="0dp"
-                            android:layout_height="@dimen/button_height"
-                            android:layout_marginEnd="@dimen/view_margin_large"
-                            android:visibility="gone"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@id/barrier"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_goneMarginEnd="0dp"
-                            tools:visibility="visible" />
-
-                        <androidx.constraintlayout.widget.Guideline
-                            android:id="@+id/guideline_half"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:id="@+id/layLinearButtons"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/view_margin_small"
-                            android:orientation="vertical"
-                            app:layout_constraintGuide_percent=".5" />
-
-                        <androidx.constraintlayout.widget.Barrier
-                            android:id="@+id/barrier"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:barrierAllowsGoneWidgets="false"
-                            app:barrierMargin="-16dp"
-                            app:barrierDirection="start"
-                            app:constraint_referenced_ids="btnSecondary" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnSecondary"
-                            style="@style/Widget.AppTheme.OutlineButton"
-                            android:layout_width="@dimen/margin_0"
-                            android:layout_height="@dimen/button_height"
-                            android:layout_marginStart="@dimen/view_margin_small"
-                            android:text="@string/view_seasons"
-                            android:visibility="gone"
+                            android:gravity="center"
+                            android:weightSum="2"
+                            android:orientation="horizontal"
+                            app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@id/guideline_half"
-                            app:layout_constraintTop_toTopOf="parent"
-                            tools:visibility="visible" />
+                            app:layout_constraintTop_toTopOf="parent">
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnPrimary"
+                                style="@style/Widget.AppTheme.ButtonStyle.Icon"
+                                android:layout_width="@dimen/margin_0"
+                                android:layout_weight="1"
+                                android:layout_height="@dimen/button_height"
+                                app:layout_goneMarginEnd="0dp" />
+
+                            <com.tatasky.binge.customviews.CustomProgressButton
+                                android:id="@+id/btn_playerController"
+                                style="@style/Widget.AppTheme.ButtonStyle.Icon"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="@dimen/button_height"
+                                android:visibility="gone"
+                                app:layout_goneMarginEnd="0dp"
+                                tools:visibility="gone" />
+                            <View
+                                android:id="@+id/buttonView"
+                                android:layout_width="20dp"
+                                android:layout_height="@dimen/button_height"/>
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnSecondary"
+                                style="@style/Widget.AppTheme.OutlineButton"
+                                android:layout_width="@dimen/margin_0"
+                                android:layout_height="@dimen/button_height"
+                                android:text="@string/view_seasons"
+                                android:visibility="gone"
+                                android:maxWidth="@dimen/button_max_width"
+                                android:layout_weight="1"
+                                tools:visibility="visible" />
+                        </LinearLayout>
+
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
+                    <androidx.constraintlayout.widget.Group
+                        android:id="@+id/btn_activate_apple"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        tools:visibility="visible"
+                        app:constraint_referenced_ids="iv_activate_apple,tv_activate_apple_veribage"
+                        app:layout_constraintTop_toTopOf="parent" />
 
+                    <ImageView
+                        android:id="@+id/iv_activate_apple"
+                        android:layout_width="0dp"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="@dimen/margin_14"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:layout_constraintEnd_toStartOf="@id/guideLine_end"
+                        app:layout_constraintStart_toEndOf="@id/guideLine_start"
+                        app:layout_constraintTop_toBottomOf="@id/cl_buttons"
+                        app:srcCompat="@drawable/ic_secondary_cta" />
+
+                    <TextView
+                        android:id="@+id/tv_activate_apple_veribage"
+                        style="@style/TSTextBold"
+                        setPremiumGradient="@{true}"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/text_size_16"
+                        tools:text="@string/appletv_btn_verbiage"
+                        app:layout_constraintBottom_toBottomOf="@id/iv_activate_apple"
+                        app:layout_constraintEnd_toEndOf="@id/iv_activate_apple"
+                        app:layout_constraintStart_toStartOf="@id/iv_activate_apple"
+                        app:layout_constraintTop_toTopOf="@id/iv_activate_apple" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_marginTop="@dimen/margin_8"
@@ -517,11 +522,10 @@
                         android:text="@string/whatsapp"
                         android:textSize="@dimen/text_size_12"
                         app:drawableTopCompat="@drawable/ic_whatsapp"
-                     app:layout_constraintEnd_toStartOf="@id/share_btn"
+                        app:layout_constraintEnd_toStartOf="@id/share_btn"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toEndOf="@id/watchlist_btn" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:background="@color/darkPrimaryDark"
@@ -533,34 +537,25 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/share_actions">
-
-
                     <View
-                        android:id="@+id/horizontalSeperater1"
-                        app:layout_constraintTop_toTopOf="parent"
-                        android:layout_marginTop="1dp"
+                        android:id="@+id/horizontal_divider"
                         android:layout_width="match_parent"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginEnd="20dp"
-                        android:layout_height="0.5dp"
-                        android:background="@color/stroke_color"/>
-
+                        android:layout_height="@dimen/dimen_0.5dp"
+                        android:layout_marginTop="@dimen/dimens_1dp"
+                        android:background="@color/stroke_color"
+                        app:layout_constraintTop_toTopOf="parent" />
                     <com.google.android.material.tabs.TabLayout
-                        android:paddingEnd="16dp"
-                        android:paddingStart="16dp"
-                        app:tabPaddingBottom="-10dp"
-                        android:clipToPadding="false"
-                        app:tabIndicatorFullWidth="true"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:tabIndicator="@drawable/tab_selector"
-                        app:layout_constraintTop_toBottomOf="@id/horizontalSeperater1"
                         android:id="@+id/tabLayoutSeasons"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0"
+                        app:tabPaddingBottom="@dimen/dimen_minus_10dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/horizontal_divider"
+                        app:tabIndicator="@drawable/tab_selector"
+                        app:tabIndicatorFullWidth="false"
                         tools:ignore="RtlSymmetry" />
-
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <RelativeLayout
@@ -592,7 +587,7 @@
                         android:background="@drawable/bg_listview"
                         android:clipToPadding="false"
                         android:orientation="horizontal"
-                        android:paddingStart="@dimen/margin_20"
+                        android:paddingStart="@dimen/dp_10"
                         android:paddingTop="@dimen/view_margin_small"
                         android:paddingBottom="@dimen/view_margin_small"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -619,7 +614,7 @@
                     <View
                         android:id="@+id/horizontalSeperater2"
                         android:layout_width="match_parent"
-                        android:layout_height="0.5dp"
+                        android:layout_height="@dimen/dimen_0.5dp"
                         android:background="@color/stroke_color"
                         android:layout_marginBottom="@dimen/view_margin_medium"/>
 

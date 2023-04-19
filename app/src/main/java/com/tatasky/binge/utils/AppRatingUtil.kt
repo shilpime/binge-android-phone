@@ -4,7 +4,6 @@ import android.content.Context
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
-import com.google.android.play.core.review.model.ReviewErrorCode
 import com.google.android.play.core.review.testing.FakeReviewManager
 import com.tatasky.binge.R
 import com.tatasky.binge.interfaces.CommonDialogEventListener

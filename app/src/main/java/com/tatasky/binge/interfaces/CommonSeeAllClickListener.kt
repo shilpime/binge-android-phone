@@ -1,6 +1,7 @@
 package com.tatasky.binge.interfaces
 
 import com.tatasky.binge.analytics.SOURCE_MIX
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
 import com.tatasky.binge.data.networking.models.response.HomeResponse
 
 /**
@@ -20,7 +21,8 @@ interface CommonSeeAllClickListener {
         backgroundImage: String?,
         layoutType: String?,
         refId : String,
-        packName : String? = null
+        packName : String? = null,
+        contentAnalyticsModel: ContentAnalyticsModel
     )
 }
 
@@ -37,5 +39,6 @@ data class SeeAllTransition(
     val layoutType: String? = null,
     val railPosition: Int?,
     val refId : String,
-    val packName : String? = null
+    val packName : String? = null,
+    val contentAnalyticsModel: ContentAnalyticsModel
 )

@@ -11,15 +11,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.tatasky.binge.R
 import com.tatasky.binge.customviews.CustomDialog
-import com.tatasky.binge.data.networking.models.response.LoginResponse
 import com.tatasky.binge.databinding.LayoutCommonDialogBinding
-import com.tatasky.binge.ui.base.frameworks.extensions.enable
-import com.tatasky.binge.ui.base.frameworks.extensions.hide
-import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.base.frameworks.extensions.startProgressAvd
 import com.tatasky.binge.ui.features.common.CommonSampleViewModel
 import com.tatasky.binge.ui.features.dialog.DialogModel
-import com.tatasky.binge.ui.features.myaccount.MyAccountViewModel
 import com.tatasky.binge.utils.setSelectedAccountDetail
 import com.tatasky.binge.utils.showToast
 import com.tatasky.binge.utils.startHomeScreen

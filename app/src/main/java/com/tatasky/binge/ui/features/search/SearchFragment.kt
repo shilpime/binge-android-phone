@@ -6,15 +6,23 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Typeface
+import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.text.Spannable
+import android.text.SpannableString
 import android.text.TextUtils
-import android.transition.TransitionManager
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.ContextThemeWrapper
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.RadioGroup
@@ -22,27 +30,36 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import com.google.android.material.transition.MaterialSharedAxis
 import com.google.android.material.transition.platform.MaterialFadeThrough
+import com.google.gson.Gson
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.*
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
+import com.tatasky.binge.analytics.util.emptyContentAnalyticsModel
+import com.tatasky.binge.analytics.util.getSearchResultContentAnalyticsModel
+import com.tatasky.binge.analytics.util.getSearchTrendingContentAnalyticsModel
+import com.tatasky.binge.analytics.util.replaceRailTitleToSearchSuggestion
 import com.tatasky.binge.customviews.RVGridLayoutManager
+import com.tatasky.binge.customviews.RVLinearLayoutManager
 import com.tatasky.binge.customviews.ToggleRadioButton
 import com.tatasky.binge.data.database.model.GamesMixpanelInfoModel
 import com.tatasky.binge.data.networking.models.ErrorModel
 import com.tatasky.binge.data.networking.models.response.ContentItem
 import com.tatasky.binge.data.networking.models.response.HomeResponse
 import com.tatasky.binge.data.networking.models.response.RecommendationResponse
-import com.tatasky.binge.databinding.FragmentSearchBinding
+import com.tatasky.binge.databinding.FragmentSearchNewBinding
 import com.tatasky.binge.interfaces.CommonDialogEventListener
 import com.tatasky.binge.interfaces.CommonSeeAllClickListener
 import com.tatasky.binge.interfaces.SearchRailScrollListener
@@ -51,27 +68,32 @@ import com.tatasky.binge.ui.base.frameworks.SingleEventParcelizeWrapper
 import com.tatasky.binge.ui.base.frameworks.base.BaseFragment
 import com.tatasky.binge.ui.base.frameworks.extensions.*
 import com.tatasky.binge.ui.features.coachmark.CoachMark
-import com.tatasky.binge.ui.features.coachmark.CoachMarkAnalytics
+import com.tatasky.binge.ui.features.common.CommonSampleViewModel
+import com.tatasky.binge.ui.features.details.DetailAnalytics
 import com.tatasky.binge.ui.features.dialog.DialogModel
 import com.tatasky.binge.ui.features.games.GameAnalytics
 import com.tatasky.binge.ui.features.home.ItemViewType
 import com.tatasky.binge.ui.features.home.LandingActivity
+import com.tatasky.binge.ui.features.home.SuggestionSuggestors
 import com.tatasky.binge.ui.features.home.adapter.ItemGridAdapter
 import com.tatasky.binge.ui.features.home.sub.SubFragmentDirections
 import com.tatasky.binge.ui.features.search.adapter.SearchLandingAdapter
 import com.tatasky.binge.ui.features.search.model.SearchViewModel
 import com.tatasky.binge.utils.*
-import io.reactivex.Completable
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.*
-import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt
-import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.*
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlinx.android.synthetic.main.fragment_search.*
+import kotlinx.coroutines.*
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.*
+import java.util.*
 
 
 @Suppress("DEPRECATED_IDENTITY_EQUALS")
-class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
+class SearchFragment : BaseFragment<FragmentSearchNewBinding, SearchViewModel>() , OrientationManager.OrientationListener{
+    private var liveOrientation =
+        MutableLiveData<SingleEvent<OrientationManager.ScreenOrientation>>()
+    private var commonViewModel: CommonSampleViewModel? = null
+    private lateinit var orientationManager: OrientationManager
     private var lastCheckedLanguageFilterId: Int? = null
     private var lastCheckedGenreFilterId: Int? = null
     private var shouldListenForSwitchViewChange: Boolean = true
@@ -85,6 +107,11 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
     private var genre: String = ""
     private var mResetFilterFlag:Boolean = false
 
+    private lateinit var gestureRecycler : RecyclerView.OnItemTouchListener
+    private var hasScrolledDown = false
+    private var hasScrolledUp = false
+
+
     @Inject
     lateinit var coachMark: CoachMark
 
@@ -93,6 +120,9 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
 
     @Inject
     lateinit var gamesAnalytics : GameAnalytics
+
+    @Inject
+    lateinit var detailAnalytics : DetailAnalytics
 
     var historyClicked = false
     private val VOICE_SEARCH_DIALOG_RESULT: Int = 112
@@ -107,8 +137,18 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
     private lateinit var endlessScrollTrendingListener: EndlessRecyclerOnScrollListener
     private var mBackFlag:Boolean = false
     private var mGenreLanguageApiCount = 0
+    private var suggestionEntryTimer:Job? = null
 
-    override fun layoutId(): Int = R.layout.fragment_search
+    private val SEARCH_LANDING = 0
+    private val SEARCH_SUGGESTIONS = 1
+    private val SEARCH_RESULTS = 2
+
+    private var landingVisible = false
+    private var suggestionsVisible = false
+    private var resultsVisible = false
+
+
+    override fun layoutId(): Int = R.layout.fragment_search_new
     //    override fun getViewModelOwner(): ViewModelStoreOwner = this
     override fun getViewModelOwner(): ViewModelStoreOwner = try {
         e("getViewModelOwner","inside Try")
@@ -137,11 +177,16 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        orientationManager = OrientationManager(activity, SensorManager.SENSOR_DELAY_FASTEST, this)
+        context?.let {
+            if(isTablet(it)) orientationManager.enable()
+        }
         callback.isEnabled = true
-        binding.searchView.etSearch.findViewById<TextView>(androidx.appcompat.R.id.search_src_text).privateImeOptions =
-            "nm"
+        binding.searchView.etSearch.findViewById<TextView>(R.id.search_src_text).apply {
+            privateImeOptions = "nm"
+            hint = viewModel.setVerbiageForSearchPage()?.tvShow
+        }
         binding.lifecycleOwner = viewLifecycleOwner
-        getGenreWithTimePeriod()
     }
 
     var isUserLoggedIn : Boolean = false
@@ -159,6 +204,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         }
         else if(sharedPrefs.getLoginStatus() != isUserLoggedIn)
             refreshPage()
+
     }
 
     private fun refreshPage() {
@@ -172,7 +218,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         val layoutManager = FlexboxLayoutManager(context)
         layoutManager.flexDirection = FlexDirection.ROW
         layoutManager.justifyContent = JustifyContent.FLEX_START
-        recyclerView.setLayoutManager(layoutManager)
+        recyclerView.layoutManager = layoutManager
     }
 
 
@@ -230,22 +276,62 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
 
 
     override fun toBeCalledOnce() {
+        gestureRecycler = object : RecyclerView.OnItemTouchListener {
+            private val gestureDetector =
+                GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+                    override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+                        if (distanceY > 0 && !hasScrolledDown) {
+                            hasScrolledDown = true
+                            searchAnalytics.trackSearchSuggestionScrolled(
+                                keyword = viewModel.searchQuery,
+                                scrollDirection = DOWN,
+                                keyboardState = if (binding.searchView.etSearch.hasFocus()) PARA_OPEN else PARA_CLOSED
+                            )
+
+                        } else if (distanceY < 0 && !hasScrolledUp) {
+                            hasScrolledUp = true
+                            //TODO : As per discussion with Chetan only scroll down events are to be captured in phase1
+                            /*searchAnalytics.trackSearchSuggestionScrolled(
+                                keyword = viewModel.searchQuery,
+                                scrollDirection = UP,
+                                keyboardState = if (binding.searchView.etSearch.hasFocus()) PARA_OPEN else PARA_CLOSED
+                            )*/
+                        }
+                        return super.onScroll(e1, e2, distanceX, distanceY)
+                    }
+                })
+
+            override fun onInterceptTouchEvent(recyclerView: RecyclerView, motionEvent: MotionEvent): Boolean {
+                gestureDetector.onTouchEvent(motionEvent)
+                return false
+            }
+
+            override fun onTouchEvent(recyclerView: RecyclerView, motionEvent: MotionEvent) {}
+            override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
+        }
+        binding.searchSuggestionsRecycler.addOnItemTouchListener(gestureRecycler)
+
+
+
         searchAnalytics.trackSearchStart(getSelectedBottomTab(findNavController().currentBackStackEntry!!.destination.id))
         setRecentLayoutManager()
+        (binding.searchSuggestionsRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         binding.vm = viewModel
         val lt = LayoutTransition()
         lt.disableTransitionType(LayoutTransition.DISAPPEARING)
         binding.searchContainer.layoutTransition = lt
         rowList = mutableListOf()
         isUserLoggedIn = sharedPrefs.getLoginStatus()
-        binding.searchView.ivBack.setOnClickListener {
+
+        binding.searchView.ivBack.setSingleOnClick(clickIntervalMillis = 800) {
             callback.handleOnBackPressed()
         }
-        binding.searchView.ivSpeakNow.setOnClickListener {
+
+        binding.searchView.ivSpeakNow.setSingleOnClick {
             voiceSearchClick()
         }
 
-        binding.searchView.ivClose.setOnClickListener {
+        binding.searchView.ivClose.setSingleOnClick {
             binding.searchView.etSearch.setQuery("", false)
             viewModel.disposeSearch()
             resetSearchView()
@@ -254,6 +340,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         binding.searchView.etSearch.setOnQueryTextListener(object :
             SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
+                suggestionEntryTimer?.cancel()
                 binding.searchView.etSearch.clearFocus()
                 return if ((query?.trim()?.length ?: 0) > 0) {
                     viewModel.searchPageOffset = 0
@@ -278,35 +365,34 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                 } else {
                     showToast(
                         context,
-                        "Please enter atleast 1 character to search"
+                        context?.getString(R.string.search_min_char_text)?:""
                     )
                     false
                 }
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                compositeDisposable.clear()
                 isQuerySubmitted = false
                 viewModel.searchQuery = (newText ?: "").trim()
+                if(viewModel.searchQuery.length <= (sharedPrefs.getConfigResponse()?.data?.config?.searchSuggestionThershold?:2)){
+                    searchScreensVisibilityHandler(SEARCH_LANDING)
+                }
                 if (viewModel.searchQuery.isNotEmpty() && !historyClicked) {
                     resetFilters()
-                    val di = Completable.timer(1000, TimeUnit.MILLISECONDS).subscribe {
+                    suggestionEntryTimer?.cancel()
+                    suggestionEntryTimer = lifecycleScope.launchWhenResumed {
+                        delay(300)
                         viewModel.searchPageOffset = 0
-                        if (!isQuerySubmitted && prevQuery.trim() != viewModel.searchQuery.trim()) {
+                        if ((viewModel.searchQuery.length) >= (sharedPrefs.getConfigResponse()?.data?.config?.searchSuggestionThershold?:2)) {
                             mResetFilterFlag = false
-                            viewModel.fetchSearchList(
+                            viewModel.fetchAutoSuggestions(
                                 true,
-                                "",
-                                viewModel.searchQuery,
-                                "",
-                                "",
-                                false
+                                viewModel.searchQuery
                             )
                         }
-                        prevQuery = viewModel.searchQuery
                     }
-                    compositeDisposable.add(di)
                 }
+
                 historyClicked = false
                 return true
             }
@@ -320,13 +406,11 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                 if(binding.languageFilters.title == ""){
                     binding.languageFilters.root.hide()
                 }
-//                binding.tvShowFilter.text = getString(R.string.hide_filter)
             } else {
                 binding.filters.hide()
-//                binding.tvShowFilter.text = getString(R.string.show_filter)
             }
         }
-        val gridLayoutManager = RVGridLayoutManager(requireContext())
+        val gridLayoutManager = RVGridLayoutManager(requireContext(), resources.getInteger(R.integer.grid_landscape))
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 return if (position == (binding.searchRecyclerView.adapter as ItemGridAdapter).getListSize()) 2 else 1
@@ -336,30 +420,18 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         binding.searchView.etSearch.queryHint = getString(R.string.search_hint)
         binding.searchView.etSearch.setOnQueryTextFocusChangeListener { v, hasFocus ->
             if (hasFocus) {
-                binding.searchView.searchViewContainer.strokeColor = resources.getColor(R.color.darkOnSecondary)//Color.parseColor("#A3A6C2")
-//                val porterDuffColorFilter = PorterDuffColorFilter(
-//                    Color.WHITE,
-//                    PorterDuff.Mode.SRC_ATOP
-//                )
-//
-//                binding.searchView.ivSearch.setColorFilter(porterDuffColorFilter)
-                binding.searchView.ivClose.show()
+                binding.searchView.searchViewContainer.strokeColor = resources.getColor(R.color.darkOnSecondary)
+                micVisibilityHandler(false)
                 binding.searchView.etSearch.queryHint = ""
                 setSearchingView()
             }
             else{
-//                val porterDuffColorFilter = PorterDuffColorFilter(
-//                    resources.getColor(R.color.darkOnSecondary),
-//                    PorterDuff.Mode.SRC_ATOP
-//                )
-//                binding.searchView.ivSearch.setColorFilter(porterDuffColorFilter)
-
+                micVisibilityHandler(true)
                 binding.searchView.etSearch.queryHint =  getString(R.string.search_hint)
                 if(binding.searchView.etSearch.query.isNullOrBlank()){
-                    binding.searchView.ivClose.hide()
-                    binding.searchView.ivSpeakNow.show()
+                    micVisibilityHandler(true)
                 } else{
-                    binding.searchView.ivClose.show()
+                    micVisibilityHandler(false)
                 }
                 viewModel.historyVisible.postValue(false)
                 binding.searchView.searchViewContainer.strokeColor = Color.parseColor("#444764")
@@ -371,18 +443,86 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
             delay(500)
             setupCoachMark(viewModel.sharedPrefs.isSearchScreenMicCoachMarkEnabled())
         }
+        getGenreWithTimePeriod()
+        activity?.let {
+            viewModel.isDeviceTablet.postValue(isTablet(it))
+        }
     }
+
+    private fun micVisibilityHandler(showMic : Boolean){
+        if(showMic) {
+            binding.searchView.ivSpeakNow.show()
+            binding.searchView.ivClose.hide()
+        } else {
+            binding.searchView.ivSpeakNow.hide()
+            binding.searchView.ivClose.show()
+        }
+    }
+
+    private fun searchScreensVisibilityHandler(screenToShow: Int) {
+        when (screenToShow) {
+            SEARCH_LANDING -> {
+                if (!landingVisible) {
+                    viewModel.mSuggestionAdapter.clearAdapter()
+                    landingVisible = true
+                    suggestionsVisible = false
+                    resultsVisible = false
+
+                    binding.searchSuggestionContainer.hide()
+                    binding.searchContainer.hide()
+                    binding.landingContainer.show()
+
+                    binding.executePendingBindings()
+                    binding.root.invalidate()
+                }
+            }
+            SEARCH_SUGGESTIONS -> {
+                if (!suggestionsVisible) {
+                    landingVisible = false
+                    suggestionsVisible = true
+                    resultsVisible = false
+
+                    binding.searchSuggestionContainer.show()
+                    binding.searchContainer.hide()
+                    binding.landingContainer.hide()
+
+                    binding.executePendingBindings()
+                    binding.root.invalidate()
+                }
+            }
+            SEARCH_RESULTS -> {
+                if (!resultsVisible) {
+                    viewModel.mSuggestionAdapter.clearAdapter()
+                    landingVisible = false
+                    suggestionsVisible = false
+                    resultsVisible = true
+
+                    binding.searchSuggestionContainer.hide()
+                    binding.searchContainer.show()
+                    binding.landingContainer.hide()
+
+                    binding.executePendingBindings()
+                    binding.root.invalidate()
+                }
+            }
+        }
+    }
+
 
     private fun setupCoachMark(searchScreenMicCoachMarkEnabled: Boolean) {
         if (!searchScreenMicCoachMarkEnabled) return
         viewModel.sharedPrefs.enableSearchScreenMicCoachMark(false)
+        val title = viewModel.setVerbiageForSearchPage()?.voiceSearch ?:
+        getString(R.string.coach_mark_mic_title)
+        val description = viewModel.setVerbiageForSearchPage()?.tapSpeak ?:
+        getString(R.string.coach_mark_mic_description)
         coachMark.apply {
             activity?.buildCoachMark(
                 coachMarkName = VOICE,
                 source = PARA_SEARCH,
                 target = binding.searchView.ivSpeakNow,
-                title = getString(R.string.coach_mark_mic_title),
-                description = getString(R.string.coach_mark_mic_description),
+                title = title,
+                description = description,
                 icon = R.drawable.voice_assistant_coach_mark,
                 iconColor = R.color.white,
                 increasePromptBackgroundRadius = 150
@@ -391,6 +531,93 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
     }
 
     override fun setObserver() {
+        fun readRawFile(): RecommendationResponse {
+            val objectArrayString: String =
+                requireContext().resources.openRawResource(R.raw.eligible_pack).bufferedReader()
+                    .use { it.readText() }
+            return Gson().fromJson(objectArrayString, RecommendationResponse::class.java)
+        }
+        activity?.let {
+            if(isTablet(it)) {
+                liveOrientation.observe(viewLifecycleOwner, Observer {
+                    it?.getContentIfNotHandled()?.let { screenOrientation ->
+                        when (screenOrientation) {
+                            OrientationManager.ScreenOrientation.PORTRAIT, OrientationManager.ScreenOrientation.REVERSED_PORTRAIT -> {
+                                commonViewModel?.saveOrientation(OrientationManager.ScreenOrientation.PORTRAIT)
+                            }
+                            OrientationManager.ScreenOrientation.LANDSCAPE, OrientationManager.ScreenOrientation.REVERSED_LANDSCAPE -> {
+                                commonViewModel?.saveOrientation(OrientationManager.ScreenOrientation.LANDSCAPE)
+                            }
+
+                        }
+                    }
+                })
+            }
+        }
+
+        fun checkCommonText(queryText: String, suggestedText: String): SpannableString {
+            val spannable = SpannableString(suggestedText)
+            val indexStart = suggestedText.indexOf(queryText, ignoreCase = true)
+            val indexEnd = indexStart + queryText.length
+            if (indexStart != -1) {
+
+                spannable.setSpan(
+                    StyleSpan(Typeface.BOLD),
+                    indexStart,
+                    indexEnd,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                spannable.setSpan(
+                    ForegroundColorSpan(Color.WHITE),
+                    indexStart,
+                    indexEnd,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                return spannable
+            } else {
+                return SpannableString(suggestedText)
+            }
+        }
+
+        viewModel.updateInOrientation.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let {
+                if (it) updateUIAdapter()
+            }
+        }
+
+        viewModel.getSearchSuggestionResponse().observe(viewLifecycleOwner){
+            it.getContentIfNotHandled()?.let{
+
+
+                it.data?.contentItem?.let { it1 ->
+                    if (it1.size > 0) {
+                        viewModel.mSuggestionAdapter.updateList(it1)
+                        binding.searchSuggestionsRecycler.scrollToPosition(0)
+
+                        if (hasScrolledDown && hasScrolledUp) {
+                            hasScrolledUp = false
+                            hasScrolledDown = false
+                            binding.searchSuggestionsRecycler.removeOnItemTouchListener(gestureRecycler)
+                        }
+                        binding.searchSuggestionsRecycler.addOnItemTouchListener(gestureRecycler)
+
+
+                        searchScreensVisibilityHandler(SEARCH_SUGGESTIONS)
+                    } else {
+                        searchScreensVisibilityHandler(SEARCH_LANDING)
+                    }
+
+                    searchAnalytics.trackSearchSuggestionInitiated(
+                        viewModel.searchQuery,
+                        if (it1.size > 0) YES else NO,
+                        it1.size
+                    )
+
+                } ?: run {
+                    searchScreensVisibilityHandler(SEARCH_LANDING)
+                }
+            }
+        }
 
         viewModel.previouslyUsedMobileNumberResponse.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
@@ -457,9 +684,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         viewModel.getVoiceText().observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { it ->
                 val query = removeSpecialChar(it)
-                binding.searchView.ivSpeakNow.hide()
-                binding.searchView.ivClose.show()
-                binding.searchView.etSearch.setQuery(query, false)
+                micVisibilityHandler(false)
+                binding.searchView.etSearch.setQuery(query, true)
                 viewModel.sharedPrefs.saveSearchKeyword(query)
                 searchType = VOICE_SEARCH
                 searchResultSource = VOICE_SEARCH
@@ -524,6 +750,10 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
             it.getContentIfNotHandled()?.let {response ->
                 e("SearchRail","inside getSearchRailResponse")
                 setSearchRails(response)
+                searchAnalytics.trackSearchHome(
+                    findNavController().currentBackStackEntry?.let { it ->
+                        getSelectedBottomTab(it.destination.id)
+                    } ?: SOURCE_HOME)
             }
         })
 
@@ -534,7 +764,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                 trendingResponse = response
                 setTrendingData(response)
             }
-//            setTrendingData(trendingResponse)
         })
 
         viewModel.getClickedHistory().observe(viewLifecycleOwner, Observer {
@@ -550,6 +779,130 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                     filterGenre = genre
                 )
             }
+        })
+
+        viewModel.getSuggestionClickItem().observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let{ clickedItem ->
+                clickedItem.contentItem.searchKeyword = viewModel.searchQuery
+                searchAnalytics.trackSearchSuggestionClicked(
+                    viewModel.searchQuery,
+                    clickedItem.contentItem.suggestionPosition,
+                    clickedItem.contentItem.title,
+                    clickedItem.contentItem.suggestorForMixpanel,
+                    if (clickedItem.contentItem.id.equals(
+                            "0",
+                            true
+                        )
+                    ) "" else clickedItem.contentItem.id
+                )
+
+                if(SuggestionSuggestors.TitleSuggestor.name.equals(clickedItem.contentItem.suggestor,true)){
+                    if (binding.searchView.etSearch.getSubmitted()) {
+                        viewModel.sharedPrefs.saveSearchKeyword(viewModel.searchQuery)
+                    }
+                    reenterTransition = null
+                    exitTransition = null
+                    clickedItem.contentItem.isQuerySubmitted = isQuerySubmitted
+                    if(clickedItem.contentItem.contentType.equals(TYPE_GAMES,true)){
+                        var gamesMixpanelInfoModel = GamesMixpanelInfoModel(
+                            pageName = (activity as? LandingActivity)?.getPageName()
+                                ?: SOURCE_SEARCH,
+                            railTitle = "",
+                            railPosition = "",
+                            railType = "",
+                            railCategory = "",
+                            gameGenre = clickedItem.contentItem.getSubTitle(),
+                            gamePartner = clickedItem?.contentItem.provider,
+                            gamePosition = clickedItem?.contentItem?.railPosition,
+                            gameRating = clickedItem?.contentItem.gameRating,
+                            releaseYear = "",
+                            source = SOURCE_SEARCH
+                        )
+                        if (sharedPrefs.getLoginStatus())
+                            getGamesActivityIntent(
+                                context,
+                                clickedItem.contentItem,
+                                gamesMixpanelInfoModel
+                            )?.let {intent ->
+                                startActivity(intent)
+                            }
+                        else {
+                            gamesMixpanelInfoModel.let{
+                                gamesAnalytics.trackGameClick(
+                                    pageName = it.pageName,
+                                    railTitle = it.railTitle,
+                                    railPosition = it.railPosition,
+                                    railType = it.railType,
+                                    railCategory = it.railCategory,
+                                    gameGenre = it.gameGenre,
+                                    gamePartner = it.gamePartner,
+                                    gamePosition = it.gamePosition,
+                                    gameRating = it.gameRating,
+                                    gameTitle = clickedItem.contentItem.title,
+                                    freeGame = YES,
+                                    releaseYear = it.releaseYear,
+                                    deviceType = sharedPrefs.getDeviceType()?.uppercase()?:"",
+                                    source = it.source,
+                                    packPrice = FREEMIUM,
+                                    packName = FREEMIUM
+                                )
+                            }
+                            viewModel.getPreviouslyUsedMobileNumbers()
+                        }
+                    } else {
+                        findNavController().navigateSafe(
+                            SubFragmentDirections.actionToDetail(
+                                clickedItem.contentItem,
+                                true,
+                                contentAnalyticsModel = clickedItem
+                                    .contentAnalyticsModel
+                                    .replaceRailTitleToSearchSuggestion()
+                            ),
+                            clickedItem.extras
+                        )
+                    }
+                } else if (SuggestionSuggestors.GenreSuggestor.name.equals(clickedItem.contentItem.suggestor,true)) {
+                    findNavController().navigateSafe(
+                        SearchFragmentDirections.actionSearchLandingFragmentToLanguageGenreFragment(
+                            clickedItem.contentItem.title,
+                            INTENT_GENRE,
+                            bgImage = clickedItem.contentItem.newBackgroundImage?:"",
+                            bgBottomImage = clickedItem.contentItem.newImage,
+                            contentAnalyticsModel = clickedItem
+                                .contentAnalyticsModel
+                                .copy(railTitle = clickedItem.contentItem.title)
+                        )
+                    )
+                } else if (SuggestionSuggestors.LanguageSuggestor.name.equals(clickedItem.contentItem.suggestor,true)) {
+                    findNavController().navigateSafe(
+                        SearchFragmentDirections.actionSearchLandingFragmentToLanguageGenreFragment(
+                            clickedItem.contentItem.title,
+                            INTENT_LANGUAGE,
+                            SOURCE_SEARCH,
+                            bgImage = clickedItem.contentItem.backgroundImage?:"",  //TODO BBG REVAMP FOR SUGGESTION NEED CONFIRMATION
+                            bgBottomImage = clickedItem.contentItem.image, //TODO BBG REVAMP FOR SUGGESTION NEED CONFIRMATION
+                            contentAnalyticsModel = clickedItem
+                                .contentAnalyticsModel
+                                .copy(railTitle = clickedItem.contentItem.title)
+                        )
+                    )
+                }
+                else if (SuggestionSuggestors.ProviderSuggestor.name.equals(clickedItem.contentItem.suggestor,true)) {
+                    findNavController().navigateSafe(
+                        SearchFragmentDirections.actionSearchFragmentToActionSubHomeLanding(
+                            clickedItem.contentItem.pageType,//pageType
+                            clickedItem.contentItem.provider,
+                            clickedItem.contentItem.image,
+                            clickedItem.contentItem.partnerId ?: "",
+                            clickedItem.contentItem.title
+                        )
+                    )
+                }
+                else {
+                    binding.searchView.etSearch.setQuery(clickedItem.contentItem.title,true)
+                }
+            }
+
         })
 
 
@@ -569,36 +922,38 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
             }
         })
 
-        viewModel.getClickedItem().observe(viewLifecycleOwner, Observer
-        {
-            it.getContentIfNotHandled()?.let { contentItem ->
+        viewModel.getClickedItem().observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { clickedItem ->
                 if (binding.searchView.etSearch.getSubmitted()) {
                     viewModel.sharedPrefs.saveSearchKeyword(viewModel.searchQuery)
                 }
                 reenterTransition = null
                 exitTransition = null
-                contentItem.contentItem.isQuerySubmitted = isQuerySubmitted
-                if(contentItem.contentItem?.contentType.equals(TYPE_GAMES,true)){
-                    var gamesMixpanelInfoModel = GamesMixpanelInfoModel(
+                clickedItem.contentItem.isQuerySubmitted = isQuerySubmitted
+                if (clickedItem.contentItem.contentType.equals(TYPE_GAMES, true)) {
+                    val gamesMixpanelInfoModel = GamesMixpanelInfoModel(
                         pageName = (activity as? LandingActivity)?.getPageName()
                             ?: SOURCE_SEARCH,
                         railTitle = "",
                         railPosition = "",
                         railType = "",
                         railCategory = "",
-                        gameGenre = contentItem.contentItem.getSubTitle(),
-                        gamePartner = contentItem?.contentItem.provider,
-                        gamePosition = contentItem?.contentItem?.railPosition,
-                        gameRating = contentItem?.contentItem.gameRating,
+                        gameGenre = clickedItem.contentItem.getSubTitle(),
+                        gamePartner = clickedItem?.contentItem.provider,
+                        gamePosition = clickedItem?.contentItem?.railPosition,
+                        gameRating = clickedItem?.contentItem.gameRating,
                         releaseYear = "",
                         source = SOURCE_SEARCH
                     )
-                    if(sharedPrefs.getLoginStatus())
-                        getGamesActivityIntent(context,contentItem.contentItem,
+                    if (sharedPrefs.getLoginStatus())
+                        getGamesActivityIntent(
+                            context, clickedItem.contentItem,
                             gamesMixpanelInfoModel
-                        )?.let{startActivity(it) }
+                        )?.let { intent ->
+                            startActivity(intent)
+                        }
                     else {
-                        gamesMixpanelInfoModel.let{
+                        gamesMixpanelInfoModel.let {
                             gamesAnalytics.trackGameClick(
                                 pageName = it.pageName,
                                 railTitle = it.railTitle,
@@ -609,10 +964,10 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                                 gamePartner = it.gamePartner,
                                 gamePosition = it.gamePosition,
                                 gameRating = it.gameRating,
-                                gameTitle = contentItem.contentItem.title,
+                                gameTitle = clickedItem.contentItem.title,
                                 freeGame = YES,
                                 releaseYear = it.releaseYear,
-                                deviceType = PLATFORM_ANDROID_CAPS,
+                                deviceType = sharedPrefs.getDeviceType()?.uppercase() ?: "",
                                 source = it.source,
                                 packPrice = FREEMIUM,
                                 packName = FREEMIUM
@@ -621,16 +976,67 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                         viewModel.getPreviouslyUsedMobileNumbers()
                     }
                 } else {
+                    if (clickedItem.contentItem.provider.equals(PROVIDER_PRIME, true)) {
+                        val contentAuth = isFreeContent(
+                            clickedItem.contentItem.contractName,
+                            sharedPrefs.getPartnerIdsList(),
+                            clickedItem.contentItem.partnerId ?: "",
+                            sharedPrefs.getSubscribedPack()?.subscriptionStatus
+                        ) || !PREMIUM.equals(clickedItem.contentItem.partnerSubscriptionType, true)
+                        detailAnalytics.trackViewContentDetail(
+                            title = clickedItem.contentItem.title,
+                            type = clickedItem.contentItem.contentType,
+                            genre = clickedItem.contentItem.genres,
+                            language = clickedItem.contentItem.language,
+                            origin = clickedItem.contentItem.origin.uppercase(Locale.ROOT),
+                            railName = clickedItem.contentAnalyticsModel.railTitleForAnalytics ?: "",
+                            source = clickedItem.contentItem.source.takeIf { it.isNotEmpty() }
+                                ?: SOURCE_DEEPLINK,
+                            partnerName = clickedItem.contentItem.provider,
+                            parentTitle = clickedItem.contentItem.channelName,
+                            isFreeContent = clickedItem.contentItem.partnerSubscriptionType?.contains(
+                                FREE,
+                                true
+                            ) == true,
+                            pageName = (activity as? LandingActivity)?.getPageName()
+                                ?: EVENT_VALUE_SOURCE_DETAIL,
+                            railPosition = clickedItem.contentItem.railPosition,
+                            railType = clickedItem.contentItem.railConfigType,
+                            railCategory = clickedItem.sectionSource,
+                            contentLanguagePrimary = clickedItem?.contentItem.language?.getOrNull(0),
+                            contentGenrePrimary = clickedItem.contentItem.genres?.getOrNull(0),
+                            contentAuth = if (contentAuth) YES else NO,
+                            contentCategory = clickedItem.contentItem.contentType,
+                            contentPosition = clickedItem.contentItem.contentPosition,
+                            contentRating = clickedItem.contentItem.masterRating,
+                            releaseYear = clickedItem.contentItem.releaseYear ?: "",
+                            deviceType = sharedPrefs.getDeviceType() ?: "",
+                            actors = clickedItem.contentItem.actor,
+                            packPrice = sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
+                            packName = sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
+                            autoPlayed = NO,
+                            liveContent = if (clickedItem.contentItem.contentType.equals(
+                                    TYPE_LIVE,
+                                    true
+                                )
+                            ) YES else NO,
+                            contentConfigType = clickedItem.contentItem.contentConfigType,
+                            searchKeyword = clickedItem.contentItem.searchKeyword,
+                            searchType = clickedItem.contentItem.suggestorForMixpanel
+                        )
+                    }
                     findNavController().navigateSafe(
                         SubFragmentDirections.actionToDetail(
-                            contentItem.contentItem,
-                            true
-                        ), contentItem.extras
+                            clickedItem.contentItem,
+                            true,
+                            contentAnalyticsModel = clickedItem.contentAnalyticsModel
+                        ),
+                        clickedItem.extras
                     )
                 }
-
             }
         })
+
         viewModel.getSearchResponse().observe(viewLifecycleOwner, Observer {
             binding.progressBarBottom.startProgressAvd(false)
 //            prevQuery = ""
@@ -661,14 +1067,14 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                                 genre
                             )
                         }
-                    setAdapter(response)
+                    val contentAnalyticsModel = getSearchResultContentAnalyticsModel()
+                    setAdapter(response, contentAnalyticsModel)
                 }
             }
         })
 
         viewModel.getFilterItemClick().observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let {
-                //                it.contentItem, it.ty
                 val backward = MaterialSharedAxis(MaterialSharedAxis.X, false).apply {
                     duration = 250
                 }
@@ -698,15 +1104,17 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                             it.contentItem,
                             it.type,
                             SOURCE_SEARCH,
-                            it.bgImage,
-                            it.bgBottomImage,
-                            refId = ""
+                            it.bgImage, //TODO BBG REVAMP FOR SUGGESTION FOR SUGGESTION NEED CONFIRMATION
+                            it.bgBottomImage, //TODO BBG REVAMP FOR SUGGESTION FOR SUGGESTION NEED CONFIRMATION
+                            refId = "",
+                            contentAnalyticsModel = it.contentAnalyticsModel
                         )
                     )
                 }
 
             }
         })
+
     }
 
     private fun setGenreFilter(genreResponse: List<ContentItem>) {
@@ -722,7 +1130,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         else{
             genreResponse.let { it ->
                 binding.genreFilters.filtersRadioGroup.removeAllViews()
-//            binding.groupFilters.show()
                 val genreList = it
                 genreList.forEach { lang ->
                     val radioButton = ToggleRadioButton(
@@ -761,9 +1168,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                 val targetView = radioGroup.findViewById<RadioButton>(checkedId)
                 targetView?.parent?.requestChildFocus(targetView, targetView)
                 e("RadioCheck", "child at $checkedId tag is : ${value}")
-//            intentForList = if(value.isBlank()) args.sectionType else INTENT_LANGUAGE_GENRE
                 genre = value.toString()
-//                if (checkedId != -1)
                 filterLanguageGenre(false)
             }
         }
@@ -783,7 +1188,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         else{
             languageResponse.let { it ->
                 binding.languageFilters.filtersRadioGroup.removeAllViews()
-//            binding.groupFilters.show()
                 val langList = it
                 langList.forEach { lang ->
                     val radioButton = ToggleRadioButton(
@@ -823,9 +1227,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                 val targetView = radioGroup.findViewById<RadioButton>(checkedId)
                 targetView?.parent?.requestChildFocus(targetView, targetView)
                 e("RadioCheck", "child at $checkedId tag is : ${value}")
-//            intentForList = if(value.isBlank()) args.sectionType else INTENT_LANGUAGE_GENRE
                 language = value.toString()
-//                if (checkedId != -1)
                 filterLanguageGenre(false)
             }
 
@@ -853,10 +1255,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         )
         layoutParams.setMargins(8, 0, 8, 0)
 
-//        Log.d("TAG111", "onFiltersResponseFetched: ${languageResponse?.data?.contentItem?.get(0)!!.title}")
         languageResponse?.let { it ->
             binding.languageFilters.filtersRadioGroup.removeAllViews()
-//            binding.groupFilters.show()
             val langList = it.data?.contentItem ?: ArrayList()
             langList.forEach { lang ->
                 val radioButton = ToggleRadioButton(
@@ -878,7 +1278,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
 
         genreResponse?.let { it ->
             binding.genreFilters.filtersRadioGroup.removeAllViews()
-//            binding.groupFilters.show()
             val genreList = it.data?.contentItem ?: ArrayList()
             genreList.forEach { lang ->
                 val radioButton = ToggleRadioButton(
@@ -909,9 +1308,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                 val targetView = radioGroup.findViewById<RadioButton>(checkedId)
                 targetView?.parent?.requestChildFocus(targetView, targetView)
                 e("RadioCheck", "child at $checkedId tag is : ${value}")
-//            intentForList = if(value.isBlank()) args.sectionType else INTENT_LANGUAGE_GENRE
                 language = value.toString()
-//                if (checkedId != -1)
                 filterLanguageGenre(false)
             }
 
@@ -929,40 +1326,11 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                 val targetView = radioGroup.findViewById<RadioButton>(checkedId)
                 targetView?.parent?.requestChildFocus(targetView, targetView)
                 e("RadioCheck", "child at $checkedId tag is : ${value}")
-//            intentForList = if(value.isBlank()) args.sectionType else INTENT_LANGUAGE_GENRE
                 genre = value.toString()
-//                if (checkedId != -1)
                 filterLanguageGenre(false)
             }
         }
 
-
-
-
-
-//        context?.let { context1 ->
-//            languageResponse?.let { it ->
-//                //binding.tvShowFilter.show()
-//                val langList = it.data?.contentItem ?: ArrayList()
-////                if (langList.isNotEmpty())
-////                    rowList.add(
-////                        LanguageModel(
-////                            it.data?.title ?: context1.getString(R.string.browse_language),
-////                            langList
-////                        )
-////                    )
-//            }
-//            genreResponse?.let { it ->
-//                //binding.tvShowFilter.show()
-//                val genreList = it.data?.contentItem ?: ArrayList()
-////                if (genreList.isNotEmpty())
-////                    rowList.add(
-////                        GenreModel(
-////                            it.data?.title ?: context1.getString(R.string.browse_genre), genreList
-////                        )
-////                    )
-//            }
-//        }
     }
     private fun filterLanguageGenre(isRetry : Boolean) {
         //Apply api for Genre and Language Filter
@@ -981,7 +1349,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
     }
 
     private fun setTrendingData(searchResponse: RecommendationResponse?) {
-        resetSearchView()
+        if(viewModel.searchQuery.isNotEmpty())
+            resetSearchView()
 
         val maxCount = searchResponse?.data?.totalCount ?: 0
         val itemCount = searchResponse?.data?.itemCount ?: 0
@@ -1003,17 +1372,18 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                 backgroundImage: String?,
                 layoutType: String?,
                 refId : String,
-                packName : String?
+                packName : String?,
+                contentAnalyticsModel: ContentAnalyticsModel
             ) {
 
             }
         }
 
         if (binding.searchLandingRecycler.adapter == null) {
-//            onFiltersResponseFetched(filteredData)
             val searchLandingAdapter = SearchLandingAdapter(
                 viewModel,
-                rowList, 0,
+                rowList,
+                0,
                 viewModel.sharedPrefs.getCloudenieryUrl(), requireContext(),
                 false,
                 null,
@@ -1029,7 +1399,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                 binding.trendingRecyclerView.removeOnScrollListener(endlessScrollTrendingListener)
             }
 
-            val gridLayoutManager = RVGridLayoutManager(requireContext())
+            val gridLayoutManager = RVGridLayoutManager(requireContext(), resources.getInteger(R.integer.grid_landscape))
             gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
                     return if (position == searchTrendingAdapter?.getListSize()) 2 else 1
@@ -1060,43 +1430,42 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                     origin = ""
                 )
                 searchTrendingAdapter?.autoUpdating = true
-                binding.railTitle.show()
+                binding.trendingTitle.show()
                 binding.trendingRecyclerView.setHasFixedSize(true)
                 binding.trendingRecyclerView.setItemViewCacheSize(20)
                 binding.trendingRecyclerView.adapter = searchTrendingAdapter
                 binding.trendingRecyclerView.addOnScrollListener(endlessScrollTrendingListener)
             }
-            binding.scrollingContent.show()
+            binding.landingContainer.show()
         } else {
             searchResponse?.data?.filteredContentItems?.toMutableList()?.let {
+                val contentAnalyticsModel = context?.getSearchTrendingContentAnalyticsModel()
+                    ?: emptyContentAnalyticsModel()
                 searchTrendingAdapter?.addToList(
                     it,
-                    false
+                    false,
+                    contentAnalyticsModel
                 )
             }
         }
     }
 
     private fun resetSearchView() {
-        binding.searchView.ivClose.hide()
-        binding.searchView.ivSpeakNow.show()
+        micVisibilityHandler(true)
         prevQuery = ""
         val transform = MaterialFadeThrough().apply {
             excludeChildren(binding.searchRecyclerView, true)
             excludeChildren(binding.trendingRecyclerView, true)
         }
-        TransitionManager.beginDelayedTransition(binding.searchAllContainer as ViewGroup, transform)
+        searchScreensVisibilityHandler(SEARCH_LANDING)
         binding.historySuggestionContainer.hide()
-        binding.searchContainer.hide()
-        binding.landingContainer.show()
         binding.tvNoData.hide()
         binding.searchView.etSearch.setQuery("", false)
         binding.searchView.etSearch.clearFocus()
         binding.searchView.etSearch.setSubmitted(false)
 
-        viewModel.resetSearchResults()
+        viewModel.resetSearchResults(emptyContentAnalyticsModel())
         resetFilters()
-//        binding.searchView.clSearchview.setState(CustomSearchConstraintLayout.STATE_IDLE)
         mBackFlag = false
     }
 
@@ -1126,7 +1495,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
     }
 
     private fun setSearchingView() {
-        binding.searchView.ivSpeakNow.hide()
+        micVisibilityHandler(false)
         binding.tvNoData.hide()
         mResetFilterFlag = false
         val searchKeywords = sharedPrefs.getSearchKeywords()
@@ -1136,13 +1505,11 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
             excludeChildren(binding.searchRecyclerView, true)
             excludeChildren(binding.trendingRecyclerView, true)
         }
-        TransitionManager.beginDelayedTransition(binding.searchAllContainer as ViewGroup, transform)
-//        binding.landingContainer.hide()
-        binding.searchContainer.hide()
+        if(viewModel.searchQuery.length>2)
+            viewModel.fetchAutoSuggestions(true,viewModel.searchQuery)
+
         if(searchKeywords.isNotEmpty() && searchKeywords[0] != "")
             binding.historySuggestionContainer.show()
-
-//        binding.searchView.clSearchview.setState(CustomSearchConstraintLayout.STATE_SEARCHING)
         mBackFlag = true
     }
 
@@ -1153,31 +1520,29 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
             excludeChildren(binding.searchRecyclerView, true)
             excludeChildren(binding.trendingRecyclerView, true)
         }
-        TransitionManager.beginDelayedTransition(binding.searchAllContainer as ViewGroup, transform)
-        binding.landingContainer.show()
-        binding.searchContainer.hide()
         binding.historySuggestionContainer.hide()
+
+        searchScreensVisibilityHandler(SEARCH_LANDING)
+
         binding.tvNoData.show()
         binding.appbar.setExpanded(true)
         Handler(Looper.getMainLooper()).post {
             binding.trendingRecyclerView.scrollToPosition(0)
         }
         binding.searchView.etSearch.clearFocus()
-        binding.searchView.ivClose.show()
-//        binding.searchView.clSearchview.setState(CustomSearchConstraintLayout.STATE_NO_RESULT)
+        micVisibilityHandler(true)
         mBackFlag = true
     }
 
     private fun setSearchedView() {
-        binding.searchView.ivClose.show()
+        micVisibilityHandler(false)
         val transform = MaterialFadeThrough().apply {
             excludeChildren(binding.searchRecyclerView, true)
             excludeChildren(binding.trendingRecyclerView, true)
         }
-        TransitionManager.beginDelayedTransition(binding.searchAllContainer as ViewGroup, transform)
-        binding.historySuggestionContainer.hide()
-        binding.landingContainer.hide()
-        binding.searchContainer.show()
+
+        searchScreensVisibilityHandler(SEARCH_RESULTS)
+
         binding.searchRecyclerView.scrollToPosition(0)
         if (::endlessScrollListener.isInitialized) {
             binding.searchRecyclerView.removeOnScrollListener(endlessScrollListener)
@@ -1199,9 +1564,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
             }
         }
         binding.searchRecyclerView.addOnScrollListener(endlessScrollListener)
-        binding.tvNoData.hide()
-//        binding.searchView.etSearch.clearFocus()
-//        binding.searchView.clSearchview.setState(CustomSearchConstraintLayout.STATE_SEARCHED)
         if(binding.genreFilters.title == "" && binding.languageFilters.title == ""){
             binding.tvShowFilter.invisible()
         }else{
@@ -1211,10 +1573,13 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
     }
 
 
-    private fun setAdapter(searchResponse: RecommendationResponse) {
+    private fun setAdapter(
+        searchResponse: RecommendationResponse,
+        contentAnalyticsModel: ContentAnalyticsModel,
+    ) {
         if (viewModel.searchPageOffset == 0)
             setSearchedView()
-        viewModel.updateList(searchResponse)
+        viewModel.updateList(searchResponse, contentAnalyticsModel)
     }
 
     val callback: OnBackPressedCallback = object : OnBackPressedCallback(
@@ -1345,7 +1710,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                 railType,
                 railCategory,
                 getTimeInUTC(System.currentTimeMillis(), ANALYTICS_TIME_FORMAT),
-                DEVICE_TYPE,
+                sharedPrefs.getDeviceType() ?: "",
                 sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
                 sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
             )
@@ -1353,4 +1718,39 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
 
     }
 
+    override fun onOrientationChange(screenOrientation: OrientationManager.ScreenOrientation?) {
+        liveOrientation.postValue(SingleEvent(screenOrientation ?: OrientationManager.ScreenOrientation.PORTRAIT))
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        updateUIAdapter()
+//        (activity as LandingActivity).isToShowGameAnim()
+    }
+
+
+    private fun updateUIAdapter(){
+        activity?.let {
+            if(isTablet(it)){
+                binding.trendingRecyclerView.adapter?.let { adapter ->
+                    val gridLayoutManager = RVGridLayoutManager(requireContext(), resources.getInteger(R.integer.grid_landscape))
+                    binding.trendingRecyclerView.layoutManager = gridLayoutManager
+                    adapter.notifyDataSetChanged()
+                }
+
+                binding.searchRecyclerView.adapter?.let { adapter ->
+                    val gridLayoutManager = RVGridLayoutManager(requireContext(), resources.getInteger(R.integer.grid_landscape))
+                    binding.searchRecyclerView.layoutManager = gridLayoutManager
+                    adapter.notifyDataSetChanged()
+                }
+
+                binding.searchLandingRecycler.adapter?.let{ adapter ->
+                    val layoutManager = RVLinearLayoutManager(requireContext())
+                    binding.searchLandingRecycler.layoutManager = layoutManager
+                    (adapter as SearchLandingAdapter).notifyOrientationChange()
+                }
+
+            }
+        }
+    }
 }

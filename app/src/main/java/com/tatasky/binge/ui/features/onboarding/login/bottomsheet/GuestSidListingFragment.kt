@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.fragment.findNavController
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.SOURCE_LOGIN
-import com.tatasky.binge.analytics.SOURCE_LOGIN_UPPER
 import com.tatasky.binge.data.networking.models.requests.NewBingeUserRequest
 import com.tatasky.binge.data.networking.models.response.SubscriberIdListResponse
 import com.tatasky.binge.databinding.FragmentGuestLoginSidListingBinding
@@ -89,10 +88,11 @@ class GuestSidListingFragment :
                     DialogModel(
                         false,
                         R.drawable.ic_device_center,
-                        maxDeviceLimitReachedResponse.message,
-                        getString(R.string.review_devices),
-                        getString(R.string.text_non_underlined_Not_Now),
-                        maxDeviceLimitReachedResponse.title
+                        title = viewModel.getVerbiageFromConfig()?.device?.header,
+                        viewModel.getVerbiageFromConfig()?.device?.review
+                            ?: getString(R.string.review_devices),
+                        secondaryButtonText = getString(R.string.text_non_underlined_Not_Now),
+                        text = viewModel.getVerbiageFromConfig()?.device?.subHeader
                     ), object :
                         CommonDialogEventListener {
                         override fun onPrimaryButtonClick() {

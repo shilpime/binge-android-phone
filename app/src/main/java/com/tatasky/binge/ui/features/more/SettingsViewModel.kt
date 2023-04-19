@@ -20,6 +20,7 @@ import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import com.clevertap.android.sdk.CleverTapAPI
 import android.content.Context
+import java.util.Date
 
 /**
  * Created by Srikant Karnani on 18/11/19.
@@ -117,6 +118,7 @@ open class SettingsViewModel @Inject constructor(
                     when(t.code){
                         CODE_SUCCESS->{
                             setProgressing(false)
+                            t.data?.helpCenterTokenTimeStamp=Date().time
                             _faqResponse.postValue(SingleEvent(t))
                         }
                         else->{
@@ -143,4 +145,5 @@ open class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setTextToMenuItems() = sharedPrefs.getConfigResponse()?.data?.config?.hamburger
 }

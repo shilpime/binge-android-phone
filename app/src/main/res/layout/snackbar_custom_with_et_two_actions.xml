@@ -17,12 +17,13 @@
 
         <import type="android.text.InputType" />
     </data>
-
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_snackbar_custom_with_two_actions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/tab_nudge"
         android:background="@drawable/shp_dark_highlight_rect"
         android:clickable="true"
         android:focusable="true"
@@ -30,17 +31,20 @@
         android:paddingStart="16dp"
         android:paddingTop="10dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="16dp">
+        android:paddingBottom="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <ImageView
             android:id="@+id/iv_large_snackbar_custom_with_two_actions"
             android:layout_width="49dp"
             android:layout_height="49dp"
-            app:layout_constraintVertical_bias="0.12"
             android:layout_marginBottom="29dp"
             app:layout_constraintBottom_toBottomOf="@id/et_desc_snackbar_custom_with_two_actions"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintVertical_bias="0.12"
             tools:srcCompat="@drawable/ic_nudge_subs_expired" />
 
         <TextView
@@ -62,25 +66,25 @@
             tools:visibility="visible" />
 
         <EditText
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="10dp"
             android:id="@+id/et_desc_snackbar_custom_with_two_actions"
             style="@style/TSTextMedium"
             android:layout_width="0dp"
             android:layout_height="38dp"
             android:layout_marginEnd="8dp"
+            android:autofillHints="emailAddress"
             android:background="@drawable/shp_dark_highlight_rect_digits"
             android:imeOptions="actionDone"
+            android:inputType="textEmailAddress"
             android:maxLines="1"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="10dp"
             android:textColor="@color/white"
             android:textColorHint="@color/hintColor"
             android:textSize="@dimen/text_size_16"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btn_action_snackbar_custom_with_two_actions"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_title_snackbar_custom_with_two_actions"
-            android:autofillHints="emailAddress"
-            android:inputType="textEmailAddress" />
+            app:layout_constraintTop_toBottomOf="@id/tv_title_snackbar_custom_with_two_actions" />
 
 
         <com.google.android.material.button.MaterialButton
@@ -89,9 +93,9 @@
             android:layout_width="wrap_content"
             android:layout_height="44dp"
             android:textSize="@dimen/text_size_14"
+            app:layout_constraintBottom_toBottomOf="@id/et_desc_snackbar_custom_with_two_actions"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/et_desc_snackbar_custom_with_two_actions"
-            app:layout_constraintBottom_toBottomOf="@id/et_desc_snackbar_custom_with_two_actions"
             tools:text="Submit" />
 
         <ImageView
@@ -105,4 +109,6 @@
             tools:src="@drawable/ic_cross" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

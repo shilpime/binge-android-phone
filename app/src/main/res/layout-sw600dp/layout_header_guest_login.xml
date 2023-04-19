@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="isEligibleForFreeTrial"
+            type="Boolean" />
+        <variable
+            name="headerTitle"
+            type="String" />
+        <variable
+            name="partnerLogoRVAdapter"
+            type="com.tatasky.binge.ui.features.onboarding.login.adapter.PartnerLogoRVAdapter" />
+        <import type="android.view.View"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_margin_start"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="3dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_margin_end"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/margin_5" />
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="35dp"
+            android:layout_height="4dp"
+            android:visibility="gone"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/ic_bottom_sheet_top_selector"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="34dp"
+            android:contentDescription="@string/logo"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/medium_binge_logo" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/partner_RV"
+            setAdapter="@{partnerLogoRVAdapter}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_20"
+            android:orientation="horizontal"
+            tools:listitem="@layout/layout_rv_partner_logo"
+            android:visibility="@{(isEligibleForFreeTrial &amp;&amp; (partnerLogoRVAdapter.itemCount > 0)) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toStartOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toBottomOf="@id/logo"
+            tools:itemCount="12"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/tv_header_title"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_marginBottom="@{(isEligibleForFreeTrial &amp;&amp; (partnerLogoRVAdapter.itemCount > 0)) ? @dimen/dp_20 : @dimen/dimen_16dp}"
+            android:gravity="center"
+            android:text="@{(headerTitle != null) ? headerTitle : @string/title_header_guest_login}"
+            android:textSize="@dimen/dimens_22sp"
+            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+            app:layout_constraintTop_toBottomOf="@id/partner_RV"
+            android:layout_marginTop="@dimen/dp_20"
+            tools:text="@string/title_header_guest_login"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ImageButton
+            android:id="@+id/imgBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/sample_iv_desc"
+            android:padding="@dimen/view_margin_large"
+            android:layout_marginStart="@dimen/margin_10"
+            android:layout_marginTop="@dimen/dimen_18dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:srcCompat="@drawable/ic_back_key" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

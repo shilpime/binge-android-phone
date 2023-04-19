@@ -10,6 +10,10 @@ import java.math.BigDecimal
 
 @Parcelize
 class PartnerPacks : Parcelable {
+
+    @SerializedName("liveChannelIds")
+    var liveChannelIds: ArrayList<String>? = null
+
     @SerializedName("regionalAppNudge")
     val regionalAppNudge: RegionalAppNudge? = null
 
@@ -235,6 +239,9 @@ class PartnerPacks : Parcelable {
     @SerializedName("nonSubscribedPartnerList")
     var nonSubscribedPartnerList: List<PartnerList>? = null
 
+
+    @SerializedName("appleRedemptionStatus")
+    var appleRedemptionStatus : String?=null
 
     inner class GameZopInfo {
         @SerializedName("gameZopVerbiage")

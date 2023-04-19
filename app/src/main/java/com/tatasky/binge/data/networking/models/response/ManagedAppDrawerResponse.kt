@@ -31,6 +31,9 @@ class ManagedAppDrawerResponse : BaseResponse() {
     }
 
     inner class TickTickDrawerDetail{
+        @SerializedName("baseAmountColorValue")
+        var baseAmountColorValue: String? = null
+
         @SerializedName("ottAppsTitle")
         var ottAppsTitle:String? = null
 

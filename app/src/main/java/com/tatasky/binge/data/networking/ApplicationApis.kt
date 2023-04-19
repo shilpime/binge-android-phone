@@ -2,11 +2,9 @@ package com.tatasky.binge.data.networking
 
 import com.tatasky.binge.data.networking.models.requests.*
 import com.tatasky.binge.data.networking.models.response.*
-import com.tatasky.binge.epicon.PartnerContentAnalyticsRequest
-import com.tatasky.binge.hoichoi.HoichoiPlayebackResponse
+import com.tatasky.binge.data.networking.models.response.HoichoiPlayebackResponse
 import com.tatasky.binge.shemaroo.helper.ShemarooAnalyticsBody
 import com.tatasky.binge.data.networking.models.response.ChaupalUrlResponse
-import com.tatasky.binge.epicon.PlanetMarathiAnalyticsRequest
 import com.tatasky.binge.lionsgatehelper.LionsgateAnalyticsBody
 import com.tatasky.binge.shemaroo.modal.ShemarooSafeUrlResponse
 import com.tatasky.binge.ui.features.home.bottomsheet.select_language.models.SaveLanguageBody
@@ -53,8 +51,9 @@ interface ApplicationApis {
         @Query("showType") showType: String,
         @Query("provider") provider: String,
         @Query("max") max: String,
-        @Body body: EmptyBody
-    ): Single<RecommendationResponse>
+        @Body body: EmptyBody,
+        @Header("masterGenre") masterGenre : String,
+        ): Single<RecommendationResponse>
 
     @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_VRTARAIL")
     @POST
@@ -96,8 +95,14 @@ interface ApplicationApis {
     ): Single<RecommendationResponse>
 
     @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_BA")
-    @GET("homescreen-client/pub/api/v3/pages/BINGE_ANYWHERE")//changed to v3 for Sports in place of Kids
-    fun getLeftMenuItem(): Single<LeftMenuResponse>
+    @GET("homescreen-client/pub/api/v3/pages/{deviceType}")//changed to v3 for Sports in place of Kids
+    fun getLeftMenuItem(
+        @Path("deviceType") deviceType: String
+    ): Single<LeftMenuResponse>
+
+//    @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_BA")
+//    @GET("homescreen-client/pub/api/v3/pages/BINGE_ANYWHERE")//changed to v3 for Sports in place of Kids
+//    fun getLeftMenuItem(): Single<LeftMenuResponse>
 
 
 
@@ -245,6 +250,17 @@ interface ApplicationApis {
     ): Single<HomeResponse>
 
 
+//    curl --location --request GET
+//    'https://uat-tb.tapi.videoready.tv/search-connector/pub/freemium/search/autocomplete?queryString=abc&pageNumber=1&languages=&genres='
+
+
+    @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_BA")
+    @GET("search-connector/pub/freemium/search/autocomplete")
+    fun getSearchSuggestions(
+        @Query("queryString") queryString : String
+    ) : Single<RecommendationResponse>
+
+
     @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_BA")
     @POST
     fun getEpiosdeSearchResponse(
@@ -295,7 +311,6 @@ interface ApplicationApis {
     ): Single<GetOtpResponse>
 
     @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_BA")
-//    @POST("binge-mobile-services/pub/api/v1/user/authentication/generateOTP")
     @POST("binge-mobile-services/pub/api/v1/user/authentication/generateOTP")
     fun generateOtpGuestLogin(
         @Header("mobileNumber") mobileNumber: String
@@ -482,7 +497,7 @@ interface ApplicationApis {
     fun fetchCurrentPack(@Body request: SubscriptionCreationRequest): Single<PurchasePackResponse>
 
     @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_FREEMIUM_ACCOUNT_DETAILS")
-    @POST("binge-mobile-services/api/v1/subscription/current")
+    @POST("binge-mobile-services/api/v2/subscription/current")
     fun fetchFreemiumCurrentPack(@Body request: CurrentSubscriptionRequest): Single<PurchasePackResponse>
 
     @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_VRTARAIL")
@@ -506,7 +521,7 @@ interface ApplicationApis {
 
     @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_BA")
     @GET("binge-mobile-services/api/v2/subscribers/{sid}/recharge/{amountOfRecharge}/amount")
-    fun initiateRecharge(@Path("sid") sid: String, @Path("amountOfRecharge") amount: String): Single<RechargeResponse>
+    fun initiateRecharge(@Path("sid") sid: String, @Path("amountOfRecharge") amount: String?): Single<RechargeResponse>
 
     @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_BA")
     @GET("binge-mobile-services/api/v2/subscribers/{sid}/recharge/")
@@ -920,22 +935,24 @@ interface ApplicationApis {
 
     @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_BA")
     @GET("/action-data-provider/gamezop/subscriber/favourite")
-    fun addGameToFav(
+    fun addGameToFavOrCw(
         @Query("profileId") profileId : String,
         @Query("subscriberId") subscriberId: String,
         @Query("contentId") contentId : String,
-        @Query("contentType") contentType : String
+        @Query("contentType") contentType : String,
+        @Query("cwEnabled") cwEnabled: Boolean
     ) : Single<GameFavResponse>
 
     //GAMEZOP FAVOURITE LISTING
     @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_BA")
     @GET("/action-data-provider/gamezop/subscriber/favourite/listing")
-    fun fetchGameFavs(
+    fun fetchGameFavsOrCw(
         @Query("profileId") profileId: String,
         @Query("subscriberId") subscriberId: String,
         @Query("pagingState") pagingState: String?,
-        @Query("offSet") offset: Int
-    ) : Single<RecommendationResponse>
+        @Query("offSet") offset: Int,
+        @Query("cwEnabled") cwEnabled: Boolean
+    ): Single<RecommendationResponse>
 
 
 
@@ -945,20 +962,23 @@ interface ApplicationApis {
     fun homeTAHierarchy(
         @Url url: String,
         @Header("packName") packName : String,
-        @Header("rule") rule :String = "DRPALLVRTABA",
+        @Header("rule") rule :String = "DRPLIVEVRTABA",
         @Header ("subscriberId") subscriberId : String
     ): Single<HierarchyResponse>
 
-    @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_VRTARAIL")
+    @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_IPAD")
     @GET("/homescreen-client/pub/api/v2/hierarchy/{pageType}")
     fun homeVRHierarchy(
         @Path("pageType") pageType: String,
         @Query("packName") packName: String,
-        @Header("rule") rule: String = "DRPALLVRTABA"
+        @Header("rule") rule: String = "DRPLIVEVRTABA"
     ): Single<HierarchyResponse>
 
     @GET("homescreen-client/pub/api/v3/rail")
-    fun getRailData(@Query("id") railId: String) : Single<RecommendationResponse>
+    fun getRailData(
+        @Query("id") railId: String,
+        @Query("limit") limit: Int?
+    ) : Single<RecommendationResponse>
 
 
     @GET("homescreen-client/pub/api/v3/search/genre")
@@ -986,4 +1006,25 @@ interface ApplicationApis {
     fun fetchGenericPartnerDRMAPI(
         @Body request : GenericDRMRequest
     ): Single<GenericPartnerDRMResponse>
+
+    @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_BA")
+    @POST("binge-mobile-services/admin/api/v1/appletv/redemption/url")
+    fun getAppleRedemptionUrl(
+        @Body request : AppleRedemptionRequest,
+        @Header("sid") originalSubscriberId: String
+    ): Single<AppleRedemptionResponse>
+
+
+
+    @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_BA")
+    @GET("content-detail-binge/pub/api/v5/channels/{channelId}")
+    fun getLiveChannelContentDetails(
+        @Path("channelId") channelId: String
+    ): Single<LiveChannelDetailsResponse>
+
+    @Headers("$KEY_HEADER_TYPE:$HEADER_TYPE_BA")
+    @GET
+    fun fetchPlaybackUrlsForDigitalFeed(
+        @Url url: String,
+    ): Single<DigitalFeedPlaybackUrlsResponse>
 }

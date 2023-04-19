@@ -4,11 +4,15 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import android.os.Bundle
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -49,6 +53,21 @@ class TransactionHistoryFragment : BaseFragment<FragmentTransactionHistoryBindin
         return R.layout.fragment_transaction_history
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        uiChanges()
+    }
+
+    private fun uiChanges() {
+        val layoutParams= binding.clouter?.layoutParams as LinearLayout.LayoutParams
+        activity?.let {
+            binding.clouter?.layoutParams =layoutParams.apply {
+                layoutParams.marginStart = it.resources.getDimensionPixelSize(R.dimen.tab_padding)
+                layoutParams.marginEnd  = it.resources.getDimensionPixelSize(R.dimen.tab_padding_right)
+            }
+        }
+    }
+
     override fun getViewModelOwner(): ViewModelStoreOwner {
         return this
     }
@@ -79,14 +98,16 @@ class TransactionHistoryFragment : BaseFragment<FragmentTransactionHistoryBindin
     }
 
     override fun toBeCalledOnce() {
+        if (context?.let { isTablet(it) } == true)
+        {
+            binding.apply {
+                toolbarLayout.visibility = View.INVISIBLE
+                textView?.visibility =View.VISIBLE
+            }
+        }
         profileAnalytics.trackTransactionHistoryInitiate()
         binding.headerSubID = getString(R.string.tran_history_sub_id, sharedPrefs.getOriginalSubscriberId())
         binding.headerAliasName = args.aliasName
-//        if (viewModel.sharedPrefs.getDthStatusFreemium().equals(NON_DTH_USER, true))
-//            viewModel.fetchTransactionHistoryForNonDTHUser()
-//        else
-//            viewModel.fetchTransactionHistory()
-
         viewModel.fetchTransactionHistory()
 
         viewModel.getInvoiceDownloadComplete().observe(viewLifecycleOwner){

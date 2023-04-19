@@ -166,46 +166,38 @@ class PrimeViewModel @Inject constructor(private val sharedPrefs: PrefsRepo, pri
 		)
 		val contentAuth=isFreeContent(contentItem.contractName,sharedPrefs.getPartnerIdsList(),contentItem.partnerId?:"",sharedPrefs.getSubscribedPack()?.subscriptionStatus) || !PREMIUM.equals(contentItem.partnerSubscriptionType,true)
 
-		playerAnalytics.trackPlayContent(
-			contentItem.title,
-			contentItem.genres,
-			contentItem.contentType,
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
-			contentItem.provider,
-			contentItem.railName,
-			contentItem.origin.toUpperCase(),
-			contentItem.source.takeIf { it.isNotEmpty() } ?: "Deeplink",
-			contentItem.language,
-			sharedPrefs.getSubscribedPack(),
-			contentItem.railPosition,
-			contentItem.contractName,
-			"",
-			contentItem.partnerSubscriptionType?.contains(PREMIUM, true) == false,
-			contentItem.source,
-			contentItem.origin,
-			contentItem.railCategory,
-			contentItem?.language?.getOrNull(0),
-			contentItem?.genres?.getOrNull(0),
-			if (contentAuth) YES else NO,
-			contentItem.contentType,
-			contentItem.contentPosition.toString(),
-			contentItem.masterRating,
-			"",
-			PLATFORM_ANDROID,
-			emptyList(),
-			"No",
-			NO,
-			"",
-			"",
-			contentItem.contentConfigType
-		)
+        //TODO Commenting this as pr TP requirement for PV TSF-17739
+/*
+        playerAnalytics.trackPlayContent(
+            title = contentItem.title,
+            genre = contentItem.genres,
+            type = contentItem.contentType,
+            partnerName = contentItem.provider,
+            rail = contentItem.railName,
+            origin = contentItem.origin.toUpperCase(),
+            source = contentItem.source.takeIf { it.isNotEmpty() } ?: "Deeplink",
+            language = contentItem.language,
+            pack = sharedPrefs.getSubscribedPack(),
+            railPosition = contentItem.railPosition,
+            contractName = contentItem.contractName,
+            parentTitle = "",
+            isFreeContent = contentItem.partnerSubscriptionType?.contains(PREMIUM, true) == false,
+            pageName = contentItem.source,
+            railType = contentItem.origin,
+            railCategory = contentItem.railCategory,
+            contentLanguagePrimary = contentItem?.language?.getOrNull(0),
+            contentGenrePrimary = contentItem?.genres?.getOrNull(0),
+            contentAuth = if (contentAuth) YES else NO,
+            contentCategory = contentItem.contentType,
+            contentPosition = contentItem.contentPosition.toString(),
+            contentRating = contentItem.masterRating,
+            deviceType = PLATFORM_ANDROID,
+            actors = emptyList(),
+            autoPlayed = NO,
+            liveContent = NO,
+            contentConfigType = contentItem.contentConfigType
+        )
+*/
 
 		if(contentItem.partnerSubscriptionType?.contains(PREMIUM, true) == false){
 			if(!sharedPrefs.getFirstFreeContentPlay()){

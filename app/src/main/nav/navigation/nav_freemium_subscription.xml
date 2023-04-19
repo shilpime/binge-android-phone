@@ -226,6 +226,11 @@
             android:name="isLoginToHome"
             android:defaultValue="false"
             app:argType="boolean" />
+        <argument
+            android:name="source"
+            app:nullable="true"
+            android:defaultValue="@null"
+            app:argType="string" />
         <action
             android:id="@+id/action_guestLoginBottomDialogFragment_to_managedAppFragment"
             app:destination="@id/managedAppFragment"
@@ -238,6 +243,11 @@
                 android:name="cartId"
                 android:defaultValue=""
                 app:argType="string" />
+            <argument
+                android:name="source"
+                app:nullable="true"
+                android:defaultValue="@null"
+                app:argType="string" />
         </action>
     </dialog>
 
@@ -246,6 +256,11 @@
         android:name="com.tatasky.binge.ui.features.subscription_freemium.ManagedAppFragment"
         android:label="ManagedAppFragment"
         tools:layout="@layout/fragment_managed_app">
+        <argument
+            android:name="source"
+            app:nullable="true"
+            android:defaultValue="@null"
+            app:argType="string" />
         <argument
             android:name="journeySource"
             android:defaultValue=""

@@ -1,5 +1,6 @@
 package com.tatasky.binge.ui.base.frameworks.base
 
+import android.app.Dialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -18,6 +19,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
@@ -48,7 +50,7 @@ import java.net.SocketTimeoutException
 import java.util.regex.Pattern
 import javax.inject.Inject
 
-abstract class BaseBottomSheetDialogFragment<VB : ViewDataBinding,VM : BaseViewModel>(private val isExpanded:Boolean = false) : BottomSheetDialogFragment() {
+abstract class BaseBottomSheetDialogFragment<VB : ViewDataBinding,VM : BaseViewModel>(private val isExpanded:Boolean = false, private val tabSupported : Boolean = true) : BottomSheetDialogFragment() {
 
     abstract fun getViewModelClass(): Class<VM>
     abstract fun layoutId(): Int
@@ -165,6 +167,25 @@ abstract class BaseBottomSheetDialogFragment<VB : ViewDataBinding,VM : BaseViewM
         })*/
     }
 
+    override fun getTheme(): Int {
+
+        this.context?.let{ctx->
+            if(!isTablet(ctx) && !tabSupported)
+                return R.style.AppBottomSheetDialogTheme
+        }
+
+        return 0
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+//        return super.onCreateDialog(savedInstanceState)
+        this.context?.let{ctx->
+            if(isTablet(ctx) && tabSupported)
+                return Dialog(ctx, theme)
+        }
+        return super.onCreateDialog(savedInstanceState)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -192,8 +213,8 @@ abstract class BaseBottomSheetDialogFragment<VB : ViewDataBinding,VM : BaseViewM
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         dialog?.setOnShowListener { dialog ->
-            (dialog as BottomSheetDialog)
-                .findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            (dialog as? BottomSheetDialog?)
+                ?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
                 ?.let { bottomSheetInternal ->
                     mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheetInternal)
                     if (isExpanded)

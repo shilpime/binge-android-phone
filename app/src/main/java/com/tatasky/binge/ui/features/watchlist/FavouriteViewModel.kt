@@ -7,6 +7,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.tatasky.binge.analytics.SOURCE_BINGE_LIST
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
 import com.tatasky.binge.data.database.model.GamesMixpanelInfoModel
 import com.tatasky.binge.data.networking.CallbackWrapper
 import com.tatasky.binge.data.networking.models.ErrorModel
@@ -15,7 +16,9 @@ import com.tatasky.binge.data.networking.models.requests.WatchRequest
 import com.tatasky.binge.data.networking.models.response.BaseResponse
 import com.tatasky.binge.data.networking.models.response.BaseResponse.CODE.OK_0
 import com.tatasky.binge.data.networking.models.response.ContentItem
+import com.tatasky.binge.data.networking.models.response.HomeResponse
 import com.tatasky.binge.data.networking.models.response.RecommendationResponse
+import com.tatasky.binge.data.networking.models.response.SubscriberIdListResponse
 import com.tatasky.binge.domain.repositories.PrefsRepo
 import com.tatasky.binge.domain.usecase.CommonUseCase
 import com.tatasky.binge.interfaces.CommonDTOClickListener
@@ -23,6 +26,7 @@ import com.tatasky.binge.interfaces.ContentItemTransitions
 import com.tatasky.binge.ui.base.frameworks.SingleEvent
 import com.tatasky.binge.ui.base.frameworks.base.BaseViewModel
 import com.tatasky.binge.ui.features.home.adapter.ItemGridAdapter
+import com.tatasky.binge.ui.features.home.model.RailItemsModel
 import com.tatasky.binge.utils.*
 import io.reactivex.BackpressureStrategy
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -61,7 +65,7 @@ class FavouriteViewModel @Inject constructor(val useCase: CommonUseCase, val sha
 
     fun getChangedCount(): LiveData<SingleEvent<Int>> = _changedTotalRailsCount
 
-    val mBannerClick = object : CommonDTOClickListener {
+    private val mBannerClick = object : CommonDTOClickListener {
         override fun onSubItemClick(
             iListItem: ContentItem,
             iItemPosition: Int,
@@ -70,7 +74,9 @@ class FavouriteViewModel @Inject constructor(val useCase: CommonUseCase, val sha
             transitions: List<Pair<View, String>>?,
             railTitle: String,
             origin: String?,
-            gamesMixpanelInfoModel: GamesMixpanelInfoModel?
+            gamesMixpanelInfoModel: GamesMixpanelInfoModel?,
+            railItemsModel: RailItemsModel?,
+            contentAnalyticsModel: ContentAnalyticsModel
         ) {
             val extras = if (!transitions.isNullOrEmpty())
                 FragmentNavigatorExtras(*transitions.toTypedArray())
@@ -80,9 +86,16 @@ class FavouriteViewModel @Inject constructor(val useCase: CommonUseCase, val sha
             iListItem.origin = origin ?: EventConstants.TYPE_EDITORIAL
             iListItem.contentPosition = (iItemPosition+1).toString()
             iListItem.railPosition = iSectionPosition.toString()
-            _clickedItem.postValue(SingleEvent(ContentItemTransitions(iListItem, extras,
-                iSectionSource
-            )))
+            _clickedItem.postValue(
+                SingleEvent(
+                    ContentItemTransitions(
+                        iListItem,
+                        extras,
+                        iSectionSource,
+                        contentAnalyticsModel = contentAnalyticsModel
+                    )
+                )
+            )
         }
     }
     private val mAdapter =
@@ -241,17 +254,25 @@ class FavouriteViewModel @Inject constructor(val useCase: CommonUseCase, val sha
     fun getErrorResponse(): LiveData<SingleEvent<String>> = errorResponse
 
 
-    fun updateList(railResponse: RecommendationResponse) {
+    fun updateList(
+        railResponse: RecommendationResponse,
+        contentAnalyticsModel: ContentAnalyticsModel,
+    ) {
+        crownCalculation(railResponse)
         pagingState = railResponse.data?.pagingState
         mAdapter.removeLoading()
         mAdapter.updateCW(true)
         //mAdapter.setTotalItemsCount(railResponse.data?.totalCount ?: 0)
         if (watchPageOffset == 0) {
             mAdapter.updateListForDiff(
-                railResponse.data?.filteredContentItems?.toMutableList() ?: mutableListOf()
+                railResponse.data?.filteredContentItems?.toMutableList() ?: mutableListOf(),
+                contentAnalyticsModel = contentAnalyticsModel
             )
         } else {
-            mAdapter.addToList(railResponse.data?.filteredContentItems ?: mutableListOf())
+            mAdapter.addToList(
+                railResponse.data?.filteredContentItems ?: mutableListOf(),
+                contentAnalyticsModel
+            )
         }
         setProgressing(false)
         if (railResponse.data?.continuePagination == true) {
@@ -311,5 +332,32 @@ class FavouriteViewModel @Inject constructor(val useCase: CommonUseCase, val sha
                     addDisposable(d)
                 }
             })
+    }
+
+    fun getSettingsPageVerbiage(): HomeResponse.Items? {
+        return watchlistResponse?.data
+    }
+    private fun crownCalculation(it : RecommendationResponse) {
+        val mNonSubscribedPartnerList = sharedPrefs.getNonSubscribedPartnerList()
+
+        val isGuestUser = sharedPrefs.getLoginStatus()
+        val currentSub = sharedPrefs.getSubscribedPack()
+        val currentSubStatus = (currentSub != null) && !currentSub.isInactive
+
+        fun checkCrownConditions(it : ContentItem){
+            it.appleRedemptionStatus = sharedPrefs.getSubscribedPack()?.appleRedemptionStatus
+            it.isPartnerSubscribed = currentSubStatus && (mNonSubscribedPartnerList?.contains(it.provider.lowercase()) == false)
+            it.isCrown = isShowCrownOnContent(
+                it.isPartnerSubscribed,
+                isGuestUser,
+                it.provider,
+                it.partnerSubscriptionType,
+                it.appleRedemptionStatus
+            )
+        }
+
+        it.data?.contentItem?.forEach {
+            checkCrownConditions(it)
+        }
     }
 }

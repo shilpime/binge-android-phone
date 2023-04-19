@@ -2,12 +2,10 @@ package com.tatasky.binge.domain.repositories
 
 import com.tatasky.binge.data.networking.models.requests.*
 import com.tatasky.binge.data.networking.models.response.*
-import com.tatasky.binge.epicon.PartnerContentAnalyticsRequest
-import com.tatasky.binge.hoichoi.HoichoiPlayebackResponse
-import com.tatasky.binge.hoichoi.HoichoiRequest
+import com.tatasky.binge.data.networking.models.requests.PartnerContentAnalyticsRequest
 import com.tatasky.binge.shemaroo.helper.ShemarooAnalyticsBody
 import com.tatasky.binge.data.networking.models.response.ChaupalUrlResponse
-import com.tatasky.binge.epicon.PlanetMarathiAnalyticsRequest
+import com.tatasky.binge.data.networking.models.requests.PlanetMarathiAnalyticsRequest
 import com.tatasky.binge.lionsgatehelper.LionsgateAnalyticsBody
 import com.tatasky.binge.shemaroo.modal.ShemarooSafeUrlResponse
 import com.tatasky.binge.ui.features.home.bottomsheet.select_language.models.SaveLanguageBody
@@ -23,7 +21,7 @@ import okhttp3.ResponseBody
 interface CommonRepository {
     fun getHomePage(request: HomeRequest): Single<HomeResponse>
     fun getConfig(): Single<ConfigResponse>
-    fun getLeftMenu(): Single<LeftMenuResponse>
+    fun getLeftMenu(deviceType:String): Single<LeftMenuResponse>
     fun getTARails(request: TARequest): Single<RecommendationResponse>
     fun getRecommendation(parameter: DetailRequest): Single<RecommendationResponse>
 
@@ -37,6 +35,7 @@ interface CommonRepository {
     fun getRailData(railId: String, pageLimit: Int, offset: Int): Single<RecommendationResponse>
     fun getSearchFilters(intent: String): Single<RecommendationResponse>
     fun getSearchRails(intent:String?) : Single<HomeResponse>
+    fun getSearchSuggestions(queryString : String) : Single<RecommendationResponse>
     fun getEpisodeSearchResponse(episodeSearchRequest: EpisodeSearchRequest) : Single<SeriesListResponse>
 
     fun loginViaOtpUser(loginRequest: LoginDTO): Single<ValidateOTPResponse>
@@ -119,7 +118,7 @@ interface CommonRepository {
 
     fun callWorkOrderFS(baId: String, workOrderRequest: WorkOrderRequest): Single<BaseResponse>
 
-    fun initiateRecharge(sid: String, amount: String): Single<RechargeResponse>
+    fun initiateRecharge(sid: String, amount: String?): Single<RechargeResponse>
     fun initiateRecharge(sid: String): Single<RechargeResponse>
 
     fun rechargeNotification(sid: String, baId: String): Single<DunningResponse>
@@ -245,19 +244,30 @@ interface CommonRepository {
         appVersionName: String
     ): Single<ManagedAppResponse>
     fun planetMarathiAnalytics(requestBody: PlanetMarathiAnalyticsRequest, contentType: String): Single<BaseResponse>
-    fun fetchGameFavs(request: WatchRequest) : Single<RecommendationResponse>
-    fun addFavGame(profileId : String , sid: String , contentId : String , contentType : String) : Single<GameFavResponse>
+    fun fetchGameFavsOrCw(request: WatchRequest, isGameCw: Boolean): Single<RecommendationResponse>
+    fun addFavGameOrCw(profileId : String , sid: String , contentId : String , contentType : String, cwEnabled: Boolean) : Single<GameFavResponse>
     fun generateVootPwaToken(request: HashMap<String, String>) : Single<VootPwaResponse>
     fun fetchLionsGateToken(request: LionsgateRequest) : Single<LionsGateResponse>
 
     fun fetchTAHomeHierarchy(pageType: String,packName : String, isLoggedIn: Boolean, sId : String) : Single<HierarchyResponse>
     fun fetchVRHomeHierarchy(pageType: String,packName : String) : Single<HierarchyResponse>
-    fun fetchRailData(railId : String) : Single<RecommendationResponse>
+    fun fetchRailData(railId: String, limit: Int?) : Single<RecommendationResponse>
     fun fetchGenreRailData() : Single<RecommendationResponse>
     fun fetchLanguageRailData() : Single<RecommendationResponse>
     fun fetchGenericPartnerDRMAPI(
         providerContentId: String?,
-        provider: String
+        provider: String,
+        contentTypeId: String,
+        contentType: String
     ): Single<GenericPartnerDRMResponse>
+    fun getAppleRedemptionUrl(
+        request : AppleRedemptionRequest,
+        originalSubscriberId: String
+    ): Single<AppleRedemptionResponse>
 
+    fun getLiveChannelContentDetails(channelId: String): Single<LiveChannelDetailsResponse>
+    fun fetchPlaybackUrlsForDigitalFeed(
+        partnerName: String,
+        channelId: String,
+    ): Single<DigitalFeedPlaybackUrlsResponse>
 }

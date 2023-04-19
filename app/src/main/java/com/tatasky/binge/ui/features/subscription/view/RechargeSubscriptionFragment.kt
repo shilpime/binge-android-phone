@@ -4,11 +4,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
-import android.text.Spannable
 import android.text.TextWatcher
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.text.buildSpannedString
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavOptions
@@ -19,15 +17,11 @@ import com.tatasky.binge.analytics.SOURCE_ACCOUNT
 import com.tatasky.binge.analytics.SOURCE_NOTIFICATION
 import com.tatasky.binge.data.networking.models.ErrorModel
 import com.tatasky.binge.data.networking.models.response.PartnerPacks
-import com.tatasky.binge.data.networking.models.response.PurchasePackResponse
-import com.tatasky.binge.data.networking.models.response.WalletBalanceResponse
 import com.tatasky.binge.databinding.FragmentRechargeSubscriptionBinding
 import com.tatasky.binge.interfaces.CommonDialogEventListener
-import com.tatasky.binge.ui.base.frameworks.SingleEvent
 import com.tatasky.binge.ui.base.frameworks.base.BaseFragment
 import com.tatasky.binge.ui.base.frameworks.extensions.clearError
 import com.tatasky.binge.ui.base.frameworks.extensions.hide
-import com.tatasky.binge.ui.base.frameworks.extensions.invisible
 import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.features.dialog.DialogModel
 import com.tatasky.binge.ui.features.recharge.RechargeActivity
@@ -38,8 +32,6 @@ import com.tatasky.binge.ui.features.subscription.adapter.ProviderAdapter
 import com.tatasky.binge.ui.features.subscription.model.Cancellation
 import com.tatasky.binge.ui.features.subscription.viewmodel.SubscriptionViewModel
 import com.tatasky.binge.utils.*
-import io.github.inflationx.calligraphy3.CalligraphyTypefaceSpan
-import io.github.inflationx.calligraphy3.TypefaceUtils
 import java.util.*
 import javax.inject.Inject
 

@@ -7,13 +7,17 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.tatasky.binge.R
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
 import com.tatasky.binge.databinding.LayoutProgressBarBinding
 import com.tatasky.binge.ui.base.frameworks.extensions.startProgressAvd
 import com.tatasky.binge.utils.e
 import java.util.logging.Logger
 
-abstract class EndlessListAdapter<D : Any, VH : RecyclerView.ViewHolder>(dataList: MutableList<D>) :
-    ListAdapter<D, VH>(dataList) {
+abstract class EndlessListAdapter<D : Any, VH : RecyclerView.ViewHolder>(
+    dataList: MutableList<D>,
+    contentAnalyticsModel: ContentAnalyticsModel,
+) :
+    ListAdapter<D, VH>(dataList, contentAnalyticsModel) {
     var autoUpdating = true
     var isAppending = false
         set(isAppending) {

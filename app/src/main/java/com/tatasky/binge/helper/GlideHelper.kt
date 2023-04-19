@@ -22,6 +22,7 @@ import com.tatasky.binge.R
 import com.tatasky.binge.utils.dpToPx
 import com.tatasky.binge.utils.e
 import com.tatasky.binge.utils.getCloudinaryUrl
+import com.tatasky.binge.utils.isTablet
 
 
 fun Context.isValidGlideContext() = this !is Activity || (!this.isDestroyed && !this.isFinishing)
@@ -84,12 +85,16 @@ fun imageLoad(img: ImageView, url: String) {
 fun loadImageTextViewDrawable(textView: TextView, url: String,cloudinaryUrl:String?) {
     if(textView.context.isValidGlideContext()){
         try {
+            var sizeOfImage=120
+            if(isTablet(textView.context)){
+                sizeOfImage = 100
+            }
             val url = getCloudinaryUrl(cloudinaryUrl,url)
             Glide.with(textView.context)
                 .load(url)
                 .placeholder(R.drawable.shp_placeholder)
                 .error(R.drawable.shp_placeholder)
-                .into(object : CustomTarget<Drawable>(120,120) {
+                .into(object : CustomTarget<Drawable>(sizeOfImage,sizeOfImage) {
                     override fun onLoadCleared(drawable: Drawable?) {
                         textView.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null)
                     }
@@ -280,12 +285,12 @@ fun circularImageLocal(img: ImageView, @DrawableRes drawableId: Int, @DrawableRe
 
 fun loadSubscriptionBottomSheetBanner(img: ImageView, url: String) {
     val x = dpToPx(img.context,20).toFloat()
+    var requestOptions= RequestOptions().transform(CenterInside(),GranularRoundedCorners(x, x, 0F, 0F))
+    if(isTablet(img.context)){
+        requestOptions = RequestOptions().transform(CenterInside(),GranularRoundedCorners(x, x, x, x))
+    }
     Glide.with(img.context)
         .setDefaultRequestOptions(
-            RequestOptions()
-                .centerInside().transform(
-                    CenterInside(),
-                    GranularRoundedCorners(x, x, 0F, 0F)
-                )
+           requestOptions
         ).load(url).into(img)
 }

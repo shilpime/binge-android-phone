@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <data>
+        <import type="android.view.View"/>
+        <variable name="provider" type="String"/>
+        <variable name="imgUrl" type="String"/>
+        <variable name="contentItem"
+            type="com.tatasky.binge.data.networking.models.response.ContentItem"/>
+    </data>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <ImageView
+            android:id="@+id/aiv_layout_home_hero_banner"
+            glideSrc="@{imgUrl}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/sample_iv_desc"
+            android:scaleType="fitXY"
+            android:transitionName="@string/profile"/>
+
+        <ImageView
+            android:id="@+id/imgOverlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:background="@drawable/ic_overlay_card"
+            android:contentDescription="@string/sample_iv_desc"
+            android:scaleType="fitXY"/>
+
+        <ImageView
+            android:id="@+id/iv_layout_home_hero_channel_icon"
+            android:contentDescription="@string/sample_iv_desc"
+            android:scaleType="fitEnd"
+            android:layout_width="@dimen/dimen_74dp"
+            android:layout_height="@dimen/margin_20"
+            android:visibility="gone"
+            android:layout_alignEnd="@id/aiv_layout_home_hero_banner"
+            android:layout_alignBottom="@id/aiv_layout_home_hero_banner"
+            android:layout_marginEnd="@dimen/view_margin_medium"
+            android:layout_marginBottom="@dimen/view_margin_medium"
+            android:adjustViewBounds="true"
+            android:maxWidth="@dimen/partner_logo_max_width"
+            android:maxHeight="@dimen/partner_logo_max_height"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_14"
+            android:textColor="@color/white"
+            android:id="@+id/tempid"
+            android:visibility="gone"
+            />
+
+        <ImageView
+            android:id="@+id/iv_crown_small"
+            android:layout_width="@dimen/dimen_24dp"
+            android:layout_height="@dimen/dimen_24dp"
+            android:layout_alignEnd="@id/aiv_layout_home_hero_banner"
+            android:layout_alignBottom="@id/aiv_layout_home_hero_banner"
+            android:layout_marginEnd="@dimen/margin_20"
+            android:layout_marginBottom="@dimen/margin_20"
+            app:srcCompat="@drawable/ic_crown_with_bg"
+            android:visibility="@{contentItem.containsCrown() ? View.VISIBLE : View.GONE, default=gone}"
+            android:contentDescription="@string/premium_image_desc" />
+
+    </RelativeLayout>
+</layout>

@@ -12,7 +12,13 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.text.InputFilter
-import android.view.*
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewAnimationUtils
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
+import android.view.Window
+import android.view.WindowManager
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
@@ -26,7 +32,6 @@ import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.tatasky.binge.R
 import com.tatasky.binge.customviews.CustomTextInputLayout
-import com.tatasky.binge.utils.getRealDisplayPoint
 import kotlin.math.hypot
 
 
@@ -82,11 +87,6 @@ fun View.showKeyboard() {
         val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
     }
-}
-
-fun View.openKeyboard() {
-    val keyboard = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    keyboard.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0)
 }
 
 fun View.closeKeyboard() {

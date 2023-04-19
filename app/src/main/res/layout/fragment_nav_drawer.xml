@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.more.SettingsViewModel" />
     </data>
 
 
@@ -68,7 +70,7 @@
                     app:menuArrowVisible="@{true}"
                     app:menuDividerVisible="@{true}"
                     app:menuItemImgRes="@{@drawable/ic_wallet}"
-                    app:menuItemText="@{@string/text_tata_sky_balance}" />
+                    app:menuItemText="@{vm.setTextToMenuItems().tataPlayBalance}" />
 
                 <include
                     android:id="@+id/menu_item_go_vip"
@@ -80,7 +82,7 @@
                     app:menuArrowVisible="@{true}"
                     app:menuDividerVisible="@{true}"
                     app:menuItemImgRes="@{@drawable/ic_crown}"
-                    app:menuItemText="@{@string/subscribe}" />
+                    app:menuItemText="@{vm.setTextToMenuItems().subscribe}" />
 
                 <include
                     android:id="@+id/menu_item_with_renew"
@@ -105,7 +107,7 @@
                     app:menuArrowVisible="@{true}"
                     app:menuDividerVisible="@{true}"
                     app:menuItemImgRes="@{@drawable/ic_watchlist_menu}"
-                    app:menuItemText="@{@string/text_menu_binge_list}" />
+                    app:menuItemText="@{vm.setTextToMenuItems().bingeList}" />
 
                 <include
                     android:id="@+id/menu_item_notification"
@@ -117,7 +119,7 @@
                     app:menuArrowVisible="@{true}"
                     app:menuDividerVisible="@{true}"
                     app:menuItemImgRes="@{@drawable/ic_no_notification}"
-                    app:menuItemText="@{@string/text_menu_notification}" />
+                    app:menuItemText="@{vm.setTextToMenuItems().notifications}" />
 
                 <include
                     android:id="@+id/menu_item_settings"
@@ -129,7 +131,7 @@
                     app:menuArrowVisible="@{true}"
                     app:menuDividerVisible="@{true}"
                     app:menuItemImgRes="@{@drawable/ic_settings}"
-                    app:menuItemText="@{@string/text_menu_settings}" />
+                    app:menuItemText="@{vm.setTextToMenuItems().settings}" />
 
                 <include
                     android:id="@+id/menu_item_help_and_support"
@@ -140,7 +142,8 @@
                     app:menuActionLayoutVisible="@{false}"
                     app:menuArrowVisible="@{true}"
                     app:menuDividerVisible="@{true}"
-                    app:menuItemImgRes="@{@drawable/ic_help}" />
+                    app:menuItemImgRes="@{@drawable/ic_help}"
+                    app:menuItemText="@{vm.setTextToMenuItems().help}" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>

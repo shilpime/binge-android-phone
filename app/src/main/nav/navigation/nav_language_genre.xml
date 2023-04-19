@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/languageGenre"
         android:name="com.tatasky.binge.ui.features.search.LanguageGenreFragment"
-        android:label="{title}"
+        android:label=""
         tools:layout="@layout/fragment_language_genre">
         <argument
             android:name="title"
@@ -38,6 +38,11 @@
             app:argType="string"
             android:defaultValue=""
             app:nullable="false"/>
+        <argument
+            android:name="contentAnalyticsModel"
+            android:defaultValue="@null"
+            app:nullable="true"
+            app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
         <action
             android:id="@+id/action_to_detail"
             app:destination="@id/nav_details">
@@ -47,6 +52,9 @@
             <argument android:name="fromGrid"
                 app:argType="boolean"
                 android:defaultValue="true"/>
+            <argument
+                android:name="contentAnalyticsModel"
+                app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
         </action>
 
         <action

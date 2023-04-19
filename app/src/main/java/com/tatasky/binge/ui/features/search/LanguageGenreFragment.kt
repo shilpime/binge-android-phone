@@ -1,53 +1,46 @@
 package com.tatasky.binge.ui.features.search
 
 
-import android.os.Bundle
-import android.view.ContextThemeWrapper
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.widget.RadioButton
+import android.content.res.Configuration
 import android.widget.RadioGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.updatePadding
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.chip.Chip
 import com.google.android.material.transition.Hold
-import com.google.android.material.transition.MaterialSharedAxis
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.*
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
+import com.tatasky.binge.analytics.util.emptyContentAnalyticsModel
 import com.tatasky.binge.customviews.RVGridLayoutManager
-import com.tatasky.binge.customviews.ToggleRadioButton
 import com.tatasky.binge.data.networking.models.ErrorModel
 import com.tatasky.binge.data.networking.models.response.ContentItem
 import com.tatasky.binge.data.networking.models.response.RecommendationResponse
 import com.tatasky.binge.databinding.FragmentLanguageGenreBinding
+import com.tatasky.binge.helper.imageLoad
 import com.tatasky.binge.helper.transparentImageLoad
 import com.tatasky.binge.ui.base.frameworks.base.BaseFragment
 import com.tatasky.binge.ui.base.frameworks.extensions.hide
 import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.base.frameworks.extensions.startProgressAvd
-import com.tatasky.binge.ui.features.MiscAnalytics
 import com.tatasky.binge.ui.features.games.GameAnalytics
 import com.tatasky.binge.ui.features.home.ItemLayoutType
 import com.tatasky.binge.ui.features.home.ItemViewType
 import com.tatasky.binge.ui.features.home.LandingActivity
+import com.tatasky.binge.ui.features.home.TabletType
 import com.tatasky.binge.ui.features.home.adapter.ItemGridAdapter
 import com.tatasky.binge.ui.features.home.sub.SubFragmentDirections
 import com.tatasky.binge.ui.features.search.model.SearchViewModel
 import com.tatasky.binge.utils.*
 import javax.inject.Inject
 
-/**
- * A simple [Fragment] subclass.
- *
- */
+
 class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchViewModel>() {
 
     private var lastCheckedFilterId: Int? = null
@@ -60,47 +53,12 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
     private var intentForList: String = ""
     private var genre: String = ""
     private var language: String = ""
-    private var state: String = FREE_STATE
     private var pageName : String? = null
+    private var isNavigateToOther: Boolean = false
 
     private lateinit var intent: String
     private lateinit var endlessScrollListener: EndlessRecyclerOnScrollListener
     val args by navArgs<LanguageGenreFragmentArgs>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-//        startPostponedEnterTransition()
-        setHasOptionsMenu(true)
-        super.onCreate(savedInstanceState)
-//        val forward = MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
-//            this.duration = 250
-//        }
-//        enterTransition = forward
-//
-//        val backward = MaterialSharedAxis(MaterialSharedAxis.X, false).apply {
-//            this.duration = 250
-//        }
-//        returnTransition = backward
-//        reenterTransition = backward
-//        exitTransition = forward
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_search_icon, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.search_menu -> {
-                findNavController().navigateSafe(LanguageGenreFragmentDirections.actionToSearch())
-                true
-            }
-            else -> {
-                super.onOptionsItemSelected(item)
-            }
-        }
-
-    }
 
 
     private fun handleFreeToggle() {
@@ -119,6 +77,7 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
             binding.switchView.setOnCheckedChangeListener { compoundButton, b ->
                 viewModel.freeToggle = b
                 viewModel.isFromToggle = true
+                endlessScrollListener.refresh()
                 viewModel.refreshLangGenreApi(true)
                 if (!b) {
                     searchAnalytics.trackFilterToggleClick(source, ALL_CONTENT_STATE,
@@ -142,14 +101,60 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
         }
     }
 
+    private fun handleLangGenreUI() {
+        val sectionType = args.sectionType
+        val params: ConstraintLayout.LayoutParams =
+            binding.horizontalGuide.layoutParams as ConstraintLayout.LayoutParams
+        when {
+            sectionType.equals(ItemViewType.GENRE.name, true) -> {
+                context?.let { ctx ->
+                    when (getTabletType(ctx)) {
+                        TabletType.TABLET, TabletType.TABLET_7_INCH -> params.guidePercent = .16f
+                        TabletType.TABLET_LANDSCAPE -> params.guidePercent = .28f
+                        else -> params.guidePercent = .21f
+                    }
+                } ?: run { params.guidePercent = .21f }
+
+                binding.apply {
+                    groupGenre.show()
+                    groupLanguage.hide()
+                    tvGenreTitle.text = args.title
+                }
+            }
+            else -> {
+                context?.let { ctx ->
+                    when (getTabletType(ctx)) {
+                        TabletType.TABLET, TabletType.TABLET_7_INCH -> params.guidePercent = .12f
+                        TabletType.TABLET_LANDSCAPE -> params.guidePercent = .19f
+                        else -> params.guidePercent = .15f
+                    }
+                } ?: run { params.guidePercent = .15f }
+
+                binding.apply{
+                    groupLanguage.show()
+                    groupGenre.hide()
+                }
+            }
+        }
+    }
+
     override fun toBeCalledOnce() {
         exitTransition = Hold()
         searchAnalytics.trackLanguageOrGenreScreenView(args.title, args.sectionType, args.pageName)
-        binding.vm = viewModel
+        binding.apply {
+            vm = viewModel
+            imgBack.setOnClickListener {
+                activity?.onBackPressed()
+            }
+            imgSearch.setOnClickListener {
+                findNavController().navigateSafe(LanguageGenreFragmentDirections.actionToSearch())
+            }
+            this.tvLangTitle.text = args.title
+        }
         intent = INTENT_GENRE
         intentForList = args.sectionType
         viewModel.searchPageName = args.pageName
-
+        handleLangGenreUI()
         if(args.sectionType == ItemLayoutType.GENRE_RAIL_FOR_GAMES.name){
             viewModel.contentType = PROVIDER_GAMEZOP
         }
@@ -169,7 +174,10 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
                     true
                 )
 
-        val gridLayoutManager = RVGridLayoutManager(requireContext())
+        var gridLayoutManager = RVGridLayoutManager(requireContext(),resources.getInteger(R.integer.grid_landscape))
+        if(args.sectionType == ItemLayoutType.GENRE_RAIL_FOR_GAMES.name) {
+            gridLayoutManager  = RVGridLayoutManager(requireContext(),resources.getInteger(R.integer.grid_game_landscape))
+        }
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 return if (position == (binding.searchRecyclerView.adapter as ItemGridAdapter).getListSize()) 2 else 1
@@ -178,7 +186,6 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
         binding.searchRecyclerView.layoutManager = gridLayoutManager
         if(args.sectionType == ItemViewType.CHARACTER.name) {
             viewModel.searchQuery = args.title
-            binding.groupFilters.hide()
             val constraintLayout: ConstraintLayout = binding.root
             val constraintSet = ConstraintSet()
             constraintSet.clone(constraintLayout)
@@ -198,7 +205,25 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
                     fetchAll = false)
                 intent = INTENT_LANGUAGE
                 genre = args.title
-                transparentImageLoad(binding.ivBgTopImage, args.bgImage)
+                if(args.sectionType.equals(ItemLayoutType.GENRE_RAIL_FOR_GAMES.name,true))
+                    transparentImageLoad(binding.ivBgTopImage, args.bgImage)
+                else {
+                    val point = getDeviceDimension(context)
+                    val genreBackdropImage =
+                        getCloudinaryUrlByWidthOrHeight(
+                            sharedPrefs.getCloudenieryUrl(),
+                            args.bgImage,
+                            width = point.x
+                        )
+                    imageLoad(binding.ivGenreBackground, genreBackdropImage)
+                    val genreIconUrl =
+                        getCloudinaryUrlByWidthOrHeight(
+                            sharedPrefs.getCloudenieryUrl(),
+                            args.bgBottomImage,
+                            height = 64
+                        )
+                    transparentImageLoad(binding.ivGenreIcon, genreIconUrl)
+                }
 
             }
             else{
@@ -233,14 +258,22 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
         }
         binding.searchRecyclerView.addOnScrollListener(endlessScrollListener)
         viewModel.onlyMessage = false
-//        viewModel.fetchFiltersList(intent, false)
         filterLanguageGenre(true)
-        binding.groupFilters.show()
         binding.filters.show()
         binding.tvFilters.show()
         if(args.source == SOURCE_GAMES){
             binding.tvFilters.hide()
             binding.filters.hide()
+        }
+        binding.languageFilters.filtersRadioGroup.isSingleSelection = true
+        binding.languageFilters.filterChipAll.setOnClickListener {
+            if (!(binding.languageFilters.filterChipAll.isChecked)) {
+                binding.languageFilters.filterChipAll.isChecked = true
+                return@setOnClickListener
+            }
+            binding.languageFilters.filtersRadioGroup.clearCheck()
+            val targetView = binding.languageFilters.filterChipAll
+            targetView.parent?.requestChildFocus(targetView, targetView)
         }
         binding.languageFilters.filtersRadioGroup.setOnCheckedChangeListener { radioGroup, checkedId ->
             /**
@@ -250,14 +283,19 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
              */
             if (lastCheckedFilterId == checkedId) return@setOnCheckedChangeListener
             else lastCheckedFilterId = checkedId
-            var btn : RadioButton? = null
-            val value = if(radioGroup.checkedRadioButtonId!=-1) {
-                btn = radioGroup.findViewById<RadioButton?>(checkedId)
+            var btn : Chip? = null
+            val value = if(radioGroup.checkedChipId!=-1) {
+                binding.languageFilters.filterChipAll.isChecked = false
+                btn = radioGroup.findViewById<Chip?>(checkedId)
                 btn?.text ?: ""
             }
-            else
+            else {
+                binding.languageFilters.filterChipAll.isChecked = true
+                val targetView = binding.languageFilters.filterChipAll
+                targetView.parent?.requestChildFocus(targetView, targetView)
                 ""
-            val targetView = radioGroup.findViewById<RadioButton>(checkedId)
+            }
+            val targetView = radioGroup.findViewById<Chip>(checkedId)
             targetView?.parent?.requestChildFocus(targetView, targetView)
             e("RadioCheck","child at $checkedId tag is : ${value}")
             intentForList = if(value.isBlank()) args.sectionType else INTENT_LANGUAGE_GENRE
@@ -301,7 +339,6 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
             if(viewModel.searchPageOffset == 0) {
                 isNetworkLost = true
                 binding.searchRecyclerView.hide()
-//                binding.tvNoData.show()
                 binding.networkView.show()
             }
             else{
@@ -355,7 +392,7 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
                                 if (args.sectionType == ItemLayoutType.GENRE.name || args.sectionType == ItemLayoutType.GENRE_RAIL_FOR_GAMES.name)
                                     contentList.backgroundImage?.let { it1 ->
                                         transparentImageLoad(
-                                            binding.ivBgTopImage,
+                                            binding.ivGenreBackground,
                                             it1
                                         )
                                     }
@@ -395,12 +432,7 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
                     findNavController().navigateUp()
             }
         })
-//        viewModel.getSearchFiltersResponse().observe(viewLifecycleOwner, Observer {
-//            it.getContentIfNotHandled()?.let { hr ->
-//                //viewModel.fetchSearchLandingList(true)
-//                onFiltersResponseFetched(hr)
-//            }
-//        })
+
 
 
         viewModel.getUserPreferredGenreFilter().observe(viewLifecycleOwner) {
@@ -423,31 +455,32 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
                 if(response.data?.itemCount == 0) {
                     response.data?.itemCount = response.data?.contentItem?.size ?: 0
                 }
-                setAdapter(response)
+                setAdapter(
+                    response,
+                    args.contentAnalyticsModel ?: emptyContentAnalyticsModel()
+                )
             }
         })
 
 
-        viewModel.getClickedItem().observe(viewLifecycleOwner, Observer
-        {
-            it.getContentIfNotHandled()?.let { contentItem ->
-                contentItem.contentItem.source = source
-//                contentItem.contentItem.railName = if(intent != INTENT_GENRE) EVENT_VALUE_SOURCE_GENRE.toUpperCase() else EVENT_VALUE_SOURCE_LANGUAGE.toUpperCase()
-                contentItem.gamesMixpanelInfoModel?.railTitle = PARAM_GENRE // TODO
-                contentItem.gamesMixpanelInfoModel?.pageName = (activity as? LandingActivity?)?.getPageName().toString()
-                contentItem.gamesMixpanelInfoModel?.railPosition = "1" // TODO
-                contentItem.gamesMixpanelInfoModel?.source = EVENT_VALUE_SOURCE_GENRE
-                contentItem.contentItem.origin = com.tatasky.binge.utils.EDITORIAL //editorial or recommended
-                contentItem.contentItem.refId = args.refId
-                if(contentItem.contentItem.provider.equals(PROVIDER_GAMEZOP,true)){
+        viewModel.getClickedItem().observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { clickedItem ->
+                clickedItem.contentItem.source = source
+                clickedItem.gamesMixpanelInfoModel?.railTitle = PARAM_GENRE // TODO
+                clickedItem.gamesMixpanelInfoModel?.pageName = (activity as? LandingActivity?)?.getPageName().toString()
+                clickedItem.gamesMixpanelInfoModel?.railPosition = "1" // TODO
+                clickedItem.gamesMixpanelInfoModel?.source = EVENT_VALUE_SOURCE_GENRE
+                clickedItem.contentItem.origin = com.tatasky.binge.utils.EDITORIAL //editorial or recommended
+                clickedItem.contentItem.refId = args.refId
+                if(clickedItem.contentItem.provider.equals(PROVIDER_GAMEZOP,true)){
                     if(sharedPrefs.getLoginStatus()) {
-                        getGamesActivityIntent(requireContext(), contentItem.contentItem,contentItem.gamesMixpanelInfoModel)?.let{ intent->
+                        getGamesActivityIntent(requireContext(), clickedItem.contentItem,clickedItem.gamesMixpanelInfoModel)?.let{ intent->
                             startActivity(
                                 intent
                             )
                         }
                     } else {
-                        contentItem.gamesMixpanelInfoModel?.let{
+                        clickedItem.gamesMixpanelInfoModel?.let{
                             gamesAnalytics.trackGameClick(
                                 pageName = it.pageName,
                                 railTitle = it.railTitle,
@@ -458,10 +491,10 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
                                 gamePartner = it.gamePartner,
                                 gamePosition = it.gamePosition,
                                 gameRating = it.gameRating,
-                                gameTitle = contentItem.contentItem.title,
+                                gameTitle = clickedItem.contentItem.title,
                                 freeGame = YES,
                                 releaseYear = it.releaseYear,
-                                deviceType = PLATFORM_ANDROID_CAPS,
+                                deviceType = sharedPrefs.getDeviceType()?.uppercase()?:"",
                                 source = it.source,
                                 packPrice = FREEMIUM,
                                 packName = FREEMIUM
@@ -472,8 +505,10 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
                 }else {
                     findNavController().navigateSafe(
                         LanguageGenreFragmentDirections.actionToDetail(
-                            contentItem.contentItem
-                        ), contentItem.extras
+                            clickedItem.contentItem,
+                            contentAnalyticsModel = clickedItem.contentAnalyticsModel
+                        ),
+                        clickedItem.extras
                     )
                 }
             }
@@ -488,33 +523,27 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
                 RadioGroup.LayoutParams.WRAP_CONTENT
             )
             layoutParams.setMargins(8, 0, 8, 0)
-            languageResponse?.let { it ->
-                binding.languageFilters.filtersRadioGroup.removeAllViews()
-                binding.groupFilters.show()
-                binding.filters.show()
-                binding.tvFilters.show()
-                if(args.source == SOURCE_GAMES){
-                    binding.tvFilters.hide()
-                    binding.filters.hide()
-                }
-                val langList = it
-                langList.forEach { lang ->
-                    val radioButton = ToggleRadioButton(
-                        ContextThemeWrapper(
-                            context,
-                            R.style.SearchFilterRadioButtonStyle
-                        ), null, 0
-                    )
-                    radioButton.text = lang.title
-                    radioButton.tag = lang.title
-                    radioButton.layoutParams = layoutParams
 
-                    binding.languageFilters.filtersRadioGroup.addView(radioButton)
-                }
-                viewModel.setLanguageFilterTitle(
-                    ""
-                )
+            binding.apply {
+                languageFilters.filtersRadioGroup.removeAllViews()
+                filters.show()
+                tvFilters.show()
             }
+            if (args.source == SOURCE_GAMES) {
+                binding.tvFilters.hide()
+                binding.filters.hide()
+            }
+
+            languageResponse.forEach { lang ->
+                val chip = layoutInflater.inflate(R.layout.layout_single_filter_chip, binding.languageFilters.filtersRadioGroup, false) as Chip
+                chip.apply{
+                    text = lang.title
+                    tag = lang.title
+                }
+                binding.languageFilters.filtersRadioGroup.addView(chip)
+            }
+            viewModel.setLanguageFilterTitle("")
+
         }
     }
 
@@ -525,36 +554,33 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
             RadioGroup.LayoutParams.WRAP_CONTENT
         )
         layoutParams.setMargins(8, 0, 8, 0)
-        genreResponse?.let { it ->
-            binding.languageFilters.filtersRadioGroup.removeAllViews()
-            binding.groupFilters.show()
-            binding.filters.show()
-            binding.tvFilters.show()
-            if(args.source == SOURCE_GAMES){
-                binding.tvFilters.hide()
-                binding.filters.hide()
-            }
-            val genreList = it
-            genreList.forEach { lang ->
-                val radioButton = ToggleRadioButton(
-                    ContextThemeWrapper(
-                        context,
-                        R.style.SearchFilterRadioButtonStyle
-                    ), null, 0
-                )
-                radioButton.text = lang.title
-                radioButton.tag = lang.title
-                radioButton.layoutParams = layoutParams
-
-                binding.languageFilters.filtersRadioGroup.addView(radioButton)
-            }
-            viewModel.setLanguageFilterTitle(
-                ""
-            )
+        binding.apply {
+            languageFilters.filtersRadioGroup.removeAllViews()
+            filters.show()
+            tvFilters.show()
         }
+        if (args.source == SOURCE_GAMES) {
+            binding.tvFilters.hide()
+            binding.filters.hide()
+        }
+
+        genreResponse.forEach { lang ->
+            val chip = layoutInflater.inflate(R.layout.layout_single_filter_chip, binding.languageFilters.filtersRadioGroup, false) as Chip
+            chip.apply{
+                text = lang.title
+                tag = lang.title
+            }
+            binding.languageFilters.filtersRadioGroup.addView(chip)
+        }
+        viewModel.setLanguageFilterTitle(
+            ""
+        )
     }
 
-    private fun setAdapter(searchResponse: RecommendationResponse) {
+    private fun setAdapter(
+        searchResponse: RecommendationResponse,
+        contentAnalyticsModel: ContentAnalyticsModel,
+    ) {
         binding.root.show()
         binding.networkView.hide()
         isNetworkLost = false
@@ -562,7 +588,7 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
         if (args.sectionType.equals(ItemViewType.GENRE_RAIL_FOR_GAMES.name, true)) {
             isSquareLayout = true
         }
-        viewModel.updateLangGenreList(searchResponse,isSquareLayout)
+        viewModel.updateLangGenreList(searchResponse, isSquareLayout, contentAnalyticsModel)
         searchResponse.data?.dthStatus =  sharedPrefs.getDthStatusFreemium()
         if(viewModel.searchPageOffset == 0) {
             if (searchResponse.data?.itemCount ?: 0 > 0 && !searchResponse.data?.filteredContentItems.isNullOrEmpty()) {
@@ -575,44 +601,45 @@ class LanguageGenreFragment : BaseFragment<FragmentLanguageGenreBinding, SearchV
         }
     }
 
-    override fun getViewModelOwner(): ViewModelStoreOwner = this
-
-    private fun onFiltersResponseFetched(filterResponse: HashMap<String, RecommendationResponse>) {
-        binding.root.show()
-        val languageResponse = filterResponse.get(intent)
-        val layoutParams = RadioGroup.LayoutParams(
-            RadioGroup.LayoutParams.WRAP_CONTENT,
-            RadioGroup.LayoutParams.WRAP_CONTENT
-        )
-        layoutParams.setMargins(8, 0, 8, 0)
-        languageResponse?.let { it ->
-            binding.languageFilters.filtersRadioGroup.removeAllViews()
-            binding.groupFilters.show()
-            binding.filters.show()
-            binding.tvFilters.show()
-            if(args.source == SOURCE_GAMES){
-                binding.tvFilters.hide()
-                binding.filters.hide()
-            }
-            val langList = it.data?.contentItem ?: ArrayList()
-            langList.forEach { lang ->
-                val radioButton = ToggleRadioButton(
-                    ContextThemeWrapper(
-                        context,
-                        R.style.SearchFilterRadioButtonStyle
-                    ), null, 0
-                )
-                radioButton.text = lang.title
-                radioButton.tag = lang.title
-                radioButton.layoutParams = layoutParams
-
-                binding.languageFilters.filtersRadioGroup.addView(radioButton)
-            }
-            viewModel.setLanguageFilterTitle(
-                ""
-            )
-        }
-
+    override fun onStop() {
+        super.onStop()
+        isNavigateToOther = true
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        isNavigateToOther = true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isNavigateToOther) {
+            updateUIAdapter()
+            isNavigateToOther = false
+        }
+    }
+
+    override fun getViewModelOwner(): ViewModelStoreOwner = this
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        updateUIAdapter()
+
+    }
+    private fun updateUIAdapter(){
+        activity?.let {
+            if(isTablet(it)){
+                handleLangGenreUI()
+                (binding.searchRecyclerView.adapter as? ItemGridAdapter)?.let { adapter->
+                    var layoutManager =
+                        binding.searchRecyclerView.layoutManager as GridLayoutManager
+                    if(args.sectionType == ItemLayoutType.GENRE_RAIL_FOR_GAMES.name) {
+                        layoutManager.spanCount = resources.getInteger(R.integer.grid_game_landscape)
+                    }else{
+                        layoutManager.spanCount = resources.getInteger(R.integer.grid_landscape)
+                    }
+                    adapter.notifyDataSetChanged()
+                }
+            }
+        }
+    }
 }

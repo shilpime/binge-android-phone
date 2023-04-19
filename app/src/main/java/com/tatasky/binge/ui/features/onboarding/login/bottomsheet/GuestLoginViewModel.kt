@@ -123,8 +123,6 @@ class GuestLoginViewModel @Inject constructor(
             })
     }
 
-
-
     fun generateOtp() {
         setProgressing(true)
         useCase.run {
@@ -482,4 +480,7 @@ class GuestLoginViewModel @Inject constructor(
                 }
             })
     }
+
+    fun getVerbiageFromConfig() : ConfigResponse.Config? =
+        sharedPrefs.getConfigResponse()?.data?.config
 }

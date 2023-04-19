@@ -7,148 +7,154 @@
 
     </data>
 
-    <com.google.android.material.card.MaterialCardView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="@dimen/dimens_8dp"
-        app:strokeWidth="@dimen/dimens_1dp"
-        app:strokeColor="@color/stroke_color"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="wrap_content">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_regional_app_nudge_gradient"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/tab_nudge"
+            app:cardCornerRadius="@dimen/dimens_8dp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeColor="@color/stroke_color"
+            app:strokeWidth="@dimen/dimens_1dp">
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/drawableStartGuideline"
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_begin="@dimen/dimens_14dp" />
+                android:background="@drawable/bg_regional_app_nudge_gradient"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.constraintlayout.widget.Barrier
-                android:id="@+id/drawableEndBarrier"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:constraint_referenced_ids="remainingProgress_PB, icon_IV"
-                app:barrierDirection="end"/>
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/drawableStartGuideline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_begin="@dimen/dimens_14dp" />
 
-            <ImageView
-                android:id="@+id/icon_IV"
-                android:layout_width="@dimen/dimens_40dp"
-                android:layout_height="@dimen/dimens_40dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="@id/drawableStartGuideline"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:srcCompat="@drawable/ic_nudge_subs_expired" />
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/drawableEndBarrier"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="end"
+                    app:constraint_referenced_ids="remainingProgress_PB, icon_IV" />
 
-            <ProgressBar
-                android:id="@+id/remainingProgress_PB"
-                android:layout_width="@dimen/dimen_48"
-                android:layout_height="@dimen/dimen_48"
-                android:indeterminateOnly="false"
-                android:progressDrawable="@drawable/progress_bar_renewal_days_remaining"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="@id/drawableStartGuideline"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:max="4"
-                tools:progress="3" />
+                <ImageView
+                    android:id="@+id/icon_IV"
+                    android:layout_width="@dimen/dimens_40dp"
+                    android:layout_height="@dimen/dimens_40dp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/drawableStartGuideline"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:srcCompat="@drawable/ic_nudge_subs_expired" />
 
-            <TextView
-                android:id="@+id/remainingCount_TV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/text_size_14"
-                app:layout_constraintBottom_toTopOf="@id/remainingCountUnit_TV"
-                app:layout_constraintEnd_toEndOf="@id/remainingProgress_PB"
-                app:layout_constraintStart_toStartOf="@id/remainingProgress_PB"
-                app:layout_constraintTop_toTopOf="@id/remainingProgress_PB"
-                app:layout_constraintVertical_chainStyle="packed"
-                tools:text="3" />
+                <ProgressBar
+                    android:id="@+id/remainingProgress_PB"
+                    android:layout_width="@dimen/dimen_48"
+                    android:layout_height="@dimen/dimen_48"
+                    android:indeterminateOnly="false"
+                    android:progressDrawable="@drawable/progress_bar_renewal_days_remaining"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/drawableStartGuideline"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:max="4"
+                    tools:progress="3" />
 
-            <TextView
-                android:id="@+id/remainingCountUnit_TV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/dimens_4dp"
-                android:maxLines="1"
-                android:textSize="@dimen/text_size_8"
-                app:layout_constraintBottom_toBottomOf="@id/remainingProgress_PB"
-                app:layout_constraintEnd_toEndOf="@id/remainingProgress_PB"
-                app:layout_constraintStart_toStartOf="@id/remainingProgress_PB"
-                app:layout_constraintTop_toBottomOf="@id/remainingCount_TV"
-                app:layout_constraintVertical_chainStyle="packed"
-                tools:ignore="SmallSp"
-                tools:text="@string/days" />
+                <TextView
+                    android:id="@+id/remainingCount_TV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size_14"
+                    app:layout_constraintBottom_toTopOf="@id/remainingCountUnit_TV"
+                    app:layout_constraintEnd_toEndOf="@id/remainingProgress_PB"
+                    app:layout_constraintStart_toStartOf="@id/remainingProgress_PB"
+                    app:layout_constraintTop_toTopOf="@id/remainingProgress_PB"
+                    app:layout_constraintVertical_chainStyle="packed"
+                    tools:text="3" />
 
-            <androidx.constraintlayout.widget.Group
-                android:id="@+id/progressBarGroup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                app:constraint_referenced_ids="remainingProgress_PB,remainingCount_TV,remainingCountUnit_TV"
-                tools:visibility="visible" />
+                <TextView
+                    android:id="@+id/remainingCountUnit_TV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/dimens_4dp"
+                    android:maxLines="1"
+                    android:textSize="@dimen/text_size_8"
+                    app:layout_constraintBottom_toBottomOf="@id/remainingProgress_PB"
+                    app:layout_constraintEnd_toEndOf="@id/remainingProgress_PB"
+                    app:layout_constraintStart_toStartOf="@id/remainingProgress_PB"
+                    app:layout_constraintTop_toBottomOf="@id/remainingCount_TV"
+                    app:layout_constraintVertical_chainStyle="packed"
+                    tools:ignore="SmallSp"
+                    tools:text="@string/days" />
 
-            <TextView
-                android:id="@+id/nudgeTitle_TV"
-                style="@style/TSTextBold"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dimens_12dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="@dimen/dimens_42dp"
-                android:textColor="@color/white"
-                android:textSize="@dimen/dimens_16sp"
-                app:layout_constraintEnd_toStartOf="@id/close_IV"
-                app:layout_constraintStart_toEndOf="@id/drawableEndBarrier"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Title"
-                tools:visibility="visible" />
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/progressBarGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:constraint_referenced_ids="remainingProgress_PB,remainingCount_TV,remainingCountUnit_TV"
+                    tools:visibility="visible" />
 
-            <TextView
-                android:id="@+id/nudgeDescription_TV"
-                style="@style/TSTextMedium"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textSize="@dimen/text_size_14"
-                app:layout_constraintEnd_toEndOf="@id/nudgeTitle_TV"
-                app:layout_constraintStart_toEndOf="@id/remainingProgress_PB"
-                app:layout_constraintStart_toStartOf="@+id/nudgeTitle_TV"
-                app:layout_constraintTop_toBottomOf="@id/nudgeTitle_TV"
-                tools:text="Description"
-                tools:visibility="visible" />
+                <TextView
+                    android:id="@+id/nudgeTitle_TV"
+                    style="@style/TSTextBold"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dimens_12dp"
+                    android:layout_marginTop="@dimen/dimens_12dp"
+                    android:layout_marginEnd="@dimen/dimens_42dp"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/dimens_16sp"
+                    app:layout_constraintEnd_toStartOf="@id/close_IV"
+                    app:layout_constraintStart_toEndOf="@id/drawableEndBarrier"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Title"
+                    tools:visibility="visible" />
 
-            <TextView
-                android:id="@+id/nudgeAction_Btn"
-                style="@style/TSTextBold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dimens_2dp"
-                android:layout_marginBottom="@dimen/dimens_12dp"
-                android:textColor="?android:textColorTertiary"
-                android:textSize="@dimen/text_size_16"
-                app:drawableEndCompat="@drawable/arrow_right_20dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="@id/nudgeDescription_TV"
-                app:layout_constraintTop_toBottomOf="@id/nudgeDescription_TV"
-                tools:text="Action" />
+                <TextView
+                    android:id="@+id/nudgeDescription_TV"
+                    style="@style/TSTextMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dimens_2dp"
+                    android:textSize="@dimen/text_size_14"
+                    app:layout_constraintEnd_toEndOf="@id/nudgeTitle_TV"
+                    app:layout_constraintStart_toEndOf="@id/remainingProgress_PB"
+                    app:layout_constraintStart_toStartOf="@+id/nudgeTitle_TV"
+                    app:layout_constraintTop_toBottomOf="@id/nudgeTitle_TV"
+                    tools:text="Description"
+                    tools:visibility="visible" />
 
-            <ImageView
-                android:id="@+id/close_IV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/dp_16"
-                app:layout_constraintBottom_toBottomOf="@id/nudgeTitle_TV"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/nudgeTitle_TV"
-                increaseTouch="@{8}"
-                tools:src="@drawable/cross_12dp" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
+                <TextView
+                    android:id="@+id/nudgeAction_Btn"
+                    style="@style/TSTextBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dimens_2dp"
+                    android:layout_marginBottom="@dimen/dimens_12dp"
+                    android:textColor="?android:textColorTertiary"
+                    android:textSize="@dimen/text_size_16"
+                    app:drawableEndCompat="@drawable/arrow_right_20dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/nudgeDescription_TV"
+                    app:layout_constraintTop_toBottomOf="@id/nudgeDescription_TV"
+                    tools:text="Action" />
+
+                <ImageView
+                    android:id="@+id/close_IV"
+                    increaseTouch="@{8}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/dp_16"
+                    app:layout_constraintBottom_toBottomOf="@id/nudgeTitle_TV"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/nudgeTitle_TV"
+                    tools:src="@drawable/cross_12dp" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

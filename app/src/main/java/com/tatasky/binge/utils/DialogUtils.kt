@@ -6,10 +6,12 @@ import android.graphics.drawable.AnimatedVectorDrawable
 import android.view.View
 import android.view.Window
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.lifecycle.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.tatasky.binge.R
+import com.tatasky.binge.data.networking.models.response.SubscriberIdListResponse
 import com.tatasky.binge.interfaces.ProfileDialogEventListener
 import com.tatasky.binge.ui.base.frameworks.extensions.show
 
@@ -42,19 +44,32 @@ fun loadingDismiss() {
     }
 }
 
-fun showProfilePicAlert(profilePicExists : Boolean, ctx: Context, callBack: ProfileDialogEventListener?, lifecycleOwner: LifecycleOwner) {
+fun showProfilePicAlert(profilePicExists : Boolean,
+                        verbiage: SubscriberIdListResponse.Settings?,
+                        ctx: Context, callBack: ProfileDialogEventListener?,
+                        lifecycleOwner: LifecycleOwner) {
     try {
 
         val view = View.inflate(ctx, R.layout.layout_profile_pic_dialog, null)
-        val dialog = BottomSheetDialog(ctx)
+        var dialog:Dialog
+        if(isTablet(ctx))
+            dialog = Dialog(ctx)
+        else dialog = BottomSheetDialog(ctx)
         dialog.setContentView(view)
         dialog.setCancelable(false)
+        val tvDialogTitle = dialog.findViewById<TextView>(R.id.tv_dialog_title)
         val btnCamera = dialog.findViewById<View>(R.id.btn_dialog_primary) as MaterialButton
         val btnGallery = dialog.findViewById<View>(R.id.btn_dialog_secondary) as MaterialButton
         val btnRemove = dialog.findViewById<View>(R.id.btn_remove) as MaterialButton
         val btnCancel = dialog.findViewById<View>(R.id.btn_close) as MaterialButton
+
+        tvDialogTitle?.text = verbiage?.choose
+        btnCamera.text = verbiage?.capture
+        btnGallery.text = verbiage?.from
+        btnCancel.text = verbiage?.close
         if(profilePicExists){
             btnRemove.show()
+            btnRemove.text = verbiage?.remove
         }
         btnCamera.setOnClickListener {
             dialog.dismiss()

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item>
+        <inset
+            android:insetTop="@dimen/margin_4"
+            android:drawable="@drawable/ic_seeall_small">
+        </inset>
+    </item>
+</layer-list>

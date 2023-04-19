@@ -210,6 +210,9 @@
                 app:argType="string"
                 android:defaultValue=""
                 app:nullable="false"/>
+            <argument
+                android:name="contentAnalyticsModel"
+                app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
         </action>
 
         <action
@@ -317,6 +320,16 @@
             android:name="fromGrid"
             android:defaultValue="false"
             app:argType="boolean" />
+        <argument
+            android:name="railItemsModel"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.ui.features.home.model.RailItemsModel"
+            app:nullable="true" />
+        <argument
+            android:name="contentAnalyticsModel"
+            android:defaultValue="@null"
+            app:nullable="true"
+            app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
     </action>
 
     <activity
@@ -438,6 +451,11 @@
             app:argType="string"
             android:defaultValue="@null"
             app:nullable="true"/>
+        <argument
+            android:name="contentAnalyticsModel"
+            android:defaultValue="@null"
+            app:nullable="true"
+            app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
     </fragment>
 
     <activity
@@ -526,6 +544,11 @@
             android:name="isLoginToHome"
             android:defaultValue="false"
             app:argType="boolean" />
+        <argument
+            android:name="source"
+            app:nullable="true"
+            android:defaultValue="@null"
+            app:argType="string" />
         <action
             android:id="@+id/action_guestLoginBottomDialogFragment_to_managedAppFragment"
             app:destination="@id/managedAppFragment"
@@ -537,6 +560,11 @@
             <argument
                 android:name="cartId"
                 android:defaultValue=""
+                app:argType="string" />
+            <argument
+                android:name="source"
+                app:nullable="true"
+                android:defaultValue="@null"
                 app:argType="string" />
         </action>
     </dialog>
@@ -703,6 +731,10 @@
             android:defaultValue="CHANGE RESTRICTION"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="fromHeader"
+            app:argType="boolean"
+            android:defaultValue="false"/>
     </dialog>
     <action
         android:id="@+id/action_global_parentalControlBottomDialogFragment"

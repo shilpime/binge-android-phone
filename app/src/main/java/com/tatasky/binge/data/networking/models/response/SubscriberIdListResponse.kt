@@ -83,6 +83,8 @@ class SubscriberIdListResponse() : BaseResponse() {
             get() = true == statusType?.equals("inactive" , true)
         val bingeActive
             get() = true == statusType?.equals("active" , true)
+        @SerializedName("settings")
+        var settings: Settings? = null
     }
 
     internal class MyObjectDeserializer : JsonDeserializer<SubscriberIdListResponse?> {
@@ -107,5 +109,67 @@ class SubscriberIdListResponse() : BaseResponse() {
             }
             return SubscriberIdListResponse()
         }
+    }
+
+    data class Settings(
+        @SerializedName("editProfile") val editProfile: String? = null,
+        @SerializedName("videoLang") val videoLang: String? = null,
+        @SerializedName("parentalLang") val parentalControl: String? = null,
+        @SerializedName("autoPlay") val autoPlay: String? = null,
+        @SerializedName("notificationSett") val notificationSett: String? = null,
+        @SerializedName("transactionHist") val transactionHist: String? = null,
+        @SerializedName("name") val name: String? = null,
+        @SerializedName("email") val email: String? = null,
+        @SerializedName("rmn") val rmn: String? = null,
+        @SerializedName("save") val save: String? = null,
+        @SerializedName("confirm") val confirm: String? = null,
+        @SerializedName("choose") val choose: String? = null,
+        @SerializedName("capture") val capture: String? = null,
+        @SerializedName("from") val from: String? = null,
+        @SerializedName("remove") val remove: String? = null,
+        @SerializedName("close") val close: String? = null,
+        @SerializedName("manageDevices") val manageDevices: String? = null,
+        @SerializedName("loggedIn") val loggedIn: String? = null,
+        @SerializedName("maxDevices") val maxDevices: String? = null,
+        @SerializedName("mobileDevice") val mobileDevice: String? = null,
+        @SerializedName("tvDevice") val tvDevice: String? = null,
+        @SerializedName("thisDevice") val thisDevice: String? = null,
+        @SerializedName("sureRemove") val sureRemove: String? = null,
+        @SerializedName("ctaYes") val ctaYes: String? = null,
+        @SerializedName("removeDevice") val removeDevice: String? = null,
+        @SerializedName("primary") val primary: String? = null,
+        @SerializedName("switchAccount") val switchAccount: String? = null,
+        @SerializedName("logout") val logout: String? = null
+    ) {
+        fun getTrimmedVerbiages() = copy(
+            editProfile = editProfile?.trim(),
+            videoLang = videoLang?.trim(),
+            parentalControl = parentalControl?.trim(),
+            autoPlay = autoPlay?.trim(),
+            notificationSett = notificationSett?.trim(),
+            transactionHist = transactionHist?.trim(),
+            name = name?.trim(),
+            email = email?.trim(),
+            rmn = rmn?.trim(),
+            save = save?.trim(),
+            confirm = confirm?.trim(),
+            choose = choose?.trim(),
+            capture = capture?.trim(),
+            from = from?.trim(),
+            remove = remove?.trim(),
+            close = close?.trim(),
+            manageDevices = manageDevices?.trim(),
+            loggedIn = loggedIn?.trim(),
+            maxDevices = maxDevices?.trim(),
+            mobileDevice = mobileDevice?.trim(),
+            tvDevice = tvDevice?.trim(),
+            thisDevice = thisDevice?.trim(),
+            sureRemove = sureRemove?.trim(),
+            ctaYes = ctaYes?.trim(),
+            removeDevice = removeDevice?.trim(),
+            primary = primary?.trim(),
+            switchAccount = switchAccount?.trim(),
+            logout = logout?.trim()
+        )
     }
 }

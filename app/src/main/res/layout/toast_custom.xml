@@ -4,43 +4,51 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/toast_cl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/toast_background"
-        android:minHeight="44dp"
-        android:paddingStart="@dimen/view_margin_xlarge"
-        android:paddingTop="@dimen/margin_10"
-        android:paddingEnd="@dimen/view_margin_xlarge"
-        android:paddingBottom="@dimen/margin_10">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/toast_iv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxWidth="48dp"
-            android:maxHeight="48dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/toast_tv"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/toast_tv"
-            style="@style/TSTextMedium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/view_margin_medium"
-            android:fontFamily="@font/volteplay_medium"
-            android:gravity="center"
-            android:textColor="?colorOnSurface"
-            android:textSize="@dimen/text_size_16"
-            tools:text="Account refresh completed"
-            app:layout_constraintBottom_toBottomOf="parent"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/toast_cl"
+            style="@style/tab_toast"
+            android:background="@drawable/toast_background"
+            android:minHeight="@dimen/toast_min_height"
+            android:paddingStart="@dimen/view_margin_xlarge"
+            android:paddingTop="@dimen/margin_10"
+            android:paddingEnd="@dimen/view_margin_xlarge"
+            android:paddingBottom="@dimen/margin_10"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/toast_iv"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_goneMarginStart="0dp" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/toast_iv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="@dimen/dimen_48dp"
+                android:maxHeight="@dimen/dimen_48dp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/toast_tv"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/toast_tv"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/volteplay_medium"
+                android:gravity="center"
+                android:textColor="?colorOnSurface"
+                android:textSize="@dimen/text_size_16"
+                android:layout_marginStart="@dimen/view_margin_medium"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/toast_iv"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Account refresh completed" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

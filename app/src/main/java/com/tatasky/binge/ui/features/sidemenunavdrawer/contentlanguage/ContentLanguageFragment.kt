@@ -1,5 +1,9 @@
 package com.tatasky.binge.ui.features.sidemenunavdrawer.contentlanguage
 
+import android.content.res.Configuration
+import android.view.View
+import android.widget.FrameLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelStoreOwner
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.APPLAUNCH
@@ -10,10 +14,7 @@ import com.tatasky.binge.ui.base.frameworks.base.BaseFragment
 import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.features.home.bottomsheet.HomeBottomSheetViewModel
 import com.tatasky.binge.ui.features.sidemenunavdrawer.SideMenuDrawerAnalytics
-import com.tatasky.binge.utils.CATEGORY_LANGUAGE_DRAWER
-import com.tatasky.binge.utils.CATEGORY_LANGUAGE_SETTING
-import com.tatasky.binge.utils.showToast
-import com.tatasky.binge.utils.startHomeScreen
+import com.tatasky.binge.utils.*
 import javax.inject.Inject
 
 class ContentLanguageFragment :
@@ -34,6 +35,26 @@ class ContentLanguageFragment :
 
     override fun getViewModelOwner(): ViewModelStoreOwner {
         return this
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        uiChanges()
+    }
+    private fun uiChanges() {
+        val layoutParams= binding.rvLanguageListing?.layoutParams as ConstraintLayout.LayoutParams
+        val layoutParams1= binding.textView?.layoutParams as ConstraintLayout.LayoutParams
+        val layoutParams2= binding.tvLanguageHeader?.layoutParams as ConstraintLayout.LayoutParams
+        activity?.let {
+           layoutParams.apply {
+               layoutParams.marginStart = it.resources.getDimensionPixelSize(R.dimen.tab_padding)
+               layoutParams1.marginStart = it.resources.getDimensionPixelSize(R.dimen.tab_padding)
+               layoutParams.marginEnd  = it.resources.getDimensionPixelSize(R.dimen.tab_padding_right)
+           }
+        }
+        binding.rvLanguageListing?.layoutParams=layoutParams
+        binding.textView?.layoutParams=layoutParams1
+        binding.tvLanguageHeader?.layoutParams=layoutParams2
     }
 
     override fun setObserver() {
@@ -59,6 +80,11 @@ class ContentLanguageFragment :
     }
 
     override fun toBeCalledOnce() {
+        if (context?.let { isTablet(it) } == true)
+        {
+            binding.toolbarLayout.visibility = View.INVISIBLE
+            binding.textView?.visibility =View.VISIBLE
+        }
         sideMenuDrawerAnalytics.trackSelectContentLanguageView()
         binding.vm = viewModel
         viewModel.fetchLanguages(this.javaClass.name)

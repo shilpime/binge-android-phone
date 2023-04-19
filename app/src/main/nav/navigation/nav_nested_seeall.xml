@@ -76,5 +76,10 @@
             android:name="isPrepand"
             app:argType="boolean"
             android:defaultValue="false" />
+        <argument
+            android:name="contentAnalyticsModel"
+            android:defaultValue="@null"
+            app:nullable="true"
+            app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
     </fragment>
 </navigation>

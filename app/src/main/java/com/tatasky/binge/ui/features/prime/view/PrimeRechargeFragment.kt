@@ -17,7 +17,6 @@ import com.tatasky.binge.R
 import com.tatasky.binge.analytics.SOURCE_HOME
 import com.tatasky.binge.data.networking.models.ErrorModel
 import com.tatasky.binge.databinding.FragmentPrimeRechargeBinding
-import com.tatasky.binge.helper.imageLoad
 import com.tatasky.binge.helper.transparentImageLoad
 import com.tatasky.binge.interfaces.CommonDialogEventListener
 import com.tatasky.binge.ui.base.frameworks.base.BaseFragment

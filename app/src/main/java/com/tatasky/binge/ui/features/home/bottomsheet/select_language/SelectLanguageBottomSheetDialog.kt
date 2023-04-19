@@ -1,6 +1,7 @@
 package com.tatasky.binge.ui.features.home.bottomsheet.select_language
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
@@ -21,18 +22,17 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.APPLAUNCH
 import com.tatasky.binge.analytics.NUDGE
-import com.tatasky.binge.data.networking.models.response.VerbiageData
-import com.tatasky.binge.data.networking.models.response.Verbiages
 import com.tatasky.binge.databinding.FragmentSelectLanguageBottomSheetDialogBinding
 import com.tatasky.binge.domain.repositories.PrefsRepo
 import com.tatasky.binge.ui.base.frameworks.extensions.closeKeyboard
 import com.tatasky.binge.ui.base.frameworks.extensions.startProgressAvd
 import com.tatasky.binge.ui.features.home.HomeAnalytics
-import com.tatasky.binge.ui.features.home.LandingActivity
 import com.tatasky.binge.ui.features.home.bottomsheet.HomeBottomSheetViewModel
 import com.tatasky.binge.utils.CATEGORY_LANGUAGE_DRAWER
+import com.tatasky.binge.utils.isTablet
 import com.tatasky.binge.utils.showToastOverDialog
 import dagger.android.support.AndroidSupportInjection
+
 import javax.inject.Inject
 
 
@@ -56,11 +56,16 @@ class SelectLanguageBottomSheetDialog : BottomSheetDialogFragment() {
     private lateinit var mHomeBottomSheetViewModel: HomeBottomSheetViewModel
     private var mDisableLanguageRecyclerListener = object: RecyclerView.OnItemTouchListener{
         override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-            if(mBottomSheetBehavior?.state != BottomSheetBehavior.STATE_EXPANDED) {
-                mBottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
-                return true
+            context?.let {
+                if(!isTablet(it)){
+                    if(mBottomSheetBehavior?.state != BottomSheetBehavior.STATE_EXPANDED) {
+                        mBottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+                        return true
+                    }
+                    return false
+                }
             }
-            return false
+           return false
         }
 
         override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
@@ -76,6 +81,15 @@ class SelectLanguageBottomSheetDialog : BottomSheetDialogFragment() {
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        this.context?.let{ctx->
+            if(isTablet(ctx))
+                return Dialog(ctx, theme)
+        }
+        return super.onCreateDialog(savedInstanceState)
+
     }
 
     override fun onCreateView(
@@ -138,45 +152,50 @@ class SelectLanguageBottomSheetDialog : BottomSheetDialogFragment() {
             }
         }
 
-        dialog?.setOnShowListener { dialog ->
-            (dialog as BottomSheetDialog)
-                .findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
-                ?.let { bottomSheetInternal ->
-                    mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheetInternal)
-                    mBottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
-                    val bottomBgBlurMargin =
-                        bottomSheetInternal.height - (mBottomSheetBehavior?.peekHeight ?: 0)
-                    val newBgBlurLayoutParams =
-                        mBinding.bgBlur.layoutParams as ConstraintLayout.LayoutParams
-                    newBgBlurLayoutParams.bottomMargin = bottomBgBlurMargin
-                    mBinding.bgBlur.layoutParams = newBgBlurLayoutParams
-                    mBottomSheetBehavior?.addBottomSheetCallback(object :
-                        BottomSheetBehavior.BottomSheetCallback() {
-
-                        override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                            newBgBlurLayoutParams.bottomMargin =
-                                bottomBgBlurMargin - (bottomBgBlurMargin * slideOffset).toInt()
+        context?.let {
+            if(!isTablet(it)){
+                dialog?.setOnShowListener { dialog ->
+                    (dialog as BottomSheetDialog)
+                        .findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                        ?.let { bottomSheetInternal ->
+                            mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheetInternal)
+                            mBottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+                            val bottomBgBlurMargin =
+                                bottomSheetInternal.height - (mBottomSheetBehavior?.peekHeight ?: 0)
+                            val newBgBlurLayoutParams =
+                                mBinding.bgBlur.layoutParams as ConstraintLayout.LayoutParams
+                            newBgBlurLayoutParams.bottomMargin = bottomBgBlurMargin
                             mBinding.bgBlur.layoutParams = newBgBlurLayoutParams
+                            mBottomSheetBehavior?.addBottomSheetCallback(object :
+                                BottomSheetBehavior.BottomSheetCallback() {
+
+                                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                                    newBgBlurLayoutParams.bottomMargin =
+                                        bottomBgBlurMargin - (bottomBgBlurMargin * slideOffset).toInt()
+                                    mBinding.bgBlur.layoutParams = newBgBlurLayoutParams
+
+                                }
+
+                                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                                    when (newState) {
+                                        BottomSheetBehavior.STATE_COLLAPSED -> Log.i("states","STATE_COLLAPSED")
+                                        BottomSheetBehavior.STATE_EXPANDED -> {
+                                            /*homeAnalytics.trackContentLanguageBottomSheetExpand()*/
+                                            Log.i("states", "STATE_EXPANDED")
+                                        }
+                                        BottomSheetBehavior.STATE_DRAGGING -> Log.i("states","STATE_DRAGGING")
+                                        BottomSheetBehavior.STATE_SETTLING -> Log.i("states","STATE_SETTLING")
+                                        BottomSheetBehavior.STATE_HIDDEN -> Log.i("states","STATE_HIDDEN")
+                                        else -> Log.i("states","OTHER_STATE")
+                                    }
+                                }
+                            })
 
                         }
-
-                    override fun onStateChanged(bottomSheet: View, newState: Int) {
-                        when (newState) {
-                            BottomSheetBehavior.STATE_COLLAPSED -> Log.i("states","STATE_COLLAPSED")
-                            BottomSheetBehavior.STATE_EXPANDED -> {
-                                /*homeAnalytics.trackContentLanguageBottomSheetExpand()*/
-                                Log.i("states", "STATE_EXPANDED")
-                            }
-                            BottomSheetBehavior.STATE_DRAGGING -> Log.i("states","STATE_DRAGGING")
-                            BottomSheetBehavior.STATE_SETTLING -> Log.i("states","STATE_SETTLING")
-                            BottomSheetBehavior.STATE_HIDDEN -> Log.i("states","STATE_HIDDEN")
-                            else -> Log.i("states","OTHER_STATE")
-                        }
-                    }
-                })
+                }
 
             }
-                   }
+        }
     }
 
 
@@ -203,7 +222,15 @@ class SelectLanguageBottomSheetDialog : BottomSheetDialogFragment() {
     private fun setObservers() {
         mHomeBottomSheetViewModel.showToast().observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { message ->
-                dialog?.let { it1 -> showToastOverDialog(it1,message) }
+                dialog?.let { it1 ->
+                    val layoutParams = ConstraintLayout.LayoutParams(/*Custom view's parent is CL so using CL layout params*/
+                        ConstraintLayout.LayoutParams.MATCH_PARENT,
+                        ConstraintLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        marginStart =5
+                        marginEnd =5
+                    }
+                    showToastOverDialog(it1,message,layoutParam = layoutParams) }
             }
         })
         mHomeBottomSheetViewModel.getLanguageAdapter().getSelectContentLanguageButtonStatus()

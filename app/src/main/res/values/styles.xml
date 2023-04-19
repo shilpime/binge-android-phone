@@ -113,6 +113,7 @@
         <item name="cardPreventCornerOverlap">false</item>
     </style>
 
+
     <style name="SearchFilterRadioButtonStyle" parent="Widget.AppCompat.CompoundButton.RadioButton">
         <item name="android:button">@null</item>
         <item name="android:paddingTop">@dimen/view_margin_small</item>
@@ -180,13 +181,7 @@
         <item name="android:backgroundTint">@color/button_color_different_disabled</item>
     </style>
 
-    <style name="Widget.AppTheme.ButtonStyle.Icon">
-        <item name="iconPadding">8dp</item>
-        <item name="iconGravity">textStart</item>
-        <item name="android:textSize">16sp</item>
-        <item name="fontPath">@string/bold_font</item>
-        <item name="android:textColor">@color/button_text_color</item>
-    </style>
+
 
     <style name="Widget.AppTheme.ButtonStyle.Text">
         <item name="android:textColor">?colorSecondary</item>
@@ -323,18 +318,21 @@
         <item name="actionMenuTextAppearance">@style/Widget.ActionMenuTextAppearance</item>
     </style>
 
-    <style name="ToolbarTextStyle" parent="TextAppearance.MaterialComponents.Headline6">
-        <item name="fontFamily">@font/volteplay_medium</item>
-        <item name="android:fontFamily">@font/volteplay_medium</item>
-        <item name="fontPath">@string/medium_font</item>
-        <item name="android:textSize">19sp</item>
-    </style>
+
+
+
 
     <style name="AppBarLayoutStyle" parent="Widget.MaterialComponents.AppBarLayout.Surface">
         <item name="android:theme">@style/Widget.MaterialComponents.AppBarLayout.Surface</item>
     </style>
     <style name="TSText">
         <item name="android:textSize">@dimen/text_size_18</item>
+        <item name="fontPath">@string/medium_font</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="tab_settingText">
+        <item name="android:textSize">@dimen/tab_setting_text_size</item>
         <item name="fontPath">@string/medium_font</item>
         <item name="android:textAllCaps">false</item>
     </style>
@@ -369,6 +367,8 @@
         <item name="android:textSize">@dimen/text_size_14</item>
         <item name="android:textColorHint">@color/grey_color</item>
         <item name="colorControlActivated">@color/black</item>
+        <item name="android:editTextColor">@color/black</item>
+
     </style>
     <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
         <item name="queryBackground">@color/transparent</item>

@@ -24,7 +24,6 @@
             <com.tatasky.binge.ui.features.home.home_trailer.TrailerView
                 android:id="@+id/itemTrailer"
                 android:tag="videoFragment"
-
                 android:name="com.tatasky.binge.ui.features.home.home_trailer.VideoViewFragment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
@@ -63,7 +62,7 @@
             android:maxLines="2"
             android:textAlignment="textStart"
             android:textColor="@color/pink_50"
-            android:textSize="13sp"
+            android:textSize="@dimen/tab_trailer_text_size_20"
             app:layout_constraintBottom_toBottomOf="@+id/cv_bg"
             app:layout_constraintEnd_toEndOf="@+id/cv_bg"
             app:layout_constraintStart_toStartOf="@+id/cv_bg"

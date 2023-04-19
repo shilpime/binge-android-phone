@@ -85,4 +85,7 @@
 	<dimen name="pick_image_button_size">35.2dp</dimen>
 	<dimen name="edit_user_imageview_size">105.6sp</dimen>
 	<dimen name="user_initials_text_size">49.3sp</dimen>
+	<dimen name="tab_margin_15">15dp</dimen>
+	<dimen name="tab_text_size_16">16sp</dimen>
+	<dimen name="tab_text_size_20">20sp</dimen>
 </resources>

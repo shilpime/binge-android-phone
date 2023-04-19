@@ -3,6 +3,7 @@ package com.tatasky.binge.ui.features.sidemenunavdrawer
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import android.util.TypedValue
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelStoreOwner
@@ -26,6 +27,7 @@ import com.tatasky.binge.ui.features.recharge.RechargeActivity
 import com.tatasky.binge.ui.features.recharge.launchRechargeActivity
 import com.tatasky.binge.utils.*
 import com.tatasky.binge.utils.PaymentUtility.getCurrentOrLastActiveTenureDetailsForActiveOrInactiveUsers
+import com.tatasky.binge.utils.splitAnyString
 import java.util.*
 
 class NavDrawerFragment : BaseFragment<FragmentNavDrawerBinding, SettingsViewModel>() {
@@ -56,7 +58,7 @@ class NavDrawerFragment : BaseFragment<FragmentNavDrawerBinding, SettingsViewMod
         viewModel .getProfileInfo().observe(viewLifecycleOwner) {
             setupHeaderData(it.peekContent())
         }
-        viewModel.getUserLoogedIn().observe(viewLifecycleOwner) {
+        viewModel.getUserLoggedIn().observe(viewLifecycleOwner) {
             when (it.getContentIfNotHandled()) {
                 false -> {
                     binding.header.apply {
@@ -213,6 +215,7 @@ class NavDrawerFragment : BaseFragment<FragmentNavDrawerBinding, SettingsViewMod
 
     override fun toBeCalledOnce() {
         binding.apply {
+            vm = viewModel
             menuItemWithRecharge.ivSettingsArrow.visibility = View.GONE
 
             footer.tvVersionNumber.text = String.format(
@@ -308,20 +311,25 @@ class NavDrawerFragment : BaseFragment<FragmentNavDrawerBinding, SettingsViewMod
                     viewModel.navDrawerAction.postValue(SingleEvent(NavDrawerActions.HelpAndSupportClicked))
                 }
             })
+            footer.apply {
+                val footerText = viewModel.setTextToMenuItems()?.subText?.splitAnyString("\n")
+                tvTermsCondition.text = footerText?.first()
+                tvTvPrivacyPolicy.text = footerText?.get(1)
 
-            footer.tvTermsCondition.setOnClickListener(object : SingleClickListener() {
-                override fun onClicked(v: View?) {
-                    viewModel.miscAnalytics.trackMixPanelMenuOption()
-                    viewModel.navDrawerAction.postValue(SingleEvent(NavDrawerActions.TnCClicked))
-                }
-            })
+                tvTermsCondition.setOnClickListener(object : SingleClickListener() {
+                    override fun onClicked(v: View?) {
+                        viewModel.miscAnalytics.trackMixPanelMenuOption()
+                        viewModel.navDrawerAction.postValue(SingleEvent(NavDrawerActions.TnCClicked))
+                    }
+                })
 
-            footer.tvTvPrivacyPolicy.setOnClickListener(object : SingleClickListener() {
-                override fun onClicked(v: View?) {
-                    viewModel.miscAnalytics.trackMixPanelMenuOption()
-                    viewModel.navDrawerAction.postValue(SingleEvent(NavDrawerActions.PrivacyPolicyClicked))
-                }
-            })
+                tvTvPrivacyPolicy.setOnClickListener(object : SingleClickListener() {
+                    override fun onClicked(v: View?) {
+                        viewModel.miscAnalytics.trackMixPanelMenuOption()
+                        viewModel.navDrawerAction.postValue(SingleEvent(NavDrawerActions.PrivacyPolicyClicked))
+                    }
+                })
+            }
         }
     }
 
@@ -345,7 +353,8 @@ class NavDrawerFragment : BaseFragment<FragmentNavDrawerBinding, SettingsViewMod
                 tvTextDeviceName.visibility = View.GONE
                 tvTextLogin.visibility = View.VISIBLE
 
-                tvTitleProfile.text = getString(R.string.text_un_logged_in_header)
+                tvTitleProfile.text = viewModel.setTextToMenuItems()?.loginNow
+                tvTextLogin.text = viewModel.setTextToMenuItems()?.login
             }
             else {
                 if (hr?.userData != null) {
@@ -368,7 +377,13 @@ class NavDrawerFragment : BaseFragment<FragmentNavDrawerBinding, SettingsViewMod
             }
             ivProfile.setOnClickListener {
                 if (hr?.userData != null) {
-                    viewModel.navDrawerAction.postValue(SingleEvent(NavDrawerActions.EditProfile))
+                    if (isTablet(requireContext()))
+                    {
+                        viewModel.navDrawerAction.postValue(SingleEvent(NavDrawerActions.SettingsClicked))
+                    }
+                    else {
+                        viewModel.navDrawerAction.postValue(SingleEvent(NavDrawerActions.EditProfile))
+                    }
                 }
             }
         }
@@ -404,6 +419,10 @@ class NavDrawerFragment : BaseFragment<FragmentNavDrawerBinding, SettingsViewMod
         } else {
             "$fName $lName".also { binding.header.tvTitleProfile.text = it }
             binding.header.tvTitleProfile.visibility = View.VISIBLE
+            context?.let {
+                if(isTablet(it))
+                    binding.header.tvTitleProfile.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
+            }
         }
         sharedPrefs.getClearRMN().also {
             if (it.isEmpty()) {

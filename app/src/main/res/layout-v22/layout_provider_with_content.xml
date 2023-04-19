@@ -98,12 +98,11 @@
                 android:lineSpacingExtra="4dp"
                 android:nestedScrollingEnabled="false"
                 android:orientation="vertical"
-                android:paddingStart="@dimen/margin_20dp"
-                android:paddingEnd="@dimen/margin_20dp"
+                android:paddingHorizontal="@dimen/screen_horizontal_margin"
                 app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/divider"
-                app:spanCount="4" />
+                app:spanCount="@integer/shuffle_rail_span" />
 
             <TextView
                 android:id="@+id/home_see_all"

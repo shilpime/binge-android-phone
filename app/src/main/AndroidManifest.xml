@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
     <!-- Android Advertising Identifier, Required by AppsFlyer -->
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
@@ -172,7 +173,6 @@
         <!--MoEngage End-->
         <activity android:name=".ui.features.splash.AppSplashActivity"
             android:theme="@style/AppTheme.SplashAppTheme"
-            android:screenOrientation="portrait"
             android:launchMode="singleTop"
             android:exported="true">
             <intent-filter>
@@ -193,21 +193,18 @@
             android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".ui.features.subscription_freemium.WalletPaymentActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".ui.features.subscription_freemium.FreemiumSubscriptionActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity android:name=".ui.features.games.GamePlayerActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity android:name=".ui.features.onboarding.LicenseAgreementActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
@@ -215,38 +212,31 @@
             android:launchMode="singleTop">
         </activity>
         <activity android:name=".ui.features.home.LandingActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
-            android:windowSoftInputMode="adjustPan">
+                android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:windowSoftInputMode="adjustPan|adjustResize|stateHidden">
 
         </activity>
 
         <activity android:name=".ui.features.onboarding.marketing.MarketingActivity"
-            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan|adjustUnspecified"/>
 
         <activity android:name=".ui.features.prime.view.PrimeActivity"
-            android:theme="@style/AppTheme.Transparent"
-            android:launchMode="singleTop"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:windowSoftInputMode="adjustPan|adjustUnspecified"/>
         <activity android:name=".ui.features.prime.view.PrimeActivationActivity"
             android:theme="@style/AppTheme"
-            android:screenOrientation="portrait"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan|adjustUnspecified"/>
 
         <activity         android:name="com.tatasky.binge.ui.features.fsinstallation.FSInstallationActivity"
-            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan|adjustUnspecified"
             android:launchMode="singleTop">
         </activity>
         <activity android:name="com.tatasky.binge.ui.features.switchaccount.SwitchAccountActivity"
-            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan|adjustUnspecified"
             android:launchMode="singleTop">
         </activity>
         <activity android:name="com.tatasky.binge.ui.features.device_management.DeviceListManagementActivity"
-            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan|adjustUnspecified"
             android:launchMode="singleTop"/>
         <activity android:name=".ui.features.zee5.InAppBrowserActivity"
@@ -258,7 +248,6 @@
         <activity android:name=".ui.features.common.DeeplinkHandlingActivity"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.SplashAppTheme"
-            android:screenOrientation="portrait"
             android:exported="true">
             <nav-graph android:value="@navigation/nav_home" />
             <nav-graph android:value="@navigation/nav_movies" />

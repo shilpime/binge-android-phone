@@ -2,17 +2,16 @@ package com.tatasky.binge.ui.features.player
 
 import android.os.Bundle
 import android.text.TextUtils
-import com.tatasky.binge.utils.Properties
 import com.tatasky.binge.analytics.*
+import com.tatasky.binge.analytics.EDITORIAL
 import com.tatasky.binge.analytics.appsflyer.AppsFlyerHelper
 import com.tatasky.binge.analytics.facebook.FacebookAnalyticsHelper
 import com.tatasky.binge.analytics.firebase.FirebaseAnalyticsHelper
 import com.tatasky.binge.analytics.mixpanel.MixpanelHelper
 import com.tatasky.binge.analytics.moengage.MoEngageHelper
 import com.tatasky.binge.data.networking.models.response.PartnerPacks
-import com.tatasky.binge.utils.VTR_PERCENTAGE_50
-import com.tatasky.binge.utils.VTR_PERCENTAGE_75
-import com.tatasky.binge.utils.RENTAL
+import com.tatasky.binge.utils.*
+import com.tatasky.binge.utils.Properties
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
@@ -655,14 +654,14 @@ class PlayerAnalytics(
         title: String,
         genre: List<String>?,
         type: String,
-        startTime: String,
-        stopTime: String,
-        durationMinute: String,
-        durationSecond: String,
-        initialBufferSeconds: String,
-        initialBufferMinutes: String,
-        noOfPauses: String,
-        noOfResumes: String,
+        startTime: String = "",
+        stopTime: String = "",
+        durationMinute: String = "",
+        durationSecond: String = "",
+        initialBufferSeconds: String = "",
+        initialBufferMinutes: String = "",
+        noOfPauses: String = "",
+        noOfResumes: String = "",
         partnerName: String,
         rail: String/*Rail name/title*/,
         origin: String,
@@ -682,14 +681,16 @@ class PlayerAnalytics(
         contentCategory: String,
         contentPosition: String,
         contentRating: String,
-        releaseYear: String,
+        releaseYear: String = "",
         deviceType: String,
         actors: List<String>?,
         autoPlayed: String,
         liveContent: String,
-        seekBarProgress: String,
-        videoQuality: String,
-        contentConfigType: String /*Editorial, Recommendation*/
+        seekBarProgress: String = "",
+        videoQuality: String = "",
+        contentConfigType: String ,/*Editorial, Recommendation*/
+        tagAvailable : String = "",
+        appleRedemptionStatus:String?=null
     ) {
         trackMoEngagePlayContent(
             title,
@@ -749,7 +750,9 @@ class PlayerAnalytics(
             liveContent,
             seekBarProgress,
             videoQuality,
-            contentConfigType
+            contentConfigType,
+            tagAvailable,
+            appleRedemptionStatus
         )
         trackAppsFlyerPlayContent(
             type,
@@ -828,7 +831,9 @@ class PlayerAnalytics(
         liveContent: String,
         seekBarProgress: String,
         videoQuality: String,
-        contentConfigType: String /*Editorial, Recommendation*/
+        contentConfigType: String,/*Editorial, Recommendation*/
+        tagAvailable : String,
+        appleRedemptionStatus:String?=null
     ) {
         try {
             /*Unified Mixpanel*/
@@ -895,6 +900,15 @@ class PlayerAnalytics(
                 put(PARA_VIDEO_QUALITY, videoQuality)
 //                put(PARA_WATCH_DURATION_SECONDS, durationSecond)
 //                put(PARA_WATCH_DURATION_MINUTES, durationMinute)
+
+            }
+            if(partnerName.equals(PROVIDER_ZEE5, true)){
+                jsonObjectUnified.put(PARA_ZEE5_TAG, tagAvailable)
+            }
+            if(partnerName.equals(PROVIDER_APPLE,true)){
+                appleRedemptionStatus?.let {
+                    jsonObjectUnified.put(PARA_APPLE_COUPON_STATUS,appleRedemptionStatus)
+                }
             }
             mixpanelHelper.trackEvent(
                 EVENT_CONTENT_PLAY,

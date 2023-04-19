@@ -9,79 +9,94 @@
             name="viewModel"
             type="com.tatasky.binge.ui.features.parentalcontrol.ParentalControlViewModel" />
     </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".ui.features.parentalcontrol.sidemenu.ParentalControlRatingFragment">
-
-        <include
-            android:id="@+id/toolbar_layout"
-            layout="@layout/shadowed_toolbar"
+        android:layout_height="match_parent">
+        <FrameLayout
+            android:id="@+id/SidePaneContainer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_margin_start"
-            android:layout_width="1dp"
+            android:visibility="gone"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="@dimen/margin_20dp" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_margin_end"
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            app:layout_constraintGuide_end="@dimen/margin_20" />
-
-        <TextView
-            android:id="@+id/tv_title_fragment_parental_control_rating"
-            style="@style/TSTextMedium"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:gravity="start"
-            android:text="@string/title_parental_control_rating"
-            android:textSize="@dimen/text_size_22"
-            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
-            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
-            app:layout_constraintTop_toBottomOf="@id/toolbar_layout" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
-            setAdapter="@{viewModel.getParentalControlRatingAdapter()}"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_20dp"
-            android:overScrollMode="never"
-            android:scrollbars="none"
-            app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"
-            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
-            app:layout_constraintHeight_max="400dp"
-            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
-            app:layout_constraintTop_toBottomOf="@id/tv_title_fragment_parental_control_rating"
-            tools:listitem="@layout/layout_parental_control_rating_item" />
-
-        <View
-            android:id="@+id/bg_blur"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/btn_bg_height"
-            android:background="@drawable/bg_bottomsheet"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            style="@style/tab_contentLan_margin"
+            android:id="@+id/cl_parentLayout"
+            tools:context=".ui.features.parentalcontrol.sidemenu.ParentalControlRatingFragment">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_proceed_fragment_parental_control_rating"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_marginBottom="@dimen/margin_28"
-            android:text="@string/proceed"
-            android:textSize="@dimen/text_size_16"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
-            app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
-            />
+            <include
+                android:id="@+id/toolbar_layout"
+                layout="@layout/shadowed_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_margin_start"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/margin_20dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_margin_end"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="@dimen/margin_20" />
+
+            <TextView
+                android:id="@+id/tv_title_fragment_parental_control_rating"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:gravity="start"
+                android:text="@{viewModel.sharedPrefs.configResponse.data.config.parental.setView}"
+                android:textSize="@dimen/text_size_22"
+                app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+                app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                app:layout_constraintTop_toBottomOf="@id/toolbar_layout" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                setAdapter="@{viewModel.getParentalControlRatingAdapter()}"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_20dp"
+                android:overScrollMode="never"
+                android:scrollbars="none"
+                app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"
+                app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+                app:layout_constraintHeight_max="400dp"
+                app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                app:layout_constraintTop_toBottomOf="@id/tv_title_fragment_parental_control_rating"
+                tools:listitem="@layout/layout_parental_control_rating_item" />
+
+            <View
+                android:id="@+id/bg_blur"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_bg_height"
+                android:background="@drawable/bg_bottomsheet"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_proceed_fragment_parental_control_rating"
+                style="@style/Widget.AppTheme.ButtonStyle.Icon"
+                android:layout_marginBottom="@dimen/margin_28"
+                android:text="@string/proceed"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+                app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                app:layout_constraintTop_toBottomOf="@+id/recycler_view"
+                app:layout_constraintVertical_bias="@dimen/tab_verticalBias" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

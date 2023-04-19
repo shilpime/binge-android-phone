@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.*
 import android.media.AudioManager
@@ -23,24 +25,22 @@ import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
-import android.widget.EditText
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.annotation.DrawableRes
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsService
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.exoplayer2.Format
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.tatasky.binge.R
-import com.tatasky.binge.analytics.DEAFULT_DATE_FORMAT_FROM_BE
 import com.tatasky.binge.analytics.HOME_CONTENT
 import com.tatasky.binge.analytics.SOURCE_DEEPLINK
 import com.tatasky.binge.analytics.SOURCE_NOTIFICATION
@@ -48,27 +48,22 @@ import com.tatasky.binge.data.database.model.GamesMixpanelInfoModel
 import com.tatasky.binge.data.networking.models.response.*
 import com.tatasky.binge.databinding.LayoutOtpViewWithoutHintBinding
 import com.tatasky.binge.domain.repositories.PrefsRepo
-import com.tatasky.binge.helper.imageLoad
-import com.tatasky.binge.helper.imageLoadRounded
-import com.tatasky.binge.helper.imageLoadWithPlaceHolder
-import com.tatasky.binge.helper.transparentImageLoad
+import com.tatasky.binge.helper.*
 import com.tatasky.binge.ui.features.games.GamePlayerActivity
 import com.tatasky.binge.ui.features.home.ItemLayoutType
 import com.tatasky.binge.ui.features.home.ItemViewType
 import com.tatasky.binge.ui.features.home.LandingActivity
+import com.tatasky.binge.ui.features.home.TabletType
 import com.tatasky.binge.ui.features.subscription_freemium.FreemiumSubscriptionActivity
 import com.tatasky.binge.ui.features.subscription_freemium.PaymentJourneyActivity
 import com.tatasky.binge.ui.features.subscription_freemium.WalletPaymentActivity
 import com.tatasky.binge.ui.features.zee5.InAppBrowserActivity
+import com.tatasky.binge.utils.ContentUtil.isAppleCodeRedeemed
 import java.io.ByteArrayOutputStream
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
-import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
-
-import kotlin.collections.ArrayList
-import kotlin.collections.HashSet
 
 private const val SECOND: Long = 1000
 private const val MINUTE = 60 * SECOND
@@ -119,16 +114,6 @@ fun isInternetAvailable(): Boolean {
     return false
 }
 
-/*fun isInternetAvailable(): Boolean {
-    return try {
-        val ipAddr: InetAddress = InetAddress.getByName("google.com")
-        //You can replace it with your name
-        !ipAddr.equals("")
-    } catch (e: java.lang.Exception) {
-        false
-    }
-}*/
-
 fun getContentType(contentType: String): String {
     return when {
         contentType.contains(TYPE_BRAND_CHILD) || contentType.contains(TYPE_BRAND) -> TYPE_BRAND
@@ -160,11 +145,12 @@ fun stopOtherApplicationAudio(context: Context?) {
     }
 
 }
-fun incrementLaunchCount(sharedPrefs: PrefsRepo){
+
+fun incrementLaunchCount(sharedPrefs: PrefsRepo) {
     sharedPrefs.getConfigResponse()?.data?.config?.heroBannerRotation?.let {
         //for every x launch of homepage hero banner will increment its position by y
         //will come from cms
-        val x = it.homeLaunchValue?.takeIf { it!=0 } ?:1
+        val x = it.homeLaunchValue?.takeIf { it != 0 } ?: 1
         val y = it.heroBannerIncrementValue ?: 0
 
         // Example:
@@ -179,7 +165,7 @@ fun incrementLaunchCount(sharedPrefs: PrefsRepo){
 
         // 6th -- 4,5,1,2,3
         // 7th -- 4,5,1,2,3
-        if(x==1 && y==0){
+        if (x == 1 && y == 0) {
             sharedPrefs.resetHeroBannerCounts()
         } else {
             var c = sharedPrefs.getAppLaunchCount()
@@ -192,7 +178,7 @@ fun incrementLaunchCount(sharedPrefs: PrefsRepo){
                 sharedPrefs.setCurrentStartingPosition(increment)
             }
         }
-    } ?:run {
+    } ?: run {
         sharedPrefs.resetHeroBannerCounts()
     }
 }
@@ -227,77 +213,108 @@ fun getRealDisplayPoint(context: Context): Point {
     return size
 }
 
-fun isTablet(view: View): Boolean {
-    return false//view.context.resources.getBoolean(R.bool.portrait_only)
+fun isLandTablet(ctx: Context): Boolean {
+    return ctx.resources.getBoolean(R.bool.isTabletLand)
 }
 
-fun isTablet(view: Context): Boolean {
-    return false//view.context.resources.getBoolean(R.bool.portrait_only)
+
+fun getTabletType(ctx: Context) : TabletType {
+    return when{
+        isLandTablet(ctx) -> TabletType.TABLET_LANDSCAPE
+        is7InchTablet(ctx) -> TabletType.TABLET_7_INCH
+        isTablet(ctx) -> TabletType.TABLET
+        else -> TabletType.MOBILE
+    }
+}
+
+fun isTablet(view: View): Boolean {
+    return view.context.resources.getBoolean(R.bool.isTablet)
+}
+
+fun isTablet(ctx: Context): Boolean {
+    return ctx.resources.getBoolean(R.bool.isTablet)
+}
+
+
+
+fun is7InchTablet(activity: Activity): Boolean {
+    return activity.resources.getBoolean(R.bool.is7inch)
+}
+fun is7InchTablet(ctx: Context): Boolean {
+    return ctx.resources.getBoolean(R.bool.is7inch)
+}
+
+
+ fun tab_LinerParam(
+     newConfig: Configuration,
+     fragmentActivity: FragmentActivity,
+     view: ConstraintLayout? ) {
+    val layoutParams = view?.layoutParams as LinearLayout.LayoutParams
+    fragmentActivity?.let {
+        if (isTablet(it)) {
+            if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                layoutParams.marginStart = it.resources.getDimensionPixelSize(R.dimen.tab_padding)
+                layoutParams.marginEnd =
+                    it.resources.getDimensionPixelSize(R.dimen.tab_padding_right)
+            } else {
+                layoutParams.marginStart = it.resources.getDimensionPixelSize(R.dimen.tab_padding)
+                layoutParams.marginEnd =
+                    it.resources.getDimensionPixelSize(R.dimen.tab_padding_right)
+            }
+        }
+    }
+    view.layoutParams = layoutParams
+}
+
+
+fun isPortrait(ctx: Context): Boolean {
+    val orientation: Int = ctx.resources.configuration.orientation
+    return orientation != Configuration.ORIENTATION_LANDSCAPE
 }
 
 fun dpToPx(iContext: Context, dp: Int): Int {
-    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), iContext.resources.displayMetrics)
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        dp.toFloat(),
+        iContext.resources.displayMetrics
+    )
         .toInt()
-//    val density = iContext.resources.displayMetrics.density
-//    return Math.round(dp.toFloat() * density)
-}
-/*
-
-fun getCloudineryUrl(url: String, width: Int, height: Int, context: Context): String {
-    val cloudineryUrl = SharedPrefs.getString(context, SharedPrefs.PREF_KEY_CLOUDINARY_URL)
-
-    val w = "w_$width"
-    val h = ",h_$height"
-    val style = ",c_scale/"
-
-    if (cloudineryUrl == null || cloudineryUrl.toString().isEmpty()) {
-        return url
-    }
-    val curl: String
-    if (width < 600) {
-        curl = "$cloudineryUrl$w$h,f_webp,q_auto:eco$style$url"
-    } else {
-        curl = "$cloudineryUrl$w$h$,f_webp,q_auto$style$url"
-    }
-    //        Logger.d("image url", curl);
-    return curl
 }
 
-fun getRoundedCloudnaryUrl(url: String, width: Int, height: Int, context: Context): String {
-    val cloudineryUrl = SharedPrefs.getString(context, SharedPrefs.PREF_KEY_CLOUDINARY_URL)
-
-    val w = "w_$width"
-    val h = ",h_$height"
-    val style = ",f_webp,q_auto:low/"
-    val r = ",r_max"
-
-    return if (cloudineryUrl == null || cloudineryUrl.toString().isEmpty()) {
-        url
-    } else "$cloudineryUrl$w$h$r$style$url"
-
-//        Logger.d("image url logo", curl);
-}*/
 
 private val NUMBER_OF_NORMAL_COLUMN_GENRE = 2.5f
+private val NUMBER_OF_NORMAL_COLUMN_GENRE_TAB = 3.5f
 private val NUMBER_OF_NORMAL_COLUMN_CATEGORY = 3.5f
-private val NUMBER_OF_NORMAL_COLUMN_PHONE = 2.5f
-private val NUMBER_OF_NORMAL_COLUMN_PHONE_GRID = 2.3f
+private val NUMBER_OF_NORMAL_COLUMN_CATEGORY_TAB = 4.5f
+private const val NUMBER_OF_NORMAL_COLUMN_PHONE = 2.24f
+private const val ITEM_COUNT_TITLE_RAIL = 3.1f
+private const val ITEM_COUNT_TITLE_RAIL_TABLET = 3.1f
+private const val NUMBER_OF_NORMAL_COLUMN_TABLET = 3.12f
+private val NUMBER_OF_NORMAL_COLUMN_TABLET_LANDSCAPE = 1.0f
+private const val NUMBER_OF_NORMAL_COLUMN_PHONE_GRID = 2.19f
+private val NUMBER_OF_NORMAL_COLUMN_PHONE_GRID_TAB = 3.23f
+private val NUMBER_OF_NORMAL_COLUMN_PHONE_GRID_TAB_LAND = 4.5f
 var NUMBER_OF_NORMAL_COLUMN_PHONE_KID = 1.175f
-private val NUMBER_OF_PORTRAIT_COLUMN_PHONE = 3.75f
+private const val NUMBER_OF_PORTRAIT_COLUMN_PHONE = 3.35f
+private val NUMBER_OF_PORTRAIT_COLUMN_TABLET = 5.25f
 private const val NUMBER_OF_PORTRAIT_TOP_10_COLUMN_PHONE = 2.45f
 private val NUMBER_OF_BUNDLE_COLUMN_PHONE = 2.75f
-private val NUMBER_OF_GENRE_COLUMN_PHONE = 4.8f
+private val NUMBER_OF_GENRE_COLUMN_PHONE = 3.8f
+private val NUMBER_OF_GENRE_COLUMN_PHONE_TAB = 5.5f
 private val NUMBER_OF_APPS_COLUMN_PHONE_LANDSCAPE = 5.0f
+private val NUMBER_OF_APPS_COLUMN_TABLET_LANDSCAPE = 7.0f
+private val NUMBER_OF_APPS_COLUMN_TABLET_PORTRAIT = 8.0f
 private val NUMBER_OF_PORTRAIT_COLUMN_PHONE_GRID = 2.15f
+private val NUMBER_OF_PORTRAIT_COLUMN_PHONE_GRID_TAB = 2.25f
 private val NUMBER_OF_PORTRAIT_COLUMN_PHONE_KID = 1.8f
-private val NUMBER_OF_EPISODE_COLUMN = 1.6f
+private const val NUMBER_OF_EPISODE_COLUMN = 1.55f
+private const val NUMBER_OF_EPISODE_COLUMN_PORTRAIT_TAB = 3.0f
+private const val NUMBER_OF_EPISODE_COLUMN_LAND_TAB = 3.2f
 private val NUMBER_OF_COMPARE_PLAN_CARD_COLUMN = 3.25f
 
-private val NUMBER_OF_NORMAL_COLUMN_TABLET = 5f
 private val NUMBER_OF_NORMAL_COLUMN_TABLET_KID = 3.3f
 private val NUMBER_OF_PORTRAIT_COLUMN_TABLET_RELATED = 6.5f
-private val NUMBER_OF_PORTRAIT_COLUMN_TABLET = 6f
-private const val NUMBER_OF_PORTRAIT_TOP_10_COLUMN_TABLET = 4f
+private const val NUMBER_OF_PORTRAIT_TOP_10_COLUMN_TABLET = 4.0f
 const val THUMBNAIL_RATIO_LARGE_GRID = 1.55
 const val THUMBNAIL_RATIO_NORMAL_GRID = .58
 const val THUMBNAIL_RATIO_LARGE = 1.55
@@ -318,11 +335,29 @@ fun getDeviceDimension(context: Context?): Point {
     return size
 }
 
+
+fun getTitleRailItemDimension(context: Context): Point {
+    val point = getDeviceDimension(context)
+    var columnNumber = ITEM_COUNT_TITLE_RAIL
+    if (isTablet(context)) {
+        columnNumber = ITEM_COUNT_TITLE_RAIL_TABLET
+    }
+    point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
+    point.y = (point.x * THUMBNAIL_RATIO_NORMAL).toInt()
+    return point
+}
+
+
 fun getSportsBgImageDimension(context: Context): Point {
     val deviceDimensionPoint = getDeviceDimension(context)
     val imageDimension = Point()
-    imageDimension.x = (deviceDimensionPoint.x / 1.08 - (1.07 + 1)).toInt()
-    imageDimension.y = (imageDimension.x * THUMBNAIL_RATIO_NORMAL).toInt()
+    if (!isLandTablet(context)) {
+        imageDimension.x = (deviceDimensionPoint.x * 0.9999 + 1).toInt()
+        imageDimension.y = ((imageDimension.x) * THUMBNAIL_RATIO_NORMAL).toInt()
+    } else {
+        imageDimension.x = (deviceDimensionPoint.x / 1.08 - (1.07 + 1)).toInt()
+        imageDimension.y = (imageDimension.x * THUMBNAIL_RATIO_NORMAL).toInt()
+    }
     return imageDimension
 }
 
@@ -341,10 +376,24 @@ fun getEpisodeThumbnailDimension(activity: Context): Point {
     val point = getDeviceDimension(activity)
     var columnNumber = NUMBER_OF_EPISODE_COLUMN
     if (isTablet(activity)) {
-        columnNumber = NUMBER_OF_NORMAL_COLUMN_TABLET
+        columnNumber = NUMBER_OF_EPISODE_COLUMN_PORTRAIT_TAB
+    }
+    if (isLandTablet(activity)) {
+        columnNumber = NUMBER_OF_EPISODE_COLUMN_LAND_TAB
     }
     point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
     point.y = (point.x * THUMBNAIL_RATIO_NORMAL).toInt()
+    return point
+}
+
+fun getLoginDialogProviderDimension(activity: Context): Point {
+    val point = getDeviceDimension(activity)
+    var columnNumber = 9.0f
+    if (isTablet(activity)) {
+        columnNumber = 12.0F
+    }
+    point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
+    point.y = (point.x)
     return point
 }
 
@@ -378,9 +427,12 @@ fun getMidscrollCardDimension(activity: Context): Point {
 
 fun getEpisodeThumbnailDimension2(activity: Context): Point {
     val point = getDeviceDimension(activity)
-    var columnNumber = 2.2f
+    var columnNumber = 2.1f
     if (isTablet(activity)) {
-        columnNumber = NUMBER_OF_NORMAL_COLUMN_TABLET
+        columnNumber = 3.4f
+    }
+    if (isLandTablet(activity)) {
+        columnNumber = 3.0f
     }
     point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
     point.y = (point.x * THUMBNAIL_RATIO_NORMAL).toInt()
@@ -390,13 +442,15 @@ fun getEpisodeThumbnailDimension2(activity: Context): Point {
 fun getNormalThumbnailDimensionGrid(activity: Context): Point {
     val point = getDeviceDimension(activity)
     var columnNumber = NUMBER_OF_NORMAL_COLUMN_PHONE_GRID
-    if (isTablet(activity)) {
-        columnNumber = NUMBER_OF_NORMAL_COLUMN_TABLET
+    var w = point.x
+    if (isLandTablet(activity)) {
+        w = point.y
+        columnNumber = NUMBER_OF_NORMAL_COLUMN_PHONE_GRID_TAB_LAND
+    } else if (isTablet(activity)) {
+        columnNumber = NUMBER_OF_NORMAL_COLUMN_PHONE_GRID_TAB
     }
-    point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
+    point.x = (w / columnNumber - (columnNumber + 1)).toInt()
     point.y = (point.x * THUMBNAIL_RATIO_NORMAL_GRID).toInt()
-//    e("UtilsKt","point x: "+point.x)
-//    e("UtilsKt","point y: "+point.y)
     return point
 }
 
@@ -408,8 +462,6 @@ fun getLargeThumbnailDimension(activity: Context): Point {
     }
     point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
     point.y = (point.x * THUMBNAIL_RATIO_LARGE).toInt()
-    e("UtilsKt","Portrait point x: "+point.x)
-    e("UtilsKt","Portrait point y: "+point.y)
     return point
 }
 
@@ -421,8 +473,6 @@ fun getLargeThumbnailTop10Dimension(activity: Context): Point {
     }
     point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
     point.y = (point.x * THUMBNAIL_RATIO_LARGE).toInt()
-//    e("UtilsKt","point x: "+point.x)
-//    e("UtilsKt","point y: "+point.y)
     return point
 }
 
@@ -438,12 +488,10 @@ fun getLargeThumbnailDimensionGrid(activity: Context): Point {
     val point = getDeviceDimension(activity)
     var columnNumber = NUMBER_OF_PORTRAIT_COLUMN_PHONE_GRID
     if (isTablet(activity)) {
-        columnNumber = NUMBER_OF_PORTRAIT_COLUMN_TABLET
+        columnNumber = NUMBER_OF_PORTRAIT_COLUMN_PHONE_GRID_TAB
     }
     point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
     point.y = (point.x * THUMBNAIL_RATIO_LARGE_GRID).toInt()
-//    e("UtilsKt","point x: "+point.x)
-//    e("UtilsKt","point y: "+point.y)
     return point
 }
 
@@ -452,10 +500,28 @@ fun getCloudinaryUrl(cloudinaryUrl: String?, url: String): String {
     return cloudinaryUrl +"e_trim,f_webp,q_auto:good/"+ url
 }
 
+/**
+ * This method takes in the height/width of image and return a cloudinary url for that specific height/width
+ * without changing the aspect ratio of the image
+ * removed encodng commented becasue of AHA image support
+ */
+fun getCloudinaryUrlByWidthOrHeight(
+    cloudinaryUrl: String?,
+    url: String,
+    height: Int = 0,
+    width: Int = 0
+): String {
+    //    val encodedUrl = URLEncoder.encode(url.trim(), "utf-8")
+    return if (height != 0 && width != 0)
+        getCloudinaryUrl(cloudinaryUrl, width, height, url)
+    else
+        "${cloudinaryUrl}${if (height == 0) "w_$width" else "h_$height"},f_webp,q_auto:good/${url}"
+}
+
 fun getCloudinaryUrl(cloudinaryUrl: String?, width: Int, height: Int, url: String): String {
     return if (null != cloudinaryUrl) {
-        val encodedUrl = URLEncoder.encode(url, "utf-8")
-        cloudinaryUrl + "w_" + width + ",h_" + height + ",f_webp,q_auto:good/" + encodedUrl
+//        val encodedUrl = URLEncoder.encode(url.trim(), "utf-8")
+        cloudinaryUrl + "w_" + width + ",h_" + height + ",f_webp,q_auto:good/" + url
     }
     else
         url
@@ -501,11 +567,12 @@ fun getTimeInUTC(milliSeconds: Long, pattern: String): String {
 
 fun isValidContent(it: ContentItem): Boolean {
     var contentType = it.contentType
+    if(contentType.contains(TYPE_LIVE, ignoreCase = true))
+        it.provider = PROVIDER_TATA_SKY
+
     if(
-//        (PROVIDER_TATA_SKY.equals(it.provider, true) &&
-//                !RENTAL.equals(it.contractName, true) ||
-//                RENTAL_PURCHASED_NOTEXPIRED.equals(it.rentalStatus, ignoreCase = true)) ||
-        !(PROVIDER_CURIOSITY_STREAM.equals(it.provider, true) ||
+        !(contentType.contains(TYPE_LIVE, ignoreCase = true) ||
+                PROVIDER_CURIOSITY_STREAM.equals(it.provider, true) ||
                 PROVIDER_HOTSTAR.equals(it.provider, true) ||
                 PROVIDER_HUNGAMA.equals(it.provider, true) ||
                 PROVIDER_ZEE5.equals(it.provider, true) ||
@@ -547,6 +614,8 @@ fun isValidContent(it: ContentItem): Boolean {
         it.contentType = TYPE_TV_SHOWS
     else if(contentType.contains(TYPE_GAMES, true))
         it.contentType = TYPE_GAMES
+    else if(contentType.contains(TYPE_LIVE, ignoreCase = true))
+        it.contentType = TYPE_LIVE
 
 
     if (contentType.contains(TYPE_MOVIES, ignoreCase = true)
@@ -558,6 +627,7 @@ fun isValidContent(it: ContentItem): Boolean {
         || contentType.contains(TYPE_SERIES, ignoreCase = true)
         || contentType.contains(TYPE_SUB_PAGE, ignoreCase = true)
         || contentType.contains(TYPE_GAMES, ignoreCase = true)
+        || contentType.contains(TYPE_LIVE, ignoreCase = true)
     ){
         return (!RENTAL.equals(it.contractName, true)
                 || !RENTAL_PURCHASED_EXPIRED.equals(it.rentalStatus, ignoreCase = true))
@@ -584,6 +654,7 @@ fun isValidItems(items: HomeResponse.Items, dthStatus: String?): Boolean {
         || items.sectionSource.equals(ItemViewType.HB_SEE_ALL.name,ignoreCase = true) //TODO DRP CONFIRM
         || items.sectionSource.equals(ItemViewType.LIVE_EVENT_RAIL.name,ignoreCase = true) //TODO DRP CONFIRM
         || items.sectionSource.equals(ItemViewType.FAVOURITES.name, ignoreCase = true)
+        || items.sectionSource.equals(ItemViewType.GAMEZOP_CONTINUE_PLAYING.name, ignoreCase = true) // TODO BE
         || items.sectionSource.equals(ItemLayoutType.POPULAR_CHARACTER.name, ignoreCase = true)
         || items.sectionSource.equals(ItemViewType.LANGUAGE_SECTION.name, ignoreCase = true)
         || items.sectionSource.equals(ItemViewType.LANGUAGE_NUDGE.name, ignoreCase = true)
@@ -600,6 +671,8 @@ fun isValidItems(items: HomeResponse.Items, dthStatus: String?): Boolean {
         || items.sectionSource.equals(ItemViewType.GAME_OF_THE_WEEK.name, ignoreCase = true)
         || items.sectionSource.equals(ItemViewType.CATEGORY.name, ignoreCase = true)
         || items.sectionSource.equals(ItemViewType.LIVE_EVENT_BANNER.name, ignoreCase = true)
+        || items.sectionSource.equals(ItemViewType.BINGE_CHANNEL.name, ignoreCase = true)
+        || items.sectionSource.equals(ItemViewType.DARSHAN_CHANNEL.name, ignoreCase = true)
     ) {
         return true
     }
@@ -651,7 +724,7 @@ fun getCharcterGenrePoint(activity: Context): Point {
     val point = getDeviceDimension(activity)
     var columnNumber = NUMBER_OF_GENRE_COLUMN_PHONE
     if (isTablet(activity)) {
-        columnNumber = NUMBER_OF_GENRE_COLUMN_PHONE
+        columnNumber = NUMBER_OF_GENRE_COLUMN_PHONE_TAB
     }
     point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
     point.y = (point.x * THUMBNAIL_RATIO_APP_NORMAL).toInt()
@@ -661,6 +734,11 @@ fun getCharcterGenrePoint(activity: Context): Point {
 fun getProviderIconLandscapePoint(activity: Context): Point {
     val point = getDeviceDimension(activity)
     var columnNumber = NUMBER_OF_APPS_COLUMN_PHONE_LANDSCAPE
+    if(isTablet(activity))
+        columnNumber = NUMBER_OF_APPS_COLUMN_TABLET_PORTRAIT
+    if(isLandTablet(activity))
+        columnNumber = NUMBER_OF_APPS_COLUMN_TABLET_LANDSCAPE
+
     point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
     point.y = (point.x * .78).toInt()
     return point
@@ -853,6 +931,8 @@ fun isValidRentalContent(
         ||sectionSource == ItemViewType.MID_BANNER_GAMES.name
         ||sectionSource == ItemViewType.BACKGROUND_BANNER_RAIL.name
         ||sectionSource == ItemViewType.PROVIDER_BROWSE_APPS.name
+        ||sectionSource == ItemViewType.BINGE_CHANNEL.name
+        || sectionSource == ItemViewType.DARSHAN_CHANNEL.name
         ||sectionSource == ItemViewType.SHUFFLE_RAIL.name)
         it.railCategory = sectionSource
     else/* if(sectionType.equals(ItemViewType.RAIL.name, ignoreCase = true) ||
@@ -874,7 +954,11 @@ fun isValidRentalContent(
     ) {
         return false
     }
-    if(!(PROVIDER_CURIOSITY_STREAM.equals(it.provider, true) ||
+    var contentType = it.contentType
+    if(contentType.contains(TYPE_LIVE, ignoreCase = true))
+        it.provider = PROVIDER_TATA_SKY
+    if(!(contentType.contains(TYPE_LIVE, ignoreCase = true) ||
+                PROVIDER_CURIOSITY_STREAM.equals(it.provider, true) ||
                 PROVIDER_HOTSTAR.equals(it.provider, true) ||
                 PROVIDER_HUNGAMA.equals(it.provider, true) ||
                 PROVIDER_ZEE5.equals(it.provider, true) ||
@@ -903,9 +987,9 @@ fun isValidRentalContent(
         it.id = it.seriesvrId?: it.id
         it.title = it.seriesTitle ?: it.title
         it.contentType = it.seriescontentType ?: it.contentType
+        contentType = it.contentType
         it.image = it.seriesimage ?: it.image
     }
-    var contentType = it.contentType
     if(contentType.contains(TYPE_MOVIES, true))
         it.contentType = TYPE_MOVIES
     else if(contentType.contains(TYPE_SUB_PAGE, true))
@@ -920,6 +1004,8 @@ fun isValidRentalContent(
         it.contentType = TYPE_TV_SHOWS
     else if(contentType.contains(TYPE_GAMES, true))
         it.contentType = TYPE_GAMES
+    else if(contentType.contains(TYPE_LIVE, ignoreCase = true))
+        it.contentType = TYPE_LIVE
 
     if (contentType.contains(TYPE_MOVIES, ignoreCase = true)
         || contentType.contains(TYPE_WEB_SHORTS, ignoreCase = true)
@@ -930,6 +1016,7 @@ fun isValidRentalContent(
         || contentType.contains(TYPE_SERIES, ignoreCase = true)
         || contentType.contains(TYPE_SUB_PAGE, ignoreCase = true)
         || contentType.contains(TYPE_GAMES, ignoreCase = true)
+        || contentType.contains(TYPE_LIVE, ignoreCase = true)
     ){
         return (!RENTAL.equals(it.contractName, true)
                 || RENTAL_PURCHASED_NOTEXPIRED.equals(it.rentalStatus, ignoreCase = true))
@@ -982,6 +1069,18 @@ fun updateProviderLogo(
     }
 }
 
+fun updateRoundedImage(
+    img: ImageView,
+    cloudinaryUrl: String?,
+    imageUrl: String,
+    @DrawableRes placeHolder: Int,
+) {
+    val point = getCharcterGenrePoint(img.context!!)
+    val dimen = point.x
+    val url = cloudinaryUrl + imageUrl
+    imageLoadRounded(img, url, dimen / 2, placeHolder)
+}
+
 fun updateProviderImage(
     ivBrand: ImageView,
     provider: String,
@@ -989,11 +1088,20 @@ fun updateProviderImage(
     @DrawableRes placeHolder: Int
 ) {
     val appName = getAppForProvider(provider, providerLogos)
-    if(appName==null) imageLoadWithPlaceHolder(ivBrand, ProvidersCache.availableProviders[provider.lowercase()]?.logoRectangular ?: "", placeHolder)
+    if (appName == null && !provider.equals(PROVIDER_GAMEZOP,true)) {
+        imageLoadWithPlaceHolder(
+            ivBrand,
+            ProvidersCache.availableProviders[provider.lowercase()]?.logoRectangular ?: "",
+            placeHolder
+        )
+    }
+    if(appName==null) imageLoadWithPlaceHolder(ivBrand, ProvidersCache.availableProviders[provider.lowercase()]?.logoRectangular ?: "", R.drawable.ic_gamezop_transparent)
     else {
         if (appName?.logoRectangular.isNullOrEmpty()
             ||
             PROVIDER_TATA_SKY.equals(provider, ignoreCase = true)
+            ||
+            PROVIDER_GAMEZOP.equals(provider, ignoreCase = true)
         )
             ivBrand.setPartnerLogo(provider)
         else
@@ -1136,8 +1244,6 @@ fun checkPartnerSubscription(
     selectedPartners: Set<String>?,
     contentItem: List<ContentItem>
 ): List<ContentItem> {
-//    if(selectedPartners == null || selectedPartners.isEmpty()) return contentItem
-//    val providers = selectedPartners.appList
     for (content in contentItem) {
         content.isSubscribed = selectedPartners != null && selectedPartners.contains(content.partnerId)
     }
@@ -1329,12 +1435,10 @@ fun getNormalThumbnailForGenreDimension(activity: Context): Point {
     val point = getDeviceDimension(activity)
     var columnNumber = NUMBER_OF_NORMAL_COLUMN_GENRE
     if (isTablet(activity)) {
-        columnNumber = NUMBER_OF_NORMAL_COLUMN_TABLET
+        columnNumber = NUMBER_OF_NORMAL_COLUMN_GENRE_TAB
     }
     point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
     point.y = (point.x * THUMBNAIL_RATIO_NORMAL).toInt()
-//    e("UtilsKt","point x: "+point.x)
-//    e("UtilsKt","point y: "+point.y)
     return point
 }
 
@@ -1343,12 +1447,10 @@ fun getNormalThumbnailForCategoryDimension(activity: Context): Point {
     val point = getDeviceDimension(activity)
     var columnNumber = NUMBER_OF_NORMAL_COLUMN_CATEGORY
     if (isTablet(activity)) {
-        columnNumber = NUMBER_OF_NORMAL_COLUMN_TABLET
+        columnNumber = NUMBER_OF_NORMAL_COLUMN_CATEGORY_TAB
     }
     point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
     point.y = (point.x * THUMBNAIL_RATIO_NORMAL).toInt()
-//    e("UtilsKt","point x: "+point.x)
-//    e("UtilsKt","point y: "+point.y)
     return point
 }
 
@@ -1383,6 +1485,7 @@ fun compareHrsWithOldTime(compareDate: String?, hrs: Int): Boolean {
     }
     return false
 }
+
 fun getCurrentDate(): String {
     return try {
         val sdf = SimpleDateFormat(DATE_TIME_FORMATE)
@@ -1466,35 +1569,7 @@ fun PackageManager.isPackageInstalled(packageName: String): Boolean {
 }
 
 
-fun taAndEditorialMergeData(vrContent: ArrayList<ContentItem>,
-                           taContent: List<ContentItem>) : ArrayList<ContentItem> {
-    val arrUniqeItem = ArrayList<ContentItem>()
-    for (i in taContent.indices) {
-        var id1: String
-        var contentType1: String
-        var isDuplicate = false
-        var contentType2: String = taContent[i].contentType
-        var id2: String = taContent[i].id
-        for (k in vrContent.indices) {
-            id1 = vrContent[k].id
-            contentType1 = vrContent[k].contentType
-            if (id1 == id2 && contentType1 == contentType2) {
-                isDuplicate = true
-                break
-            }
-        }
-        if (!isDuplicate) {
-            arrUniqeItem.add(taContent[i])
-        }
-        if (taContent.size == arrUniqeItem.size)
-            return ArrayList(arrUniqeItem.map {
-                it.apply {
-                    it.contentConfigType = RECOMMENDATION
-                }
-            })
-    }
-    return ArrayList(arrUniqeItem.map { it.apply { it.contentConfigType = RECOMMENDATION } })
-}
+
 
 fun removeDuplicateContent(vrContent: ArrayList<ContentItem>,
                            taContent: List<ContentItem>) : ArrayList<ContentItem> {
@@ -1575,6 +1650,14 @@ private fun calculateTime(millis: Long, timeUnit: Long): Long {
 
 fun getDisplayMatics(): DisplayMetrics {
     return Resources.getSystem().displayMetrics
+}
+
+fun tabletTextSize(context: Context):Float
+{
+    return  if (isPortrait(context))
+        16f
+    else
+        18f
 }
 
 
@@ -1667,8 +1750,10 @@ fun getUtcDateWithOneSecObject(date : String, currentFormat : String) : Date? {
 
 fun getLanguageWidgetWidth(context: Context?): Point {
     val point = getDeviceDimension(context)
-    val columnNumber = 2.32
-
+    var columnNumber = 2.32
+    if (isTablet(context!!)) {
+        columnNumber = 4.0
+    }
     point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
     point.y = (point.x * THUMBNAIL_RATIO_LARGE_GRID).toInt()
     e("UtilsKt","point x: "+point.x)
@@ -1700,7 +1785,12 @@ fun String.maskPhoneNumberWithx(): String {
 
 fun getPortraitMixedThumbnailDimension(activity: Context): Point {
     val point = getDeviceDimension(activity)
-    var columnNumber = 4.8
+    var columnNumber = 4.35
+    if(isTablet(activity))
+        columnNumber = 5.8
+    if(isLandTablet(activity))
+        columnNumber = 4.2
+
     point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
     point.y = (point.x * THUMBNAIL_RATIO_LARGE).toInt()
     e("UtilsKt","PortraitMixed point x: "+point.x)
@@ -1711,8 +1801,15 @@ fun getPortraitMixedThumbnailDimension(activity: Context): Point {
 
 fun getPortraitThumbnailDimensionGrid(activity: Context): Point {
     val point = getDeviceDimension(activity)
-    var columnNumber = 3.55
-    point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
+    var columnNumber = 3.27
+    var w = point.x
+    if(isLandTablet(activity)) {
+        w = point.y
+        columnNumber = 6.25
+    }
+    else if (isTablet(activity))
+        columnNumber = 4.2
+    point.x = (w / columnNumber - (columnNumber + 1)).toInt()
     point.y = (point.x * THUMBNAIL_RATIO_LARGE_GRID).toInt()
     e("UtilsKt","portrait point x: "+point.x)
     e("UtilsKt","portrait point y: "+point.y)
@@ -1769,8 +1866,8 @@ fun getGridManagerLastRowCenter(ctx: Context, spanCount: Int, itemsCount: Int,
 
 fun expandBottomSheet(dialog : Dialog?){
     dialog?.setOnShowListener {
-        val d = dialog as BottomSheetDialog
-        val bottomSheet = d.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout?
+        val d = dialog as? BottomSheetDialog?
+        val bottomSheet = d?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout?
         bottomSheet?.let{
             val bottomSheetBehavior: BottomSheetBehavior<*> = BottomSheetBehavior.from(bottomSheet)
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -1800,9 +1897,17 @@ fun getCircularProviderIconPoint(activity: Context): Point {
     return point
 }
 
-fun isShowCrownOnContent(isPartnerSubscribed : Boolean, isGuestUser:Boolean,
-                         provider: String?, partnerSubscriptionType : String?): Boolean {
+fun isShowCrownOnContent(
+    isPartnerSubscribed: Boolean,
+    isGuestUser: Boolean,
+    provider: String?,
+    partnerSubscriptionType: String?,
+    appleRedemptionStatus: String?
+): Boolean {
     var partnerSubscriptionType = partnerSubscriptionType
+    if (provider.equals(PROVIDER_APPLE, true)) {
+        return !(isAppleCodeRedeemed(provider, appleRedemptionStatus) && isPartnerSubscribed)
+    }
     if(provider.equals(PROVIDER_GAMEZOP,true) || provider.equals(PROVIDER_TATA_SKY,true))
         return false
     if(partnerSubscriptionType == null) partnerSubscriptionType = PREMIUM
@@ -1899,7 +2004,10 @@ fun getSquareGameThumbnailDimension(activity: Context): Point {
     val point = getDeviceDimension(activity)
     var columnNumber = 3.0F
     if (isTablet(activity)) {
-        columnNumber = NUMBER_OF_PORTRAIT_COLUMN_TABLET
+        columnNumber = 4.8f
+    }
+    if(isLandTablet(activity)){
+        columnNumber = 5.0f
     }
     point.x = (point.x / columnNumber - (columnNumber + 1)).toInt()
     point.y = (point.x)
@@ -2110,3 +2218,22 @@ fun isHideRailWithPackName(
     return false
 }
 
+val Int.dp: Int
+    get() = (this * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
+
+
+fun String.capitalized(): String {
+    return this.replaceFirstChar {
+        if (it.isLowerCase())
+            it.titlecase(Locale.getDefault())
+        else it.toString()
+    }
+}
+
+fun Context.getLifecycleOwner(): LifecycleOwner {
+    return try {
+        this as LifecycleOwner
+    } catch (exception: ClassCastException) {
+        (this as ContextWrapper).baseContext as LifecycleOwner
+    }
+}

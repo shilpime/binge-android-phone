@@ -2,6 +2,7 @@ package com.tatasky.binge.data.networking.models.response
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import com.tatasky.binge.data.networking.models.Exo.SubtitleGeneric
 import com.ttn.ttnplayer.player.SubtitleDTO
 
 class IsFavouriteResponse : BaseResponse() {
@@ -76,7 +77,7 @@ class IsFavouriteResponse : BaseResponse() {
         /*Subtitle Handling subtitlePlayUrl*/
         @SerializedName("subtitlePlayUrl")
         @Expose
-        val subtitlePlayUrl: java.util.ArrayList<SubtitleDTO>? = null
+        val subtitlePlayUrl: java.util.ArrayList<SubtitleGeneric>? = null
 
         @SerializedName("offerId", alternate = ["offerIds"])
         @Expose

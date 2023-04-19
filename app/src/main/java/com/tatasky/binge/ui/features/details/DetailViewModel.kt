@@ -3,6 +3,7 @@ package com.tatasky.binge.ui.features.details
 import android.annotation.SuppressLint
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.tatasky.binge.data.database.AppDatabase
 import com.tatasky.binge.data.database.model.TokenContentDBModel
 import com.tatasky.binge.data.networking.CallbackWrapper
@@ -11,8 +12,6 @@ import com.tatasky.binge.data.networking.models.requests.*
 import com.tatasky.binge.data.networking.models.response.*
 import com.tatasky.binge.domain.repositories.PrefsRepo
 import com.tatasky.binge.domain.usecase.CommonUseCase
-import com.tatasky.binge.hoichoi.HoichoiPlayebackResponse
-import com.tatasky.binge.hoichoi.HoichoiRequest
 import com.tatasky.binge.learnactions.LearnActionHelper
 import com.tatasky.binge.shemaroo.modal.ShemarooSafeUrlResponse
 import com.tatasky.binge.ui.base.frameworks.SingleEvent
@@ -22,6 +21,7 @@ import com.tatasky.binge.ui.features.player.PlayerModel
 import com.tatasky.binge.utils.*
 import com.tatasky.binge.voot.model.VootPlayebackResponse
 import com.tatasky.binge.voot.model.VootRequest
+import com.ttn.ttnplayer.player.SubtitleDTO
 import io.reactivex.BackpressureStrategy
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -30,6 +30,8 @@ import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 open class DetailViewModel @Inject constructor(
     val useCase: CommonUseCase,
@@ -79,6 +81,11 @@ open class DetailViewModel @Inject constructor(
 
     private val hoichoiPlaybackUrls = MutableLiveData<SingleEvent<HoichoiPlayebackResponse>>()
 
+
+    private val appleRedemptionUrl = MutableLiveData<SingleEvent<AppleRedemptionResponse>>()
+
+    fun getAppleRedemptionUrl(): LiveData<SingleEvent<AppleRedemptionResponse>> = appleRedemptionUrl
+
     var episodeSearchQuery = ""
 
 
@@ -106,12 +113,23 @@ open class DetailViewModel @Inject constructor(
             .subscribe(
                 {
                     //it.data?.layoutType = ItemLayoutType.LANDSCAPE.name
-                    recommendations.value = SingleEvent(it)
+                    updateCrownForReommendation(it)
                 },
                 {
                 }
             )
         addDisposable(disposable)
+    }
+
+    private fun updateCrownForReommendation(it: RecommendationResponse) {
+        viewModelScope.launch {
+            val crwnDeferred = async {
+            }
+            crwnDeferred.await()
+            crownCalculation(it)
+
+            recommendations.value = SingleEvent(it)
+        }
     }
 
     fun fetchSeriesList(
@@ -218,11 +236,13 @@ open class DetailViewModel @Inject constructor(
             .subscribeWith(object : CallbackWrapper<EpisodeListingResponse>() {
                 override fun onSuccessResponse(watchDurationList: EpisodeListingResponse) {
                     updateWatchDuration(seriesList, watchDurationList)
+                    crownCalculation(seriesList)
                     seriesEpisodesList.value = SingleEvent(seriesList)
 
                 }
 
                 override fun onError(error: ErrorModel?) {
+                    crownCalculation(seriesList)
                     seriesEpisodesList.value = SingleEvent(seriesList)
 //                    fetchingSeries.postValue(false)
                 }
@@ -418,7 +438,7 @@ open class DetailViewModel @Inject constructor(
 
     fun getGenericPlaybackUrls() : LiveData<SingleEvent<GenericPartnerDRMResponse>> = genericPlaybackUrls
 
-    fun getTvodContentToken(): LiveData<SingleEvent<String>> = tokenListener
+    fun getContentToken(): LiveData<SingleEvent<String>> = tokenListener
     fun getSonylivShortToken(): LiveData<SingleEvent<String>> = sonylivShortToken
 
     fun generatePlayerModel(detailResponse: DetailsResponse): PlayerModel {
@@ -455,7 +475,15 @@ open class DetailViewModel @Inject constructor(
         val smartUrl = lastWatched?.partnerDeepLinkUrl ?: meta.partnerDeepLinkUrl
         val partnerContentType = meta.partnerContentType
         val partnerSubscriptionType = meta.partnerSubscriptionType
-
+        val subtitleGenericUrl = lastWatched?.subtitlePlayUrl
+            ?: meta.subtitlePlayUrl
+        val subtitleUrl= java.util.ArrayList<SubtitleDTO>()
+        subtitleGenericUrl?.forEach {
+            val subtitle=SubtitleDTO()
+            subtitle.url=it.url
+            subtitle.lang=it.lang
+            subtitleUrl.add(subtitle)
+        }
         return createPlayerModel(
             contractName!!,
             title!!,
@@ -483,7 +511,8 @@ open class DetailViewModel @Inject constructor(
             smartUrl,
             partnerContentType,
             parentTitle ?: "",
-            partnerSubscriptionType
+            partnerSubscriptionType,
+            subtitleUrl=subtitleUrl
         )
     }
 
@@ -522,7 +551,7 @@ open class DetailViewModel @Inject constructor(
         val videoEntitlements = detail.entitlements
         val image = seriesItem.getImageItem()
         val cookies = seriesItem.playerDetails?.cookies
-        val smartUrl = seriesItem.partnerDeepLinkUrl
+        val smartUrl = seriesItem.partnerDeepLinkUrl?:""
         val partnerContentType = seriesItem.partnerContentType
         val partnerSubscriptionType = seriesItem.partnerSubscriptionType
         return createPlayerModel(
@@ -557,7 +586,7 @@ open class DetailViewModel @Inject constructor(
     }
 
 
-    private fun createPlayerModel(
+    protected fun createPlayerModel(
         contractName: String,
         title: String,
         playbackUrl: String?,
@@ -584,7 +613,9 @@ open class DetailViewModel @Inject constructor(
         smartUrl: String,
         partnerContentType: String?,
         partnerTitle: String,
-        partnerSubscriptionType: String?
+        partnerSubscriptionType: String?,
+        isLiveContent: Boolean = false,
+        subtitleUrl: java.util.ArrayList<SubtitleDTO>?=null
     ): PlayerModel {
         val header_key_requests =
             getCustomHeader(title, sid, contentType)
@@ -617,7 +648,9 @@ open class DetailViewModel @Inject constructor(
             smartUrl,
             partnerContentType,
             partnerTitle,
-            partnerSubscriptionType
+            partnerSubscriptionType,
+            isLiveContent,
+            subtitleUrl
         )
     }
 
@@ -716,7 +749,8 @@ open class DetailViewModel @Inject constructor(
         showType: String,
         provider: String,
         parentContentType: String,
-        parentId: String
+        parentId: String,
+        placeHolderFallback: String? = null
     ) {
         val request = TARequest(
             placeHolder, "10", null,
@@ -726,8 +760,62 @@ open class DetailViewModel @Inject constructor(
             provider = provider,
             isRelated = true,
             isLoggedIn = isLoggedIn(),
-            body = EmptyBody()
+            body = EmptyBody(),
+            masterGenre = android.text.TextUtils.join(",", sharedPrefs.getPrefGenres())
         )
+
+
+        fun defineTitle(it : RecommendationResponse){
+            var title = it.data?.title ?: ""
+            if (title.isEmpty()) {
+
+                val titleBuffer = StringBuffer("Related ")
+                if (contentType.contains(TYPE_MOVIES)) {
+                    titleBuffer.append("Movies")
+                } else if (contentType.contains(TYPE_TV_SHOWS)
+                    || contentType.contains(TYPE_CATCH_UP)
+                ) {
+                    titleBuffer.append("Shows")
+                } else if (contentType.contains(TYPE_WEB_SHORTS)) {
+                    titleBuffer.append("Shorts")
+                } else if (contentType.contains(TYPE_BRAND)) {
+                    titleBuffer.append("Brand")
+                } else if (contentType.contains(TYPE_SERIES)) {
+                    titleBuffer.append("Series")
+                }
+                title = titleBuffer.toString()
+                it.data?.title = title
+            }
+        }
+
+        fun fetchTAFallbackRecommendations(){
+            request.placeHolder = placeHolderFallback ?: ""
+            useCase.executeTARails(request)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        if (it.data == null
+                            || it.data?.filteredContentItems == null
+                            || it.data?.filteredContentItems?.isEmpty() == true
+                        ) {
+                            fetchRecommendations(parentId, parentContentType)
+                        } else {
+                            it.data?.apply{
+                                layoutType = ItemLayoutType.LANDSCAPE.name
+                                this.placeHolder = placeHolderFallback ?: ""
+                                sectionSource = RECOMMENDATION
+                            }
+                            defineTitle(it)
+                            updateCrownForReommendation(it)
+                        }
+                    },
+                    {
+                        e("CallbackWrapper", "inside onError $it")
+                        fetchRecommendations(contentId, contentType)
+                    }
+                )
+        }
 
         val disposable = useCase.executeTARails(request)
             .subscribeOn(Schedulers.io())
@@ -739,39 +827,21 @@ open class DetailViewModel @Inject constructor(
                         || it.data?.filteredContentItems == null
                         || it.data?.filteredContentItems?.isEmpty() == true
                     ) {
-                        fetchRecommendations(parentId, parentContentType)
+                        fetchTAFallbackRecommendations()
                     } else {
                         it.data?.layoutType = ItemLayoutType.LANDSCAPE.name
                         it.data?.placeHolder = placeHolder
                         it.data?.sectionSource = RECOMMENDATION
 
                         //it.data?.filteredContentItems = it.data?.filteredTAContentItems!!
-                        var title = it.data?.title ?: ""
-                        if (title.isEmpty()) {
-
-                            val titleBuffer = StringBuffer("Related ")
-                            if (contentType.contains(TYPE_MOVIES)) {
-                                titleBuffer.append("Movies")
-                            } else if (contentType.contains(TYPE_TV_SHOWS)
-                                || contentType.contains(TYPE_CATCH_UP)
-                            ) {
-                                titleBuffer.append("Shows")
-                            } else if (contentType.contains(TYPE_WEB_SHORTS)) {
-                                titleBuffer.append("Shorts")
-                            } else if (contentType.contains(TYPE_BRAND)) {
-                                titleBuffer.append("Brand")
-                            } else if (contentType.contains(TYPE_SERIES)) {
-                                titleBuffer.append("Series")
-                            }
-                            title = titleBuffer.toString()
-                            it.data?.title = title
-                        }
-                        recommendations.value = SingleEvent(it)
+                        defineTitle(it)
+                        updateCrownForReommendation(it)
+                        //recommendations.value = SingleEvent(it)
                     }
                 },
                 {
                     e("CallbackWrapper", "inside onError $it")
-                    fetchRecommendations(contentId, contentType)
+                    fetchTAFallbackRecommendations()
                 }
             )
     }
@@ -929,7 +999,7 @@ open class DetailViewModel @Inject constructor(
         }
     }
 
-    private fun saveHoichoiTokenInDB(data:HoichoiPlayebackResponse.Data?, contentId: String) {
+    private fun saveHoichoiTokenInDB(data: HoichoiPlayebackResponse.Data?, contentId: String) {
         data?.let {
             val tokenModel = TokenContentDBModel(
                 expiryIn = it.expiryDuration?.toLong(),
@@ -950,7 +1020,7 @@ open class DetailViewModel @Inject constructor(
             e(
                 "DetailViewModel",
                 "inside isTokenExpired laModel : $laModel diff : $diff , " +
-                        "laModel[0].expiryIn: ${laModel[0].expiryIn}"
+                    "laModel[0].expiryIn: ${laModel[0].expiryIn}"
             )
             if (diff < laModel[0].expiryIn!!) {
                 tvodToken = laModel[0].token
@@ -1038,7 +1108,7 @@ open class DetailViewModel @Inject constructor(
             e(
                 "DetailViewModel",
                 "inside isTokenExpired laModel : $laModel diff : $diff , " +
-                        "laModel[0].expiryIn: ${laModel[0].expiryIn}"
+                    "laModel[0].expiryIn: ${laModel[0].expiryIn}"
             )
             if (diff < laModel[0].expiryIn!!) {
                 return laModel[0].token
@@ -1064,13 +1134,13 @@ open class DetailViewModel @Inject constructor(
                     setProgressing(false)
                     if (t.data == null ||
                         ((PROVIDER_EPIC_ON.equals(provider, true) ||
-                                PROVIDER_DOCU_BAY.equals(provider, true) || PROVIDER_HOICHOI.equals(
+                            PROVIDER_DOCU_BAY.equals(provider, true) || PROVIDER_HOICHOI.equals(
                             provider,
                             true
                         )) &&
-                                t.data?.detail?.playUrl.isNullOrEmpty())
+                            t.data?.detail?.playUrl.isNullOrEmpty())
                         || (PROVIDER_CURIOSITY_STREAM.equals(provider, true) &&
-                                t.data?.detail?.dashWidewinePlayUrl.isNullOrEmpty())
+                            t.data?.detail?.dashWidewinePlayUrl.isNullOrEmpty())
                     ) {
                         onlyMessage = true
                         setError(ErrorModel().apply {
@@ -1178,6 +1248,7 @@ open class DetailViewModel @Inject constructor(
                     if (t.data == null || t.code != CODE_SUCCESS) {
                         setError(ErrorModel(t.code, t.message))
                     } else {
+                        crownCalculation(t)
                         episodeSearchResponse.postValue(SingleEvent(t))
                     }
                 }
@@ -1316,9 +1387,19 @@ open class DetailViewModel @Inject constructor(
             })
     }
 
-    fun fetchGenericPartnerDRMAPI(providerContentId: String?, provider: String) {
+    fun fetchGenericPartnerDRMAPI(
+        providerContentId: String?,
+        provider: String,
+        contentTypeId: String,
+        contentType: String,
+    ) {
         setProgressing(true)
-        val disposable = useCase.fetchGenericPartnerDRMAPI(providerContentId, provider)
+        val disposable = useCase.fetchGenericPartnerDRMAPI(
+            providerContentId,
+            provider,
+            contentTypeId,
+            contentType
+        )
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeWith(object : CallbackWrapper<GenericPartnerDRMResponse>() {
@@ -1351,4 +1432,85 @@ open class DetailViewModel @Inject constructor(
                 }
             })
     }
+
+    fun fetchAppleRedemptionUrl(){
+        setProgressing(true)
+        var body=AppleRedemptionRequest(sharedPrefs.getDsn(),sharedPrefs.getBaId(), sharedPrefs.getDeviceType() ?: "")
+        val disposable = useCase.getAppleRedemptionUrl(body,sharedPrefs.getOriginalSubscriberId())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeWith(object : CallbackWrapper<AppleRedemptionResponse>() {
+
+                override fun onSubscribe(d: Disposable) {
+                    super.onSubscribe(d)
+                    addDisposable(d)
+                }
+
+                override fun onSuccessResponse(t: AppleRedemptionResponse) {
+                    setProgressing(false)
+                    appleRedemptionUrl.postValue(SingleEvent(t))
+
+                }
+
+                override fun onError(error: ErrorModel?) {
+                    setProgressing(false)
+                    onlyMessage = true
+                    setError(error.apply {
+                        this?.message = VIDEO_UNAVAILABLE_MESSAGE
+                        this?.title = VIDEO_UNAVAILABLE_TITLE
+                    })
+                }
+            })
+    }
+
+
+    private fun crownCalculation(it : RecommendationResponse) {
+        val mNonSubscribedPartnerList = sharedPrefs.getNonSubscribedPartnerList()
+
+        val isGuestUser = sharedPrefs.getLoginStatus()
+        val currentSub = sharedPrefs.getSubscribedPack()
+        val currentSubStatus = (currentSub != null) && !currentSub.isInactive
+        val freeEpVerb = sharedPrefs.getConfigResponse()?.data?.config?.firstEpisodeFreeVerbiage.toString()
+
+        fun checkCrownConditions(it : ContentItem){
+            it.appleRedemptionStatus = sharedPrefs.getSubscribedPack()?.appleRedemptionStatus
+            it.isPartnerSubscribed = currentSubStatus && (mNonSubscribedPartnerList?.contains(it.provider.lowercase()) == false)
+            it.isCrown = isShowCrownOnContent(
+                it.isPartnerSubscribed,
+                isGuestUser,
+                it.provider,
+                it.partnerSubscriptionType,
+                it.appleRedemptionStatus
+            )
+        }
+
+        it.data?.contentItem?.forEach {
+            checkCrownConditions(it)
+        }
+    }
+    private fun crownCalculation(it : SeriesListResponse?) {
+        val mNonSubscribedPartnerList = sharedPrefs.getNonSubscribedPartnerList()
+
+        val isGuestUser = sharedPrefs.getLoginStatus()
+        val currentSub = sharedPrefs.getSubscribedPack()
+        val currentSubStatus = (currentSub != null) && !currentSub.isInactive
+        val freeEpVerb = sharedPrefs.getConfigResponse()?.data?.config?.firstEpisodeFreeVerbiage.toString()
+
+        fun checkCrownConditions(it : ContentItem){
+            it.appleRedemptionStatus = sharedPrefs.getSubscribedPack()?.appleRedemptionStatus
+            it.isPartnerSubscribed = currentSubStatus && (mNonSubscribedPartnerList?.contains(it.provider.lowercase()) == false)
+            it.isCrown = isShowCrownOnContent(
+                it.isPartnerSubscribed,
+                isGuestUser,
+                it.provider,
+                it.partnerSubscriptionType,
+                it.appleRedemptionStatus
+            )
+        }
+
+        it?.data?.contentItem?.forEach {
+            checkCrownConditions(it)
+        }
+    }
+
 }

@@ -12,6 +12,7 @@ import java.util.ArrayList
 @Keep
 class PlayerModel constructor() : Parcelable {
 
+    private var isLiveContent = false
     var enforceL1L3: Boolean = false
     private var cookies : String? = null
     private var taShowType: String? = null
@@ -95,6 +96,7 @@ class PlayerModel constructor() : Parcelable {
         totalDuration = parcel.readLong()
         smartUrl = parcel.readString()
         parentTitle = parcel.readString()
+        isLiveContent = parcel.readByte() != 0.toByte()
     }
 
     constructor(
@@ -126,7 +128,9 @@ class PlayerModel constructor() : Parcelable {
         smartUrl : String?,
         partnerContentType : String?,
         partnerTitle : String,
-        partnerSubType : String?
+        partnerSubType : String?,
+        isLiveContent: Boolean = false,
+        subtitleUrls: ArrayList<SubtitleDTO>?
     ): this() {
         this.title = title
         this.playbackUrl = playbackUrl
@@ -167,6 +171,8 @@ class PlayerModel constructor() : Parcelable {
         this.partnerContentType = partnerContentType
         this.parentTitle = partnerTitle
         this.partnerSubType = partnerSubType
+        this.isLiveContent = isLiveContent
+        this.subtitleUrls=subtitleUrls
     }
 
     fun getSmartUrl() : String{
@@ -222,6 +228,14 @@ class PlayerModel constructor() : Parcelable {
 
     fun getKeyRequestHeaders(): List<String>? {
         return keyRequestHeaders
+    }
+
+    fun isLiveContent(): Boolean {
+        return isLiveContent
+    }
+
+    fun setLiveContent(value : Boolean){
+        isLiveContent = value
     }
 
     fun isEncrypted(): Boolean {
@@ -312,6 +326,7 @@ class PlayerModel constructor() : Parcelable {
         parcel.writeLong(totalDuration)
         parcel.writeString(smartUrl)
         parcel.writeString(parentTitle)
+        parcel.writeByte(if (isLiveContent) 1 else 0)
     }
 
     fun setPlaybackUrl(playbackUrl: String?) {
@@ -394,5 +409,21 @@ class PlayerModel constructor() : Parcelable {
     }
     fun getEpids() : List<Epid>?{
         return epids
+    }
+
+    fun setTitle(title: String) {
+        this.title = title
+    }
+
+    fun setContentId(s: String) {
+        contentId = s
+    }
+
+    fun setProvider(s: String) {
+        provider = s
+    }
+
+    fun setContentType(s: String) {
+        contentType = s
     }
 }

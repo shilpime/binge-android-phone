@@ -2,6 +2,157 @@
 <resources>
 
     <bool name="isTablet">false</bool>
+    <bool name="is7inch">false</bool>
+    <bool name="isTabletLand">false</bool>
+    <integer name="grid_landscape">2</integer>
+    <integer name="grid_portrait">3</integer>
+    <integer name="shuffle_rail_span">4</integer>
+    <dimen name="margin_card_rail">9dp</dimen>
+    <dimen name="screen_horizontal_margin">10dp</dimen>
+    <dimen name="rail_title_text_size">16sp</dimen>
+    <dimen name="grid_horizontal_margin">4dp</dimen>
+    <dimen name="screen_end_margin">4dp</dimen>
+    <dimen name="margin_list_item">4dp</dimen>
+    <dimen name="login_et_max_width">420dp</dimen>
+    <dimen name="tab_popup_max_width">640dp</dimen>
+    <dimen name="tab_common_dialog_width">540dp</dimen>
+    <dimen name="tab_poup_horizontal_margin">64dp</dimen>
+    <dimen name="tab_lang_margin">8dp</dimen>
+    <dimen name="tab_setting_text_size">16sp</dimen>
+    <dimen name="tab_margin16_top">16dp</dimen>
+    <dimen name="tab_lang_height">54dp</dimen>
+    <dimen name="tab_toolbar_text">19sp</dimen>
+    <dimen name="tab_padding">18dp</dimen>
+    <dimen name="tab_padding_right">18dp</dimen>
+    <dimen name="padding_18dp">18dp</dimen>
+    <dimen name="padding_77dp">77dp</dimen>
+    <dimen name="padding_22dp">22dp</dimen>
+    <dimen name="margin_100dp">100dp</dimen>
+    <dimen name="tab_otp_margin">50dp</dimen>
+    <dimen name="padding_4dp">4dp</dimen>
+    <dimen name="tab_pi_share_buttons_padding">0dp</dimen>
+    <dimen name="tab_padding_left">20dp</dimen>
+    <dimen name="tab_button_width">280dp</dimen>
+    <dimen name="tab_text_size14">14sp</dimen>
+    <dimen name="tab_top_margin_device_managment">0dp</dimen>
+    <dimen name="tab_top_margin_device_managment_primaryText">18sp</dimen>
+    <dimen name="tab_margin20_top">16dp</dimen>
+    <dimen name="tab_margin10_20_top">10dp</dimen>
+    <dimen name="tab_verticalBias">1.0</dimen>
+    <dimen name="tab_video_quality_margin">2dp</dimen>
+    <integer name="grid_plan_provider">5</integer>
+    <dimen name="pi_page_button_height">60dp</dimen>
+    <dimen name="toast_max_width">570dp</dimen>
+    <dimen name="game_card_margin">6dp</dimen>
+    <dimen name="tab_setting_side_pane">.35</dimen>
+    <dimen name="rail_genre_item_width">@dimen/_82sdp</dimen>
+    <dimen name="rail_genre_item_height">@dimen/_56sdp</dimen>
+    <dimen name="genre_icon_width">56dp</dimen>
+    <dimen name="genre_icon_height">26dp</dimen>
+    <dimen name="suggestion_lang_icon_dimen">22dp</dimen>
+    <dimen name="dimens_120dp">120dp</dimen>
+    <dimen name="dimens_100dp">100dp</dimen>
+    <dimen name="dimens_56dp">56dp</dimen>
+    <dimen name="dimens_51dp">51dp</dimen>
+    <dimen name="dimens_444dp">444dp</dimen>
+    <dimen name="toolbar_title_text_size">16sp</dimen>
+    <dimen name="margin_25">25dp</dimen>
+    <dimen name="no_search_text_size">18sp</dimen>
+    <dimen name="sports_card_text_size">12sp</dimen>
+    <dimen name="game_week_button_width">116dp</dimen>
+    <dimen name="live_channel_button_width">250dp</dimen>
+    <dimen name="tab_text_size_26">26sp</dimen>
+    <dimen name="tab_game_text">16sp</dimen>
+    <dimen name="tab_game_text14">14sp</dimen>
+    <dimen name="tab_game_margintop">12dp</dimen>
+    <dimen name="tab_game_text12">12sp</dimen>
+    <dimen name="pi_more_icon_width">50dp</dimen>
+    <dimen name="pi_more_icon_height">19dp</dimen>
+    <dimen name="toast_min_height">44dp</dimen>
+    <dimen name="dimen_48dp">48dp</dimen>
+    <dimen name="tab_ratting_button_width">250dp</dimen>
+
+
+    <dimen name="suggestion_icon_height">@dimen/_52sdp</dimen>
+    <dimen name="suggestion_icon_width">@dimen/_92sdp</dimen>
+    <dimen name="text_size_search_suggestion_title">16sp</dimen>
+    <dimen name="text_size_search_suggestion_subtitle">12sp</dimen>
+
+    <style name="tab_contentLan_margin">
+        <item name="android:layout_marginLeft">0dp</item>
+        <item name="android:layout_marginRight">0dp</item>
+    </style>
+    <style name="tab_nudge">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="tab_toast">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <dimen name="tab_taost_width">0dp</dimen>
+
+    <dimen name="tab_lang_left_margin">8dp</dimen>
+    <dimen name="player_view_width">0dp</dimen>
+    <dimen name="player_view_height">0dp</dimen>
+    <integer name="grid_provider_subscription">4</integer>
+    <dimen name="tab_text_size_18">12sp</dimen>
+    <dimen name="app_circular">64dp</dimen>
+    <integer name="grid_game_square">2</integer>
+    <dimen name="language_nudge_width">0dp</dimen>
+    <dimen name="provider_grid_width">75dp</dimen>
+    <dimen name="tab_text_size_20">14sp</dimen>
+    <dimen name="tab_trailer_text_size_20">13sp</dimen>
+    <string name="language_widget_text">"Personalise your video\nwith your preferred languages "</string>
+    <integer name="grid_game_landscape">2</integer>
+    <dimen name="button_max_width">340dp</dimen>
+    <dimen name="subscription_tab_max_width">640dp</dimen>
+    <dimen name="buttons_layout_max_width">400dp</dimen>
+    <dimen name="tab_max_game_icon_size">164dp</dimen>
+    <dimen name="tab_max_game_week">360dp</dimen>
+    <dimen name="tab_prime_banner_margin">0dp</dimen>
+    <dimen name="language_icon_height">22dp</dimen>
+    <dimen name="margin_150dp">150dp</dimen>
+    <dimen name="margin_50dp">50dp</dimen>
+    <dimen name="margin_40dp">40dp</dimen>
+    <dimen name="play_game_button_height">40dp</dimen>
+    <dimen name="margin_19">19dp</dimen>
+    <dimen name="genre_items_wheel_padding">70dp</dimen>
+    <dimen name="button_height_add">50dp</dimen>
+    <dimen name="live_channel_width">64dp</dimen>
+    <dimen name="live_channel_height">64dp</dimen>
+
+    <dimen name="button_margin_90">0dp</dimen>
+    <dimen name="my_plan_margin">80dp</dimen>
+    <dimen name="dimen_74dp">74dp</dimen>
+    <dimen name="dimen_24dp">24dp</dimen>
+    <dimen name="dimen_160dp">160dp</dimen>
+    <dimen name="dimen_90dp">90dp</dimen>
+    <dimen name="dimen_80dp">90dp</dimen>
+
+    <style name="tab_setting_icon_size">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">0dp</item>
+    </style>
+
+    <style name="ToolbarTextStyle" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="fontFamily">@font/volteplay_medium</item>
+        <item name="android:fontFamily">@font/volteplay_medium</item>
+        <item name="fontPath">@string/medium_font</item>
+        <item name="android:textSize">@dimen/tab_toolbar_text</item>
+    </style>
+
+    <style name="Widget.AppTheme.ButtonStyle.Icon">
+        <item name="iconPadding">8dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="android:textSize">16sp</item>
+        <item name="fontPath">@string/bold_font</item>
+        <item name="android:textColor">@color/button_text_color</item>
+    </style>
 
     <declare-styleable name="SwipeRevealLayout">
         <attr name="dragFromEdge">
@@ -29,4 +180,28 @@
             <enum name="expand" value="1"/>
         </attr>
     </declare-styleable>
+
+    <style name="TabPackCardStyle" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">@dimen/view_margin_xlarge</item>
+        <item name="strokeColor">@color/stroke_color</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cardBackgroundColor">@color/fill_pack_color</item>
+    </style>
+
+    <style name="TabSettingToolbarStyle" parent="ThemeOverlay.MaterialComponents.Toolbar.Surface">
+        <item name="fontFamily">@font/volteplay_medium</item>
+        <item name="fontPath">@string/medium_font</item>
+        <item name="titleTextColor">?colorOnSurface</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginStart">@dimen/margin_0</item>
+        <item name="titleMargin">@dimen/view_margin_medium</item>
+        <item name="colorControlNormal">@color/darkOnSurface</item>
+        <item name="android:actionMenuTextColor">@color/darkButtonTertiary</item>
+        <item name="actionMenuTextColor">@color/darkButtonTertiary</item>
+        <item name="actionMenuTextAppearance">@style/Widget.ActionMenuTextAppearance</item>
+        <item name="android:fontFamily">@font/volteplay_medium</item>
+        <item name="android:textSize">@dimen/tab_toolbar_text</item>
+    </style>
+
 </resources>
+

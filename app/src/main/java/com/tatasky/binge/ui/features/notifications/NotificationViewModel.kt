@@ -490,4 +490,8 @@ class NotificationViewModel @Inject constructor(
             }
         }
     }
+
+    fun setNoNotificationText(): String? =
+        sharedPrefs.getConfigResponse()?.data?.config?.notification
+
 }

@@ -4,10 +4,8 @@ package com.tatasky.binge.domain.usecase
 import com.tatasky.binge.data.networking.models.requests.*
 import com.tatasky.binge.data.networking.models.response.*
 import com.tatasky.binge.domain.repositories.CommonRepository
-import com.tatasky.binge.epicon.PartnerContentAnalyticsRequest
-import com.tatasky.binge.epicon.PlanetMarathiAnalyticsRequest
-import com.tatasky.binge.hoichoi.HoichoiPlayebackResponse
-import com.tatasky.binge.hoichoi.HoichoiRequest
+import com.tatasky.binge.data.networking.models.requests.PartnerContentAnalyticsRequest
+import com.tatasky.binge.data.networking.models.requests.PlanetMarathiAnalyticsRequest
 import com.tatasky.binge.shemaroo.helper.ShemarooAnalyticsBody
 import com.tatasky.binge.data.networking.models.response.ChaupalUrlResponse
 import com.tatasky.binge.lionsgatehelper.LionsgateAnalyticsBody
@@ -29,8 +27,8 @@ open class CommonUseCase(private val commonRepository: CommonRepository) {
         return commonRepository.getConfig()
     }
 
-    fun executeHomeMenuItems(): Single<LeftMenuResponse> {
-        return commonRepository.getLeftMenu()
+    fun executeHomeMenuItems(deviceType:String): Single<LeftMenuResponse> {
+        return commonRepository.getLeftMenu(deviceType)
     }
 
     fun executeHomePage(parameter: HomeRequest): Single<HomeResponse> {
@@ -86,6 +84,11 @@ open class CommonUseCase(private val commonRepository: CommonRepository) {
 
     fun getSearchRails(intent: String?): Single<HomeResponse> {
         return commonRepository.getSearchRails(intent)
+    }
+
+
+    fun getSearchSuggestions(queryString : String) : Single<RecommendationResponse> {
+        return commonRepository.getSearchSuggestions(queryString)
     }
 
     fun getEpisodeSearchResponse(episodeSearchRequest: EpisodeSearchRequest):Single<SeriesListResponse>{
@@ -391,8 +394,10 @@ open class CommonUseCase(private val commonRepository: CommonRepository) {
         return commonRepository.callWorkOrderFS(baid, workOrderRequest)
     }
 
-    fun initiateRecharge(sid: String,amount: String): Single<RechargeResponse>{
-        return commonRepository.initiateRecharge(sid, amount)
+    fun initiateRecharge(sid: String, amount: String?): Single<RechargeResponse>{
+        return amount?.let {
+            commonRepository.initiateRecharge(sid, amount)
+        } ?: initiateRecharge(sid)
     }
 
     fun initiateRecharge(sid: String): Single<RechargeResponse>{
@@ -643,12 +648,15 @@ open class CommonUseCase(private val commonRepository: CommonRepository) {
         return commonRepository.planetMarathiAnalytics(requestBody, contentType)
     }
 
-    fun fetchGameFavs(request: WatchRequest): Single<RecommendationResponse>{
-        return commonRepository.fetchGameFavs(request)
+    fun fetchGameFavsOrCw(
+        request: WatchRequest,
+        isGameCw: Boolean = false
+    ): Single<RecommendationResponse> {
+        return commonRepository.fetchGameFavsOrCw(request, isGameCw)
     }
 
-    fun addFavGame(profileId : String , sid: String , contentId : String , contentType : String): Single<GameFavResponse>{
-        return commonRepository.addFavGame(profileId, sid, contentId ,contentType)
+    fun addFavGameOrCw(profileId : String, sid: String, contentId : String, contentType : String, cwEnabled : Boolean): Single<GameFavResponse>{
+        return commonRepository.addFavGameOrCw(profileId, sid, contentId, contentType, cwEnabled)
     }
 
     fun generateVootPwaToken(request:HashMap<String,String>): Single<VootPwaResponse> {
@@ -677,8 +685,8 @@ open class CommonUseCase(private val commonRepository: CommonRepository) {
         return commonRepository.fetchVRHomeHierarchy(pageType, packName)
     }
 
-    fun fetchEditorialRailData(railId : String) : Single<RecommendationResponse>{
-        return commonRepository.fetchRailData(railId)
+    fun fetchEditorialRailData(railId: String, limit: Int?) : Single<RecommendationResponse>{
+        return commonRepository.fetchRailData(railId, limit)
     }
 
     fun fetchLanguageRailData() : Single<RecommendationResponse>{
@@ -691,8 +699,30 @@ open class CommonUseCase(private val commonRepository: CommonRepository) {
 
     fun fetchGenericPartnerDRMAPI(
         providerContentId: String?,
-        provider: String
+        provider: String,
+        contentTypeId: String,
+        contentType: String
     ): Single<GenericPartnerDRMResponse> {
-        return commonRepository.fetchGenericPartnerDRMAPI(providerContentId, provider)
+        return commonRepository.fetchGenericPartnerDRMAPI(
+            providerContentId,
+            provider,
+            contentTypeId,
+            contentType
+        )
     }
+
+    fun getAppleRedemptionUrl(
+        request: AppleRedemptionRequest,
+        originalSubscriberId: String
+    ): Single<AppleRedemptionResponse>{
+        return commonRepository.getAppleRedemptionUrl(request,originalSubscriberId)
+    }
+
+    fun getLiveChannelContentDetails(contentId: String) =
+        commonRepository.getLiveChannelContentDetails(contentId)
+
+    fun fetchPlaybackUrlsForDigitalFeed(
+        partnerName: String,
+        channelId: String
+    ) = commonRepository.fetchPlaybackUrlsForDigitalFeed(partnerName, channelId)
 }

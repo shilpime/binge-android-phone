@@ -1,6 +1,5 @@
 package com.tatasky.binge.ui.features.subscription.view
 
-import android.net.Uri
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelStoreOwner
@@ -13,7 +12,6 @@ import com.tatasky.binge.interfaces.CommonDialogEventListener
 import com.tatasky.binge.ui.base.frameworks.SingleEvent
 import com.tatasky.binge.ui.base.frameworks.base.CancellationBaseFragment
 import com.tatasky.binge.ui.features.dialog.DialogModel
-import com.tatasky.binge.ui.features.recharge.launchRechargeActivity
 import com.tatasky.binge.ui.features.subscription.model.Cancellation
 import com.tatasky.binge.ui.features.subscription.viewmodel.SubscriptionViewModel
 import com.tatasky.binge.utils.AccountStatusEnum

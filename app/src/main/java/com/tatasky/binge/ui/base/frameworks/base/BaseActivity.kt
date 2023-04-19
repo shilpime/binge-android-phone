@@ -7,6 +7,7 @@ import `in`.juspay.services.HyperServices
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -454,6 +455,10 @@ abstract class BaseActivity<VM : BaseViewModel> : DaggerAppCompatActivity(), IPa
         //Clevertap Changes
         CleverTapAPI.getDefaultInstance(this)
             ?.setInAppNotificationButtonListener(inAppNotificationButtonListener)
+
+        // For phone set orientation to PORTRAIT
+        if(!isTablet(this))
+            requestedOrientation=ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 
     //Clevertap Changes

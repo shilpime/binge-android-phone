@@ -3,7 +3,6 @@ package com.tatasky.binge.ui.features.update_password
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
 import android.view.WindowManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelStoreOwner
@@ -17,8 +16,6 @@ import com.tatasky.binge.databinding.FragmentUpdatePasswordBinding
 import com.tatasky.binge.interfaces.CommonDialogEventListener
 import com.tatasky.binge.ui.base.frameworks.base.BaseFragment
 import com.tatasky.binge.ui.base.frameworks.extensions.closeKeyboard
-import com.tatasky.binge.ui.base.frameworks.extensions.hide
-import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.features.dialog.DialogModel
 import com.tatasky.binge.utils.*
 import javax.inject.Inject

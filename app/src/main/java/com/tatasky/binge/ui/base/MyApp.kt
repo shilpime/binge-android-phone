@@ -38,17 +38,14 @@ import com.tatasky.binge.data.di.modules.NetworkModule
 import com.tatasky.binge.data.service.BingeNotificationService
 import com.tatasky.binge.data.service.CustomNotificationRedirectionHandler
 import com.tatasky.binge.data.service.CustomNotificationRedirectionHandlerClevertap
-
 import com.tatasky.binge.helper.AppSignatureHelper
 import com.tatasky.binge.ui.base.di.AppComponent
 import com.tatasky.binge.ui.base.di.DaggerAppComponent
 import com.tatasky.binge.ui.base.frameworks.base.BaseApplication
-
 import com.tatasky.binge.utils.*
 import io.github.inflationx.calligraphy3.CalligraphyConfig
 import io.github.inflationx.calligraphy3.CalligraphyInterceptor
 import io.github.inflationx.viewpump.ViewPump
-import java.util.HashMap
 
 
 open class MyApp : BaseApplication(),CTPushAmpListener {
@@ -58,13 +55,13 @@ open class MyApp : BaseApplication(),CTPushAmpListener {
         super.onCreate()
 
         //MX Player Initialization
-        /*MxSDK.Builder(this).debug(false)
-            .candidate(BuildConfig.FLAVOR == "uat")
-//            .verbose()
-            .errorListener { error ->
-            e("MxSDKError","inside MX error : $error")
-            return@errorListener true
-        }.build()*/
+//        MxSDK.Builder(this).debug(false)
+//            .candidate(BuildConfig.FLAVOR == "uat")
+////            .verbose()
+//            .errorListener { error ->
+//            e("MxSDKError","inside MX error : $error")
+//            return@errorListener true
+//        }.build()
 
         MoEngage.initialiseDefaultInstance(
             MoEngageBuilderKtx(
@@ -145,7 +142,8 @@ open class MyApp : BaseApplication(),CTPushAmpListener {
         }
         //CT Location
         CleverTapAPI.getDefaultInstance(this)?.enableDeviceNetworkInfoReporting(true)
-
+//        if(appComponent.sharedPreference().getLoginStatus())
+//            applicationContext?.let { playerEventRegisterForMitigationSession(appComponent.sharedPreference().getClearRMN() , it) }
 //        generateHashKey()
     }
 

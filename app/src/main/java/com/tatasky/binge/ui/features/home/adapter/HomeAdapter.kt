@@ -17,6 +17,10 @@ import androidx.viewbinding.ViewBinding
 import com.google.gson.Gson
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.SOURCE_GAMES
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
+import com.tatasky.binge.analytics.util.emptyContentAnalyticsModel
+import com.tatasky.binge.analytics.util.getContentAnalyticsModel
+import com.tatasky.binge.customviews.CustomRecyclerView
 import com.tatasky.binge.customviews.EndlessListAdapter
 import com.tatasky.binge.customviews.OnDoubleTapListener
 import com.tatasky.binge.data.database.model.GamesMixpanelInfoModel
@@ -32,6 +36,7 @@ import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.features.home.HomeAnalytics
 import com.tatasky.binge.ui.features.home.ItemLayoutType
 import com.tatasky.binge.ui.features.home.ItemViewType
+import com.tatasky.binge.ui.features.home.TabletType
 import com.tatasky.binge.ui.features.home.home_trailer.TrailerView
 import com.tatasky.binge.ui.features.home.model.RailsModel
 import com.tatasky.binge.utils.*
@@ -51,8 +56,11 @@ class HomeAdapter(
     private val freeTrialAvailed: Boolean?,
     private val freeTrialStartupNudgeData: ConfigResponse.FreeTrialStartupNudge?,
     private val sharedPrefs: PrefsRepo,
-    private val homeAnalytics: HomeAnalytics?
-) : EndlessListAdapter<HomeResponse.Items, RecyclerView.ViewHolder>(mList) {
+    private val homeAnalytics: HomeAnalytics?,
+) : EndlessListAdapter<HomeResponse.Items, RecyclerView.ViewHolder>(
+    mList,
+    emptyContentAnalyticsModel()
+) {
 
     private var ignorePositions: HashSet<Int> = hashSetOf()
     private var manager: LinearLayoutManager? = null
@@ -84,6 +92,8 @@ class HomeAdapter(
     private val MID_SCROLL_BANNER = 28000 //Mixed midscroll
     private val CATEGORY = 29000
     private val LIVE_BANNER = 30000
+    private val GENRE_RAIL = 31000
+    private val MERGE_GAME_RAIL = 14000
 
 
     private val viewPool: RecyclerView.RecycledViewPool = RecyclerView.RecycledViewPool()
@@ -101,6 +111,8 @@ class HomeAdapter(
     private var pageName: String? = ""
     private var isRefresh: Boolean = false
     private var isPackUpdated: Boolean = false
+    private var orientationChanged = false
+
 
     fun setDthStatus(dthStatus: String?) {
         this.dthStatus = dthStatus
@@ -238,6 +250,17 @@ class HomeAdapter(
                 view = inflater.inflate(R.layout.home_new_games, parent, false)
                 viewHolder = ViewHolderGameNew(view)
             }
+            MERGE_GAME_RAIL -> {
+                view = inflater.inflate(R.layout.merge_games_row, parent, false)
+                viewHolder = MergedViewHolder(view)
+            }
+            GENRE_RAIL -> {
+                view = inflater.inflate(R.layout.genre_home_recycler_view,parent,false)
+                viewHolder = ViewHolderGenreNew(view)
+                viewHolder.binding?.homeRecyclerView?.setRecycledViewPool(
+                    viewPool
+                )
+            }
             RAIL -> {
                 view = inflater.inflate(R.layout.home_recyclerview, parent, false)
                 viewHolder = ViewHolderRails(view)
@@ -347,7 +370,8 @@ class HomeAdapter(
                             mContentViewListener,
                             dthStatus,
                             mHBStartPosition,
-                            sharedPrefs
+                            sharedPrefs,
+                            contentAnalyticsModel = item.getContentAnalyticsModel()
                         )
                         reset -> {
                             bannerViewHolder.banner.reset()
@@ -360,7 +384,8 @@ class HomeAdapter(
                                 mContentViewListener,
                                 dthStatus,
                                 mHBStartPosition,
-                                sharedPrefs
+                                sharedPrefs,
+                                contentAnalyticsModel = item.getContentAnalyticsModel()
                             )
                             reset = false
                         }
@@ -378,10 +403,12 @@ class HomeAdapter(
                         ignorePositions.remove(position)
                         gameWeekBannerViewHolder.binding?.root?.show()
                     }
+                    val contentAnalyticsModel = item.getContentAnalyticsModel()
                     gameWeekBannerViewHolder.bind(
                         position,
                         item.title,
-                        contentList
+                        contentList,
+                        contentAnalyticsModel
                     )
                 }
 
@@ -395,28 +422,82 @@ class HomeAdapter(
                         ignorePositions.remove(position)
                         liveBannerViewHolder.binding?.root?.show()
                     }
+                    val contentAnalyticsModel = item.getContentAnalyticsModel()
                     liveBannerViewHolder.bind(
                         position,
                         item.title,
-                        contentList
+                        contentList,
+                        contentAnalyticsModel
                     )
                 }
 
                 NEWLY_ADDED_GAMES -> {
                     val gameNewViewHolder = holder as ViewHolderGameNew
                     val contentList = item.filteredContentItems
+                    val contentAnalyticsModel = item.getContentAnalyticsModel()
                     gameNewViewHolder.bind(
                         position,
                         item.title,
-                        contentList
+                        contentList,
+                        contentAnalyticsModel
                     )
                 }
+                MERGE_GAME_RAIL -> {
+                    val gameNewViewHolder = holder as MergedViewHolder
+                    val contentList = item.filteredContentItems
+                    val contentAnalyticsModel = item.getContentAnalyticsModel()
+                    gameNewViewHolder.mergeBindRows(
+                        position,
+                        item,
+                        contentAnalyticsModel
+                    )
+                }
+                GENRE_RAIL -> {
+                    val genreNewViewHolder = holder as ViewHolderGenreNew
+                    val contentList = item.contentItem
+                    genreNewViewHolder.bind(
+                        RailsModel(
+                            item.title,
+                            RailAdapter(
+                                mBannerClick,
+                                contentList,
+                                item.layoutType,
+                                (position - ignorePositions.filter { it < position }.size + 1),
+                                cloudinaryUrl,
+                                item.sectionSource,
+                                item.continueWatching,
+                                item.title,
+                                providerLogos,
+                                railPoint,
+                                sharedPrefs = sharedPrefs,
+                                mNonSubscribedPartnerList = mNonSubscribedPartnerList,
+                                isPackAvailed = isPackAvailed,
+                                pageName = pageName?:"",
+                                refId = item.refId,
+                                railSectionType = item.sectionType
+                            )
+                        )
+                    )
+                }
+
                 RAIL -> {
                     val railsViewHolder = holder as ViewHolderRails
                     var contentList = item.filteredContentItems
                     railsViewHolder.binding?.homeRecyclerViewTitle?.show()
+                    e("BINGE_CHANNEL_RAIL","contentList : ${contentList.size}")
+                    railsViewHolder.binding?.ivLiveIndicator?.hide()
+                    if (item.sectionSource.equals(
+                            ItemViewType.BINGE_CHANNEL.name,
+                            true
+                        ) || item.sectionSource.equals(
+                            ItemViewType.DARSHAN_CHANNEL.name,
+                            true
+                        )
+                    ) {
+                        railsViewHolder.binding?.ivLiveIndicator?.show()
+                        e("BINGE_CHANNEL_RAIL","inside contentList : ${contentList.size}")
+                    }
                     if (item.sectionSource.equals(ItemViewType.LANGUAGE.name, true) ||
-                        item.sectionSource.equals(ItemViewType.GENRE.name, true) ||
                         item.sectionSource.equals(ItemViewType.GENRE_RAIL_FOR_GAMES.name, true) ||
                         item.sectionSource.equals(ItemLayoutType.POPULAR_CHARACTER.name, true) ||
                         item.sectionSource.equals(ItemViewType.GAMES.name,true) ||
@@ -461,7 +542,6 @@ class HomeAdapter(
                             railsViewHolder.binding.homeSeeAll.hide()
                         }*/
                         else if (item.sectionSource.equals(ItemViewType.LANGUAGE.name, true) ||
-                            item.sectionSource.equals(ItemViewType.GENRE.name, true) ||
                             item.sectionSource.equals(ItemViewType.GENRE_RAIL_FOR_GAMES.name, true) ||
                             item.sectionSource.equals(
                                 ItemLayoutType.POPULAR_CHARACTER.name,
@@ -469,6 +549,8 @@ class HomeAdapter(
                             ) ||
                             item.layoutType.equals(ItemLayoutType.TOP_PORTRAIT.name, true)
                             || item.sectionSource.equals(ItemViewType.CATEGORY.name,true)
+                            || item.sectionSource.equals(ItemViewType.BINGE_CHANNEL.name,true)
+                            || item.sectionSource.equals(ItemViewType.DARSHAN_CHANNEL.name,true)
                         ) {
                             if (item.sectionSource.equals(
                                     ItemViewType.GENRE_RAIL_FOR_GAMES.name,
@@ -491,6 +573,7 @@ class HomeAdapter(
                         !item.recommendationPosition.isNullOrEmpty() && !item.sectionSource.equals(
                             TYPE_GAMES, true
                         )
+                    val contentAnalyticsModel = item.getContentAnalyticsModel()
                     railsViewHolder.bind(
                         RailsModel(
 //                            "${item.id}",
@@ -510,7 +593,8 @@ class HomeAdapter(
                                 mNonSubscribedPartnerList = mNonSubscribedPartnerList,
                                 isPackAvailed = isPackAvailed,
                                 pageName = pageName?:"",
-                                refId = item.refId
+                                refId = item.refId,
+                                railSectionType = item.sectionType
                             )
                         ),
                         mSeeAllClickListener,
@@ -526,7 +610,8 @@ class HomeAdapter(
                         item.backgroundImage,
                         item.layoutType,
                         item.refId,
-                        packName = item.packName
+                        packName = item.packName,
+                        contentAnalyticsModel
                     )
 
                     if (item.continueWatching) {
@@ -545,6 +630,7 @@ class HomeAdapter(
                             ViewGroup.LayoutParams.WRAP_CONTENT
                         )
                     railsViewHolder.binding?.homeSeeAll?.hide()
+                    val contentAnalyticsModel = item.getContentAnalyticsModel()
                     railsViewHolder.bind(
                         RailsModel(
 //                            "${item.id}",
@@ -563,7 +649,8 @@ class HomeAdapter(
                                 sharedPrefs = sharedPrefs,
                                 mNonSubscribedPartnerList = mNonSubscribedPartnerList,
                                 isPackAvailed = isPackAvailed,
-                                refId = item.refId
+                                refId = item.refId,
+                                railSectionType = item.sectionType
                             )
                         ),
                         mSeeAllClickListener,
@@ -574,8 +661,9 @@ class HomeAdapter(
                         item.configType,
                         item.backgroundImage,
                         item.layoutType,
-                        item.refId)
-
+                        item.refId,
+                        contentAnalyticsModel
+                    )
                 }
                 PROVIDER_WITH_CONTENTS -> {
 
@@ -602,9 +690,9 @@ class HomeAdapter(
                                     ItemLayoutType.MIXED.name,
                                     (position - ignorePositions.filter { it < position }.size + 1),
                                     cloudinaryUrl,
-                                    "Editorial",
+                                    item.sectionSource,
                                     false,
-                                    "",
+                                    item.title,
                                     providerLogos,
                                     railPoint,
                                     sharedPrefs = sharedPrefs,
@@ -613,7 +701,8 @@ class HomeAdapter(
                                     mNonSubscribedPartnerList = mNonSubscribedPartnerList,
                                     isPackAvailed = isPackAvailed,
                                     viewPortPosition = position,
-                                    refId = item.refId
+                                    refId = item.refId,
+                                    railSectionType = item.sectionType
                                 )
                                 { trailerFragment, addTrailer, current_position ->
                                     handleTrailerExchanger(
@@ -641,7 +730,8 @@ class HomeAdapter(
                         viewHolderStartFreeTrialNudge.binding?.clStartFreeTrialRoot?.hide()
                         ignorePositions.add(position)
                     } else {
-                        viewHolderStartFreeTrialNudge.bind(position)
+                        val contentAnalyticsModel = item.getContentAnalyticsModel()
+                        viewHolderStartFreeTrialNudge.bind(position, contentAnalyticsModel)
                     }
                 }
                 SELECTPAIDPACKNUDGE -> {
@@ -658,12 +748,14 @@ class HomeAdapter(
                             it.isDummyUser == true &&
                             currentDay >= startDay && availableDays >= 0
                         ) {
+                            val contentAnalyticsModel = item.getContentAnalyticsModel()
                             it.getPaidPackSelectionNudge()?.availableDays = availableDays
                             viewHolderSelectPaidPackNudge.bind(
                                 position,
                                 progress,
                                 currentDay,
-                                availableDays
+                                availableDays,
+                                contentAnalyticsModel
                             )
                             viewHolderSelectPaidPackNudge.binding?.clSelectPaidPackRoot?.show()
                             ignorePositions.remove(position)
@@ -684,7 +776,8 @@ class HomeAdapter(
                     } else {
                         ignorePositions.remove(position)
                         viewHolderSelectLanguageWidget.binding?.clRoot?.show()
-                        viewHolderSelectLanguageWidget.bind(position)
+                        val contentAnalyticsModel = item.getContentAnalyticsModel()
+                        viewHolderSelectLanguageWidget.bind(position, contentAnalyticsModel)
                     }
                 }
                 GAME_NUDGE -> {
@@ -695,7 +788,8 @@ class HomeAdapter(
                     } else {
                         ignorePositions.remove(position)
                         viewHolderGameNudge.binding?.cvRoot?.show()
-                        viewHolderGameNudge.bind(position)
+                        val contentAnalyticsModel = item.getContentAnalyticsModel()
+                        viewHolderGameNudge.bind(position, contentAnalyticsModel)
                     }
                 }
                 SHUFFLE_RAIL -> {
@@ -730,7 +824,8 @@ class HomeAdapter(
                                         mNonSubscribedPartnerList = mNonSubscribedPartnerList,
                                         isPackAvailed = isPackAvailed,
                                         viewPortPosition = position,
-                                        refId = item.refId
+                                        refId = item.refId,
+                                        railSectionType = item.sectionType
                                     ) { trailerFragment, addTrailer, currentPosition ->
                                         handleTrailerExchanger(
                                             trailerFragment,
@@ -763,7 +858,9 @@ class HomeAdapter(
                                 mNonSubscribedPartnerList = mNonSubscribedPartnerList,
                                 isPackAvailed = isPackAvailed,
                                 pageName = pageName?:"",
-                                refId = item.refId
+                                refId = item.refId,
+                                partnerName = item.provider,
+                                railSectionType = item.sectionType
                             )
                         ),
                         item,
@@ -791,12 +888,14 @@ class HomeAdapter(
                             it.isDummyUser != true &&
                             availableDays >= 0
                         ) {
+                            val contentAnalyticsModel = item.getContentAnalyticsModel()
                             it.getPaidPackSelectionNudge()?.availableDays = availableDays
                             viewHolderUpgradeTrailNudge.bind(
                                 position,
                                 progress,
                                 currentDay,
-                                availableDays
+                                availableDays,
+                                contentAnalyticsModel
                             )
                             viewHolderUpgradeTrailNudge.binding?.clSelectPaidPackRoot?.show()
                             ignorePositions.remove(position)
@@ -840,7 +939,8 @@ class HomeAdapter(
                                 sharedPrefs = sharedPrefs,
                                 mNonSubscribedPartnerList = mNonSubscribedPartnerList,
                                 isPackAvailed = isPackAvailed,
-                                refId = item.refId
+                                refId = item.refId,
+                                railSectionType = item.sectionType
                             )
                         )
                     )
@@ -875,7 +975,8 @@ class HomeAdapter(
                                 sharedPrefs = sharedPrefs,
                                 mNonSubscribedPartnerList = mNonSubscribedPartnerList,
                                 isPackAvailed = isPackAvailed,
-                                refId = item.refId
+                                refId = item.refId,
+                                railSectionType = item.sectionType
                             )
                         )
                     )
@@ -912,7 +1013,8 @@ class HomeAdapter(
                                 sharedPrefs = sharedPrefs,
                                 mNonSubscribedPartnerList = mNonSubscribedPartnerList,
                                 isPackAvailed = isPackAvailed,
-                                refId = item.refId
+                                refId = item.refId,
+                                railSectionType = item.sectionType
                             )
                         )
                     )
@@ -1009,10 +1111,11 @@ class HomeAdapter(
             isMixedRail: Boolean,
             isPrepand: Boolean,
             item: HomeResponse.Items,
-            backgroundImage : String?,
+            backgroundImage: String?,
             layoutType: String?,
-            refId : String,
-            packName : String
+            refId: String,
+            packName: String,
+            contentAnalyticsModel: ContentAnalyticsModel
         ) {
             //TODO: May have performance impact
             //For games rail background is different on home
@@ -1064,7 +1167,8 @@ class HomeAdapter(
                     backgroundImage,
                     layoutType,
                     refId,
-                    packName
+                    packName,
+                    contentAnalyticsModel
                 )
             }
         }
@@ -1084,7 +1188,9 @@ class HomeAdapter(
             configType: String?,
             backgroundImage: String?,
             layoutType: String?,
-            refId: String) {
+            refId: String,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
             binding?.railsModel = railsModel
 
             binding?.homeRecyclerView?.clearOnScrollListeners()
@@ -1109,7 +1215,8 @@ class HomeAdapter(
                     configType,
                     backgroundImage = backgroundImage,
                     layoutType = layoutType,
-                    refId = refId
+                    refId = refId,
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             }
         }
@@ -1135,7 +1242,7 @@ class HomeAdapter(
             binding?.let { it ->
 
 
-                if(isPackUpdated){
+                if (isPackUpdated) {
                     it.viewpagerProviders.currentVirtualPosition = calculateCarouselScrollPosition(
                         it.viewpagerProviders.currentPosition,
                         it.viewpagerProviders.currentVirtualPosition,
@@ -1330,7 +1437,6 @@ class HomeAdapter(
 
                 }
                 else if(isPackUpdated){
-
                     val firstProviderData = PartnerData()
                     firstProviderData.layoutType = item.filteredProvider[item.lastPosition].layoutType
                     firstProviderData.contentList = item.filteredProvider[item.lastPosition].contentItem
@@ -1342,6 +1448,12 @@ class HomeAdapter(
                         mNonSubscribedPartnerList
                     )
                 }
+
+                isPackUpdated = false
+                /* Fixed for https://jira.tothenew.com/browse/TSF-13653 */
+                it.executePendingBindings()
+                it.root.invalidate()
+                /*----*/
                 it.homeSeeAll.setOnClickListener { _ ->
                     val position = it.viewpagerProviders.currentPosition
                     clickOnProviderSeeAllPage(position, item, railsModel.adapter.sectionPosition)
@@ -1389,16 +1501,36 @@ class HomeAdapter(
                 this.alpha = 0.5f
                 this.isSelected = false
                 this.findViewById<ImageView>(R.id.imgOverlay).show()
+
+                if (isLandTablet(context)) {
+                    this.alpha = 1f
+                    this.isSelected = true
+                    this.findViewById<ImageView>(R.id.imgOverlay).hide()
+                }
             }
             recyclerView[4].apply {
+
                 this.alpha = 0.5f
                 this.isSelected = false
                 this.findViewById<ImageView>(R.id.imgOverlay).show()
+
+                if (isTablet(context) && !isLandTablet(context)) {
+                    this.alpha = 1f
+                    this.isSelected = true
+                    this.findViewById<ImageView>(R.id.imgOverlay).hide()
+                }
             }
             recyclerView[3].apply {
                 this.alpha = 1f
                 this.isSelected = true
                 this.findViewById<ImageView>(R.id.imgOverlay).hide()
+
+                if (isTablet(context) || isLandTablet(context)) {
+                    this.alpha = 0.5f
+                    this.isSelected = false
+                    this.findViewById<ImageView>(R.id.imgOverlay).show()
+                }
+
             }
             recyclerView[2].apply {
                 this.alpha = 0.5f
@@ -1421,6 +1553,7 @@ class HomeAdapter(
 
     private fun clickOnProviderSeeAllPage(position: Int, item: HomeResponse.Items, sectionPosition: Int) {
         if (position < item.filteredProvider.size) {
+            val contentAnalyticsModel = item.getContentAnalyticsModel()
             mBannerClick.onSubItemClick(
                 item.filteredProvider[position],
                 position,
@@ -1428,7 +1561,8 @@ class HomeAdapter(
                 EventConstants.TYPE_APPS,
                 null,
                 item.title,
-                item.sectionSource
+                item.sectionSource,
+                contentAnalyticsModel = contentAnalyticsModel
             )
         }
     }
@@ -1436,7 +1570,7 @@ class HomeAdapter(
     private inner class StartFreeTrialViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
         val binding: LayoutStartFreeTrialNudgeBinding? = DataBindingUtil.bind(itemView)
-        fun bind(position: Int) {
+        fun bind(position: Int, contentAnalyticsModel: ContentAnalyticsModel) {
             binding?.trialBtnProceed?.setOnClickListener {
                 mBannerClick.onSubItemClick(
                     ContentItem().apply {
@@ -1446,7 +1580,8 @@ class HomeAdapter(
                     position,
                     (position - ignorePositions.filter { it < position }.size + 1),
                     EventConstants.TYPE_START_FREE_TRIAL,
-                    null
+                    null,
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             }
             freeTrialStartupNudgeData?.let {
@@ -1461,7 +1596,13 @@ class HomeAdapter(
     private inner class SelectPaidPackViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
         val binding: LayoutSelectPaidPackNudgeBinding? = DataBindingUtil.bind(itemView)
-        fun bind(position: Int, progress: Double, currentDay: Int, availableDays: Int) {
+        fun bind(
+            position: Int,
+            progress: Double,
+            currentDay: Int,
+            availableDays: Int,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
             binding?.btnSelectSubscription?.setOnClickListener {
                 mBannerClick.onSubItemClick(
                     ContentItem().apply {
@@ -1471,7 +1612,8 @@ class HomeAdapter(
                     position,
                     (position - ignorePositions.filter { it < position }.size + 1),
                     EventConstants.TYPE_SELECT_PAID_PACK,
-                    null
+                    null,
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             }
             val paidPackSelectionNudgeData = partnerPacks?.getPaidPackSelectionNudge()
@@ -1483,7 +1625,13 @@ class HomeAdapter(
     private inner class UpgradeFreeTrialViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
         val binding: LayoutSelectPaidPackNudgeBinding? = DataBindingUtil.bind(itemView)
-        fun bind(position: Int, progress: Double, currentDay: Int, availableDays: Int) {
+        fun bind(
+            position: Int,
+            progress: Double,
+            currentDay: Int,
+            availableDays: Int,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
             binding?.btnSelectSubscription?.setOnClickListener {
                 mBannerClick.onSubItemClick(
                     ContentItem().apply {
@@ -1493,7 +1641,8 @@ class HomeAdapter(
                     position,
                     (position - ignorePositions.filter { it < position }.size + 1),
                     EventConstants.TYPE_FREE_TRIAL_UPGRADE,
-                    null
+                    null,
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             }
             val paidPackSelectionNudgeData = partnerPacks?.getPaidPackSelectionNudge()
@@ -1504,14 +1653,15 @@ class HomeAdapter(
 
     private inner class GameNudgeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         val binding: LayoutGameSubscribeWidgetBinding? = DataBindingUtil.bind(itemView)
-        fun bind(position: Int) {
+        fun bind(position: Int, contentAnalyticsModel: ContentAnalyticsModel) {
             binding?.btnGameSubscribe?.setOnClickListener {
                 mBannerClick.onSubItemClick(
                     ContentItem(),
                     position,
                     (position - ignorePositions.filter { it < position }.size + 1),
                     ItemViewType.GAME_NUDGE.name,
-                    null
+                    null,
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             }
         }
@@ -1520,14 +1670,15 @@ class HomeAdapter(
     private inner class SelectLanguageWidgetViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
         val binding: LayoutSelectLanguageWidgetBinding? = DataBindingUtil.bind(itemView)
-        fun bind(position: Int) {
+        fun bind(position: Int, contentAnalyticsModel: ContentAnalyticsModel) {
             binding?.tvSelectLanguages?.setOnClickListener {
                 mBannerClick.onSubItemClick(
                     ContentItem(),
                     position,
                     (position - ignorePositions.filter { it < position }.size + 1),
                     EventConstants.TYPE_SELECT_LANGUAGE_POP_UP,
-                    null
+                    null,
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             }
         }
@@ -1678,22 +1829,35 @@ class HomeAdapter(
                     it.railsModel = railsModel
                 }
                 val bgImagePoint = getSportsBgImageDimension(it.root.context)
-                it.cvBgSports.layoutParams =
-                    ConstraintLayout.LayoutParams(bgImagePoint.x, bgImagePoint.y)
                 val url = getCloudinaryUrl(
                     cloudinaryUrl,
                     bgImagePoint.x, bgImagePoint.y,
                     item.backgroundImage
                 )
                 imageLoad(it.ivBgSports, url)
+                if(item.provider.isNullOrEmpty()){
+                    it.ivProviderLogo.invisible()
 
-                updateProviderImage(
-                    it.ivProviderLogo,
-                    item.provider ?: PROVIDER_ZEE5,
-                    providerLogos,
-                    R.drawable.ic_rail_placeholder
-                )
+                }
+                else {
+                    it.ivProviderLogo.show()
+                    railsModel.adapter.layoutType = ItemLayoutType.SINGLE_PROVIDER_BANNER_RAIL.name
 
+
+                    binding.clRoot.layoutParams =
+                        ConstraintLayout.LayoutParams(
+                            ConstraintLayout.LayoutParams.MATCH_PARENT,
+                            ConstraintLayout.LayoutParams.WRAP_CONTENT
+                        )
+
+
+                    updateProviderImage(
+                        it.ivProviderLogo,
+                        item.provider ?: PROVIDER_ZEE5,
+                        providerLogos,
+                        R.drawable.ic_rail_placeholder
+                    )
+                }
             }
         }
 
@@ -1702,11 +1866,19 @@ class HomeAdapter(
 
 
     public override fun getNormalItemViewType(position: Int): Int {
+//        e("getNormalItemViewType","${mDataList[position].sectionSource} - sectionSource")
         when {
+            mDataList[position].sectionSource.equals(
+                ItemViewType.DARSHAN_CHANNEL.name,
+                ignoreCase = true
+            ) -> {
+                return RAIL
+            }
             mDataList[position].sectionSource.equals(
                 ItemViewType.LIVE_EVENT_BANNER.name,
                 ignoreCase = true
             ) -> {
+                if (mDataList[position].filteredContentItems.isEmpty()) return 0
                 return LIVE_BANNER
             }
             mDataList[position].sectionSource.equals(
@@ -1720,6 +1892,18 @@ class HomeAdapter(
                 true
             ) ->{
                 return NEWLY_ADDED_GAMES
+            }
+            mDataList[position].sectionSource.equals(
+                ItemViewType.GENRE.name,
+                true
+            ) -> {
+                return GENRE_RAIL
+            }
+            mDataList[position].sectionSource.equals(
+                ItemViewType.BINGE_CHANNEL.name,
+                ignoreCase = true
+            ) -> {
+                return RAIL
             }
             mDataList[position].sectionSource.equals(
                 ItemViewType.GAMES.name,
@@ -1807,6 +1991,7 @@ class HomeAdapter(
                 ItemViewType.BACKGROUND_BANNER_RAIL.name,
                 ignoreCase = true
             ) -> {
+                if (mDataList[position].filteredContentItems.isEmpty()) return 0
                 mDataList[position].viewType = TITTLE_RAIL_WITH_BACKGROUND_IMAGE
                 return TITTLE_RAIL_WITH_BACKGROUND_IMAGE
             }
@@ -1839,6 +2024,9 @@ class HomeAdapter(
             )
                     && !mDataList[position].sectionSource.equals(
                 ItemViewType.FREE_TRIAL_UPGRADE.name,
+                ignoreCase = true
+            )&& !mDataList[position].sectionSource.equals(
+                ItemViewType.MERGE_GAME_RAIL.name,
                 ignoreCase = true
             ) -> {
                 mDataList[position].viewType = RAIL
@@ -1880,6 +2068,12 @@ class HomeAdapter(
                 return SELECTPAIDPACKNUDGE
             }
             mDataList[position].sectionSource.equals(
+                ItemViewType.MERGE_GAME_RAIL.name,
+                ignoreCase = true
+            ) -> {
+                return MERGE_GAME_RAIL
+            }
+            mDataList[position].sectionSource.equals(
                 ItemViewType.FREE_TRIAL_UPGRADE.name,
                 ignoreCase = true
             ) -> {
@@ -1890,18 +2084,42 @@ class HomeAdapter(
 
             else -> return 0
         }
+
     }
+
+
+    fun notifyOrientationChange(customRecyclerView: CustomRecyclerView) {
+        if(!customRecyclerView.isComputingLayout)
+            notifyDataSetChanged()
+
+        orientationChanged = true
+    }
+
+    fun notifyBannerChanges(){
+        mBanner?.banner?.addSpaceValidation(true)
+    }
+
+
 
     fun updateList(mItems: MutableList<HomeResponse.Items>) {
         updateSbscriberList()
         val diffResult = DiffUtil.calculateDiff(RailDiffCallback(this.mDataList, mItems), true)
-        updateDataWithDiffCallback(mItems, diffResult)
+        updateDataWithDiffCallback(
+            mItems,
+            diffResult,
+            /* Passing empty model as items already have necessary data */
+            emptyContentAnalyticsModel()
+        )
         ignorePositions.clear()
         positionOfNudges.clear()
     }
 
     fun addToList(mItems: MutableList<HomeResponse.Items>){
-        addTomDataList(mItems.filter { !mDataList.contains(it) })
+        addTomDataList(
+            mItems.filter { !mDataList.contains(it) },
+            /* Passing empty model as items already have necessary data */
+            emptyContentAnalyticsModel()
+        )
        val uniquRailItems= mDataList.distinctBy { it.id } as MutableList
         mDataList=uniquRailItems
     }
@@ -2144,7 +2362,12 @@ class HomeAdapter(
 
     private inner class ViewHolderLiveBanner(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val binding: LayoutLiveBannerBinding? = DataBindingUtil.bind(itemView)
-        fun bind(position: Int, title: String, contentItem: List<ContentItem>) {
+        fun bind(
+            position: Int,
+            title: String,
+            contentItem: List<ContentItem>,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
             binding?.let { it ->
                 contentItem.getOrNull(0)?.let { it1 ->
                     it.contentItem = it1
@@ -2184,7 +2407,8 @@ class HomeAdapter(
                                 gameRating = it1.gameRating,
                                 releaseYear = "",
                                 source = pageName ?: ""
-                            )
+                            ),
+                            contentAnalyticsModel = contentAnalyticsModel
                         )
                     }
 
@@ -2200,46 +2424,108 @@ class HomeAdapter(
         }
     }
 
-    private inner class ViewHolderGameWeekBanner(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    private inner class ViewHolderGameWeekBanner(itemView: View) :
+        RecyclerView.ViewHolder(itemView) {
         val binding: HomeGamingWeekBannerBinding? = DataBindingUtil.bind(itemView)
-        fun bind(position:Int, title : String , contentItem : List<ContentItem>){
-                binding?.let {it ->
-                    contentItem.getOrNull(0)?.let {it1 ->
-                        binding.contentItem = it1
-                        binding.title = title
-                        val paint =  binding.tvGameWeek.paint
-                        paintPremiumGradient(binding.tvGameWeek,paint.measureText(title))
-                        var gamesPageName = ""
-                        if(pageName.equals(PROVIDER_GAMEZOP,true)){
-                            gamesPageName = SOURCE_GAMES
-                        } else {
-                            gamesPageName = pageName?:""
-                        }
-                        binding.btnPlayWeekGame.setOnClickListener {
-                            mBannerClick.onSubItemClick(
-                                it1,
-                                position,
-                                (position - ignorePositions.filter { it < position }.size + 1),
-                                EventConstants.TYPE_GAMES,
-                                null,
+        fun bind(
+            position: Int,
+            title: String,
+            contentItem: List<ContentItem>,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
+            binding?.let { it ->
+                contentItem.getOrNull(0)?.let { it1 ->
+                    binding.contentItem = it1
+                    binding.title = title
+                    val paint = binding.tvGameWeek.paint
+                    paintPremiumGradient(binding.tvGameWeek, paint.measureText(title))
+                    var gamesPageName = ""
+                    if (pageName.equals(PROVIDER_GAMEZOP, true)) {
+                        gamesPageName = SOURCE_GAMES
+                    } else {
+                        gamesPageName = pageName ?: ""
+                    }
+                    binding.btnPlayWeekGame.setOnClickListener {
+                        mBannerClick.onSubItemClick(
+                            it1,
+                            position,
+                            (position - ignorePositions.filter { it < position }.size + 1),
+                            EventConstants.TYPE_GAMES,
+                            null,
+                            railTitle = title,
+                            gamesMixpanelInfoModel = GamesMixpanelInfoModel(
+                                pageName = pageName ?: "",
                                 railTitle = title,
-                                gamesMixpanelInfoModel = GamesMixpanelInfoModel(
-                                    pageName = pageName ?:"",
-                                    railTitle = title,
-                                    railPosition = "$position",
-                                    railType = "Editorial",
-                                    railCategory = ItemViewType.RAIL.name,
-                                    gameGenre = it1.getSubTitle(),
-                                    gamePartner = it1.provider,
-                                    gamePosition = "${1}",
-                                    gameRating = it1.gameRating,
-                                    releaseYear = "",
-                                    source = gamesPageName ?: ""
-                                )
+                                railPosition = "$position",
+                                railType = "Editorial",
+                                railCategory = ItemViewType.RAIL.name,
+                                gameGenre = it1.getSubTitle(),
+                                gamePartner = it1.provider,
+                                gamePosition = "${1}",
+                                gameRating = it1.gameRating,
+                                releaseYear = "",
+                                source = gamesPageName ?: ""
+                            ),
+                            contentAnalyticsModel = contentAnalyticsModel
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    inner class ViewHolderGenreNew(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding: GenreHomeRecyclerViewBinding? = DataBindingUtil.bind(itemView)
+        fun bind(
+            model: RailsModel
+        ) {
+            binding?.let { it ->
+                var wheelSpeed = 8 //Less value = More rotation speed
+                if(it.homeRecyclerView.adapter != null && !orientationChanged){
+                    binding.homeRecyclerView.swapAdapter(model.adapter,false)
+                } else {
+                    val params: ConstraintLayout.LayoutParams =
+                        it.guide.layoutParams as ConstraintLayout.LayoutParams
+                    it.railsModel = model
+                    orientationChanged = false
+                    when(getTabletType(it.root.context)){
+                        TabletType.TABLET, TabletType.TABLET_7_INCH -> {
+                            binding.homeRecyclerView.setPadding(
+                                it.root.resources.getDimension(R.dimen.genre_items_wheel_padding)
+                                    .toInt(),
+                                0,
+                                0,
+                                0
                             )
+                            params.guidePercent = .20f
+                        }
+                        TabletType.TABLET_LANDSCAPE -> {
+                            binding.homeRecyclerView.setPadding(
+                                it.root.resources.getDimension(R.dimen.genre_items_wheel_padding)
+                                    .toInt(),
+                                0,
+                                0,
+                                0
+                            )
+                            params.guidePercent = .14f
+                        }
+                        else -> {
+                            wheelSpeed = 10
+                            params.guidePercent = .30f
                         }
                     }
                 }
+
+                it.homeRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        super.onScrolled(recyclerView, dx, dy)
+                        // Get the current scroll position of the RecyclerView
+                        val scrollX = recyclerView.computeHorizontalScrollOffset()
+                        // Update the rotation of the SVG based on the scroll position
+                        it.ivGenreWheel.rotation = scrollX.toFloat()/wheelSpeed
+                    }
+                })
+            }
         }
     }
 
@@ -2248,7 +2534,8 @@ class HomeAdapter(
         fun bind(
             position: Int,
             title: String,
-            contentList: List<ContentItem>
+            contentList: List<ContentItem>,
+            contentAnalyticsModel: ContentAnalyticsModel
         ) {
             binding?.let {
                 contentList.getOrNull(0)?.let { contentItem1 ->
@@ -2273,13 +2560,20 @@ class HomeAdapter(
                                 gameRating = contentItem1.gameRating,
                                 releaseYear = "",
                                 source = pageName ?:""
-                            )
+                            ),
+                            contentAnalyticsModel = contentAnalyticsModel
                         )
                     }
                 }
                 if(contentList.getOrNull(1) == null){
-                    binding.ivNewGame2.invisible()
-                    binding.tvNewGame2.invisible()
+                    if(isTablet(binding.ivNewGame2)){
+                        binding.ivNewGame2.hide()
+                        binding.tvNewGame2.hide()
+                    }else{
+                        binding.ivNewGame2.invisible()
+                        binding.tvNewGame2.invisible()
+                    }
+
                 } else {
                     binding.ivNewGame2.show()
                     binding.tvNewGame2.show()
@@ -2306,7 +2600,8 @@ class HomeAdapter(
                                 gameRating = contentItem2.gameRating,
                                 releaseYear = "",
                                 source = pageName ?: ""
-                            )
+                            ),
+                            contentAnalyticsModel = contentAnalyticsModel
                         )
                     }
                 }
@@ -2315,63 +2610,115 @@ class HomeAdapter(
         }
     }
 
-
-
-    inner class ViewHolderGameRails(itemView: View) :
-        RecyclerView.ViewHolder /*implements View.OnClickListener */(itemView) {
-        val binding: HomeGamingRailBinding? = DataBindingUtil.bind(itemView)
-        fun bind(
-            railsModel: RailsModel,
-            mSeeAllClickListener: CommonSeeAllClickListener,
-            railId: Int,
-            railName: String,
-            sectionSource: String,
-            lastIndex: Int,
-            placeHolder: String,
-            configType: String?,
-            provider: String?,
-            isMixedRail: Boolean,
-            isPrepand: Boolean,
+    inner class MergedViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding: MergeGamesRowBinding? = DataBindingUtil.bind(itemView)
+        fun mergeBindRows(
+            position: Int,
             item: HomeResponse.Items,
-            backgroundImage:String?,
-            layoutType: String?,
-            refId : String
+            contentAnalyticsModel: ContentAnalyticsModel
         ) {
-            if (binding?.homeGamingRecyclerView?.adapter != null) {
-                binding.tvGamingRailTitle.text = railsModel.title
-                binding.homeGamingRecyclerView.swapAdapter(railsModel.adapter, false)
-            } else {
-                binding?.railsModel = railsModel
-            }
-            binding?.homeGamingRecyclerView?.clearOnScrollListeners()
-            binding?.homeGamingRecyclerView?.addOnScrollListener(CustomScrollListener {
-                mRailScrollListener.onRailScrolled(
-                    railName,
-                    (adapterPosition - ignorePositions.filter { it < adapterPosition }.size + 1),
-                    item.sectionSource,
-                    item.sectionType
-                )
-            })
-            binding?.homeSeeAll?.setOnClickListener {
-                mSeeAllClickListener.onSeeAllClick(
-                    Pair(
-                        railId,
-                        railName
-                    ),
-                    sectionSource,
-                    (adapterPosition - ignorePositions.filter { it < adapterPosition }.size + 1),
-                    placeHolder,
-                    configType,
-                    provider,
-                    isMixedRail,
-                    isPrepand,
-                    item,
-                    backgroundImage = backgroundImage,
-                    layoutType = layoutType,
-                    refId = refId
-                )
+            binding?.let { it ->
+                val contentList = item.contentItem
+                contentList.getOrNull(0)?.let {it1->
+                    binding.contentItem = it1
+                    binding.title = item.title
+                    val paint = binding.tvGameWeek.paint
+                    paintPremiumGradient(binding.tvGameWeek, paint.measureText(item.title))
+                    var gamesPageName = ""
+                    if (pageName.equals(PROVIDER_GAMEZOP, true)) {
+                        gamesPageName = SOURCE_GAMES
+                    } else {
+                        gamesPageName = pageName ?: ""
+                    }
+                    binding.btnPlayWeekGame.setOnClickListener {
+                        mBannerClick.onSubItemClick(
+                            it1,
+                            position,
+                            (position - ignorePositions.filter { it < position }.size + 1),
+                            EventConstants.TYPE_GAMES,
+                            null,
+                            railTitle = item.title,
+                            gamesMixpanelInfoModel = GamesMixpanelInfoModel(
+                                pageName = pageName ?: "",
+                                railTitle = item.title,
+                                railPosition = "$position",
+                                railType = "Editorial",
+                                railCategory = ItemViewType.RAIL.name,
+                                gameGenre = it1.getSubTitle(),
+                                gamePartner = it1.provider,
+                                gamePosition = "${1}",
+                                gameRating = it1.gameRating,
+                                releaseYear = "",
+                                source = gamesPageName ?: ""
+                            ),
+                            contentAnalyticsModel = contentAnalyticsModel
+                        )
+                    }
+                }
+                contentList.getOrNull(1)?.let { contentItem1 ->
+                    binding.contentItem1 = contentItem1
+                    binding.ivNewGame1.setOnClickListener {
+                        mBannerClick.onSubItemClick(
+                            contentItem1,
+                            position,
+                            (position - ignorePositions.filter { it < position }.size + 1),
+                            EventConstants.TYPE_GAMES,
+                            null,
+                            railTitle = item.title,
+                            gamesMixpanelInfoModel = GamesMixpanelInfoModel(
+                                pageName = pageName ?: "",
+                                railTitle = item.title,
+                                railPosition = "$position",
+                                railType = "Editorial",
+                                railCategory = ItemViewType.RAIL.name,
+                                gameGenre = contentItem1.getSubTitle(),
+                                gamePartner = contentItem1.provider,
+                                gamePosition = "${1}",
+                                gameRating = contentItem1.gameRating,
+                                releaseYear = "",
+                                source = pageName ?: ""
+                            ),
+                            contentAnalyticsModel = contentAnalyticsModel
+                        )
+                    }
+                }
+                if (contentList.getOrNull(2) == null) {
+                    binding.ivNewGame2.hide()
+                    binding.tvNewGame2.hide()
+                } else {
+                    binding.ivNewGame2.show()
+                    binding.tvNewGame2.show()
+                }
+                contentList.getOrNull(2)?.let { contentItem2 ->
+                    binding.contentItem2 = contentItem2
+                    binding.ivNewGame2.setOnClickListener {
+                        mBannerClick.onSubItemClick(
+                            contentItem2,
+                            position,
+                            (position - ignorePositions.filter { it < position }.size + 1),
+                            EventConstants.TYPE_GAMES,
+                            null,
+                            railTitle = item.title,
+                            gamesMixpanelInfoModel = GamesMixpanelInfoModel(
+                                pageName = pageName ?: "",
+                                railTitle = item.title,
+                                railPosition = "$position",
+                                railType = "Editorial",
+                                railCategory = ItemViewType.RAIL.name,
+                                gameGenre = contentItem2.getSubTitle(),
+                                gamePartner = contentItem2.provider,
+                                gamePosition = "${2}",
+                                gameRating = contentItem2.gameRating,
+                                releaseYear = "",
+                                source = pageName ?: ""
+                            ),
+                            contentAnalyticsModel = contentAnalyticsModel
+                        )
+                    }
+                }
+                binding.title = item.title
             }
         }
-
     }
+
 }

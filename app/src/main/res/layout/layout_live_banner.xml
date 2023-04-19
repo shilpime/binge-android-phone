@@ -23,18 +23,19 @@
 
     </data>
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:descendantFocusability="blocksDescendants"
-        android:paddingHorizontal="@dimen/margin_20">
+        android:paddingHorizontal="@dimen/screen_horizontal_margin">
 
 
         <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/rail_margins"
             android:backgroundTint="@color/darkBackground"
+            app:layout_constraintWidth_max="@dimen/tab_popup_max_width"
             app:cardCornerRadius="@dimen/margin_10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -176,6 +177,6 @@
         </com.google.android.material.card.MaterialCardView>
 
 
-    </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

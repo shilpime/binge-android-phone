@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.parentalcontrol.ParentalControlViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_max="@dimen/tab_popup_max_width"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_tab_popup_bg"
+            tools:context=".ui.features.parentalcontrol.bottomsheet.ParentalPinSetupFragment">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_margin_start"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/view_margin_xxxlarge" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_margin_end"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="@dimen/view_margin_xxxlarge" />
+
+            <ImageView
+                android:id="@+id/view"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_bottom_sheet_top_selector" />
+
+            <ImageView
+                android:id="@+id/iv_lock_parental_pin_setup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="34dp"
+                app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+                app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_tab_binge_logo" />
+
+            <TextView
+                android:id="@+id/title_parental_pin_setup"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="@{vm.setTextToEnterThePin().enter}"
+                android:textSize="@dimen/text_size_26"
+                app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+                app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                app:layout_constraintTop_toBottomOf="@id/iv_lock_parental_pin_setup" />
+
+            <TextView
+                android:id="@+id/tv_subtitle_parental_pin_setup"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:text="@{vm.setTextToEnterThePin().enterDigit}"
+                android:textSize="@dimen/text_size_18"
+                app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+                app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                app:layout_constraintTop_toBottomOf="@id/title_parental_pin_setup" />
+
+            <include
+                android:id="@+id/cl_et_container_parental_pin_setup"
+                layout="@layout/layout_pin_view"
+                android:layout_width="209dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+                app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                app:layout_constraintTop_toBottomOf="@id/tv_subtitle_parental_pin_setup" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_proceed_parental_pin_setup"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/tab_button_height"
+                android:layout_marginTop="@dimen/margin_20dp"
+                android:layout_marginBottom="@dimen/margin_20dp"
+                android:enabled="false"
+                android:text="@string/btn_proceed_text_parental_pin_setup"
+                android:textSize="@dimen/text_size_18"
+                app:layout_constraintWidth_max="@dimen/button_max_width"
+                app:layout_constraintBottom_toTopOf="@id/barrier_parental_pin_setup"
+                app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+                app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                app:layout_constraintTop_toBottomOf="@id/cl_et_container_parental_pin_setup" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrier_parental_pin_setup"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                app:barrierDirection="top"
+                app:constraint_referenced_ids="btn_cancel_parental_pin_verification, btn_forgot_parental_pin_verification, btn_cancel_parental_pin" />
+
+            <TextView
+                android:id="@+id/btn_cancel_parental_pin"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="29dp"
+                android:background="@color/transparent"
+                android:gravity="center"
+                android:text="@string/text_cancel_parental_control_pin"
+                android:textColor="?android:textColorTertiary"
+                android:textSize="@dimen/text_size_20"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+                app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                app:layout_constraintTop_toBottomOf="@id/btn_proceed_parental_pin_setup" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/group_parental_control_pin_verification"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:constraint_referenced_ids="btn_cancel_parental_pin_verification, btn_forgot_parental_pin_verification" />
+
+            <TextView
+                android:id="@+id/btn_cancel_parental_pin_verification"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="29dp"
+                android:background="@color/transparent"
+                android:gravity="center"
+                android:text="@string/text_cancel_parental_pin_setup"
+                android:textColor="?android:textColorTertiary"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@id/btn_proceed_parental_pin_setup"
+                app:layout_constraintTop_toBottomOf="@id/btn_proceed_parental_pin_setup" />
+
+            <TextView
+                android:id="@+id/btn_forgot_parental_pin_verification"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="29dp"
+                android:background="@color/transparent"
+                android:gravity="center"
+                android:text="@{vm.setTextToEnterThePin().forgot}"
+                android:textColor="?android:textColorTertiary"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/btn_proceed_parental_pin_setup"
+                app:layout_constraintTop_toBottomOf="@id/btn_proceed_parental_pin_setup" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

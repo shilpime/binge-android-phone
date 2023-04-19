@@ -16,5 +16,7 @@ class HelpCenterResponse : BaseResponse() {
         @Expose
         var helpCenterToken: String? = null
 
+        var helpCenterTokenTimeStamp: Long = 0
+
     }
 }

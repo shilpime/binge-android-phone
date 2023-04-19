@@ -55,7 +55,7 @@ class WalletpaymentFragment : BaseFragment<FragmentWalletPaymentBinding, Freemiu
                             TransactionStatus.BACKPRESSED.transactionStatus.uppercase(),
                             NOT_SELECTED,
                             NOT_ATTEMPTED,
-                            ""
+                            NOT_ATTEMPTED
                         )
                         findNavController().navigateUpOrFinish(it as AppCompatActivity)
                     }
@@ -316,7 +316,7 @@ class WalletpaymentFragment : BaseFragment<FragmentWalletPaymentBinding, Freemiu
                 sharedPrefs.getAddModifyResponse()?.data?.upFrontMoneyCollected
                     ?: false
             )
-            this.putBoolean("payByDTH", payByDTH)
+            this.putBoolean(KEY_PAY_BY_DTH, payByDTH)
             this.putString(KEY_FROM_SCREEN, getSourceOrFromScreenName())
             PaymentUtility.getModificationType(
                 sharedPrefs.getAddModifyResponse()?.data?.modificationType
@@ -354,12 +354,6 @@ class WalletpaymentFragment : BaseFragment<FragmentWalletPaymentBinding, Freemiu
                 addModifyPackResponse?.productType
             )
         }
-        subscriptionAnalytics.trackPaymentFlowExit(
-            "",
-            TP_WALLET,
-            "",
-            ""
-        )
         startHomeScreen(
             activity,
             checkPaymentStatus = true,
@@ -368,7 +362,7 @@ class WalletpaymentFragment : BaseFragment<FragmentWalletPaymentBinding, Freemiu
     }
 
     private fun setWalletDetailsForFreemium(packDetails: AddPackResponse.Data?) {
-        binding.amountValue.text = "₹"+packDetails?.amount
+        binding.subscriptionAmount = packDetails?.amount
         viewModel.fetchBalance(
             activity?.intent?.getStringExtra("proratedAmount"),
             activity?.intent?.getStringExtra("selectedTenureID") ?: activity?.intent?.getStringExtra("packID") /*For change tenure use selectedTenureID, For Renew use packId*/
@@ -418,8 +412,7 @@ class WalletpaymentFragment : BaseFragment<FragmentWalletPaymentBinding, Freemiu
         val isMigrated = activity?.intent?.getBooleanExtra("isMigrated", false)?:false
         val migratedVerbiage = activity?.intent?.getStringExtra("migratedVerbiage" )
         val proratedAmount = activity?.intent?.getStringExtra("proratedAmount" )
-
-        binding.amountValue.text = proratedAmount
+        binding.subscriptionAmount = proratedAmount
 
         viewModel.fetchBalance(
             activity?.intent?.getStringExtra("proratedAmount"),

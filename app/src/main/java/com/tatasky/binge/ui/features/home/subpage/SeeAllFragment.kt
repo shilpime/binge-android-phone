@@ -1,5 +1,6 @@
 package com.tatasky.binge.ui.features.home.subpage
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -14,10 +15,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
-import com.google.android.material.transition.Hold
-import com.google.android.material.transition.MaterialSharedAxis
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.*
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
 import com.tatasky.binge.data.networking.models.ErrorModel
 import com.tatasky.binge.data.networking.models.response.ContentItem
 import com.tatasky.binge.data.networking.models.response.HomeResponse
@@ -27,15 +27,15 @@ import com.tatasky.binge.helper.imageLoad
 import com.tatasky.binge.ui.base.frameworks.SingleEvent
 import com.tatasky.binge.ui.base.frameworks.SingleEventParcelizeWrapper
 import com.tatasky.binge.ui.base.frameworks.base.BaseFragment
-import com.tatasky.binge.ui.base.frameworks.extensions.hide
-import com.tatasky.binge.ui.base.frameworks.extensions.show
-import com.tatasky.binge.ui.base.frameworks.extensions.startProgressAvd
+import com.tatasky.binge.ui.base.frameworks.extensions.*
 import com.tatasky.binge.ui.features.home.ItemLayoutType
 import com.tatasky.binge.ui.features.home.ItemViewType
 import com.tatasky.binge.ui.features.home.LandingActivity
+import com.tatasky.binge.ui.features.home.adapter.ItemGridAdapter
 import com.tatasky.binge.ui.features.home.sub.SubFragmentDirections
 import com.tatasky.binge.utils.*
 import com.tatasky.binge.utils.RECOMMENDATION
+import kotlinx.android.synthetic.main.layout_rail_item_trailer.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -157,6 +157,7 @@ class SeeAllFragment : BaseFragment<FragmentSeeAllBinding, SeeAllViewModel>() {
             sharedPrefs.getSubscribedPack(), packName,
             mNonSubscribedPartnerList, sharedPrefs.getLoginStatus()
         )
+
         try {
             viewLifecycleOwner.lifecycleScope.launch {
                 delay(200L)
@@ -212,6 +213,14 @@ class SeeAllFragment : BaseFragment<FragmentSeeAllBinding, SeeAllViewModel>() {
                 }
                 viewModel.fetchGameFavs()
             }
+            else if (subPageGridFragmentArgs.sectionType.equals(ItemViewType.GAMEZOP_CONTINUE_PLAYING.name,true)){
+                if(subPageGridFragmentArgs.layoutType.equals(ItemLayoutType.SQUARE.name,true)){
+                    viewModel.layoutType = ItemLayoutType.SQUARE.name
+                } else {
+                    viewModel.layoutType = ItemLayoutType.LANDSCAPE.name
+                }
+                viewModel.fetchGameCw() //TODO GAME RP : use game rp API
+            }
             else if (subPageGridFragmentArgs.sectionType.equals(WATCHLIST, ignoreCase = true)) {
                 viewModel.provider = subPageGridFragmentArgs.provider
                 viewModel.fetchWatchList(isShowLoader)
@@ -238,16 +247,25 @@ class SeeAllFragment : BaseFragment<FragmentSeeAllBinding, SeeAllViewModel>() {
                 viewModel.getContinueWatchingData(false)
         }
         if(!isFirstTime && viewModel.gameFav){
-            viewModel.pageOffset = 0
-            viewModel.pagingState = null
-            viewModel.fetchGameFavs()
+            viewModel.apply {
+                pageOffset = 0
+                pagingState = null
+                fetchGameFavs()
+            }
+        }
+        if(!isFirstTime && viewModel.gameCw){
+            viewModel.apply {
+                pageOffset = 0
+                pagingState = null
+                fetchGameCw()
+            }
         }
     }
 
     override fun onPause() {
         super.onPause()
         isFirstTime = false
-        if (viewModel.continueWatching|| viewModel.watchlistRail || viewModel.gameFav) {
+        if (viewModel.continueWatching|| viewModel.watchlistRail || viewModel.gameFav || viewModel.gameCw) {
             val manager = binding.subpageRecycler.layoutManager as GridLayoutManager
             lastItemPosition = manager.findLastVisibleItemPosition()
             isPositionWithOffset = false
@@ -262,7 +280,7 @@ class SeeAllFragment : BaseFragment<FragmentSeeAllBinding, SeeAllViewModel>() {
         //super.onError(errorMessage)
         when {
             viewModel.pageOffset == 0 -> context?.let { ctx ->
-                if(!viewModel.watchlistRail && !viewModel.gameFav)
+                if(!viewModel.watchlistRail && !viewModel.gameFav && !viewModel.gameCw)
                     showToast(ctx, errorModel.message ?: getString(R.string.no_content_available))
                 findNavController().navigateUp()
             }
@@ -337,13 +355,13 @@ class SeeAllFragment : BaseFragment<FragmentSeeAllBinding, SeeAllViewModel>() {
         {
             val contentIfNotHandled = it.getContentIfNotHandled()
             if (contentIfNotHandled != null) {
-                if(contentIfNotHandled.extras.sharedElements.isEmpty()){
+                /*if(contentIfNotHandled.extras.sharedElements.isEmpty()){
                     exitTransition = MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
                         this.duration = 250
                     }
                 }else{
                     exitTransition = Hold()
-                }
+                }*/
                 if (contentIfNotHandled.contentItem.id == "0") {
                     contentIfNotHandled.contentItem.id = contentIfNotHandled.contentItem.contentId
                 }
@@ -372,7 +390,7 @@ class SeeAllFragment : BaseFragment<FragmentSeeAllBinding, SeeAllViewModel>() {
                                 gameTitle = contentIfNotHandled.contentItem.title,
                                 freeGame = YES,
                                 releaseYear = it.releaseYear,
-                                deviceType = PLATFORM_ANDROID_CAPS,
+                                deviceType = sharedPrefs.getDeviceType()?.uppercase()?:"",
                                 source = it.source,
                                 packPrice = FREEMIUM,
                                 packName = FREEMIUM
@@ -382,9 +400,12 @@ class SeeAllFragment : BaseFragment<FragmentSeeAllBinding, SeeAllViewModel>() {
                     }
                 }
                 else {
-
                     findNavController().navigateSafe(
-                        SubFragmentDirections.actionToDetail(contentIfNotHandled.contentItem, true),
+                        SubFragmentDirections.actionToDetail(
+                            contentItem = contentIfNotHandled.contentItem,
+                            fromGrid = true,
+                            contentAnalyticsModel = contentIfNotHandled.contentAnalyticsModel
+                        ),
                         contentIfNotHandled.extras
                     )
                 }
@@ -397,6 +418,12 @@ class SeeAllFragment : BaseFragment<FragmentSeeAllBinding, SeeAllViewModel>() {
                 }
             }
         })
+
+        viewModel.updateInOrientation.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let {
+                if (it) updateUIAdapter()
+            }
+        }
     }
 
     private var mNonSubscribedPartnerList = HashSet<String>()
@@ -421,7 +448,15 @@ class SeeAllFragment : BaseFragment<FragmentSeeAllBinding, SeeAllViewModel>() {
         if (viewModel.pageOffset == 0) {
             if(ItemLayoutType.PORTRAIT.name.equals(railResponse.data?.layoutType, true)) {
                 val manager = binding.subpageRecycler.layoutManager as GridLayoutManager
-                manager.spanCount = 3
+                manager.spanCount = resources.getInteger(R.integer.grid_portrait)
+            }
+            else if(ItemLayoutType.SQUARE.name.equals(railResponse.data?.layoutType, true)) {
+                val manager = binding.subpageRecycler.layoutManager as GridLayoutManager
+                manager.spanCount = resources.getInteger(R.integer.grid_game_square)
+            }
+            if(subPageGridFragmentArgs.sectionType.equals(ItemViewType.FAVOURITES.name,true)){
+                val manager = binding.subpageRecycler.layoutManager as GridLayoutManager
+                manager.spanCount = resources.getInteger(R.integer.grid_game_square)
             }
             if (railResponse.data?.filteredContentItems?.size == 0) {
                 binding.tvNoData.visibility = View.VISIBLE
@@ -441,7 +476,7 @@ class SeeAllFragment : BaseFragment<FragmentSeeAllBinding, SeeAllViewModel>() {
                 }
             }
 
-            if(!viewModel.continueWatching && !viewModel.watchlistRail && !viewModel.gameFav)
+            if(!viewModel.continueWatching && !viewModel.watchlistRail && !viewModel.gameFav && !viewModel.gameCw)
                 binding.subpageRecycler.scrollToPosition(0)
             binding.subpageRecycler.addOnScrollListener(endlessScrollListener)
 
@@ -449,12 +484,26 @@ class SeeAllFragment : BaseFragment<FragmentSeeAllBinding, SeeAllViewModel>() {
         if ((railResponse.data?.filteredContentItems?.size ?: 0) >= 0
             || viewModel.continueWatching
             || viewModel.watchlistRail
-            ||viewModel.gameFav) {
-            viewModel.updateList(railResponse)
+            || viewModel.gameFav
+            || viewModel.gameCw) {
+            viewModel.updateList(
+                railResponse,
+                subPageGridFragmentArgs.contentAnalyticsModel?.copy(
+                    railTitle = viewModel.railName.takeIfNotEmptyOrNull()
+                        ?: subPageGridFragmentArgs.title.takeIfNotEmptyOrNull()
+                        ?: railResponse.data?.title
+                ) ?: ContentAnalyticsModel(
+                    null,
+                    subPageGridFragmentArgs.sectionType,
+                    viewModel.railName.takeIfNotEmptyOrNull()
+                        ?: subPageGridFragmentArgs.title.takeIfNotEmptyOrNull()
+                        ?: railResponse.data?.title
+                )
+            )
         }
         if(viewModel.pageOffset == 0 && (viewModel.continueWatching
                     || viewModel.watchlistRail
-                    ||viewModel.gameFav)) {
+                    ||viewModel.gameFav || viewModel.gameCw)) {
             val isNewItemAdded = checkNewItem(railResponse.data)
             if (isNewItemAdded)
                 binding.subpageRecycler.scrollToPosition(0)
@@ -474,6 +523,8 @@ class SeeAllFragment : BaseFragment<FragmentSeeAllBinding, SeeAllViewModel>() {
             viewModel.pageOffset++
         else if(viewModel.gameFav)
             viewModel.pageOffset++
+        else if (viewModel.gameCw)
+            viewModel.pageOffset++
         else
             viewModel.pageOffset += viewModel.PAGELIMIT
         fetchData(false)
@@ -486,4 +537,47 @@ class SeeAllFragment : BaseFragment<FragmentSeeAllBinding, SeeAllViewModel>() {
             return true
         return false
     }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        updateUIAdapter()
+
+    }
+    private fun updateUIAdapter(){
+        activity?.let {
+            if(isTablet(it)){
+                (binding.subpageRecycler.adapter as? ItemGridAdapter)?.let { adapter ->
+                    val layoutManager =
+                        binding.subpageRecycler.layoutManager as GridLayoutManager
+
+                    when {
+                        subPageGridFragmentArgs.layoutType.equals(
+                            ItemLayoutType.LANDSCAPE.name,
+                            true
+                        ) ->
+                            layoutManager.spanCount = resources.getInteger(R.integer.grid_landscape)
+
+                        subPageGridFragmentArgs.layoutType.equals(
+                            ItemLayoutType.PORTRAIT.name,
+                            true
+                        ) ->
+                            layoutManager.spanCount = resources.getInteger(R.integer.grid_portrait)
+
+                        subPageGridFragmentArgs.layoutType.equals(
+                            ItemLayoutType.SQUARE.name,
+                            true
+                        ) ->
+                            layoutManager.spanCount =
+                                resources.getInteger(R.integer.grid_game_square)
+                        else ->
+                            layoutManager.spanCount = resources.getInteger(R.integer.grid_landscape)
+
+                    }
+
+                    adapter.notifyDataSetChanged()
+                }
+            }
+        }
+    }
 }
+

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.tatasky.binge.data.networking.models.response.SubscriberProfileListModel.Data" />
+        <variable
+            name="isDTHUSer"
+            type="Boolean" />
+        <variable
+            name="userName"
+            type="String" />
+        <import type="android.text.InputType" />
+
+        <import type="android.view.inputmethod.EditorInfo" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:transitionGroup="true">
+
+        <include
+            android:id="@+id/toolbar_layout"
+            layout="@layout/shadowed_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true"
+            android:id="@+id/nsv"
+            android:fitsSystemWindows="true">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/editOuter"
+                >
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/barrier_image_bottom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="profileImage, tvLetter" />
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/barrier_image_end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="end"
+                    app:constraint_referenced_ids="profileImage, tvLetter" />
+
+                <TextView
+                    android:id="@+id/textView"
+                    style="@style/TSText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/tab_toolbar_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:text="@string/edit_profile"
+                    />
+
+                <ImageView
+                    android:id="@+id/profileImage"
+                    android:layout_width="@dimen/edit_user_imageview_size"
+                    android:layout_height="@dimen/edit_user_imageview_size"
+                    android:background="@drawable/circle_with_gradient_border"
+                    android:padding="@dimen/view_margin_smallest"
+                    android:scaleType="fitXY"
+                    android:layout_marginTop="@dimen/dimens_20dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+                <TextView
+                    android:id="@+id/tvLetter"
+                    style="@style/TSTextBold"
+                    android:layout_width="@dimen/edit_user_imageview_size"
+                    android:layout_height="@dimen/edit_user_imageview_size"
+                    android:background="@drawable/account_switch_circle"
+                    android:gravity="center"
+                    android:text="P"
+                    android:layout_marginTop="@dimen/dimens_20dp"
+                    android:textSize="@dimen/user_initials_text_size"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+                <ImageView
+                    android:id="@+id/ivCaptureImage"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/barrier_image_bottom"
+                    app:layout_constraintEnd_toEndOf="@+id/barrier_image_end"
+                    app:srcCompat="@drawable/ic_camera" />
+
+                <include
+                    android:id="@+id/tv_first_name"
+                    layout="@layout/layout_uneditabletextbox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_xlarge"
+                    app:etValue="@{userName}"
+                    app:headerText="@{@string/name}"
+                    app:hint="@{@string/enter_name_here}"
+                    app:inputType="@{InputType.TYPE_CLASS_TEXT}"
+                    app:isVisible="@{isDTHUSer}"
+                    android:visibility="@{isDTHUSer?View.VISIBLE:View.GONE}"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_image_bottom"
+                    app:maxLength="@{50}"
+                    app:maxLines="@{1}"/>
+
+                <include
+                    android:id="@+id/et_first_name"
+                    layout="@layout/layout_etname_with_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_xlarge"
+                    android:enabled="false"
+                    app:etBackground="@{@drawable/bg_rounded_10}"
+                    app:etValue="@{userName}"
+                    app:headerText="@{@string/name}"
+                    app:hint="@{@string/enter_name_here}"
+                    app:imeOptions="@{EditorInfo.IME_ACTION_DONE}"
+                    app:inputType="@{InputType.TYPE_CLASS_TEXT}"
+                    app:isVisible="@{!isDTHUSer}"
+                    android:visibility="@{!isDTHUSer?View.VISIBLE:View.GONE}"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_image_bottom"
+                    app:maxLength="@{50}"
+                    app:maxLines="@{1}"/>
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/barrier_name_bottom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="et_first_name, tv_first_name" />
+
+                <include
+                    android:id="@+id/et_email"
+                    layout="@layout/layout_edittextbox_with_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_xlarge"
+                    android:enabled="false"
+                    app:etBackground="@{@drawable/bg_rounded_10}"
+                    app:etValue="@{model.email}"
+                    app:headerText="@{@string/emailId}"
+                    app:hint="@{@string/enter_email_id}"
+                    app:imeOptions="@{EditorInfo.IME_ACTION_DONE}"
+                    app:inputType="@{InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS}"
+                    app:isVisible="@{true}"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_name_bottom"
+                    app:maxLength="@{50}"
+                    app:maxLines="@{1}" />
+                <!--
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tvMobileTitle"
+                                style="@style/TSTextMedium"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/view_margin_small"
+                                android:text="@string/mobile"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/text_size_16"
+                                app:layout_constraintTop_toBottomOf="@id/et_email" />-->
+
+                <include
+                    android:id="@+id/tvMobile"
+                    layout="@layout/layout_uneditabletextbox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/view_margin_large"
+                    app:etValue="@{String.format(@string/mobile_template, model.rmn)}"
+                    app:headerText="@{@string/registered_mobile_number}"
+                    app:hint="@{@string/mobile}"
+                    app:inputType="@{InputType.TYPE_CLASS_TEXT}"
+                    app:isVisible="@{true}"
+                    app:layout_constraintTop_toBottomOf="@id/et_email"
+                    app:maxLength="@{50}"
+                    app:maxLines="@{1}" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnUpdateProfile"
+            style="@style/Widget.AppTheme.ButtonStyle.Icon"
+            android:text="@string/update_profile"
+            android:enabled="false"
+            android:layout_gravity="center"
+            app:layout_constraintBottom_toTopOf="@id/tvCancel" />
+
+        <TextView
+            android:id="@+id/tvCancel"
+            style="@style/Widget.AppTheme.ButtonStyle.Icon"
+            android:layout_width="@dimen/tab_button_width"
+            android:layout_height="@dimen/tab_button_height"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="-8dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:padding="8dp"
+            android:text="@string/text_cancel_edit_profile"
+            android:textColor="?android:textColorTertiary"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintVertical_bias="0" />
+    </LinearLayout>
+</layout>

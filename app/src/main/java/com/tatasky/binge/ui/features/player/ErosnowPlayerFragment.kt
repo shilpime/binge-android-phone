@@ -1,5 +1,6 @@
 package com.tatasky.binge.ui.features.player
 
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
@@ -7,10 +8,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
-import android.view.LayoutInflater
-import android.view.SurfaceView
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.widget.*
 import androidx.annotation.Dimension
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -39,9 +37,11 @@ import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.ui.TimeBar
 import com.google.android.exoplayer2.upstream.DefaultAllocator
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.util.EventLogger
 import com.google.android.exoplayer2.util.MimeTypes
 import com.google.android.exoplayer2.util.Util
+import com.probe.sdk.otherutils.ProbeInterface
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.ANALYTICS_TIME_FORMAT
 import com.tatasky.binge.analytics.PARA_PI_ERROR_ORIGIN
@@ -53,6 +53,7 @@ import com.tatasky.binge.databinding.ToastWatchlistBinding
 import com.tatasky.binge.helper.imageLoad
 import com.tatasky.binge.shemaroo.helper.ShemarooHelper
 import com.tatasky.binge.ui.base.frameworks.extensions.*
+import com.tatasky.binge.ui.features.player.MyScaleGestureDetector.Companion.optimumPinchZoomScaleFactor
 import com.tatasky.binge.ui.features.player.listeners.PlayerDurationWatcher
 import com.tatasky.binge.ui.features.player.listeners.PlayerListener
 import com.tatasky.binge.ui.features.player.model.AudioLanguage
@@ -99,6 +100,10 @@ class ErosnowPlayerFragment: PlayerBaseFragment<FragmentErosnowPlayerBinding>(),
         playerBinding.playerView.findViewById<ImageView>(R.id.iv_zoom).setImageResource(R.drawable.ic_zoom_in)
     }
 
+    override fun zoomInPinch() {
+        playerBinding.playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+        playerBinding.playerView.findViewById<ImageView>(R.id.iv_zoom).setImageResource(R.drawable.ic_zoom_out)
+    }
 
     override fun setObserver() {
         super.setObserver()
@@ -315,6 +320,7 @@ class ErosnowPlayerFragment: PlayerBaseFragment<FragmentErosnowPlayerBinding>(),
         override fun onSuccess(data: PlayerData) {
             e("ENSDK", "playerData:$data,")
             mInitialized = true
+            callProbeEventOnce = true
             if(mPlayer == null) return
             playerData = data
             playPlayerContent()
@@ -323,6 +329,9 @@ class ErosnowPlayerFragment: PlayerBaseFragment<FragmentErosnowPlayerBinding>(),
 
     private fun playPlayerContent() {
         playerData?.let {
+            playerModel?.setPlaybackUrl(it.stream_url)
+            probePlayerEventInitSdk(mPlayer,playerModel, bandwidthMeter, sharedPrefs.getOriginalSubscriberId())
+
             ENSDK.initializePlayer(
                 ENPlaybackAssetInfo(
                     it.stream_url,
@@ -333,9 +342,8 @@ class ErosnowPlayerFragment: PlayerBaseFragment<FragmentErosnowPlayerBinding>(),
                 , mPlayer!!
             )
 
-
             var concatenatingMediaSource: ConcatenatingMediaSource? = null
-            val dataSourceFactory = buildDataSourceFactory(requireContext())
+            val dataSourceFactory = buildDataSourceFactory(requireContext(),bandwidthMeter)
 
             mPreRollURI =
                 Uri.parse("https://originalvideohls-a.erosnow.com/hls/original/1/1056821/original/6900474/1056821_6900474_latest_IPAD_ALL_multi.m3u8")
@@ -396,10 +404,11 @@ class ErosnowPlayerFragment: PlayerBaseFragment<FragmentErosnowPlayerBinding>(),
             mediaSource?.let {
                 mPlayer?.prepare(it)
             }
+            probePlayerEventPlayClicked()
             mPlayer?.playWhenReady = true
         }
     }
-
+    lateinit var bandwidthMeter: DefaultBandwidthMeter
     fun createPlayer() {
         if (mPlayer != null) {
             return
@@ -414,6 +423,7 @@ class ErosnowPlayerFragment: PlayerBaseFragment<FragmentErosnowPlayerBinding>(),
             15000, DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
         )
         builder.setPrioritizeTimeOverSizeThresholds(false)
+        probPlayerEventsConfigBuffer(builder)
         val mLoadControl: DefaultLoadControl = builder.createDefaultLoadControl()
         if (trackSelectorParameters == null) {
             trackSelectorParameters = DefaultTrackSelector.ParametersBuilder(requireContext()).build()
@@ -424,8 +434,10 @@ class ErosnowPlayerFragment: PlayerBaseFragment<FragmentErosnowPlayerBinding>(),
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
             AdaptiveTrackSelection.DEFAULT_BANDWIDTH_FRACTION
         )
+        bandwidthMeter =  DefaultBandwidthMeter.Builder(context).build()
         trackSelector = DefaultTrackSelector(requireContext(), trackSelectionFactory)
         trackSelector?.parameters = trackSelectorParameters!!
+        probPlayerEventConfigEstDownloadRate()
         mPlayer = SimpleExoPlayer.Builder(requireContext())
             .setLoadControl(mLoadControl).setTrackSelector(trackSelector!!).build()
         mPlayer?.setHandleWakeLock(true)
@@ -575,10 +587,23 @@ class ErosnowPlayerFragment: PlayerBaseFragment<FragmentErosnowPlayerBinding>(),
             ?.addListener(miniTimeBarListener)
         binding.miniProgressPlayer.addListener(miniTimeBarListener)
 
+        val scaleDetector = ScaleGestureDetector(context,
+            MyScaleGestureDetector { scaleFactor ->
+                if (scaleFactor > optimumPinchZoomScaleFactor)
+                    zoomInPinch()
+                else
+                    zoomOut()
+            }
+        )
+        playerBinding.playerView.setOnTouchListener { _, event ->
+            if (event.pointerCount == 1)
+                false
+            else scaleDetector.onTouchEvent(event)
+        }
         playerBinding.playerView.findViewById<ImageView>(R.id.iv_zoom).setOnClickListener {
             when (playerBinding.playerView.resizeMode) {
                 AspectRatioFrameLayout.RESIZE_MODE_FIT -> zoomIn()
-                AspectRatioFrameLayout.RESIZE_MODE_FILL -> zoomOut()
+                else -> zoomOut()
             }
         }
     }
@@ -745,7 +770,7 @@ class ErosnowPlayerFragment: PlayerBaseFragment<FragmentErosnowPlayerBinding>(),
 
     override fun releasePlayer() {
         val quality=fetchVideoQualityUsingBitrate(getBitRate(mPlayer))
-        e("Laksh",quality.toString())
+        e(TAG, quality.toString())
 
         playerDurationWatcher?.stop()
         playerDurationWatcher = null
@@ -768,6 +793,10 @@ class ErosnowPlayerFragment: PlayerBaseFragment<FragmentErosnowPlayerBinding>(),
                     mPlayer?.duration
                 )
             )
+        }
+        if(callProbeEventOnce) {
+            callProbeEventOnce = false
+            probePlayerEventStopped()
         }
         mPlayer = null
         mapOfVtrTriggerState.clear()
@@ -956,12 +985,12 @@ class ErosnowPlayerFragment: PlayerBaseFragment<FragmentErosnowPlayerBinding>(),
         if (errorMessage == null) return
         trackOnPlayerFailure(
             playerModel!!,
-            if(isConcurrency) errorMessage else getString(R.string.concurrency_error),
+            if(!isConcurrency) errorMessage else getString(R.string.concurrency_error),
             contentItem
         )
         trackOnPlayerError(playerModel,
             errorCode,
-            if(isConcurrency) errorMessage else getString(R.string.concurrency_error),
+            if(!isConcurrency) errorMessage else getString(R.string.concurrency_error),
             PARA_PI_ERROR_ORIGIN,
             PARA_ERROR_TYPE_PLAYER
         )
@@ -1050,6 +1079,19 @@ class ErosnowPlayerFragment: PlayerBaseFragment<FragmentErosnowPlayerBinding>(),
         playerBinding.playerView.findViewById<ConstraintLayout>(R.id.viewProgress)?.hide()
         playerBinding.playerView.findViewById<LinearLayout>(R.id.ll_player_menu)?.hide()
         playerBinding.executePendingBindings()
+        dialog?.cancel()
+    }
+    override fun changeToTabletPortraitMode() {
+        super.changeToTabletPortraitMode()
+        if (isPlayerStarted) {
+            binding.miniProgressPlayer.show()
+        }
+        playerBinding.nextEpisodeScreen.isPortrait = false
+        playerBinding.playerView.findViewById<View>(R.id.iv_zoom)?.hide()
+        playerBinding.playerView.findViewById<View>(R.id.tv_title)?.show()
+        playerBinding.playerView.findViewById<View>(R.id.exo_fullscreen_iv)?.show()
+        playerBinding.playerView.findViewById<ConstraintLayout>(R.id.viewProgress)?.hide()
+        playerBinding.playerView.findViewById<LinearLayout>(R.id.ll_player_menu)?.hide()
         dialog?.cancel()
     }
     private fun togglePlayPause() {
@@ -1285,6 +1327,10 @@ class ErosnowPlayerFragment: PlayerBaseFragment<FragmentErosnowPlayerBinding>(),
 
         val totalDuration = (playerModel?.getTotalDuration() ?: (mPlayer?.duration ?: 1) / 1000).toInt()
         publishWatchedContent(null, totalDuration, totalDuration, viewModel)
+        if(callProbeEventOnce) {
+            callProbeEventOnce = false
+            probePlayerEventStopped()
+        }
     }
 
 

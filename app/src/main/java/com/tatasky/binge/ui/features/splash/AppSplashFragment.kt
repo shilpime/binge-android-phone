@@ -3,6 +3,7 @@ package com.tatasky.binge.ui.features.splash
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.media.AudioAttributes
 import android.media.MediaPlayer
@@ -34,6 +35,7 @@ import com.tatasky.binge.ui.base.frameworks.extensions.hide
 import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.features.common.CommonSampleViewModel
 import com.tatasky.binge.ui.features.home.LandingActivity
+import com.tatasky.binge.ui.features.home.TabletType
 import com.tatasky.binge.ui.features.subscription.SubscriptionAnalytics
 import com.tatasky.binge.utils.*
 import kotlinx.coroutines.launch
@@ -114,6 +116,11 @@ class AppSplashFragment : BaseFragment<FragmentAppSplashBinding, SplashViewModel
             Activity.MODE_PRIVATE
         )
         binding.vm = viewModel
+        /*Changes for ProbeSDK*/
+        if(sharedPrefs.getLoginStatus())
+            context?.let { playerEventRegisterForMitigationSession(sharedPrefs.getClearRMN(), it) }
+        /*End*/
+
         sharedPrefs.setStartLaunchCount(true)
         commonViewModel = ViewModelProvider(
             requireActivity(),
@@ -470,9 +477,9 @@ class AppSplashFragment : BaseFragment<FragmentAppSplashBinding, SplashViewModel
     private fun checkAndMoveToNext() {
         if(isMigratingUser) return
         val appVersion = viewModel.sharedPrefs.getConfigAppVersion()
-        //if (appVersion == null || isVersionUpdated(appVersion)) {
+        if (appVersion == null || isVersionUpdated(appVersion)) {
             setupDeeplinksAndMoveToNext()
-        //}
+        }
 
     }
 
@@ -552,8 +559,10 @@ class AppSplashFragment : BaseFragment<FragmentAppSplashBinding, SplashViewModel
         mMediaPlayer?.setOnPreparedListener(this)
         if (!isVideoPrepared)
             try {
-                val path = "android.resource://" + requireActivity().packageName
-                    .toString() + "/" + R.raw.splash_video_portrait
+
+                var path = "android.resource://" + requireActivity().packageName
+                    .toString() + "/" + pickVideoForSplash()
+
                 mMediaPlayer?.setDataSource(requireContext(), Uri.parse(path))
                 mMediaPlayer?.prepare()
             } catch (e: Exception) {
@@ -601,14 +610,23 @@ class AppSplashFragment : BaseFragment<FragmentAppSplashBinding, SplashViewModel
             val videoHeight = mMediaPlayer!!.videoHeight
             //Get the width of the screen
             val screenWidth: Int = requireActivity().windowManager.defaultDisplay.width
+            val screenHeight: Int = requireActivity().windowManager.defaultDisplay.height
             //Get the SurfaceView layout parameters
             val lp: ViewGroup.LayoutParams = binding.videoView.layoutParams
             //Set the width of the SurfaceView to the width of the screen
             lp.width = screenWidth
             //Set the height of the SurfaceView to match the aspect ratio of the video
             //be sure to cast these as floats otherwise the calculation will likely be 0
-            lp.height =
-                (videoHeight.toFloat() / videoWidth.toFloat() * screenWidth.toFloat()).toInt()
+            activity?.let {
+                if(isTablet(it) && it.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE){
+                    lp.height = screenHeight
+                }else {
+                    lp.height =
+                        (videoHeight.toFloat() / videoWidth.toFloat() * screenWidth.toFloat()).toInt()
+                }
+
+            }
+
 
             binding.videoView.layoutParams = lp
 
@@ -648,5 +666,19 @@ class AppSplashFragment : BaseFragment<FragmentAppSplashBinding, SplashViewModel
             binding.videoView.holder.setFormat(PixelFormat.TRANSPARENT)
             binding.videoView.holder.setFormat(PixelFormat.OPAQUE)
         }
+    }
+
+   private fun pickVideoForSplash():Int{
+        context?.let {
+         if(getTabletType(it) == TabletType.MOBILE){
+             return R.raw.splash_video_portrait
+         }else{
+             if(getTabletType(it) == TabletType.TABLET_7_INCH){
+                 return if(isPortrait(it)) R.raw.splash_video_tab_8_portrait else R.raw.splash_video_tab_8_landscape
+             }else{
+                 return if(isPortrait(it)) R.raw.splash_video_tab_10_portrait else R.raw.splash_video_tab_10_landscape
+             }
+         }
+        }?:return R.raw.splash_video_portrait
     }
 }

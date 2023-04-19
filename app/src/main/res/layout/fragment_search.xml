@@ -147,7 +147,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/filters"
                     app:reverseLayout="false"
-                    app:spanCount="2"/>
+                    app:spanCount="@integer/grid_landscape"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
             <RelativeLayout
                 android:id="@+id/landing_container"
@@ -303,7 +303,7 @@
                             android:overScrollMode="never"
                             app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
                             app:reverseLayout="false"
-                            app:spanCount="2" />
+                            app:spanCount="@integer/grid_landscape" />
                     </RelativeLayout>
                 </androidx.coordinatorlayout.widget.CoordinatorLayout>
             </RelativeLayout>

@@ -93,6 +93,7 @@
     <color name="buffered_color">#B3FFFFFF</color>
     <color name="launcher_background">#220046</color>
     <color name="stroke_color">#564372</color>
+    <color name="genre_card_bg">#564372</color>
     <color name="episode_tag_color">#6B00DD</color>
     <color name="color_golden_vip">#FFA800</color>
     <color name="bg_parental_control_rating_item">#28293E</color>
@@ -107,4 +108,5 @@
     <color name="search_view_background">#EFE8FB</color>
     <color name="fill_pack_color">#EFE8FB</color>
     <color name="pack_text_color">#220046</color>
+    <color name="tint_pink_light">#F3CBE3</color>
 </resources>

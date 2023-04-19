@@ -21,12 +21,12 @@ fun erosnowLogin(context: Context, enListener : EnLoginListener, dsn : String, t
 }
 
 
-fun buildDataSourceFactory(context: Context): DataSource.Factory {
-    val BANDWIDTH_METER =  DefaultBandwidthMeter.Builder(context).build()
+fun buildDataSourceFactory(context: Context,bandwidthMeter: DefaultBandwidthMeter = DefaultBandwidthMeter.Builder(context).build() ): DataSource.Factory {
+
     val dataSourceFactory = DefaultDataSourceFactory(
         context,
         Util.getUserAgent(context, context.getString(R.string.app_name)),
-        BANDWIDTH_METER
+        bandwidthMeter
     )
-    return DefaultDataSourceFactory(context, BANDWIDTH_METER, dataSourceFactory)
+    return DefaultDataSourceFactory(context, bandwidthMeter, dataSourceFactory)
 }

@@ -28,7 +28,6 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
-import com.moengage.core.internal.utils.isNullOrEmpty
 import com.tatasky.binge.BuildConfig
 import com.tatasky.binge.R
 import com.tatasky.binge.customviews.CustomTypefaceSpan
@@ -67,6 +66,7 @@ abstract class BaseFragment<VB : ViewDataBinding, VM : BaseViewModel> : DaggerFr
     private var isLoaded: Boolean = false
     private var isSessionTimedOut = false
     private val mHandler = Handler(Looper.getMainLooper())
+    private var orientation : Int? = null
     protected var showProgress:Runnable = Runnable {  }
     var mActivity : BaseActivity<*> ?= null
     var loaderDelayTime = 0L
@@ -198,6 +198,7 @@ abstract class BaseFragment<VB : ViewDataBinding, VM : BaseViewModel> : DaggerFr
         }
         binding = DataBindingUtil.bind(inflater.inflate(layoutId(), container, false))!!
         binding.lifecycleOwner = viewLifecycleOwner
+        orientation = resources.configuration.orientation
         return binding.root
     }
 
@@ -296,7 +297,7 @@ abstract class BaseFragment<VB : ViewDataBinding, VM : BaseViewModel> : DaggerFr
             }
         })
         viewModel.progressListener.observe(viewLifecycleOwner, Observer {
-            e("GuestLoginBottomSheet","inside progressListener $it")
+            e("BaseFragment","inside progressListener $it")
             if (it) {
                 mHandler.postDelayed(
                     showProgress, loaderDelayTime
@@ -360,6 +361,7 @@ abstract class BaseFragment<VB : ViewDataBinding, VM : BaseViewModel> : DaggerFr
     override fun onPause() {
         super.onPause()
         mHandler.removeCallbacks(showProgress)
+        orientation = resources.configuration.orientation
         view?.closeKeyboard()
     }
 
@@ -420,7 +422,7 @@ abstract class BaseFragment<VB : ViewDataBinding, VM : BaseViewModel> : DaggerFr
             try {
                 version = version.replace(".", "")
                 var currentVersion = version.toDouble()
-                if(version.length < 4)
+//                if (version.length < 4)
                     currentVersion *= 10 //doing this for 3.0.0 build as we are going to update version from cms to 3.0.00
                 val forceNo =
                     appUpgrade.forceUpgradeVersion?.replace(".", "")
@@ -480,10 +482,27 @@ abstract class BaseFragment<VB : ViewDataBinding, VM : BaseViewModel> : DaggerFr
                     return false
                 }
             } catch (e: Exception) {
-                val message = appUpgrade.forceUpgradeMessage.takeIf { !it.isNullOrBlank() } ?: (String.format(
-                    getText(R.string.force_upgrade_message).toString(),
-                    appUpgrade.forceUpgradeVersion.toString()
-                ))
+                if (BuildConfig.FLAVOR == "production") {
+                    val message = appUpgrade.forceUpgradeMessage.takeIf { !it.isNullOrBlank() }
+                        ?: (String.format(
+                            getText(R.string.force_upgrade_message).toString(),
+                            appUpgrade.forceUpgradeVersion.toString()
+                        ))
+                    showForceUpdateDialog(
+                        appUpgrade.forceUpgradeTitle,
+                        message, appUpgrade.forceImageUrl, appUpgrade.primaryBtnAction, true
+                    )
+                    ((context as Activity).application as MyApp).clearAllData()
+                    return false
+                }
+            }
+        } catch (e: Exception) {
+            if (BuildConfig.FLAVOR == "production") {
+                val message =
+                    appUpgrade.forceUpgradeMessage.takeIf { !it.isNullOrBlank() } ?: (String.format(
+                        getText(R.string.force_upgrade_message).toString(),
+                        appUpgrade.forceUpgradeVersion.toString()
+                    ))
                 showForceUpdateDialog(
                     appUpgrade.forceUpgradeTitle,
                     message, appUpgrade.forceImageUrl, appUpgrade.primaryBtnAction, true
@@ -491,17 +510,6 @@ abstract class BaseFragment<VB : ViewDataBinding, VM : BaseViewModel> : DaggerFr
                 ((context as Activity).application as MyApp).clearAllData()
                 return false
             }
-        } catch (e: Exception) {
-            val message = appUpgrade.forceUpgradeMessage.takeIf { !it.isNullOrBlank() } ?: (String.format(
-                getText(R.string.force_upgrade_message).toString(),
-                appUpgrade.forceUpgradeVersion.toString()
-            ))
-            showForceUpdateDialog(
-                appUpgrade.forceUpgradeTitle,
-                message, appUpgrade.forceImageUrl, appUpgrade.primaryBtnAction, true
-            )
-            ((context as Activity).application as MyApp).clearAllData()
-            return false
         }
         return true
     }
@@ -673,6 +681,9 @@ abstract class BaseFragment<VB : ViewDataBinding, VM : BaseViewModel> : DaggerFr
 
     override fun onResume() {
         super.onResume()
+        if(orientation != resources.configuration.orientation){
+            viewModel.updateInOrientation()
+        }
         view?.findViewById<ViewGroup>(R.id.toolbar_layout)?.findViewById<Toolbar>(R.id.toolbar)?.let {
             (activity as? BaseActivity<*>)?.setSupportActionBar(it)
             val label = findNavController().currentDestination?.label

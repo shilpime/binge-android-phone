@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.tatasky.binge.ui.features.live_channel.LiveChannelDetailsViewModel" />
+        <variable
+            name="railsModel"
+            type="com.tatasky.binge.ui.features.home.model.RailsModel" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/dimens_60dp"
+        android:transitionGroup="true">
+
+        <ImageView
+            android:id="@+id/iv_poster"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/margin_0"
+            android:contentDescription="@string/sample_iv_desc"
+            android:scaleType="fitXY"
+            app:layout_constraintDimensionRatio="16:9"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.tatasky.binge.customviews.TimeBarCustom
+            android:id="@+id/mini_progress_player"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:paddingStart="-6dp"
+            android:paddingEnd="-6dp"
+            android:visibility="gone"
+            app:bar_height="4dp"
+            app:buffered_color="@color/buffered_color"
+            app:layout_constraintBottom_toBottomOf="@id/player_frame"
+            app:layout_constraintTop_toBottomOf="@id/player_frame"
+            app:played_color="@color/played_color"
+            app:scrubber_color="@color/played_color"
+            app:scrubber_disabled_size="16dp"
+            app:scrubber_dragged_size="16dp"
+            app:scrubber_enabled_size="16dp"
+            app:touch_target_height="18dp"
+            app:unplayed_color="@color/unplayed_color" />
+
+        <ImageView
+            android:id="@+id/iv_poster_overlay"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:contentDescription="@string/sample_iv_desc"
+            android:scaleType="fitXY"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/iv_poster"
+            app:layout_constraintEnd_toEndOf="@id/iv_poster"
+            app:layout_constraintStart_toStartOf="@id/iv_poster"
+            app:layout_constraintTop_toTopOf="@id/iv_poster"
+            app:srcCompat="@drawable/ic_overlay_card" />
+
+        <FrameLayout
+            android:id="@+id/player_frame"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/margin_0"
+            android:scaleType="fitXY"
+            android:visibility="gone"
+            app:layout_constraintDimensionRatio="16:9"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_sticky"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="iv_poster, player_frame" />
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrolling_content"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:scrollbars="none"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/barrier_sticky"
+            tools:visibility="visible">
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/cl_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_bottom_gradient"
+                    android:paddingBottom="@dimen/dimens_20dp"
+                    android:animateLayoutChanges="true"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideLine_start"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_begin="@dimen/margin_20" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideLine_end"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_end="@dimen/margin_25" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideLine_top"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_begin="@dimen/dimen_16dp" />
+
+                    <TextView
+                        android:id="@+id/live_indicator_tv"
+                        style="@style/TSTextBold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/live_tag_bg"
+                        android:drawablePadding="@dimen/dimens_4dp"
+                        android:paddingHorizontal="@dimen/dimens_4dp"
+                        android:paddingVertical="@dimen/dimens_2dp"
+                        android:gravity="center_vertical"
+                        android:text="@string/live"
+                        android:textSize="@dimen/text_size_16"
+                        app:drawableStartCompat="@drawable/ic_live_indicator"
+                        app:layout_constraintStart_toStartOf="@id/guideLine_start"
+                        app:layout_constraintTop_toBottomOf="@id/guideLine_top"
+                        tools:ignore="SmallSp" />
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/channel_logo_iv"
+                        android:layout_width="@dimen/dimen_60dp"
+                        android:layout_height="@dimen/dimen_60dp"
+                        android:layout_marginTop="@dimen/dimens_10dp"
+                        app:layout_constraintStart_toStartOf="@id/guideLine_start"
+                        app:layout_constraintTop_toBottomOf="@id/live_indicator_tv"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.CircularBorder"
+                        tools:srcCompat="@drawable/logo_tatasky_details" />
+
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/cl_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_5"
+                        android:layout_marginEnd="@dimen/margin_15"
+                        android:layout_marginStart="@dimen/dimens_12dp"
+                        app:layout_constraintEnd_toStartOf="@id/content_playback_btn"
+                        app:layout_constraintStart_toEndOf="@id/channel_logo_iv"
+                        app:layout_constraintTop_toTopOf="@id/channel_logo_iv">
+                        <TextView
+                            android:id="@+id/channel_name_tv"
+                            style="@style/TSTextMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxLines="2"
+                            android:text="@{viewModel.liveChannelDetails.peekContent().data.channelMeta.channelName}"
+                            android:textSize="@dimen/text_size_16"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:text="Republic TV" />
+
+                        <TextView
+                            android:id="@+id/content_timing_tv"
+                            style="@style/TSTextMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dimens_8dp"
+                            android:textSize="@dimen/text_size_16"
+                            android:maxLines="2"
+                            app:layout_constraintStart_toEndOf="@id/channel_name_tv"
+                            app:layout_constraintTop_toTopOf="@id/channel_name_tv"
+                            tools:text="4:30 - 5:00 PM" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                    <TextView
+                        android:id="@+id/content_title_tv"
+                        style="@style/TSTextMedium"
+                        android:layout_width="@dimen/margin_0"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/dimens_4dp"
+                        android:textSize="@dimen/text_size_22"
+                        android:layout_marginEnd="@dimen/margin_10"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="@id/cl_title"
+                        app:layout_constraintTop_toBottomOf="@id/cl_title"
+                        app:layout_constraintEnd_toStartOf="@id/content_playback_btn"
+                        tools:text="One Nation One Law One Nation One Law One Nation One Law  " />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/content_playback_btn"
+                        android:layout_width="@dimen/live_channel_button_width"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/dimens_14dp"
+                        android:insetTop="@dimen/dimen_0dp"
+                        android:insetBottom="@dimen/dimen_0dp"
+                        android:textSize="@dimen/text_size_16"
+                        style="@style/Widget.AppTheme.ButtonStyle.Icon"
+                        app:icon="@drawable/ic_play"
+                        app:iconGravity="textStart"
+                        app:iconSize="@dimen/dimens_12dp"
+                        app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+                        app:layout_constraintTop_toBottomOf="@id/live_indicator_tv"
+                        android:text="@string/play_now" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <include
+                    android:id="@+id/other_channels_rv"
+                    layout="@layout/home_recyclerview"
+                    app:railsModel="@{railsModel}"
+                    android:visibility="gone"
+                    tools:visibility="visible"/>
+
+                <include
+                    android:id="@+id/upcoming_news_rv"
+                    layout="@layout/home_recyclerview"
+                    android:visibility="gone"/>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <ImageButton
+            android:id="@+id/imgBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/sample_iv_desc"
+            android:padding="@dimen/view_margin_large"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_back_key" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

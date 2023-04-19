@@ -4,9 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/mcvRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="@dimen/card_elevation_8"
+        android:layout_marginStart="4dp"
         app:cardCornerRadius="@dimen/corner_radius_6">
 
         <androidx.constraintlayout.widget.ConstraintLayout

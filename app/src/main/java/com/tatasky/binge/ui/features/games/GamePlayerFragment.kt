@@ -69,7 +69,7 @@ class GamePlayerFragment : BaseFragment<FragmentGamesPlayerBinding, GamesViewMod
                                 gameTitle = contentItem.title,
                                 freeGame = freeGame,
                                 releaseYear = contentItem.releaseYear ?: "",
-                                deviceType = PLATFORM_ANDROID_CAPS,
+                                deviceType = sharedPrefs.getDeviceType()?.uppercase() ?:"",
                                 source = it.source,
                                 packPrice = sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
                                 packName = sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM
@@ -115,7 +115,7 @@ class GamePlayerFragment : BaseFragment<FragmentGamesPlayerBinding, GamesViewMod
                             gameTitle = contentItem.title,
                             freeGame = freeGame,
                             releaseYear = contentItem.releaseYear ?: "",
-                            deviceType = PLATFORM_ANDROID_CAPS,
+                            deviceType = sharedPrefs.getDeviceType()?.uppercase()?:"",
                             source = it.source,
                             packPrice = sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
                             packName = sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM
@@ -144,13 +144,14 @@ class GamePlayerFragment : BaseFragment<FragmentGamesPlayerBinding, GamesViewMod
         playUrl: String?,
         adUrl: String?
     ): String? {
-        if (currentPack == null || currentPack.isInactive) {
+        return if (adUrl.isNullOrEmpty() || playUrl.isNullOrEmpty()) {
+            null
+        } else if (currentPack == null || currentPack.isInactive) {
             freeGame = YES
-            return adUrl
-        }
-        else {
+            "${adUrl}?sub=${sharedPrefs.getBaId()}"
+        } else {
             freeGame = NO
-            return playUrl
+            "${playUrl}?sub=${sharedPrefs.getBaId()}"
         }
     }
 
@@ -370,7 +371,7 @@ class GamePlayerFragment : BaseFragment<FragmentGamesPlayerBinding, GamesViewMod
                 gameTitle = contentItem.title,
                 freeGame = freeGame,
                 releaseYear = it.releaseYear,
-                deviceType = PLATFORM_ANDROID_CAPS,
+                deviceType = sharedPrefs.getDeviceType()?.uppercase()?:"",
                 source = it.source,
                 packPrice = sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
                 packName = sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
@@ -409,6 +410,7 @@ class GamePlayerFragment : BaseFragment<FragmentGamesPlayerBinding, GamesViewMod
             contentItem.playUrl,
             contentItem.adPlayUrl
         )
+        d(classNameTag, "GameUrl : $gameUrl")
         if (!gameUrl.isNullOrBlank()) {
             setWebView(gameUrl)
         } else {
@@ -454,13 +456,14 @@ class GamePlayerFragment : BaseFragment<FragmentGamesPlayerBinding, GamesViewMod
                 gameTitle = contentItem.title,
                 freeGame = freeGame,
                 releaseYear = it.releaseYear ?: "",
-                deviceType = PLATFORM_ANDROID_CAPS,
+                deviceType = sharedPrefs.getDeviceType()?.uppercase()?:"",
                 source = it.source,
                 packPrice = sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
                 packName = sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM
             )
         }
         viewModel.fetchGamesLastWatchedFavourite(contentItem.id,contentItem.contentType?: TYPE_GAMES)
+        viewModel.addGameToCW(contentItem)
 
         setUpWebView()
         setClickListeners()

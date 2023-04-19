@@ -50,6 +50,8 @@ class Detail {
     @SerializedName("playUrl")
     @Expose
     var playUrl: String? = null
+
+
     @SerializedName("trailerUrl")
     @Expose
     val trailerUrl : String?= null

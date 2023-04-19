@@ -47,7 +47,10 @@ class TracksAdapter(
             holder.binding.root.setOnClickListener(View.OnClickListener {
                 it.tag = format
                 mSelectedFormat = format
-                notifyDataSetChanged()
+                if (isDisableEnabled)
+                    notifyDataSetChanged()
+                else
+                    notifyItemRangeChanged(0,listOfFormats.size)
                 clickListener.onClick(it)
             })
         }

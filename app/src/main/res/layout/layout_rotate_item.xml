@@ -7,8 +7,9 @@
     </data>
     <RelativeLayout
         android:id="@+id/rlParent"
-        android:layout_height="@dimen/width_72"
-        android:layout_width="@dimen/width_72"
+        android:layout_height="@dimen/app_circular"
+        android:layout_width="@dimen/app_circular"
+        android:layout_marginEnd="10dp"
         android:layout_marginTop="4dp">
 
         <ImageView

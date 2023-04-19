@@ -9,111 +9,119 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp">
+        android:layout_height="wrap_content">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/root_dialog_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/darkHighlight"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="8dp"
-            app:strokeColor="@color/stroke_color"
-            app:strokeWidth="1dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            style="@style/tab_nudge"
+            android:paddingStart="@dimen/padding_20dp"
+            android:paddingEnd="@dimen/padding_20dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/root_dialog_view"
+                android:layout_width="@dimen/dimen_0dp"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/darkHighlight"
+                app:cardCornerRadius="@dimen/dimens_20dp"
+                app:cardElevation="@dimen/dimen_8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:strokeColor="@color/stroke_color"
+                app:strokeWidth="@dimen/dimens_1dp">
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guideLine_end"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_end="20dp" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guideLine_start"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_begin="20dp" />
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideLine_end"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_end="@dimen/margin_20" />
 
-                <ImageView
-                    android:id="@+id/iv_dialog"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:contentDescription="@string/sample_iv_desc"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_ftv_freemium" />
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideLine_start"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_begin="@dimen/margin_20" />
 
-                <TextView
-                    android:id="@+id/tv_header"
-                    style="@style/TSTextMedium"
-                    android:layout_width="@dimen/margin_0"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_10dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginEnd="@dimen/margin_10dp"
-                    android:gravity="center"
-                    android:lineSpacingExtra="5sp"
-                    android:text="@string/ftv_upsell_header"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/text_size_20"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/iv_dialog" />
+                    <ImageView
+                        android:id="@+id/iv_dialog"
+                        android:layout_width="@dimen/dimen_0dp"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:contentDescription="@string/sample_iv_desc"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_ftv_freemium" />
 
-                <TextView
-                    android:id="@+id/tv_description"
-                    style="@style/TSTextMedium"
-                    android:layout_width="@dimen/margin_0"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:gravity="center"
-                    android:lineSpacingExtra="5sp"
-                    android:text="@string/ftv_upsell_description"
-                    android:textColor="@color/pink_50"
-                    android:textSize="@dimen/dimens_16sp"
-                    android:visibility="gone"
-                    app:layout_constraintEnd_toEndOf="@id/guideLine_end"
-                    app:layout_constraintStart_toStartOf="@id/guideLine_start"
-                    app:layout_constraintTop_toBottomOf="@id/tv_header" />
+                    <TextView
+                        android:id="@+id/tv_header"
+                        style="@style/TSTextMedium"
+                        android:layout_width="@dimen/margin_0"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_10dp"
+                        android:layout_marginTop="@dimen/margin_20"
+                        android:layout_marginEnd="@dimen/margin_10dp"
+                        android:gravity="center"
+                        android:lineSpacingExtra="@dimen/line_spacing_5"
+                        android:text="@string/ftv_upsell_header"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/text_size_20"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/iv_dialog" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_dialog_primary"
-                    android:layout_width="@dimen/margin_0"
-                    android:layout_height="@dimen/button_height"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/i_am_intrested"
-                    app:layout_constraintEnd_toEndOf="@id/guideLine_end"
-                    app:layout_constraintStart_toStartOf="@id/guideLine_start"
-                    app:layout_constraintTop_toBottomOf="@id/tv_description" />
+                    <TextView
+                        android:id="@+id/tv_description"
+                        style="@style/TSTextMedium"
+                        android:layout_width="@dimen/margin_0"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_20"
+                        android:gravity="center"
+                        android:lineSpacingExtra="@dimen/line_spacing_5"
+                        android:text="@string/ftv_upsell_description"
+                        android:textColor="@color/pink_50"
+                        android:textSize="@dimen/dimens_16sp"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+                        app:layout_constraintStart_toStartOf="@id/guideLine_start"
+                        app:layout_constraintTop_toBottomOf="@id/tv_header" />
 
-                <TextView
-                    android:id="@+id/btn_cancel"
-                    style="@style/TSTextMedium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/view_margin_large"
-                    android:layout_marginBottom="20dp"
-                    android:text="@string/remind_me_later"
-                    android:textColor="?android:textColorTertiary"
-                    android:textSize="@dimen/text_size_16"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@id/guideLine_end"
-                    app:layout_constraintStart_toStartOf="@id/guideLine_start"
-                    app:layout_constraintTop_toBottomOf="@id/btn_dialog_primary" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_dialog_primary"
+                        style="@style/Widget.AppTheme.ButtonStyle.Icon"
+                        android:layout_marginTop="@dimen/margin_16"
+                        android:text="@string/i_am_intrested"
+                        app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+                        app:layout_constraintStart_toStartOf="@id/guideLine_start"
+                        app:layout_constraintTop_toBottomOf="@id/tv_description" />
+
+                    <TextView
+                        android:id="@+id/btn_cancel"
+                        style="@style/TSTextMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/view_margin_large"
+                        android:layout_marginBottom="@dimen/margin_20"
+                        android:text="@string/remind_me_later"
+                        android:textColor="?android:textColorTertiary"
+                        android:textSize="@dimen/text_size_16"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="@id/guideLine_end"
+                        app:layout_constraintStart_toStartOf="@id/guideLine_start"
+                        app:layout_constraintTop_toBottomOf="@id/btn_dialog_primary" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

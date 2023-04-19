@@ -11,6 +11,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import com.tatasky.binge.data.networking.models.Exo.SubtitleGeneric
 import com.tatasky.binge.utils.*
 import com.ttn.ttnplayer.player.SubtitleDTO
 
@@ -145,6 +146,9 @@ class MetaDetails():Parcelable {
 
 //    var contentTypeLocal:String? = null // used for Episode PI Handling
 //
+
+    val liveContent: Boolean = false // Used mainly for Live tag and content identifier
+    val isLiveContent: Boolean = false // Used mainly for event's property identifier
 
     @SerializedName("episodeId")
     var episodeId : Int = 0
@@ -362,7 +366,9 @@ class MetaDetails():Parcelable {
     /*Subtitle Handling subtitlePlayUrl*/
     @SerializedName("subtitlePlayUrl")
     @Expose
-    val subtitlePlayUrl: java.util.ArrayList<SubtitleDTO>? = null
+    val subtitlePlayUrl: java.util.ArrayList<SubtitleGeneric>? = null
+
+
 
     constructor(parcel: Parcel) : this() {
         id = parcel.readString()

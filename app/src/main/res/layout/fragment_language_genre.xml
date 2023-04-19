@@ -16,42 +16,79 @@
         android:transitionGroup="true"
         android:animateLayoutChanges="true">
 
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/toolbar_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:elevation="10dp"
-            >
-            <include
-                layout="@layout/transparent_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
-
-
 
         <androidx.constraintlayout.widget.Group
-            android:id="@+id/group_filters"
+            android:id="@+id/group_genre"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:constraint_referenced_ids="iv_bg_top_image,bg_overlay,iv_bg_top_bottom_image" />
+            app:constraint_referenced_ids="iv_genre_background,iv_genre_icon,tv_genre_title"
+            tools:visibility="gone" />
+
+
+        <ImageView
+            android:id="@+id/iv_genre_background"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toTopOf="@id/horizontal_guide"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imgBack"
+            tools:src="@drawable/game_item_sample" />
+
+        <ImageView
+            android:id="@+id/iv_genre_icon"
+            android:layout_width="96dp"
+            android:layout_height="44dp"
+            android:scaleType="fitCenter"
+            android:translationZ="1dp"
+            app:layout_constraintBottom_toBottomOf="@id/iv_genre_background"
+            app:layout_constraintBottom_toTopOf="@id/tv_genre_title"
+            app:layout_constraintEnd_toEndOf="@id/iv_genre_background"
+            app:layout_constraintStart_toStartOf="@id/iv_genre_background"
+            app:layout_constraintTop_toTopOf="@id/iv_genre_background"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:src="@drawable/game_item_sample" />
+
+
+        <TextView
+            android:id="@+id/tv_genre_title"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_20"
+            app:layout_constraintBottom_toBottomOf="@id/iv_genre_background"
+            app:layout_constraintEnd_toEndOf="@id/iv_genre_icon"
+            app:layout_constraintStart_toStartOf="@id/iv_genre_icon"
+            app:layout_constraintTop_toBottomOf="@id/iv_genre_icon"
+            tools:text="Action" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/horizontal_guide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".21" />
+
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/group_language"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:constraint_referenced_ids="iv_bg_top_image,bg_overlay,iv_bg_top_bottom_image,tv_lang_title" />
 
         <ImageView
             android:id="@+id/iv_bg_top_image"
             android:layout_width="0dp"
-            android:layout_height="120dp"
+            android:layout_height="0dp"
             android:scaleType="centerCrop"
-            app:layout_constraintBottom_toTopOf="@id/tv_filters"
+            app:layout_constraintBottom_toTopOf="@id/horizontal_guide"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/toolbar_layout" />
+            app:layout_constraintTop_toTopOf="parent" />
 
 
         <ImageView
@@ -64,6 +101,45 @@
             android:elevation="7dp"
             app:layout_constraintBottom_toBottomOf="@id/iv_bg_top_image"
             app:layout_constraintEnd_toEndOf="@id/iv_bg_top_image" />
+
+
+        <ImageButton
+            android:id="@+id/imgBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/sample_iv_desc"
+            android:padding="@dimen/view_margin_large"
+            android:elevation="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_back_key" />
+
+        <ImageButton
+            android:id="@+id/imgSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/sample_iv_desc"
+            android:padding="@dimen/view_margin_large"
+            android:elevation="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_search" />
+
+        <TextView
+            android:id="@+id/tv_lang_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:textSize="@dimen/toolbar_title_text_size"
+            android:elevation="10dp"
+            app:layout_constraintBottom_toBottomOf="@id/imgBack"
+            app:layout_constraintEnd_toStartOf="@id/imgSearch"
+            app:layout_constraintStart_toEndOf="@id/imgBack"
+            app:layout_constraintTop_toTopOf="@id/imgBack"
+            tools:text="Language Title goes here" />
+
 
         <View
             android:id="@+id/bg_overlay"
@@ -81,28 +157,29 @@
             android:id="@+id/tv_filters"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="@dimen/screen_horizontal_margin"
             android:layout_marginTop="20dp"
             android:text="Filter"
             android:textSize="14sp"
             app:layout_constraintBottom_toTopOf="@id/filters"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_bg_top_image" />
+            app:layout_constraintTop_toBottomOf="@id/horizontal_guide" />
 
         <LinearLayout
             android:id="@+id/filters"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="@dimen/screen_horizontal_margin"
             android:orientation="vertical"
             android:visibility="gone"
+            tools:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_filters">
 
             <include
                 android:id="@+id/language_filters"
-                layout="@layout/layout_filters"
+                layout="@layout/layout_filters_chips"
                 app:title="@{vm.languageFilterTitle}" />
         </LinearLayout>
 
@@ -113,6 +190,7 @@
             android:layout_height="wrap_content"
             app:constraint_referenced_ids="tv_off_settings_item,tv_on_settings_item,switchView"
             android:visibility="gone"
+            tools:visibility="visible"
             />
 
         <TextView
@@ -120,7 +198,7 @@
             style="@style/TSTextMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="@dimen/screen_horizontal_margin"
             android:maxLines="1"
             android:text="All Content"
             android:textColor="@color/binge_blue_10"
@@ -161,19 +239,22 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_centerHorizontal="true"
             app:srcCompat="@drawable/progress_avd"/>
+
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/searchRecyclerView"
             setAdapter="@{vm.getSearchAdapter()}"
             android:layout_width="match_parent"
             android:layout_height="@dimen/margin_0"
-            android:layout_marginStart="@dimen/margin_16"
-            android:layout_marginEnd="@dimen/margin_16"
+            android:layout_marginHorizontal="@dimen/grid_horizontal_margin"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             android:orientation="vertical"
             app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
             app:layout_constraintBottom_toTopOf="@+id/progressBarBottom"
             app:layout_constraintTop_toBottomOf="@id/switchView"
             app:reverseLayout="false"
-            app:spanCount="2"/>
+            app:spanCount="@integer/grid_landscape"/>
 
         <include
             android:visibility="gone"

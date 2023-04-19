@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="suggestion"
+            type="com.tatasky.binge.data.networking.models.response.ContentItem" />
+
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.search.model.SearchViewModel" />
+
+        <import type="android.view.View" />
+
+        <import type="com.tatasky.binge.ui.features.home.SuggestionSuggestors" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{()->vm.setClickedSuggestion(suggestion)}"
+        android:paddingHorizontal="@dimen/screen_horizontal_margin"
+        android:paddingVertical="12dp">
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_provider_image"
+            android:layout_width="@dimen/suggestion_icon_width"
+            android:layout_height="0dp"
+            android:background="@color/provider_bg"
+            android:scaleType="fitCenter"
+            android:visibility="@{suggestion.suggestor.equals(SuggestionSuggestors.ProviderSuggestor.name) ?View.VISIBLE:View.GONE, default=gone }"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="16:9"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/customRoundedLogo"
+            tools:src="@drawable/game_item_sample"
+            tools:visibility="visible" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_content_image"
+            android:layout_width="@dimen/suggestion_icon_width"
+            android:layout_height="0dp"
+            android:scaleType="fitXY"
+            android:visibility="@{suggestion.suggestor.equals(SuggestionSuggestors.ProviderSuggestor.name) ?View.INVISIBLE:View.VISIBLE, default=visible }"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="16:9"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/customRoundedLogo"
+            tools:src="@drawable/game_item_sample" />
+
+        <ImageView
+            android:id="@+id/iv_lang_icon"
+            android:layout_width="@dimen/suggestion_lang_icon_dimen"
+            android:layout_height="@dimen/suggestion_lang_icon_dimen"
+            android:visibility="@{suggestion.suggestor.equals(SuggestionSuggestors.LanguageSuggestor.name) ?View.VISIBLE:View.INVISIBLE, default=visible }"
+            app:layout_constraintBottom_toBottomOf="@id/iv_content_image"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="@id/iv_content_image"
+            app:layout_constraintStart_toStartOf="@id/iv_content_image"
+            app:layout_constraintTop_toTopOf="@id/iv_content_image"
+            tools:ignore="ContentDescription" />
+
+
+        <TextView
+            android:id="@+id/tv_title"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/view_margin_large"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/darkOnSecondary"
+            android:textSize="@dimen/text_size_search_suggestion_title"
+            app:layout_constraintBottom_toTopOf="@id/tv_sub_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_content_image"
+            app:layout_constraintTop_toTopOf="@id/iv_content_image"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="India vs Bangladesh 1st ODI" />
+
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/gp_free_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{suggestion.liveContent ? View.VISIBLE : View.GONE, default=gone}"
+            app:constraint_referenced_ids="iv_live_indicator,tv_sub_title_live,tv_sub_title_live_seperator"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/iv_live_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/view_margin_large"
+            android:layout_marginTop="@dimen/margin_2"
+            android:layout_marginEnd="@dimen/margin_2"
+            android:src="@drawable/ic_live_indicator"
+            app:layout_constraintBottom_toBottomOf="@id/tv_sub_title_live"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toEndOf="@id/iv_content_image"
+            app:layout_constraintTop_toTopOf="@id/tv_sub_title_live"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/tv_sub_title_live"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/view_margin_smallest"
+            android:layout_marginTop="@dimen/margin_2"
+            android:text="@string/live"
+            android:textColor="@color/darkError"
+            android:textSize="@dimen/text_size_search_suggestion_subtitle"
+            app:layout_constraintBottom_toBottomOf="@id/tv_sub_title"
+            app:layout_constraintStart_toEndOf="@id/iv_live_indicator"
+            app:layout_constraintTop_toTopOf="@id/tv_sub_title" />
+
+        <TextView
+            android:id="@+id/tv_sub_title_live_seperator"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_2"
+            android:text="@string/separator"
+            android:textColor="@color/darkOnSecondary"
+            android:textSize="@dimen/text_size_search_suggestion_subtitle"
+            app:layout_constraintBottom_toBottomOf="@id/tv_sub_title"
+            app:layout_constraintStart_toEndOf="@id/tv_sub_title_live"
+            app:layout_constraintTop_toTopOf="@id/tv_sub_title" />
+
+
+        <TextView
+            android:id="@+id/tv_sub_title"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_2"
+            android:layout_marginTop="@dimen/margin_2"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{suggestion.subtitleSearchSuggestions}"
+            android:textColor="@color/darkOnSecondary"
+            android:textSize="@dimen/text_size_search_suggestion_subtitle"
+            app:layout_constraintBottom_toBottomOf="@id/iv_content_image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_sub_title_live_seperator"
+            app:layout_constraintTop_toBottomOf="@id/tv_title"
+            app:layout_goneMarginStart="16dp"
+            tools:text="India vs Bangladesh 1st ODI" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

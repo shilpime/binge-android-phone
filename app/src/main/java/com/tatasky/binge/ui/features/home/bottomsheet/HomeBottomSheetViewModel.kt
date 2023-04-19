@@ -123,7 +123,7 @@ class HomeBottomSheetViewModel @Inject constructor(
                 override fun onSuccessResponse(t: BaseResponse) {
                     setProgressing(false)
                     sharedPrefs.setPrefLanguage(selectedLanguageNamesList)
-                    sharedPrefs.setLanguageWidgetVisibility(false)
+//                    sharedPrefs.setLanguageWidgetVisibility(false)
                     mRefreshLanguageWidgetStatus.postValue(REFRESH_HOME)
                     lambda?.invoke()
                 }

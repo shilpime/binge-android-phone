@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.google.android.exoplayer2.ui.TimeBar
 import com.google.android.exoplayer2.upstream.DefaultAllocator
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.HttpDataSource
 import com.google.android.exoplayer2.util.Util
 import com.hungama.sdk.player.HungamaPlayerManager
@@ -48,6 +49,7 @@ import com.tatasky.binge.customviews.TimeBarCustom
 import com.tatasky.binge.domain.repositories.PrefsRepo
 import com.tatasky.binge.ui.base.frameworks.extensions.*
 import com.tatasky.binge.ui.features.player.ContentVO
+import com.tatasky.binge.ui.features.player.PlayerModel
 import com.tatasky.binge.ui.features.player.listeners.PlayerDurationWatcher
 import com.tatasky.binge.ui.features.player.listeners.PlayerListener
 import com.tatasky.binge.utils.*
@@ -64,6 +66,8 @@ class TrailerView : FrameLayout,
     TtnPlayerListener, OnPlayerStateChangeListener,
     OnPlayerContentLoadListener,
     Player.EventListener {
+
+    private var playerModel: PlayerModel? = null
 
     //    private lateinit var mScaleDetector: ScaleGestureDetector
     private var isReleasePlayer: Boolean = false
@@ -476,7 +480,12 @@ class TrailerView : FrameLayout,
             if (!trailerUrl.isNullOrBlank())
                 playUrl = trailerUrl
             e("TrailerView","init ttnplayer isAutoPlayOn:$isAutoPlayOn")
-            ttnPlayerHelper = TtnPlayerHelper.Builder(context, playerView!!,cookies)
+            ttnPlayerHelper = TtnPlayerHelper.Builder(context,
+                playerView!!,
+                cookies,
+                playbackQualityRestrictionsEnabled =
+                provider?.equals(PROVIDER_CHAUPAL, true) == true
+            )
                 .setRepeatModeOn(false)
                 .setAutoPlayOn(isAutoPlayOn)
                 .setDrmLicenseUrl(drmLicenseUrl)
@@ -530,10 +539,13 @@ class TrailerView : FrameLayout,
                 e("TrailerView","hungama set isAutoPlayOn:$isAutoPlayOn")
                 isAutoPlayOn = true
             } else {
+                if(!isAutoPlayOn)
+                    initProbeSDK(HungamaPlayerManager.getInstance().a.i)
                 HungamaPlayerManager.getInstance().a.i.playWhenReady = true
             }
         } else {
             //ttnPlayerHelper?.playerPlay()
+            initProbeSDK(mPlayer)
             mPlayer?.playWhenReady = true
         }
     }
@@ -807,12 +819,15 @@ class TrailerView : FrameLayout,
             try {
                 HungamaPlayerManager.getInstance().setWakeMode(C.WAKE_MODE_NONE)
                 HungamaPlayerManager.getInstance().stop()
+                probePlayerEventStopped()
                 HungamaPlayerManager.getInstance().releasePlayer()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
             mPlaybackController = null
         }
+        if(mPlayer != null)
+            probePlayerEventStopped()
         mPlayer?.release()
         mPlayer=null
         ttnPlayerHelper?.releasePlayer()
@@ -1044,8 +1059,12 @@ class TrailerView : FrameLayout,
             e("TrailerView","hungama startplayback isAutoPlayOn:$isAutoPlayOn")
             HungamaPlayerManager.getInstance().initializePlayer()
             HungamaPlayerManager.getInstance().preparePlayer(playerViewHungama, this)
+            if(isAutoPlayOn){
+                initProbeSDK(HungamaPlayerManager.getInstance().a.i)
+            }
             HungamaPlayerManager.getInstance().start()
             HungamaPlayerManager.getInstance().a.i.playWhenReady = isAutoPlayOn
+
             defaultVolume = HungamaPlayerManager.getInstance().a.i?.volume ?: 0f
 
             if (!mSoundOn)
@@ -1057,6 +1076,20 @@ class TrailerView : FrameLayout,
             )
         } catch (e: Exception) {
             e.printStackTrace();
+        }
+    }
+
+    private fun initProbeSDK(player: SimpleExoPlayer?) {
+        if(sharedPrefs?.getLoginStatus() == true) {
+            if(!isHungamaTrailer)
+                playerModel?.setPlaybackUrl(playUrl)
+            sharedPrefs?.getOriginalSubscriberId()?.let {
+                probePlayerEventInitSdk(
+                    player, playerModel,
+                    bandWidthMeter = DefaultBandwidthMeter(), it
+                )
+                probePlayerEventPlayClicked()
+            }
         }
     }
 
@@ -1369,5 +1402,13 @@ class TrailerView : FrameLayout,
     }
     fun playVideoWithUrl(playUrl: String) {
         ttnPlayerHelper?.playVideo(playUrl, null)
+    }
+    /*Need to add this for QoE Probe Mitigation*/
+    fun setPlayerModel(id: String, contentType: String, provider: String?, title: String?) {
+        playerModel = PlayerModel()
+        playerModel?.setTitle(title?:"")
+        playerModel?.setContentId(id)
+        playerModel?.setProvider(provider ?: "")
+        playerModel?.setContentType(contentType)
     }
 }

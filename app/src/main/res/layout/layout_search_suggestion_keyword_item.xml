@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="suggestion"
+            type="com.tatasky.binge.data.networking.models.response.ContentItem" />
+
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.search.model.SearchViewModel" />
+
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{()->vm.setClickedSuggestion(suggestion)}"
+        android:paddingVertical="@dimen/view_margin_large">
+
+        <ImageView
+            android:id="@+id/iv_dic_search"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="@dimen/screen_horizontal_margin"
+            android:src="@drawable/ic_search"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/purple_25" />
+
+        <TextView
+            android:id="@+id/tv_dic_search"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/view_margin_large"
+            android:layout_marginEnd="@dimen/view_margin_small"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/darkOnSecondary"
+            android:textSize="@dimen/text_size_16"
+            app:layout_constraintBottom_toBottomOf="@id/iv_dic_search"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_dic_search"
+            app:layout_constraintTop_toTopOf="@id/iv_dic_search"
+            tools:text="Horror Comedy Movies" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

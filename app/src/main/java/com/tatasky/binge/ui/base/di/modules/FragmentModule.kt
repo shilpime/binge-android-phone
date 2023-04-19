@@ -24,6 +24,8 @@ import com.tatasky.binge.ui.features.home.subpage.SubHomeFragment
 import com.tatasky.binge.ui.features.link_accounts.LinkAccountsFragment
 import com.tatasky.binge.ui.features.link_accounts.LinkAccountsOTPFragment
 import com.tatasky.binge.ui.features.link_accounts.LinkAccountsSuccessfulFragment
+import com.tatasky.binge.ui.features.live_channel.LiveChannelDetailsFragment
+import com.tatasky.binge.ui.features.live_channel.LiveChannelPlayerFragment
 import com.tatasky.binge.ui.features.more.*
 import com.tatasky.binge.ui.features.myaccount.MyAccountFragment
 import com.tatasky.binge.ui.features.myaccount.profiles.SwitchAccountFragment
@@ -454,5 +456,13 @@ internal abstract class FragmentModule {
     @ContributesAndroidInjector
     @PerFragment
     abstract fun welcomeMessageDialogFragment(): WelcomeMessageDialog
+
+    @ContributesAndroidInjector
+    @PerFragment
+    abstract fun liveChannelDetailsFragment(): LiveChannelDetailsFragment
+
+    @ContributesAndroidInjector
+    @PerFragment
+    abstract fun liveChannelPlayerFragment(): LiveChannelPlayerFragment
 
 }

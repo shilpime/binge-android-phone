@@ -198,7 +198,7 @@ public class TtnTrackSelectionView extends LinearLayout {
                 titleTextView.setTextAppearance(getContext(), R.style.TrackTitleText);
             }
             titleTextView.setText(title);
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+            LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
             layoutParams.bottomMargin = UtilityKt.dpToPx(8, getContext());
             titleTextView.setLayoutParams(layoutParams);
         /*if (getChildCount() <= 0) {

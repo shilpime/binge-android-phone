@@ -164,7 +164,7 @@ public class DRMSessionManager {
             urlConnection.setDoOutput(data != null);
             urlConnection.setDoInput(true);
             if (requestProperties != null) {
-                for (java.util.Map.Entry<String, String> requestProperty : requestProperties.entrySet()) {
+                for (Map.Entry<String, String> requestProperty : requestProperties.entrySet()) {
                     urlConnection.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
                 }
             }

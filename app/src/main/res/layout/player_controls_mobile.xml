@@ -120,6 +120,22 @@
                 app:layout_constraintBottom_toTopOf="@+id/ll_player_menu"
                 app:layout_constraintEnd_toStartOf="@id/exo_fullscreen_iv"/>
 
+            <TextView
+                android:id="@+id/tv_live"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/view_margin_medium"
+                android:text="@string/live"
+                android:background="@android:color/holo_red_dark"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_16"
+                android:paddingHorizontal="@dimen/_4sdp"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="@id/exo_sound"
+                app:layout_constraintBottom_toBottomOf="@id/exo_sound"
+                app:layout_constraintEnd_toStartOf="@id/exo_sound" />
+
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/viewProgress"
@@ -182,6 +198,7 @@
                     android:textSize="@dimen/text_size_16"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout

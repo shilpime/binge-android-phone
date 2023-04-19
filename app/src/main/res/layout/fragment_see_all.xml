@@ -10,22 +10,16 @@
         android:layout_height="match_parent"
         android:transitionGroup="true"
         android:orientation="vertical">
-<!--        <include-->
-<!--            android:id="@+id/toolbar_layout"-->
-<!--            layout="@layout/shadowed_toolbar"-->
-<!--            android:layout_width="match_parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent"-->
-<!--            android:layout_height="wrap_content" />-->
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/toolbar_layout"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/dimen_0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:elevation="10dp"
+            android:elevation="@dimen/dimens_10dp"
             >
             <include
                 layout="@layout/transparent_toolbar"
@@ -39,11 +33,10 @@
         <ImageView
             android:id="@+id/iv_see_all_banner"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="@dimen/dimens_120dp"
             android:visibility="gone"
             android:scaleType="fitXY"
             android:src="@drawable/compare_plan_bg"
-            app:layout_constraintDimensionRatio="180:61"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -60,22 +53,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            android:layout_marginBottom="56dp"
+            android:layout_marginBottom="@dimen/dimens_56dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/progress_avd"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/subpage_recycler"
             android:layout_width="match_parent"
             android:layout_height="@dimen/margin_0"
-            android:layout_marginStart="@dimen/margin_16"
-            android:layout_marginEnd="@dimen/margin_16"
-            android:paddingBottom="56dp"
+            android:layout_marginStart="@dimen/grid_horizontal_margin"
+            android:layout_marginEnd="@dimen/screen_end_margin"
+            android:paddingBottom="@dimen/dimens_56dp"
+            tools:listitem="@layout/layout_rail_item_temp"
             android:clipToPadding="false"
             app:layout_constraintTop_toBottomOf="@id/toolbar_barrier"
             app:layout_constraintBottom_toTopOf="@id/progressBarBottom"
-            app:spanCount="2"
+            app:spanCount="@integer/grid_landscape"
             setAdapter="@{viewModel.mAdapter}"
             android:orientation="vertical"
             app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"

@@ -37,7 +37,7 @@
             layout="@layout/layout_header_guest_login"
             android:visibility="visible"
             bind:isEligibleForFreeTrial="@{viewModel.showFreeTrailUI}"
-            bind:headerTitle="@{viewModel.sharedPrefs.getConfigResponse().data.config.freeTrialTitle}"
+            bind:headerTitle="@{viewModel.getVerbiageFromConfig().loginScreen.login}"
             bind:partnerLogoRVAdapter="@{viewModel.getPartnerLogoAdapter}"/>
 
         <View
@@ -97,7 +97,7 @@
             android:layout_marginEnd="2dp"
             android:layout_marginTop="@dimen/margin_24"
             android:enabled="false"
-            android:text="@{!viewModel.showFreeTrailUI ? @string/btn_proceed_text_fragment_guest_login : @string/get_otp, default=@string/get_otp}"
+            android:text="@{!viewModel.showFreeTrailUI ? viewModel.setVerbiageForLoginScreen().cta : viewModel.setVerbiageForLoginScreen().getOtp, default = @string/get_otp}"
             android:textSize="@dimen/text_size_16"
             app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
             app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
@@ -126,7 +126,8 @@
             app:layout_constraintTop_toBottomOf="@id/header"
             tools:layout_marginTop="@dimen/dimens_24dp"
             android:visibility="gone"
-            bind:isEligibleForFreeTrial="@{viewModel.showFreeTrailUI}"/>
+            bind:isEligibleForFreeTrial="@{viewModel.showFreeTrailUI}"
+            bind:resendOtp="@{viewModel.setVerbiageForLoginScreen().resendOtp}"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

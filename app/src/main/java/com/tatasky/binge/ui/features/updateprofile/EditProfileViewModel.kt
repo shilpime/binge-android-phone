@@ -11,6 +11,7 @@ import com.tatasky.binge.data.networking.models.requests.UpdateEmailRequest
 import com.tatasky.binge.data.networking.models.response.BaseResponse
 import com.tatasky.binge.data.networking.models.response.ImageUploadResponse
 import com.tatasky.binge.data.networking.models.response.LoginResponse
+import com.tatasky.binge.data.networking.models.response.SubscriberIdListResponse
 import com.tatasky.binge.data.networking.models.response.SubscriberProfileListModel
 import com.tatasky.binge.domain.repositories.PrefsRepo
 import com.tatasky.binge.domain.usecase.CommonUseCase
@@ -21,13 +22,12 @@ import com.tatasky.binge.utils.RESPONSE_CODE_INVALID_EMAIL
 import com.tatasky.binge.utils.RESPONSE_CODE_INVALID_FIRST_NAME
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
-import java.util.ArrayList
-import javax.inject.Inject
 
 
 class EditProfileViewModel @Inject constructor(
@@ -45,9 +45,11 @@ class EditProfileViewModel @Inject constructor(
     private val _editImageProfileResponse = MutableLiveData<SingleEvent<ImageUploadResponse>>()
     fun getEditImageProfileResponse(): LiveData<SingleEvent<ImageUploadResponse>> =
         _editImageProfileResponse
+
     fun getValidEmail(): LiveData<SingleEvent<Boolean>> = _validEmail
     fun getValidName(): LiveData<SingleEvent<Boolean>> = _validName
-    fun getFetchProfileInfo(): LiveData<SingleEvent<SubscriberProfileListModel>> = _fetchProfileResponse
+    fun getFetchProfileInfo(): LiveData<SingleEvent<SubscriberProfileListModel>> =
+        _fetchProfileResponse
 
     fun updateEmailAddress(updateRequest: UpdateEmailRequest) {
         setProgressing(true)
@@ -88,7 +90,11 @@ class EditProfileViewModel @Inject constructor(
                         when (t.code) {
                             CODE_SUCCESS -> _editProfileResponse.postValue(SingleEvent(t))
                             RESPONSE_CODE_INVALID_EMAIL -> _validEmail.postValue(SingleEvent(false))
-                            RESPONSE_CODE_INVALID_FIRST_NAME -> _validName.postValue(SingleEvent(false))
+                            RESPONSE_CODE_INVALID_FIRST_NAME -> _validName.postValue(
+                                SingleEvent(
+                                    false
+                                )
+                            )
                             else -> setError(ErrorModel(message = t.message))
                         }
                         setProgressing(false)
@@ -146,13 +152,13 @@ class EditProfileViewModel @Inject constructor(
             })
     }
 
-    fun createRequest(email: String,rmn: String?, name: String?): UpdateEmailRequest {
+    fun createRequest(email: String, rmn: String?, name: String?): UpdateEmailRequest {
         return UpdateEmailRequest(
-           email.trim(),
-            rmn?: "",
+            email.trim(),
+            rmn ?: "",
             subscriberId = sharedPrefs.getOriginalSubscriberId() ?: "",
             baId = sharedPrefs.getBaId() ?: "",
-            name?:""
+            name ?: ""
         )
     }
 
@@ -174,9 +180,9 @@ class EditProfileViewModel @Inject constructor(
                             t
                         )
                     )
-                    if(t.code== CODE_SUCCESS) {
+                    if (t.code == CODE_SUCCESS) {
                         _fetchProfileResponse.postValue(SingleEvent(t))
-                        val list = t.userData?.languageList?: emptyList()
+                        val list = t.userData?.languageList ?: emptyList()
                         val listLang = ArrayList<String>()
                         list.forEach { listLang.add(it.name) }
                         val selectedProfileSaved = LoginResponse.BingeSubscription()
@@ -188,11 +194,37 @@ class EditProfileViewModel @Inject constructor(
                         selectedProfileSaved.imageUrl = t.userData?.image
                         sharedPrefs.setSelectedProfile(selectedProfileSaved)
                         sharedPrefs.setPrefLanguage(listLang)
-                        sharedPrefs.setAutoPlayTrailerOn(t.userData?.isTrailerAutoPlay?:true)
-                        sharedPrefs.setAllowWatchNotification(t.userData?.isWatchNotificationEnabled?:true)
-                        sharedPrefs.setAllowTransactionalNotification(t.userData?.isTransactionalNotificationEnabled?:true)
+                        sharedPrefs.setAutoPlayTrailerOn(t.userData?.isTrailerAutoPlay ?: true)
+                        sharedPrefs.setAllowWatchNotification(
+                            t.userData?.isWatchNotificationEnabled ?: true
+                        )
+                        sharedPrefs.setAllowTransactionalNotification(
+                            t.userData?.isTransactionalNotificationEnabled ?: true
+                        )
                     }
                 }
             })
     }
+
+    fun getSettingsPageVerbiage(): SubscriberIdListResponse.Settings =
+        sharedPrefs.getSubscriberIDListResponse()?.subscribersList?.firstOrNull()?.settings
+            ?: SubscriberIdListResponse.Settings(
+                editProfile = "Edit Profile",
+                videoLang = "Video Languages",
+                parentalControl = "Parental Control",
+                autoPlay = "Autoplay Trailer",
+                notificationSett = "Notification Settings",
+                transactionHist = "Transaction History",
+                manageDevices = "Manage Devices",
+                logout = "Logout",
+                loggedIn = "Logged - in Devices",
+                choose = "Choose Profile Picture",
+                capture = "Capture New",
+                from = "From Gallery",
+                remove = "Remove Profile Picture",
+                close = "close",
+                name = "Name",
+                email = "Email ID",
+                rmn = "Registered Mobile Number"
+            )
 }

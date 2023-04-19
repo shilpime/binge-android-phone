@@ -3,7 +3,6 @@ package com.tatasky.binge.ui.features.subscription.view
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.fragment.findNavController
@@ -17,10 +16,8 @@ import com.tatasky.binge.data.networking.models.response.PartnerPacks
 import com.tatasky.binge.databinding.FragmentSubscriptionBinding
 import com.tatasky.binge.interfaces.CommonDialogEventListener
 import com.tatasky.binge.ui.base.frameworks.base.BaseActivity
-import com.tatasky.binge.ui.base.frameworks.base.BaseFragment
 import com.tatasky.binge.ui.base.frameworks.base.CancellationBaseFragment
 import com.tatasky.binge.ui.base.frameworks.extensions.hide
-import com.tatasky.binge.ui.base.frameworks.extensions.invisible
 import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.features.dialog.DialogModel
 import com.tatasky.binge.ui.features.recharge.RechargeActivity

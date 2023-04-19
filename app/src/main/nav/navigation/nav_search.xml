@@ -41,6 +41,9 @@
                 app:argType="string"
                 android:defaultValue=""
                 app:nullable="false"/>
+            <argument
+                android:name="contentAnalyticsModel"
+                app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
         </action>
         <action
             android:id="@+id/action_searchFragment_to_action_sub_home_landing"

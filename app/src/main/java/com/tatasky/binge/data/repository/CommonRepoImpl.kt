@@ -4,12 +4,10 @@ import com.tatasky.binge.data.networking.models.requests.*
 import com.tatasky.binge.data.networking.models.response.*
 import com.tatasky.binge.data.networking.services.CommonService
 import com.tatasky.binge.domain.repositories.CommonRepository
-import com.tatasky.binge.epicon.PartnerContentAnalyticsRequest
-import com.tatasky.binge.hoichoi.HoichoiPlayebackResponse
-import com.tatasky.binge.hoichoi.HoichoiRequest
+import com.tatasky.binge.data.networking.models.response.HoichoiPlayebackResponse
+import com.tatasky.binge.data.networking.models.requests.HoichoiRequest
 import com.tatasky.binge.shemaroo.helper.ShemarooAnalyticsBody
 import com.tatasky.binge.data.networking.models.response.ChaupalUrlResponse
-import com.tatasky.binge.epicon.PlanetMarathiAnalyticsRequest
 import com.tatasky.binge.lionsgatehelper.LionsgateAnalyticsBody
 import com.tatasky.binge.shemaroo.modal.ShemarooSafeUrlResponse
 import com.tatasky.binge.ui.features.home.bottomsheet.select_language.models.SaveLanguageBody
@@ -32,6 +30,11 @@ class CommonRepoImpl(private val service: CommonService) : CommonRepository {
     override fun getSearchRails(intent: String?): Single<HomeResponse> {
         return service.getSearchRails(intent)
     }
+
+    override fun getSearchSuggestions(queryString : String) : Single<RecommendationResponse> {
+        return service.getSearchSuggestions(queryString)
+    }
+
     override fun getEpisodeSearchResponse(episodeSearchRequest: EpisodeSearchRequest) : Single<SeriesListResponse>{
         return service.getEpisodeSearchResponse(episodeSearchRequest)
     }
@@ -53,8 +56,8 @@ class CommonRepoImpl(private val service: CommonService) : CommonRepository {
         return service.toggleFavourite(toggleFavouriteRequest)
     }
 
-    override fun getLeftMenu(): Single<LeftMenuResponse> {
-        return service.getLeftMenuItem()
+    override fun getLeftMenu(deviceType: String): Single<LeftMenuResponse> {
+        return service.getLeftMenuItem(deviceType)
     }
 
     override fun getConfig(): Single<ConfigResponse> {
@@ -306,7 +309,7 @@ class CommonRepoImpl(private val service: CommonService) : CommonRepository {
         return service.callWorkOrderFS(baId, workOrderRequest)
     }
 
-    override fun initiateRecharge(sid: String,amount: String): Single<RechargeResponse>{
+    override fun initiateRecharge(sid: String, amount: String?): Single<RechargeResponse>{
         return service.initiateRecharge(sid, amount)
     }
 
@@ -658,12 +661,15 @@ class CommonRepoImpl(private val service: CommonService) : CommonRepository {
         return service.planetMarathiAnalytics(requestBody, contentType)
     }
 
-    override fun fetchGameFavs(request: WatchRequest) : Single<RecommendationResponse>{
-        return service.fetchGameFavs(request)
+    override fun fetchGameFavsOrCw(
+        request: WatchRequest,
+        isGameCw: Boolean
+    ): Single<RecommendationResponse> {
+        return service.fetchGameFavsOrCw(request, isGameCw)
     }
 
-    override fun addFavGame(profileId : String , sid: String , contentId : String , contentType : String) : Single<GameFavResponse>{
-        return service.addGameToFav(profileId, sid ,contentId , contentType)
+    override fun addFavGameOrCw(profileId : String , sid: String , contentId : String , contentType : String, cwEnabled : Boolean) : Single<GameFavResponse>{
+        return service.addGameToFavOrCw(profileId, sid, contentId, contentType, cwEnabled)
     }
 
     override fun generateVootPwaToken(request: HashMap<String, String>): Single<VootPwaResponse> {
@@ -681,8 +687,8 @@ class CommonRepoImpl(private val service: CommonService) : CommonRepository {
         return service.fetchVRHomeHierarchy(pageType, packName)
     }
 
-    override fun fetchRailData(railId : String) : Single<RecommendationResponse>{
-        return service.getEditorialRailData(railId)
+    override fun fetchRailData(railId: String, limit: Int?) : Single<RecommendationResponse>{
+        return service.getEditorialRailData(railId, limit)
     }
 
     override fun fetchLanguageRailData(): Single<RecommendationResponse> {
@@ -691,14 +697,34 @@ class CommonRepoImpl(private val service: CommonService) : CommonRepository {
 
     override fun fetchGenericPartnerDRMAPI(
         providerContentId: String?,
-        provider: String
+        provider: String,
+        contentTypeId: String,
+        contentType: String
     ): Single<GenericPartnerDRMResponse> {
-        return service.fetchGenericPartnerDRMAPI(providerContentId, provider)
+        return service.fetchGenericPartnerDRMAPI(
+            providerContentId,
+            provider,
+            contentTypeId,
+            contentType
+        )
     }
 
     override fun fetchGenreRailData(): Single<RecommendationResponse> {
         return service.fetchGenreRailData()
     }
 
+    override fun getAppleRedemptionUrl(
+        request : AppleRedemptionRequest,
+        originalSubscriberId: String
+    ): Single<AppleRedemptionResponse>{
+        return service.getAppleRedemptionUrl(request,originalSubscriberId)
+    }
 
+    override fun getLiveChannelContentDetails(channelId: String) =
+        service.getLiveChannelContentDetails(channelId)
+
+    override fun fetchPlaybackUrlsForDigitalFeed(
+        partnerName: String,
+        channelId: String
+    ) = service.fetchPlaybackUrlsForDigitalFeed(partnerName, channelId)
 }

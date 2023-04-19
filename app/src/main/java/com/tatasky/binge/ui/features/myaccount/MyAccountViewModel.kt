@@ -26,6 +26,7 @@ import com.tatasky.binge.utils.CODE_SUCCESS
 import com.tatasky.binge.utils.COMMON_ERROR_TITLE
 import com.tatasky.binge.utils.DTH_W_BINGE_NEW_USER
 import com.tatasky.binge.utils.NON_DTH_USER
+import com.tatasky.binge.utils.splitAnyString
 import io.reactivex.BackpressureStrategy
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -422,8 +423,43 @@ open class MyAccountViewModel @Inject constructor(private val moEngageHelper: Mo
                 }
             })
     }
-    fun getUserLoogedIn() = loggedoutState
+    fun getUserLoggedIn() = loggedoutState
     fun updateLoggedOutState(isLoggedOut: Boolean) {
         loggedoutState.postValue(SingleEvent(isLoggedOut))
+    }
+
+    fun setRefreshAccountCTAText(): String? =
+        sharedPrefs.getConfigResponse()?.data?.config?.refreshCTA
+
+    fun getSettingsPageVerbiage(): SubscriberIdListResponse.Settings =
+        sharedPrefs.getSubscriberIDListResponse()?.subscribersList
+            ?.firstOrNull()
+            ?.settings
+            ?.getTrimmedVerbiages()
+            ?: SubscriberIdListResponse.Settings(
+                editProfile = "Edit Profile",
+                videoLang = "Video Languages",
+                parentalControl = "Parental Control",
+                autoPlay = "Autoplay Trailer",
+                notificationSett = "Notification Settings",
+                transactionHist = "Transaction History",
+                manageDevices = "Manage Devices",
+                logout = "Logout",
+                loggedIn = "Logged - in Devices",
+                choose = "Choose Profile Picture",
+                capture = "Capture New",
+                from = "From Gallery",
+                remove = "Remove Profile Picture",
+                close = "close",
+                name = "Name",
+                email = "Email ID",
+                rmn = "Registered Mobile Number"
+            )
+
+    fun getVerbiageFromConfig(): ConfigResponse.SwitchAccount? =
+        sharedPrefs.getConfigResponse()?.data?.config?.switchAccount
+
+    fun splitSubID(): List<String>? {
+        return getVerbiageFromConfig()?.subText?.splitAnyString("\n")
     }
 }

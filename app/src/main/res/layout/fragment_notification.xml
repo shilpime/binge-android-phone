@@ -86,7 +86,7 @@
             style="@style/TSTextMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/notification_empty"
+            android:text="@{vm.setNoNotificationText()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

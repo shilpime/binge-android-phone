@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="isEligibleForFreeTrial"
+            type="Boolean" />
+        <variable
+            name="resendOtp"
+            type="String" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_subtitle_guest_login_verify_otp"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:textSize="@dimen/text_size_20"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/text_subtitle_guest_login_verify_otp" />
+
+        <include
+            android:id="@+id/cl_et_otp_container"
+            layout="@layout/layout_otp_view_without_hint"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="@dimen/view_margin_xlarge"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_subtitle_guest_login_verify_otp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:layout_marginBottom="@dimen/dimens_28dp"
+            app:layout_marginBottom="@{isEligibleForFreeTrial ? @dimen/dimens_28dp : @dimen/dimens_28dp}"
+            app:layout_constraintTop_toBottomOf="@id/cl_et_otp_container">
+
+            <TextView
+                android:id="@+id/tv_code_expiry_guest_login_verify_otp"
+                style="@style/TSTextDefault"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginTop="@dimen/view_margin_xlarge"
+                android:layout_marginEnd="@dimen/margin_8"
+                android:paddingTop="@dimen/padding_4dp"
+                android:paddingBottom="@dimen/padding_4dp"
+                android:textSize="@dimen/text_size_20"
+                android:visibility="gone"
+                tools:visibility="gone"
+                android:layout_marginStart="@dimen/tab_otp_margin"
+                tools:text="@string/text_code_expiry_guest_login_verify_otp" />
+
+            <TextView
+                android:id="@+id/tv_error_guest_login_verify_otp"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_xlarge"
+                android:layout_marginEnd="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:layout_marginStart="100dp"
+                android:textColor="@color/darkError"
+                android:textSize="@dimen/text_size_20"
+                android:visibility="gone"
+                tools:visibility="gone"
+                tools:text="Incorrect OTP" />
+
+            <TextView
+                android:id="@+id/tv_resend_otp_guest_login_verify_otp"
+                style="@style/TSTextBold"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_xlarge"
+                android:enabled="false"
+                android:gravity="end"
+                android:layout_weight="1"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:text="@{resendOtp}"
+                android:textColor="@color/button_color_tertiary"
+                android:textSize="@dimen/text_size_20"
+                tools:text="Resend Otp"
+                android:layout_marginEnd="@dimen/tab_otp_margin" />
+
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

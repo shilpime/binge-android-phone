@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="?actionBarSize"
+    app:cardCornerRadius="0dp"
+    app:cardElevation="8dp">
+
+<!--Applying theme ToolbarStyle to toolbar fixes Toolbar Title not bold issue but breaks action menu color-->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:minHeight="?attr/actionBarSize"
+        android:paddingStart="@dimen/margin_5"
+        android:paddingEnd="@dimen/margin_5"
+        app:contentPaddingBottom="-3dp"
+        app:contentPaddingLeft="-3dp"
+        app:contentPaddingRight="@dimen/margin_5"
+        app:contentPaddingTop="-3dp"
+        android:theme="@style/ToolbarStyle"/>
+</com.google.android.material.card.MaterialCardView>

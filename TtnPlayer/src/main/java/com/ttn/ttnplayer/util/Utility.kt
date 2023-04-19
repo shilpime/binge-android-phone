@@ -30,3 +30,10 @@ fun dpToPx(dp: Int, mContext:Context): Int {
     val displayMetrics: DisplayMetrics = mContext.resources.displayMetrics
     return (dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT)).roundToInt()
 }
+
+object ProviderSpecificRestrictions {
+    val PROVIDER_CHAUPAL_RESTRICTIONS = Pair(
+        3839 /*Max allowed video width in pixels*/,
+        2159 /*Max allowed video height pixels*/
+    )
+}

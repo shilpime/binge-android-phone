@@ -9,6 +9,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
+import com.tatasky.binge.analytics.util.emptyContentAnalyticsModel
 import com.tatasky.binge.customviews.EndlessListAdapter
 import com.tatasky.binge.data.networking.models.response.ContentItem
 import com.tatasky.binge.data.networking.models.response.RailPoint
@@ -31,8 +33,8 @@ class AllEpisodeAdapter(
     val id: String,
     private val cloudinaryUrl: String?,
     val episodeInfoClickListener: CommonDTOClickListener,
-    val isContenSubscribed : Boolean
-) : EndlessListAdapter<ContentItem, RecyclerView.ViewHolder>(mList) {
+    val isContenSubscribed : Boolean,
+) : EndlessListAdapter<ContentItem, RecyclerView.ViewHolder>(mList, emptyContentAnalyticsModel()) {
     init {
         autoUpdating = false
     }
@@ -53,13 +55,16 @@ class AllEpisodeAdapter(
         return View.GONE
     }
 
-    fun updateList(mItems: MutableList<ContentItem>, moreContentAvailable: Boolean = false) {
-
+    fun updateList(
+        mItems: MutableList<ContentItem>,
+        moreContentAvailable: Boolean = false,
+        contentAnalyticsModel: ContentAnalyticsModel,
+    ) {
         val diffResult = DiffUtil.calculateDiff(
             ContentItemDiffCallback(this.mDataList, mItems),
             false
         )
-        updateDataWithDiffCallback(mItems, diffResult)
+        updateDataWithDiffCallback(mItems, diffResult, contentAnalyticsModel)
 
 //        this.mDataList.clear()
 //        this.mDataList.addAll(0, mItems)
@@ -77,24 +82,29 @@ class AllEpisodeAdapter(
         isAppending = false
     }
 
-    fun addToList(mItems: List<ContentItem>, moreContentAvailable: Boolean) {
+    fun addToList(
+        mItems: List<ContentItem>,
+        moreContentAvailable: Boolean,
+        contentAnalyticsModel: ContentAnalyticsModel,
+    ) {
         removeLoading()
-        this.addTomDataList(mItems)
+        this.addTomDataList(mItems, contentAnalyticsModel)
 //        if (moreContentAvailable)
 //            addLoading()
     }
 
-    fun addToList(mItems: List<ContentItem>) {
+    fun addToList(mItems: List<ContentItem>, contentAnalyticsModel: ContentAnalyticsModel) {
         removeLoading()
-        this.addTomDataList(mItems)
+        this.addTomDataList(mItems, contentAnalyticsModel)
 //        if (moreContentAvailable)
 //            addLoading()
     }
 
 
-    fun prepandToList(mItems: List<ContentItem>) {
+    fun prepandToList(mItems: List<ContentItem>, contentAnalyticsModel: ContentAnalyticsModel) {
 //        val initialCount = this.mDataList.size
         this.mDataList.addAll(0, mItems)
+        setUpdateContentAnalyticsModel(contentAnalyticsModel)
         notifyItemRangeInserted(0, mItems.size)
         //this.addTomDataList(mItems)
     }
@@ -112,24 +122,6 @@ class AllEpisodeAdapter(
             val height = railPoint.mLandscapeHeight ?: 0
 
 
-            val layoutParams = ConstraintLayout.LayoutParams(width, height)
-            if (position % 2 == 0) {
-                layoutParams.setMargins(
-                    dpToPx(holder.binding.root.context, 0),//left
-                    dpToPx(holder.binding.root.context, 6),//top
-                    dpToPx(holder.binding.root.context, 4),//right
-                    dpToPx(holder.binding.root.context, 6)//bottom
-                )
-            } else {
-                layoutParams.setMargins(
-                    dpToPx(holder.binding.root.context, 4),//left
-                    dpToPx(holder.binding.root.context, 6),//top
-                    dpToPx(holder.binding.root.context, 0),//right
-                    dpToPx(holder.binding.root.context, 6)//bottom
-                )
-            }
-            holder.binding.root.layoutParams = layoutParams
-
             val contentItem = mDataList[position]
 
             contentItem.isPartnerSubscribed = isContenSubscribed
@@ -144,12 +136,17 @@ class AllEpisodeAdapter(
             imageLoad(holder.binding.image, url)
             holder.binding.root.setOnClickListener {
                 listener.onSubItemClick(
-                    contentItem, position, sectionPosition, EventConstants.TYPE_RAIL, listOf(
+                    contentItem,
+                    position,
+                    sectionPosition,
+                    EventConstants.TYPE_RAIL,
+                    listOf(
                         Pair(
                             holder.binding.image,
                             ViewCompat.getTransitionName(holder.binding.image) ?: "fd"
                         )
-                    )
+                    ),
+                    contentAnalyticsModel = contentAnalyticsModel ?: emptyContentAnalyticsModel()
                 )
             }
             holder.binding.ivMore.setOnClickListener {
@@ -158,7 +155,8 @@ class AllEpisodeAdapter(
                     position,
                     sectionPosition,
                     EventConstants.TYPE_RAIL,
-                    null
+                    null,
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             }
         } else if (holder is LoadMoreViewHolder) {

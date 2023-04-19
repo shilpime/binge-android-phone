@@ -1,6 +1,7 @@
 package com.tatasky.binge.ui.features.parentalcontrol.bottomsheet
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
@@ -24,6 +25,7 @@ import com.tatasky.binge.ui.base.frameworks.extensions.closeKeyboard
 import com.tatasky.binge.ui.base.frameworks.extensions.startProgressAvd
 import com.tatasky.binge.ui.features.home.LandingActivity
 import com.tatasky.binge.ui.features.parentalcontrol.ParentalControlViewModel
+import com.tatasky.binge.utils.isTablet
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
@@ -51,12 +53,24 @@ class ParentalControlBottomDialogFragment : BottomSheetDialogFragment() {
     private var showProgress: Runnable = Runnable { }
     var loaderDelayTime = 0L
 
-    private lateinit var standardBottomSheetBehavior: BottomSheetBehavior<FrameLayout>
+    private var standardBottomSheetBehavior: BottomSheetBehavior<FrameLayout>? = null
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
     }
+
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+
+        this.context?.let{ctx->
+            if(isTablet(ctx))
+                return Dialog(ctx, getTheme())
+        }
+        return super.onCreateDialog(savedInstanceState)
+
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -129,12 +143,13 @@ class ParentalControlBottomDialogFragment : BottomSheetDialogFragment() {
         mViewModel.ageRatingValue = parentalControlBottomDialogFragmentArgs.ageRatingValue
 
         mViewModel.fromNudge = parentalControlBottomDialogFragmentArgs.fromNudge
+
         mViewModel.pinEntrySource = parentalControlBottomDialogFragmentArgs.source
 
         mBinding.progressBarOverlay.setOnTouchListener { _, _ -> true }
 
-        standardBottomSheetBehavior = (dialog as BottomSheetDialog).behavior
-        standardBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        standardBottomSheetBehavior = (dialog as? BottomSheetDialog?)?.behavior
+        standardBottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
 
         mViewModel.parentalControlBottomDialogResult.observe(viewLifecycleOwner) {
             it?.getContentIfNotHandled()?.let { result ->

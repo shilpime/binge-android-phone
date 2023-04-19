@@ -20,3 +20,9 @@ fun e(Tag: String, msg: String?) {
         if (msg != null)
             Log.e(Tag, msg)
 }
+
+val Any.classNameTag: String
+    get() {
+        val tag = javaClass.simpleName
+        return if (tag.length <= 23) tag else tag.substring(0, 23)
+    }

@@ -542,7 +542,10 @@ open class FreemiumSubscriptionViewModel @Inject constructor(
                     when(t.code){
                         CODE_SUCCESS -> {
                             sharedPref.saveSubscribedPack(t.data,subscriptionAnalytics)
-                            updateInpack()
+                            if (!t.data?.subscriptionStatus.isNullOrBlank())
+                                updateInpack()
+                            else
+                                setError(ErrorModel(t.code , t.message))
                         }
                         else -> {
                             setError(ErrorModel(t.code , t.message))

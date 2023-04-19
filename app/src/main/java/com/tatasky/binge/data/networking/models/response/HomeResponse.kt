@@ -32,6 +32,12 @@ class HomeResponse : BaseResponse() {
         val finalItems: MutableList<Items>
             get() = items!!.filter { isValidItems(it, dthStatus) } as MutableList<Items>
         //get() = items!!.filter { isValidItems(it) }
+        @SerializedName("totalCount")
+        var totalCount: Int = 0
+        @SerializedName("continuePaging")
+        var continuePaging: Boolean? = null
+        @SerializedName("configType")
+        var configType: String? = null
     }
 
     class Items {
@@ -153,5 +159,25 @@ class HomeResponse : BaseResponse() {
         var maxLanguageAllowed:Int? = null
 
         var shuffleIndex = 0
+
+        // Keys for verbiage on favourite listing api
+        @SerializedName("bingeListEmpty")
+        var bingeListEmpty: String? = null
+        @SerializedName("subHeader")
+        var subHeader: String? = null
+        @SerializedName("cta")
+        var cta: String? = null
+        @SerializedName("bingeList")
+        var bingeList: String? = null
+        @SerializedName("ctaSelect")
+        var ctaSelect: String? = null
+        @SerializedName("ctaCancel")
+        var ctaCancel: String? = null
+        @SerializedName("ctaRemove")
+        var ctaRemove: String? = null
+        @SerializedName("ctaSelectAll")
+        var ctaSelectAll: String? = null
+        @SerializedName("ctaDeselect")
+        var ctaDeselect: String? = null
     }
 }

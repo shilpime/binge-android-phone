@@ -23,7 +23,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/other_device"
-            android:textSize="@dimen/text_size_14"
+            android:textSize="@dimen/tab_text_size14"
             android:layout_marginBottom="@dimen/dimens_7dp"
             android:visibility="gone"
             tools:visibility="visible"/>

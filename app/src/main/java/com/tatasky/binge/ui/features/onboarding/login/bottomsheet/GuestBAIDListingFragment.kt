@@ -77,10 +77,11 @@ class GuestBAIDListingFragment :
                     DialogModel(
                         false,
                         R.drawable.ic_device_center,
-                        maxDeviceLimitReachedResponse.message,
-                        getString(R.string.review_devices),
-                        getString(R.string.text_non_underlined_Not_Now),
-                        maxDeviceLimitReachedResponse.title
+                        title = viewModel.getVerbiageFromConfig()?.device?.header,
+                        viewModel.getVerbiageFromConfig()?.device?.review
+                            ?: getString(R.string.review_devices),
+                        secondaryButtonText = getString(R.string.text_non_underlined_Not_Now),
+                        text = viewModel.getVerbiageFromConfig()?.device?.subHeader
                     ), object :
                         CommonDialogEventListener {
                         override fun onPrimaryButtonClick() {

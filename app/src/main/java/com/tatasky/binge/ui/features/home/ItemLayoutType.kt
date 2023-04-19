@@ -9,6 +9,7 @@ enum class ItemLayoutType {
     CATEGORY,
     CIRCULAR,
     GENRE_LANDSCAPE,
+    GENRE_GAMES,
     TOP_PORTRAIT,
     POPULAR_CHARACTER,
     MIXED,
@@ -16,5 +17,7 @@ enum class ItemLayoutType {
     TITLE_RAIL,
     MID_SCROLL_RAIL,
     GENRE_RAIL_FOR_GAMES,
-    SQUARE
+    SQUARE,
+    BINGE_CHANNEL,
+    SINGLE_PROVIDER_BANNER_RAIL
 }

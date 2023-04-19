@@ -186,6 +186,7 @@
             android:layout_height="@dimen/button_height"
             android:layout_margin="@dimen/margin_20dp"
             android:text="@string/update_profile"
+            android:enabled="false"
             app:layout_constraintBottom_toTopOf="@id/tvCancel" />
 
         <TextView

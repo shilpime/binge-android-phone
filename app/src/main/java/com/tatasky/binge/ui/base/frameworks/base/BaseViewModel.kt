@@ -20,6 +20,7 @@ abstract class BaseViewModel : ViewModel() {
     private var _forceLogout = MediatorLiveData<Boolean>()
     private var _forceDeviceStatusLogout = MediatorLiveData<SingleEvent<Boolean>>()
     private var _updateInPack = MediatorLiveData<SingleEvent<Boolean>>()
+    private var _updateInOrientation = MediatorLiveData<SingleEvent<Boolean>>()
     var _isRetry =  MediatorLiveData<SingleEvent<Boolean>>()
     var retrySubject = PublishSubject.create<Any>()
 
@@ -47,6 +48,9 @@ abstract class BaseViewModel : ViewModel() {
 
     val updateInPack : LiveData<SingleEvent<Boolean>>
         get() = _updateInPack
+
+    val updateInOrientation : LiveData<SingleEvent<Boolean>>
+        get() = _updateInOrientation
 
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
@@ -97,6 +101,13 @@ abstract class BaseViewModel : ViewModel() {
 
     fun updateInpack() {
         _updateInPack.postValue(SingleEvent(true))
+    }
+
+    /**  This method will only react to orientation changes
+     *   when fragment is not visbile and the user revisits that fragment
+     */
+    fun updateInOrientation(){
+        _updateInOrientation.postValue(SingleEvent(true))
     }
 
 

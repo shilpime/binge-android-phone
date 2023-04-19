@@ -46,6 +46,7 @@ import com.tatasky.binge.ui.features.sidemenunavdrawer.SideMenuDrawerAnalytics
 import com.tatasky.binge.utils.*
 import com.tatasky.binge.utils.imagepicker.ImagePicker
 import java.io.File
+import java.util.Date
 import javax.inject.Inject
 
 /**
@@ -474,8 +475,6 @@ class FaqFragment : BaseFragment<FragmentFaqBinding, SettingsViewModel>() {
     }
 
     override fun toBeCalledOnce() {
-//        sideMenuDrawerAnalytics.trackFAQVisit()
-//        sideMenuDrawerAnalytics.trackContactUsVisit()
         binding.lifecycleOwner = viewLifecycleOwner
         val title =
             viewModel.sharedPrefs.getConfigResponse()?.data?.config?.helpCenterInfo?.helpCenterHeading
@@ -485,25 +484,15 @@ class FaqFragment : BaseFragment<FragmentFaqBinding, SettingsViewModel>() {
         }
 
         if (viewModel.sharedPrefs.getLoginStatus())
-            if (!sharedPrefs.getLoginResponse()?.helpCenterToken.isNullOrEmpty()
-                && !viewModel.sharedPrefs.getConfigResponse()?.data?.config?.helpCenterInfo?.helpCenterUrl.isNullOrEmpty()
-            ) {
-                val urlToOpen =
-                    (viewModel.sharedPrefs.getConfigResponse()?.data?.config?.helpCenterInfo?.helpCenterTokenBaseUrl
-                            + sharedPrefs.getLoginResponse()?.helpCenterToken)
-                        .toUri()
-                        .buildUpon()
-                        .appendQueryParameter(
-                            HELP_CENTER_DEEPLINK_URL_DATA,
-                            hcDeeplinkUrlData
-                        )
-                        .toString()
-                setWebView(urlToOpen)
+        {
 
-            } else if (viewModel.sharedPrefs.getFaqData() != null) {
-                viewModel.sharedPrefs.getFaqData()?.let {
+            sharedPrefs.getFaqData()?.let {
+                val differenceInTimeStamp = Date().time - it.helpCenterTokenTimeStamp
+                val hours = ((differenceInTimeStamp) / (1000 * 60 * 60))
+                if (!it.helpCenterToken.isNullOrEmpty() && hours < 24) {
                     val urlToOpen =
-                        (viewModel.sharedPrefs.getConfigResponse()?.data?.config?.helpCenterInfo?.helpCenterTokenBaseUrl + it.helpCenterToken)
+                        (viewModel.sharedPrefs.getConfigResponse()?.data?.config?.helpCenterInfo?.helpCenterTokenBaseUrl
+                            + it.helpCenterToken)
                             .toUri()
                             .buildUpon()
                             .appendQueryParameter(
@@ -512,9 +501,14 @@ class FaqFragment : BaseFragment<FragmentFaqBinding, SettingsViewModel>() {
                             )
                             .toString()
                     setWebView(urlToOpen)
+                } else {
+                    viewModel.fetchFaqs()
                 }
-            } else
+
+            } ?: kotlin.run {
                 viewModel.fetchFaqs()
+            }
+        }
         else {
             val urlWithMixpanelId =
                 Uri.parse(viewModel.sharedPrefs.getConfigResponse()?.data?.config?.helpCenterInfo?.helpCenterUrl)

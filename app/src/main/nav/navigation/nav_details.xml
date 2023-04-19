@@ -60,6 +60,49 @@
             app:argType="boolean"
             android:defaultValue="false"
             />
+        <argument
+            android:name="contentAnalyticsModel"
+            android:defaultValue="@null"
+            app:nullable="true"
+            app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/liveChannelPlayerFragment"
+        android:name="com.tatasky.binge.ui.features.live_channel.LiveChannelPlayerFragment"
+        tools:layout="@layout/fragment_live_channel_details">
+        <argument
+            android:name="contentItem"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.data.networking.models.response.ContentItem"
+            app:nullable="true" />
+        <argument android:name="fromGrid"
+            app:argType="boolean"
+            android:defaultValue="false"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/liveChannelDetailsFragment"
+        android:name="com.tatasky.binge.ui.features.live_channel.LiveChannelDetailsFragment"
+        tools:layout="@layout/fragment_live_channel_details">
+        <argument
+            android:name="contentItem"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.data.networking.models.response.ContentItem"
+            app:nullable="true" />
+        <argument android:name="fromGrid"
+            app:argType="boolean"
+            android:defaultValue="false"/>
+        <argument
+            android:name="railItemsModel"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.ui.features.home.model.RailItemsModel"
+            app:nullable="true" />
+        <argument
+            android:name="contentAnalyticsModel"
+            android:defaultValue="@null"
+            app:nullable="true"
+            app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
     </fragment>
 
     <include app:graph="@navigation/nav_nested_seeall"/>
@@ -74,6 +117,16 @@
         <argument android:name="fromGrid"
             app:argType="boolean"
             android:defaultValue="false"/>
+        <argument
+            android:name="railItemsModel"
+            android:defaultValue="@null"
+            app:argType="com.tatasky.binge.ui.features.home.model.RailItemsModel"
+            app:nullable="true" />
+        <argument
+            android:name="contentAnalyticsModel"
+            android:defaultValue="@null"
+            app:nullable="true"
+            app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
     </action>
     <action
         android:id="@+id/action_to_detail1"
@@ -93,6 +146,11 @@
             app:argType="boolean"
             android:defaultValue="false"
             />
+        <argument
+            android:name="contentAnalyticsModel"
+            android:defaultValue="@null"
+            app:nullable="true"
+            app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
     </action>
     <action
         android:id="@+id/action_detailsFragment_to_seeAllFragment"
@@ -168,6 +226,11 @@
             android:defaultValue="@null"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="contentAnalyticsModel"
+            android:defaultValue="@null"
+            app:nullable="true"
+            app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
     </action>
     <activity android:id="@+id/prime_activity"
         android:name="com.tatasky.binge.ui.features.prime.view.PrimeActivity">
@@ -263,16 +326,18 @@
         android:id="@+id/detailEpisodeBottomSheetDialogFragment"
         android:name="com.tatasky.binge.ui.features.details.bottomsheet.DetailEpisodeBottomSheetDialogFragment"
         android:label="DetailEpisodeBottomSheetDialogFragment" >
-
         <argument
             android:name="contentItem"
             app:argType="com.tatasky.binge.data.networking.models.response.ContentItem"
             app:nullable="false" />
-
         <argument
             android:name="episodeClick"
             app:argType="com.tatasky.binge.interfaces.EpisodeClickListener"/>
-
+        <argument
+            android:name="contentAnalyticsModel"
+            android:defaultValue="@null"
+            app:nullable="true"
+            app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
     </dialog>
 
     <fragment
@@ -302,7 +367,11 @@
             app:destination="@id/episodeVoiceSearch"
             app:popUpToInclusive="false"
             />
-
+        <argument
+            android:name="contentAnalyticsModel"
+            android:defaultValue="@null"
+            app:nullable="true"
+            app:argType="com.tatasky.binge.analytics.models.ContentAnalyticsModel"/>
     </fragment>
     <action
         android:id="@+id/action_detail_to_episode_see_all"
@@ -337,6 +406,10 @@
             android:defaultValue="PLAY"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="fromHeader"
+            app:argType="boolean"
+            android:defaultValue="false"/>
     </dialog>
     <action
         android:id="@+id/action_global_parentalControlBottomDialogFragment"

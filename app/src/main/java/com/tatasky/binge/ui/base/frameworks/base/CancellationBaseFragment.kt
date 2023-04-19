@@ -9,7 +9,6 @@ import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.SOURCE_PARTNER_HOME
-import com.tatasky.binge.analytics.SOURCE_SWITCH_SUBSCRIPTION
 import com.tatasky.binge.analytics.SWITCHSUBSCRIPTION
 import com.tatasky.binge.data.networking.models.ErrorModel
 import com.tatasky.binge.data.networking.models.response.LoginResponse
@@ -19,8 +18,11 @@ import com.tatasky.binge.ui.features.device_management.DeviceListManagementAnaly
 import com.tatasky.binge.ui.features.dialog.DialogModel
 import com.tatasky.binge.ui.features.recharge.launchRechargeActivity
 import com.tatasky.binge.ui.features.switchaccount.SwitchAccountActivity
-import com.tatasky.binge.utils.*
-import java.util.*
+import com.tatasky.binge.utils.LOGIN_MAX_DEVICE_ERROR_CODE
+import com.tatasky.binge.utils.getSubscriptionActivityIntent
+import com.tatasky.binge.utils.logoutApplication
+import com.tatasky.binge.utils.setSelectedAccountDetail
+import com.tatasky.binge.utils.startHomeScreen
 import javax.inject.Inject
 
 abstract class CancellationBaseFragment<VB : ViewDataBinding, baseViewModel : CancellationBaseViewModel> :
@@ -150,13 +152,15 @@ abstract class CancellationBaseFragment<VB : ViewDataBinding, baseViewModel : Ca
 			it.getContentIfNotHandled()?.let { maxDeviceLimitReachedResponse ->
 				showDialog(
 					DialogModel(
-						false,
-						R.drawable.ic_device_center,
-						maxDeviceLimitReachedResponse.message,
-						getString(R.string.review_devices),
-						getString(R.string.text_non_underlined_Not_Now),
-						maxDeviceLimitReachedResponse.title
-					), object :
+                        false,
+                        R.drawable.ic_device_center,
+                        title = sharedPrefs.getConfigResponse()?.data?.config?.device?.header,
+                        primaryButtonText =
+                        sharedPrefs.getConfigResponse()?.data?.config?.device?.review
+                            ?: getString(R.string.review_devices),
+                        secondaryButtonText = getString(R.string.text_non_underlined_Not_Now),
+                        text = sharedPrefs.getConfigResponse()?.data?.config?.device?.subHeader
+                    ), object :
 						CommonDialogEventListener {
 						override fun onPrimaryButtonClick() {
 							hideDialog()

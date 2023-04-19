@@ -2,7 +2,7 @@ package com.tatasky.binge.data.networking.models.requests
 
 import com.google.gson.annotations.SerializedName
 
-data class TARequest(@SerializedName("placeHolder") val placeHolder: String,
+data class TARequest(@SerializedName("placeHolder") var placeHolder: String,
                      @SerializedName("pageLimit") val pageLimit: String,
                      @SerializedName("pageType") val pageType: String? = null,
                      @SerializedName("id") var id: String = "",
@@ -17,5 +17,6 @@ data class TARequest(@SerializedName("placeHolder") val placeHolder: String,
                      @SerializedName("isLoggedIn") var isLoggedIn:Boolean = false,
                      @SerializedName("body") val body: EmptyBody,
                      @SerializedName("layoutType") var layoutType: String = "LANDSCAPE",
-                     @SerializedName("freeToggle") var freeToggle: Boolean? = null
+                     @SerializedName("freeToggle") var freeToggle: Boolean? = null,
+                     var masterGenre: String = ""
                      )

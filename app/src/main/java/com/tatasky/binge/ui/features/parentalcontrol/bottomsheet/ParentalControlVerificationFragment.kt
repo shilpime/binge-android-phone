@@ -145,6 +145,7 @@ class ParentalControlVerificationFragment :
     }
 
     override fun toBeCalledOnce() {
+        binding.vm = viewModel
         when {
             parentalControlVerificationFragmentArgs.isPinChangeRequested || parentalControlVerificationFragmentArgs.isPinResetRequested -> {
                 binding.titleParentalPinSetup.text =

@@ -7,8 +7,10 @@ import android.util.Log
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.tatasky.binge.analytics.*
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
 import com.tatasky.binge.data.database.model.GamesMixpanelInfoModel
 import com.tatasky.binge.data.networking.ApiCallback
 import com.tatasky.binge.data.networking.CallbackWrapper
@@ -26,7 +28,9 @@ import com.tatasky.binge.ui.features.home.HomeAnalytics
 import com.tatasky.binge.ui.features.home.ItemLayoutType
 import com.tatasky.binge.ui.features.home.ItemViewType
 import com.tatasky.binge.ui.features.home.adapter.HomeAdapter
+import com.tatasky.binge.ui.features.home.model.RailItemsModel
 import com.tatasky.binge.utils.*
+import com.tatasky.binge.utils.ContentUtil.isLiveContent
 import com.tatasky.binge.utils.PROVIDER
 import com.tatasky.binge.utils.RECOMMENDATION
 import io.reactivex.BackpressureStrategy
@@ -37,11 +41,12 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import javax.inject.Inject
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
-import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 class SubViewModel @Inject constructor(
     val useCase: CommonUseCase,
@@ -51,6 +56,7 @@ class SubViewModel @Inject constructor(
     var miscAnalytics: MiscAnalytics
 ) : CancellationBaseViewModel(useCase,sharedPrefs) {
 
+    var userManualRefresh = false
     var packUpdated: Boolean =false
     var sizeOfAdapter: Int = 0
     var isLoadMore: Boolean = false
@@ -59,12 +65,16 @@ class SubViewModel @Inject constructor(
     var isPullToRefresh = false
     var subscribed: Boolean = false
     var unsubscribed: Boolean = false
+    var isGameOfWeekAdded: Boolean = false
+    var isNewGameAdded: Boolean = false
     var cwWaitForTvod : Boolean = false
     var watchlistWaitForTvod = false
+    var isGameItemsAdded = false
     private var cwRailResponse: RecommendationResponse? = null
     private var watchlistRailResponse: RecommendationResponse? = null
     var tvodResponse: RecommendationResponse? = null
     private var items: MutableList<HomeResponse.Items> = mutableListOf()
+    private var mergeGamesList: MutableList<ContentItem> = mutableListOf()
     private var isRemoved: Boolean = false
     private var isRemovedTvod: Boolean = false
     private var tvodPosition: Int = -1
@@ -73,8 +83,10 @@ class SubViewModel @Inject constructor(
     private var isTvodHitOngoing = false
     var isContinueWatching = false
     var isGameFav = false
+    var isGameRP = false
     var isWatchlist = false
     var isTvodRail = false
+    var isDeviceTablet = false
     val PAGELIMIT = 10
     var pageOffset = 0
     var isKidsPage = false
@@ -89,6 +101,7 @@ class SubViewModel @Inject constructor(
     private val _seeAllClickedRail = MutableLiveData<SingleEvent<SeeAllTransition>>()
     private val homeResponse = MutableLiveData<SingleEvent<HomeResponse>>()
     private val _changedTotalRailsCount = MutableLiveData<SingleEvent<Int>>()
+    private val _resetHomeRVPosition = MutableLiveData<SingleEvent<Boolean>>()
     private val _afterAllUpdates = MutableLiveData<SingleEvent<Int>>()
     private var vrHierarchyResponse = HierarchyResponse()
     private var useVrData = false
@@ -102,6 +115,7 @@ class SubViewModel @Inject constructor(
     private var cwItem : HomeResponse.Items? = null
     private var tvodItem : HomeResponse.Items? = null
     private var gameFavItem  : HomeResponse.Items? = null
+    private var gameRPItem  : HomeResponse.Items? = null
 
     var isOnProgress = 0
     private lateinit var homeDisposable: Disposable
@@ -111,6 +125,9 @@ class SubViewModel @Inject constructor(
     private val mCategoryResponse =
         MutableLiveData<SingleEvent<LeftMenuResponse>>()
 
+    fun setUserManualRefresh1(b : Boolean){
+        userManualRefresh = b
+    }
 
     fun setpackUpdated(updated : Boolean){
         packUpdated=updated
@@ -124,7 +141,9 @@ class SubViewModel @Inject constructor(
             transitions: List<Pair<View, String>>?,
             railTitle: String,
             origin: String?,
-            gamesMixpanelInfoModel: GamesMixpanelInfoModel?
+            gamesMixpanelInfoModel: GamesMixpanelInfoModel?,
+            railItemsModel: RailItemsModel?,
+            contentAnalyticsModel: ContentAnalyticsModel
         ) {
             val extras = if (!transitions.isNullOrEmpty())
                 FragmentNavigatorExtras(*transitions.toTypedArray())
@@ -152,7 +171,8 @@ class SubViewModel @Inject constructor(
                 && true == iListItem.heroBannerType?.equals(HB_SEE_ALL, true)
                 && null != iListItem.railId?.toIntOrNull()){
 
-                mSeeAllClickListener.onSeeAllClick(Pair(iListItem.railId.toIntOrNull()!!, ""),
+                mSeeAllClickListener.onSeeAllClick(
+                    Pair(iListItem.railId.toIntOrNull()!!, ""),
                     sectionType = HB_SEE_ALL_VALUE,
                     railPosition = iListItem.railPosition.toIntOrNull()?:0,
                     placeHolder = "",
@@ -163,7 +183,8 @@ class SubViewModel @Inject constructor(
                     trendingProvider = null,
                     backgroundImage = iListItem?.backgroundImage,
                     layoutType = iListItem?.layoutType,
-                    refId = iListItem?.refId
+                    refId = iListItem?.refId,
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             } else {
                 if (iListItem.id == "0") {
@@ -175,7 +196,9 @@ class SubViewModel @Inject constructor(
                             iListItem,
                             extras,
                             sectionType,
-                            gamesMixpanelInfoModel
+                            gamesMixpanelInfoModel,
+                            railItemsModel,
+                            contentAnalyticsModel
                         )
                     )
                 )
@@ -221,7 +244,7 @@ class SubViewModel @Inject constructor(
                         gameTitle = iListItem.title,
                         freeGame = if (sharedPrefs.getSubscribedPack() == null || sharedPrefs.getSubscribedPack()?.isInactive != false) YES else NO,
                         releaseYear = iListItem.releaseYear ?: "",
-                        deviceType = PLATFORM_ANDROID_CAPS,
+                        deviceType = sharedPrefs.getDeviceType()?.uppercase()?:"",
                         packPrice = sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
                         packName = sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
                         source = gamePageName
@@ -250,7 +273,8 @@ class SubViewModel @Inject constructor(
                                 sharedPrefs.getSubscribedPack(),
                                 sharedPrefs.getLoginStatus(),
                                 iListItem.provider,
-                                iListItem.partnerSubscriptionType
+                                iListItem.partnerSubscriptionType,
+                                sharedPrefs.getSubscribedPack()?.appleRedemptionStatus
                             )
                         )
                             YES
@@ -264,14 +288,18 @@ class SubViewModel @Inject constructor(
                         else
                             NO,
                         iListItem.releaseYear ?: "",
-                        PLATFORM_ANDROID,
+                        sharedPrefs.getDeviceType() ?: "",
                         iListItem.actor?.joinToString(",")
                             ?: "",
                         pageName ?: "",
                         sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
                         sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
                         NO,
-                        if (iListItem.liveContent) YES else NO,
+                        liveContent = if (isLiveContent(
+                                iListItem.contentType,
+                                iListItem.liveContent
+                            )
+                        ) YES else NO,
                         iListItem.contentConfigType
                     )
                 }
@@ -390,7 +418,8 @@ class SubViewModel @Inject constructor(
                         sharedPrefs.getSubscribedPack(),
                         sharedPrefs.getLoginStatus(),
                         contentItem.provider,
-                        contentItem.partnerSubscriptionType
+                        contentItem.partnerSubscriptionType,
+                        sharedPrefs.getSubscribedPack()?.appleRedemptionStatus
                     )
                 )
                     YES
@@ -404,14 +433,18 @@ class SubViewModel @Inject constructor(
                 else
                     NO,
                 contentItem.releaseYear ?: "",
-                PLATFORM_ANDROID,
+                sharedPrefs.getDeviceType() ?: "",
                 contentItem.actor?.joinToString(",")
                     ?: "",
                 pageName ?: "",
                 sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
                 sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
                 NO,
-                if (contentItem.liveContent) YES else NO,
+                liveContent = if (isLiveContent(
+                        contentItem.contentType,
+                        contentItem.liveContent
+                    )
+                ) YES else NO,
                 contentItem.contentConfigType,
                 configType = contentItem.origin.uppercase(Locale.getDefault()),
             )
@@ -434,7 +467,7 @@ class SubViewModel @Inject constructor(
                 railType,
                 railCategory,
                 getTimeInUTC(System.currentTimeMillis(), ANALYTICS_TIME_FORMAT),
-                DEVICE_TYPE,
+                sharedPrefs.getDeviceType() ?: "",
                 sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
                 sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
             )
@@ -455,7 +488,8 @@ class SubViewModel @Inject constructor(
             backgroundImage:String?,
             layoutType: String?,
             refId : String,
-            packName : String?
+            packName : String?,
+            contentAnalyticsModel: ContentAnalyticsModel
         ) {
             if(item?.contentItem?.getOrNull(0)?.contentType.equals(TYPE_GAMES,true)){
                 var gamePageName = ""
@@ -498,7 +532,8 @@ class SubViewModel @Inject constructor(
                         layoutType = layoutType,
                         railPosition = railPosition,
                         refId = refId,
-                        packName = packName
+                        packName = packName,
+                        contentAnalyticsModel
                     )
                 )
             )
@@ -723,6 +758,23 @@ class SubViewModel @Inject constructor(
                     if (it.data == null) {
                         apiCallback.onFailure()
                     } else {
+                        /*val mNonSubscribedPartnerList = sharedPrefs.getNonSubscribedPartnerList()
+                        it.data?.contentItem?.forEach {
+                            it.isPartnerSubscribed = sharedPrefs.getSubscribedPack() != null &&
+                                    SubscriptionPackStatusEnum.ACTIVE.status.equals(sharedPrefs.getSubscribedPack()?.subscriptionStatus, true) &&
+                                    (mNonSubscribedPartnerList?.contains(it.provider.toLowerCase(Locale.getDefault())) == false)
+
+                            it.isCrown = it.containsCrown()
+
+                        }*/
+                        viewModelScope.launch {
+                            val crownDeferred = async {
+                                crownCalculation(it)
+                            }
+                            crownDeferred.await()
+
+                            apiCallback.onSuccessFullyCallback(it)
+                        }
                         e("TARequest", "Inside SuCCESS CODE")
                         apiCallback.onSuccessFullyCallback(it)
 
@@ -873,6 +925,17 @@ class SubViewModel @Inject constructor(
                     .subscribe {
                         fetchGameFavs(item)
                     }
+            }else if (
+                sharedPrefs.getLoginStatus()
+                && item.sectionSource.equals(ItemViewType.GAMEZOP_CONTINUE_PLAYING.name, ignoreCase = true)){
+                gameRPItem = item
+                isGameRP = true
+                isOnProgress++
+                Completable.timer(5, TimeUnit.MILLISECONDS)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        fetchGameRecentlyPlayed(item)
+                    }
             }
             else {
                 e("rail detail fetch" , "${item.id} ${item.contentItem.size} ${item.sectionSource}")
@@ -912,6 +975,17 @@ class SubViewModel @Inject constructor(
         item.taFallbackContentList = railItem.data?.taFallbackContentList
         if (item.recommendationPosition.isNullOrEmpty()) item.recommendationPosition =
             railItem.data?.recommendationPosition
+
+        if(isDeviceTablet && (item.sectionSource.equals(GAME_OF_THE_WEEK_SECTION,true)
+                || item.sectionSource.equals(
+                NEWLY_ADDED_GAMES_SECTION,true))){
+            if(item.contentItem.isNotEmpty()){
+               item.contentItem.forEach {
+                   it.mergeSectionType = item.sectionSource
+                   it.mergeSectionTitle = item.title
+               }
+            }
+        }
     }
 
 
@@ -948,7 +1022,7 @@ class SubViewModel @Inject constructor(
                 totalRails--
             }
         }
-        fetchRailData(item.id.toString(), apiCallback)
+        fetchRailData(item.id.toString(), item.sectionSource, apiCallback)
     }
 
 
@@ -965,7 +1039,7 @@ class SubViewModel @Inject constructor(
                 fetchTARails(item) // TODO DRP Discuss
             }
         }
-        fetchRailData(item.id.toString(), apiCallback)
+        fetchRailData(item.id.toString(), item.sectionSource, apiCallback)
     }
 
     private fun fetchRailContentForHeroBanner(item: HomeResponse.Items) {
@@ -982,7 +1056,7 @@ class SubViewModel @Inject constructor(
                 addHeroBannerWithTA(item) // TODO DRP Discuss
             }
         }
-        fetchRailData(item.id.toString(), apiCallback)
+        fetchRailData(item.id.toString(), item.sectionSource, apiCallback)
     }
 
     private fun fetchEditorialRails(item: HomeResponse.Items) {
@@ -1023,11 +1097,28 @@ class SubViewModel @Inject constructor(
                 totalRails--
             }
         }
-        fetchRailData(item.id.toString(), apiCallback)
+        fetchRailData(item.id.toString(), item.sectionSource, apiCallback)
     }
 
-    private fun fetchRailData(railId: String, apiCallback: ApiCallback<RecommendationResponse>) {
-        val disposable = useCase.fetchEditorialRailData(railId)
+    private fun fetchRailData(
+        railId: String,
+        sectionSource: String,
+        apiCallback: ApiCallback<RecommendationResponse>,
+    ) {
+        val disposable = useCase.fetchEditorialRailData(
+            railId = railId,
+            limit = if (sectionSource.equals(
+                    ItemViewType.BINGE_CHANNEL.name,
+                    true
+                ) || sectionSource.equals(
+                    ItemViewType.DARSHAN_CHANNEL.name,
+                    true
+                )
+            )
+                25
+            else
+                null
+        )
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -1036,7 +1127,24 @@ class SubViewModel @Inject constructor(
                         apiCallback.onFailure()
                     } else {
                         e("RailRequest", "Inside SuCCESS CODE")
-                        apiCallback.onSuccessFullyCallback(it)
+                        /*val mNonSubscribedPartnerList = sharedPrefs.getNonSubscribedPartnerList()
+                        it.data?.contentItem?.forEach {
+                            it.isPartnerSubscribed = sharedPrefs.getSubscribedPack() != null &&
+                                    SubscriptionPackStatusEnum.ACTIVE.status.equals(sharedPrefs.getSubscribedPack()?.subscriptionStatus, true) &&
+                                    (mNonSubscribedPartnerList?.contains(it.provider.toLowerCase(Locale.getDefault())) == false)
+
+                        }*/
+
+                        viewModelScope.launch {
+                            val crownDeferred = async {
+                                crownCalculation(it)
+                            }
+                            crownDeferred.await()
+
+                            apiCallback.onSuccessFullyCallback(it)
+                        }
+
+//                        apiCallback.onSuccessFullyCallback(it)
 
                     }
                 },
@@ -1044,6 +1152,59 @@ class SubViewModel @Inject constructor(
                     e("RailRequest", "Inside ERROR CODE: " + it.message)
                     apiCallback.onFailure()
                 })
+    }
+
+    private fun crownCalculation(it : RecommendationResponse) {
+        val mNonSubscribedPartnerList = sharedPrefs.getNonSubscribedPartnerList()
+
+        val isGuestUser = sharedPrefs.getLoginStatus()
+        val currentSub = sharedPrefs.getSubscribedPack()
+        val currentSubStatus = (currentSub != null) && !currentSub.isInactive
+        val freeEpVerb = sharedPrefs.getConfigResponse()?.data?.config?.firstEpisodeFreeVerbiage.toString()
+
+        fun checkCrownConditions(it : ContentItem){
+            it.isPartnerSubscribed = currentSubStatus && (mNonSubscribedPartnerList?.contains(it.provider.lowercase()) == false)
+            it.appleRedemptionStatus = sharedPrefs.getSubscribedPack()?.appleRedemptionStatus
+            it.isCrown = isShowCrownOnContent(
+                it.isPartnerSubscribed,
+                isGuestUser,
+                it.provider,
+                it.partnerSubscriptionType,
+                it.appleRedemptionStatus
+            )
+            it.firstFreeEpisodeVerbiage = freeEpVerb
+        }
+
+        // TODO [Live]: Review needed, Using filteredContentItems as for Live contentType replacing the Provider
+        it.data?.filteredContentItems?.forEach {
+            it.contentItem.forEach {
+                checkCrownConditions(it)
+            }
+            checkCrownConditions(it)
+        }
+        /*Added Crown logic for Browse By Apps*/
+        it.data?.filteredProvider?.forEach {
+            it.contentItem.forEach {
+                checkCrownConditions(it)
+            }
+        }
+
+        it.data?.taFallbackContentList?.forEach {
+            it.contentItem.forEach {
+                checkCrownConditions(it)
+            }
+            checkCrownConditions(it)
+        }
+
+        it.data?.shuffleList?.forEach { it ->
+            it.contentList.forEach { it1 ->
+                it1.contentItem.forEach {
+                    checkCrownConditions(it)
+                }
+                checkCrownConditions(it1)
+            }
+        }
+
     }
 
 
@@ -1108,7 +1269,8 @@ class SubViewModel @Inject constructor(
     }
 
 
-    fun checkDRPpages(pages: ArrayList<String>?): Boolean {
+    fun checkDRPpages(): Boolean {
+        val pages = sharedPrefs.getConfigResponse()?.data?.config?.drpPartnerPages
         pages?.let {
             for (page in it) {
                 if (page.equals(pageNameDrp, true))
@@ -1121,11 +1283,17 @@ class SubViewModel @Inject constructor(
     /**
      * Method to check which hierarchy data to be fetched TA/VR
      */
-    fun fetchHierarchyData(isShowLoader: Boolean) {
-
+    fun fetchHierarchyData(isShowLoader: Boolean, isTablet: Boolean?) {
         val config = sharedPrefs.getConfigResponse()?.data?.config
-        if (config?.bingeAndroidDrpEnabled == false
-            || !checkDRPpages(config?.drpPartnerPages)
+        if (isTablet != null && isTablet == true) {
+            if (config?.bingeTabletDrpEnabled == false
+                || !checkDRPpages()
+            ) {
+                fetchVRHomeHierarchy(isShowLoader)
+                return
+            }
+        } else if (config?.bingeAndroidDrpEnabled == false
+            || !checkDRPpages()
         ) {
             fetchVRHomeHierarchy(isShowLoader)
             return
@@ -1241,7 +1409,44 @@ class SubViewModel @Inject constructor(
             offset = 0,
             isForceRefresh = false
         )
-        useCase.fetchGameFavs(request)
+        useCase.fetchGameFavsOrCw(request)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeWith(object : CallbackWrapper<RecommendationResponse>(){
+                override fun onSuccessResponse(t: RecommendationResponse) {
+                    isOnProgress--
+                    item.contentItem = t.data?.contentItem as ArrayList<ContentItem>
+                    t?.let{
+                        railContentDataCorrection(item,t)
+                    }
+                    updateAdapter()
+                    if (isOnProgress < 0) {
+                        mAdapter.replaceContentItems(
+                            item,
+                            t?.data?.filteredContentItems as ArrayList<ContentItem>? ?: ArrayList()
+                        )
+                    }
+                }
+
+                override fun onError(error: ErrorModel?) {
+                    isOnProgress--
+                    updateAdapter()
+                }
+
+            })
+
+    }
+
+    @SuppressLint("CheckResult")
+    private fun fetchGameRecentlyPlayed(item: HomeResponse.Items) {
+        val request =  WatchRequest(
+            subscriberId = sharedPrefs.getOriginalSubscriberId(),
+            profileId = sharedPrefs.getProfileId()!!,
+            pagingState = null,
+            offset = 0,
+            isForceRefresh = false
+        )
+        useCase.fetchGameFavsOrCw(request,true)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeWith(object : CallbackWrapper<RecommendationResponse>(){
@@ -1439,15 +1644,57 @@ class SubViewModel @Inject constructor(
             setPackInAdapter()
             mAdapter.removeLoading()
             mAdapter.updateIsRefresh(isPullToRefresh)
-            mAdapter.updateIsPackUpdated(packUpdated)
+            if(userManualRefresh)
+                packUpdated = false
+            if(latestPageOffsetFromAPI == 0)
+                mAdapter.updateIsPackUpdated(packUpdated)
+            e("SubFragmentPackCheck","inside UpdateAdapter packUpdated : ${packUpdated}," +
+                " sharedPrefs.getLoginStatus():${sharedPrefs.getLoginStatus()}")
+
             isPullToRefresh = false
-            packUpdated = false
+            userManualRefresh = false
+//            packUpdated = false /*Removed this to resolve each refresh of the Home Page*/
             updateSwipeRefresh.postValue(SingleEvent(true))
             setProgressing(false)
             if (latestPageOffsetFromAPI == 0) {
                 mAdapter.setDthStatus(sharedPrefs.getDthStatusFreemium())
+                _resetHomeRVPosition.postValue(SingleEvent(true))
                 e("SubViewModel", "updateList offset : $pageOffset , size : ${items.size}")
 //                handleLanguageWidget()
+                if(isDeviceTablet && pageName.equals(PROVIDER_GAMEZOP,true)){
+                    var margeGameWeeklyItem:HomeResponse.Items?=null
+                    var gameOfWeekItem:HomeResponse.Items?=null
+                    var newlyAddedGameItem:HomeResponse.Items?=null
+                  items.forEach { it->
+                      if(it.sectionSource.equals(NEWLY_ADDED_GAMES_SECTION,true)){
+                          isNewGameAdded=true
+                          margeGameWeeklyItem=it
+                          gameOfWeekItem=it
+                          mergeGamesList.addAll(it.contentItem)
+                      }
+                      if(it.sectionSource.equals(GAME_OF_THE_WEEK_SECTION,true)){
+                          isGameOfWeekAdded=true
+                          margeGameWeeklyItem=it
+                          newlyAddedGameItem =it
+                          mergeGamesList.addAll(it.contentItem)
+                      }
+
+
+                  }
+                    if(isNewGameAdded && isGameOfWeekAdded) {
+                        margeGameWeeklyItem?.let {
+                            it.sectionSource = MERGE_GAME_RAIL_SECTION
+                            it.contentItem =
+                                (mergeGamesList ?: ArrayList()) as ArrayList<ContentItem>
+                            if (!items.contains(it)) {
+                                items.add(it)
+                            }
+                        }
+                        val newlyAddedGameIndex = items.indexOf(newlyAddedGameItem) ?: -1
+                        if (newlyAddedGameIndex != -1)
+                            items.removeAt(newlyAddedGameIndex)
+                    }
+                 }
                 mAdapter.updateList(items)
                 rotateHero()
                 if(items.size == 0)
@@ -1597,8 +1844,15 @@ class SubViewModel @Inject constructor(
                     if (it.data == null) {
                         apiCallback.onFailure()
                     } else {
-                        apiCallback.onSuccessFullyCallback(it)
 
+                        viewModelScope.launch {
+                            val crownDeferred = async {
+                                crownCalculation(it)
+                            }
+                            crownDeferred.await()
+
+                            apiCallback.onSuccessFullyCallback(it)
+                        }
                     }
                 },
                 {
@@ -1614,9 +1868,7 @@ class SubViewModel @Inject constructor(
             val contents =
                 cwRailResponse?.data?.filteredContentItems as ArrayList<ContentItem>? ?: ArrayList()
             val indexOf = items.indexOf(cwItem!!)
-            /*contents.forEach {
-                it.refId = refId
-            }*/
+
             if (indexOf != -1) {
                 items[indexOf].contentItem = contents
             } else {
@@ -1658,7 +1910,15 @@ class SubViewModel @Inject constructor(
                     if (it.data == null) {
                         apiCallback.onFailure()
                     } else {
-                        apiCallback.onSuccessFullyCallback(it)
+                        viewModelScope.launch {
+                            val crownDeferred = async {
+                                crownCalculation(it)
+                            }
+                            crownDeferred.await()
+
+                            apiCallback.onSuccessFullyCallback(it)
+                        }
+//                        apiCallback.onSuccessFullyCallback(it)
 
                     }
                 },
@@ -1706,6 +1966,8 @@ class SubViewModel @Inject constructor(
 
     fun getAfterAllUpdate(): LiveData<SingleEvent<Int>> = _afterAllUpdates
 
+    fun resetHomeRvPosition() : LiveData<SingleEvent<Boolean>> = _resetHomeRVPosition
+
     fun updateListenerForAddPack(onAddPackClickListener: AddPackListener, btnAdd : CharSequence) {
         mAdapter.setAddPackListener(onAddPackClickListener, btnAdd)
     }
@@ -1717,6 +1979,12 @@ class SubViewModel @Inject constructor(
     fun refreshGameFav(){
         gameFavItem?.let{
             fetchGameFavs(it)
+        }
+    }
+
+    fun refreshGameCW(){
+        gameRPItem?.let{
+            fetchGameRecentlyPlayed(it)
         }
     }
 
@@ -1881,8 +2149,11 @@ class SubViewModel @Inject constructor(
                 }
             }
         }
+
+
         if (item.title.toLowerCase().contains("language")) {
             if (item.languageType != null && !item.languageType.isNullOrEmpty()) {
+
                 if (item.title.toLowerCase().contains("language1")) {
                     item.title =
                         item.title.replace("language1", item.languageType!!, true)
@@ -1890,6 +2161,34 @@ class SubViewModel @Inject constructor(
                 if (item.title.toLowerCase().contains("language2")) {
                     item.title =
                         item.title.replace("language2", item.languageType!!, true)
+                }
+                if (item.title.toLowerCase().contains("language3")) {
+                    item.title =
+                        item.title.replace("language3", item.languageType!!, true)
+                }
+                if (item.title.toLowerCase().contains("language4")) {
+                    item.title =
+                        item.title.replace("language4", item.languageType!!, true)
+                }
+                if (item.title.toLowerCase().contains("language5")) {
+                    item.title =
+                        item.title.replace("language5", item.languageType!!, true)
+                }
+                if (item.title.toLowerCase().contains("language6")) {
+                    item.title =
+                        item.title.replace("language6", item.languageType!!, true)
+                }
+                if (item.title.toLowerCase().contains("language7")) {
+                    item.title =
+                        item.title.replace("language7", item.languageType!!, true)
+                }
+                if (item.title.toLowerCase().contains("language8")) {
+                    item.title =
+                        item.title.replace("language8", item.languageType!!, true)
+                }
+                if (item.title.toLowerCase().contains("language9")) {
+                    item.title =
+                        item.title.replace("language9", item.languageType!!, true)
                 }
                 if (item.title.toLowerCase().contains("language")) {
                     item.title =
@@ -1927,8 +2226,10 @@ class SubViewModel @Inject constructor(
     @SuppressLint("CheckResult")
     fun fetchMenuItems(lambda: (list: List<LeftMenuItem>) -> Unit) {
         setProgressing(true)
-
-        useCase.executeHomeMenuItems()
+        var deviceType= DEVICE_TYPE_MOBILE
+        if(isDeviceTablet)
+                 deviceType= DEVICE_TYPE_IPAD
+        useCase.executeHomeMenuItems(deviceType)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnError { error ->

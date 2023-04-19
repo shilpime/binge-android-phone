@@ -7,22 +7,32 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.tatasky.binge.R
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
 
-abstract class ListAdapter<D, VH : RecyclerView.ViewHolder>(protected var mDataList: MutableList<D> = mutableListOf()) :
+abstract class ListAdapter<D, VH : RecyclerView.ViewHolder>(
+    protected var mDataList: MutableList<D> = mutableListOf(),
+    protected var contentAnalyticsModel: ContentAnalyticsModel,
+) :
     RecyclerView.Adapter<VH>() {
 
     open fun getNoContentVisibility(): Int{
         return View.VISIBLE
     }
 
-    fun setmDataList(mDataList: MutableList<D>) {
+    protected fun setUpdateContentAnalyticsModel(contentAnalyticsModel: ContentAnalyticsModel) {
+        this.contentAnalyticsModel = contentAnalyticsModel
+    }
+
+    fun setmDataList(mDataList: MutableList<D>, contentAnalyticsModel: ContentAnalyticsModel) {
         this.mDataList = mDataList
+        setUpdateContentAnalyticsModel(contentAnalyticsModel)
         notifyDataSetChanged()
     }
 
-    fun addTomDataList(mDataList: List<D>) {
+    fun addTomDataList(mDataList: List<D>, contentAnalyticsModel: ContentAnalyticsModel) {
         val initialCount = this.mDataList.size
         this.mDataList.addAll(mDataList)
+        setUpdateContentAnalyticsModel(contentAnalyticsModel)
         notifyItemRangeInserted(initialCount, this.mDataList.size)
     }
 
@@ -31,9 +41,14 @@ abstract class ListAdapter<D, VH : RecyclerView.ViewHolder>(protected var mDataL
         return mDataList.size
     }
 
-    fun updateDataWithDiffCallback(newList:List<D>, diffUtil: DiffUtil.DiffResult){
+    fun updateDataWithDiffCallback(
+        newList: List<D>,
+        diffUtil: DiffUtil.DiffResult,
+        contentAnalyticsModel: ContentAnalyticsModel,
+    ) {
         this.mDataList.clear()
         this.mDataList.addAll(newList)
+        setUpdateContentAnalyticsModel(contentAnalyticsModel)
         diffUtil.dispatchUpdatesTo(this)
     }
 
@@ -51,8 +66,9 @@ abstract class ListAdapter<D, VH : RecyclerView.ViewHolder>(protected var mDataL
         notifyItemRangeRemoved(0, size)
     }
 
-    fun addAll(data: List<D>) {
+    fun addAll(data: List<D>, contentAnalyticsModel: ContentAnalyticsModel) {
         mDataList.addAll(data)
+        setUpdateContentAnalyticsModel(contentAnalyticsModel)
         notifyItemInserted(mDataList.size)
     }
 

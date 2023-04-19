@@ -35,6 +35,7 @@ class SharedPrefs(private val ctx: Context) : PrefsRepo {
         const val OSID = "ORIGINAL_SID"
         const val ACCESS_TOKEN = "ACCESS_TOKEN"
         const val DEVICE_TOKEN = "DEVICE_TOKEN"
+        const val DEVICE_TYPE = "DEVICE_TYPE"
         const val IS_LOGIN = "isLogin"
         const val USER_NAME = "userName"
         const val IS_KIDS = "isKids"
@@ -60,6 +61,7 @@ class SharedPrefs(private val ctx: Context) : PrefsRepo {
         const val PREF_KEY_SELECTED_BINGE_ID = "PREF_KEY_SELECTED_BINGE_ID"
 
         const val PREF_KEY_CONFIG_RESPONSE = "PREF_KEY_CONFIG_RESPONSE"
+        const val PREF_KEY_SUBSCRIBER_ID_LIST_RESPONSE = "PREF_KEY_SUBSCRIBER_ID_LIST_RESPONSE"
         const val PREF_KEY_ORIENTATION = "PREF_KEY_ORIENTATION"
         const val PREF_KEY_BINGE_SURVEY_NOTIFICATION = "PREF_KEY_BINGE_SURVEY_NOTIFICATION"
         const val PREF_KEY_BINGE_OFFERS_NOTIFICATION = "PREF_KEY_BINGE_OFFERS_NOTIFICATION"
@@ -190,6 +192,10 @@ class SharedPrefs(private val ctx: Context) : PrefsRepo {
         const val PREF_KEY_HOME_SCREEN_SEARCH_COACH_MARK_ENABLED = "PREF_KEY_HOME_SCREEN_SEARCH_COACH_MARK_ENABLED"
         const val PREF_KEY_SEARCH_SCREEN_MIC_COACH_MARK_ENABLED = "PREF_KEY_SEARCH_SCREEN_MIC_COACH_MARK_ENABLED"
         const val PREF_KEY_WELCOME_DIALOG_STATUS = "PREF_KEY_WELCOME_DIALOG_STATUS"
+        const val PREF_KEY_ALLOWED_LIVE_CHANNEL_IDS = "PREF_KEY_ALLOWED_LIVE_CHANNEL_IDS"
+        const val PARENTAL_PIN = "PARENTAL_PIN"
+        const val FROM_RATING = "FROM_RATING"
+        const val PREF_KEY_SONY_SHORT_TOKEN = "PREF_KEY_SONY_SHORT_TOKEN"
     }
 
     /**
@@ -394,7 +400,10 @@ class SharedPrefs(private val ctx: Context) : PrefsRepo {
             prefs.edit().putString(PREF_SEARCH_KEYWORDS, keyWord).apply()
         } else {
             val list = stringSet.split("_|_").toMutableList()
-            if (!list.contains(keyWord)) {
+            if(list.any { it.equals(keyWord, ignoreCase = true) }){
+                return
+            }
+            else if (!list.contains(keyWord)) {
                 list.add(0, keyWord)
             } else {
                 list.remove(keyWord)
@@ -545,6 +554,8 @@ class SharedPrefs(private val ctx: Context) : PrefsRepo {
             .remove(PREF_KEY_SILENT_LOGIN)
             .remove(PREF_KEY_MX_UPSELL_CLOSED)
             .remove(PREF_KEY_GENERIC_APP_LAUNCH_COUNT_FOR_LOGGED_IN_USER)
+            .remove(PREF_KEY_ALLOWED_LIVE_CHANNEL_IDS)
+            .remove(PREF_KEY_HELP_CENTER_DATA)
             .apply()
     }
 
@@ -660,6 +671,19 @@ class SharedPrefs(private val ctx: Context) : PrefsRepo {
         ) ?: return null
     }
 
+    override fun addSubscriberIDListResponse(subscriberIdListResponse: SubscriberIdListResponse) {
+        prefs.edit().putString(
+            PREF_KEY_SUBSCRIBER_ID_LIST_RESPONSE,
+            Gson().toJson(subscriberIdListResponse)).apply()
+    }
+
+    override fun getSubscriberIDListResponse(): SubscriberIdListResponse? {
+        return Gson().fromJson(
+            prefs.getString(PREF_KEY_SUBSCRIBER_ID_LIST_RESPONSE, null),
+            SubscriberIdListResponse::class.java
+        ) ?: return null
+    }
+
     override fun orientationEnabled(): Boolean {
         return prefs.getBoolean(PREF_KEY_ORIENTATION, true)
     }
@@ -752,7 +776,10 @@ class SharedPrefs(private val ctx: Context) : PrefsRepo {
 
 
     override fun saveSubscribedPack(pack: PartnerPacks?,subscriptionAnalytics:SubscriptionAnalytics) {
-        if(pack == null){
+        pack?.liveChannelIds?.let {
+            saveAllowedLiveChannelIds(it.toSet())
+        }
+        if(pack == null || pack.subscriptionStatus.isNullOrEmpty()){
             removeSubscribedPack()
             subscriptionAnalytics.trackUpdatedPackDetails(null)
             subscriptionAnalytics.updateGroupProfileWithSubscription(SID, getOriginalSubscriberId(),null)
@@ -761,34 +788,30 @@ class SharedPrefs(private val ctx: Context) : PrefsRepo {
             pack.takeIf {
                 !(it.subscriptionStatus.equals("REQUESTED", true) || it.subscriptionStatus.isNullOrEmpty())
             }?.let {
-//            pack?.productName = "VootSelect Starter Plan"
                 prefs.edit().putString(PREF_KEY_SUBSCRIBED_PACK, Gson().toJson(pack)).apply()
                 subscriptionAnalytics.trackUpdatedPackDetails(pack)
                 subscriptionAnalytics.updateGroupProfileWithSubscription(SID, getOriginalSubscriberId(),pack)
                 saveAccountDetails(Gson().toJson(
-                    Gson().fromJson<LoginResponse.BingeSubscription>(
+                    Gson().fromJson(
                         getAccountDetails(),
                         LoginResponse.BingeSubscription::class.java
                     )?.apply { freeTrialAvailed = true }
                 ))
-                val appList = pack?.getSelectedComponentAppList ?: emptyList()
+                val appList = pack.getSelectedComponentAppList
                 val setofPartnerIds = hashSetOf<String>()
                 for (app in appList) app.partnerId?.let { it1 -> setofPartnerIds.add(it1) }
                 savePartnerIdsList(setofPartnerIds)
-//        } ?: prefs.edit().putString(PREF_KEY_SUBSCRIBED_PACK, null).apply()
-                saveFirestickTaken(pack?.fsTaken ?: false)
-                saveContentPlaybackAllowed(pack?.contentPlayBackHybrid ?: false)
-                saveDeviceCancellationFlag(pack?.deviceCancellationFlag ?: false)
+                saveFirestickTaken(pack.fsTaken)
+                saveContentPlaybackAllowed(pack.contentPlayBackHybrid)
+                saveDeviceCancellationFlag(pack.deviceCancellationFlag)
                 pack.subscriptionType?.let {it ->
                     subscriptionAnalytics.updateProperty(FIRE_TV, if(it.equals(subscriptionTypeFtv, true)) YES else NO)
                     subscriptionAnalytics.updateProperty(ATV,if(it.equals(subscriptionTypeAtv, true)) YES else NO)
                     saveSubscriptionType(it)
                 }
-//            pack?.subscriptionDetailInfo?.subscriptionType?.let { saveSubscriptionType(it) }
-                savePartnerUniqueId(pack?.partnerUniqueId)
-//            pack?.rmn?.let { saveRMN(it) }
-                pack?.dthStatus?.let { saveDTHAccountStatus(it) }
-                pack?.accountSubStatus?.let { saveDTHAccountSubStatus(it) }
+                savePartnerUniqueId(pack.partnerUniqueId)
+                pack.dthStatus?.let { saveDTHAccountStatus(it) }
+                pack.accountSubStatus?.let { saveDTHAccountSubStatus(it) }
             }
     }
     override fun getPartnerDetail(partnerName: String, partnerUniqueIdInfo: ProviderInfo?) : PartnerUniqueInfo?{
@@ -814,6 +837,21 @@ class SharedPrefs(private val ctx: Context) : PrefsRepo {
             prefs.getString(PREF_KEY_SUBSCRIBED_PACK, null),
             PartnerPacks::class.java
         )
+    }
+
+    override fun getNonSubscribedPartnerList(): List<String?>? {
+        val nonSubscribedPartnerList = ArrayList<String>()
+        getSubscribedPack()?.nonSubscribedPartnerList?.let { partnerList ->
+            e("RailAdapter","partnerList:$partnerList")
+            for (partner in partnerList){
+                nonSubscribedPartnerList.add((partner.partnerName ?: "").toLowerCase())
+            }
+        }
+//        val mNonSubscribedPartnerList =
+//            getSubscribedPack()?.nonSubscribedPartnerList?.map {
+//                it.partnerName?.lowercase()
+//            }
+        return nonSubscribedPartnerList
     }
 
     override fun removeSubscribedPack(){
@@ -1081,6 +1119,11 @@ class SharedPrefs(private val ctx: Context) : PrefsRepo {
     }
 
     override fun setPrefLanguage(list: List<String>) {
+        if(list.isEmpty()){
+            setLanguageWidgetVisibility(true)
+        } else {
+            setLanguageWidgetVisibility(false)
+        }
         prefs.edit().putStringSet(PREF_LANGAUAGES, list.toSet()).apply()
     }
 
@@ -1356,6 +1399,8 @@ class SharedPrefs(private val ctx: Context) : PrefsRepo {
             .remove(PREF_KEY_NEXT_GAME_ANIM_TIME)
             .remove(PREF_KEY_MX_UPSELL_CLOSED)
             .remove(PREF_KEY_GENERIC_APP_LAUNCH_COUNT_FOR_LOGGED_IN_USER)
+            .remove(PREF_KEY_ALLOWED_LIVE_CHANNEL_IDS)
+            .remove(PREF_KEY_HELP_CENTER_DATA)
             .apply()
     }
 
@@ -1820,7 +1865,7 @@ class SharedPrefs(private val ctx: Context) : PrefsRepo {
 
     override fun isManagedAppEnabled(): Boolean {
         return prefs.getBoolean(PREF_KEY_MANAGED_APP_ENABLED, true)//getConfigResponse()?.data?.config?.managedAppEnabled == true
-//        return true
+//        return false
     }
 
     override fun isGameHapticFeedbackEnabled() =
@@ -1893,4 +1938,47 @@ class SharedPrefs(private val ctx: Context) : PrefsRepo {
     }
 
     override fun getWelcomeDialogStatus() =  prefs.getBoolean(PREF_KEY_WELCOME_DIALOG_STATUS, false)
+
+    override fun saveAllowedLiveChannelIds(allowedLiveChannelIds: Set<String>) {
+        prefs.edit {
+            putStringSet(PREF_KEY_ALLOWED_LIVE_CHANNEL_IDS, allowedLiveChannelIds)
+        }
+    }
+
+    override fun getAllowedLiveChannelIds(): Set<String>? =
+        prefs.getStringSet(PREF_KEY_ALLOWED_LIVE_CHANNEL_IDS, null)
+
+    override fun setParentalPin(pin: String) {
+        prefs.edit {
+            putString(PARENTAL_PIN, pin)
+        }
+    }
+
+    override fun getParentalPin(): String? = prefs.getString(PARENTAL_PIN,null)
+    override fun sethandleRatingScreenTablet(from: String) {
+        prefs.edit {
+            putString(FROM_RATING, from)
+        }
+    }
+
+    override fun gethandleRatingScreenTablet(): String? =prefs.getString(FROM_RATING,null)
+
+    override fun getDeviceType(): String? {
+        return prefs.getString(DEVICE_TYPE, "")
+    }
+
+    override fun setDeviceType(deviceType: String) {
+        prefs.edit().putString(DEVICE_TYPE, deviceType).apply()
+    }
+
+
+
+
+    override fun getSonyOldToken(): String? {
+        return prefs.getString(PREF_KEY_SONY_SHORT_TOKEN, null)
+    }
+
+    override fun setSonyOldToken(shortToken: String) {
+        prefs.edit().putString(PREF_KEY_SONY_SHORT_TOKEN, shortToken).apply()
+    }
 }

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.tatasky.binge.ui.features.onboarding.login.LoginViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="@dimen/tab_popup_max_width">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_tab_popup_bg"
+                android:transitionGroup="true"
+                app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+                tools:context=".ui.features.onboarding.login.bottomsheet.GuestSidListingFragment">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_margin_start"
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".18" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_margin_end"
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent=".82" />
+
+                <include
+                    android:id="@+id/header"
+                    layout="@layout/layout_header_guest_login" />
+
+                <View
+                    android:id="@+id/view"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/header" />
+
+                <TextView
+                    android:id="@+id/tv_subtitle_guest_login_sid_listing"
+                    style="@style/TSTextDefault"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="90dp"
+                    android:gravity="center"
+                    android:text="@{viewModel.setVerbiageForLoginScreen().subHeader1}"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/header" />
+
+                <com.tatasky.binge.customviews.CustomRecyclerView
+                    android:id="@+id/recycler_view"
+                    setAdapter="@{viewModel.getSelectSIDAdapter()}"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:nestedScrollingEnabled="true"
+                    android:scrollbars="none"
+                    app:layoutManager="com.tatasky.binge.customviews.RVLinearLayoutManager"
+                    app:layout_constraintBottom_toTopOf="@id/btnNext"
+                    app:layout_constraintEnd_toStartOf="@id/guideline_margin_end"
+                    app:layout_constraintStart_toEndOf="@id/guideline_margin_start"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_subtitle_guest_login_sid_listing"
+                    tools:listitem="@layout/layout_subscriber_id" />
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNext"
+                    android:layout_width="280dp"
+                    android:layout_height="@dimen/tab_button_height"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginHorizontal="180dp"
+                    android:layout_marginBottom="32dp"
+                    android:enabled="false"
+                    android:text="@{viewModel.setVerbiageForLoginScreen().cta}"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/recycler_view" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

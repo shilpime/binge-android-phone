@@ -48,4 +48,6 @@ internal interface TtnPlayerControl {
     fun setHandleAudioBecomingNoisy(value: Boolean)
     fun setEpisodeMode()
     fun setMiniTimeBar(timeBar:TimeBar?)
+    fun showAddToWatchlist()
+    fun hideAddToWatchlist()
 }

@@ -104,6 +104,7 @@ class SelectLanguageAdapter(
             val point = getLanguageWidgetWidth(binding.root.context!!)
             val width = point.x//dpToPx(binding.root.context, 164)
             val height = dpToPx(binding.root.context, 54)
+            //commented for tablet ui (two pane)
             val layoutParams =
                 LinearLayout.LayoutParams(width, height)
             layoutParams.setMargins(
@@ -112,7 +113,7 @@ class SelectLanguageAdapter(
                 dpToPx(binding.root.context, 4),
                 dpToPx(binding.root.context, 8)
             )
-            binding.clLanguage.layoutParams = layoutParams
+           // binding.clLanguage.layoutParams = layoutParams
             binding.tvTitle.text = mLanguageItemList[position].title
             binding.clLanguage.isSelected = mLanguageItemList[position].isSelected
             val url = getCloudinaryUrl(

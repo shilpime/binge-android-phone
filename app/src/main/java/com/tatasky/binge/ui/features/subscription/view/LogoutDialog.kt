@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import com.tatasky.binge.R
 import com.tatasky.binge.customviews.CustomDialog
 import com.tatasky.binge.databinding.LayoutCommonDialogBinding
-import com.tatasky.binge.interfaces.CommonDialogEventListener
 import com.tatasky.binge.ui.features.dialog.DialogModel
 import com.tatasky.binge.utils.logoutApplication
 

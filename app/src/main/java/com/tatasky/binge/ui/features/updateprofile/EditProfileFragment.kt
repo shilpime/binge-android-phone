@@ -3,10 +3,14 @@ package com.tatasky.binge.ui.features.updateprofile
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
+import android.view.WindowManager
+import android.widget.FrameLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.fragment.findNavController
@@ -26,11 +30,12 @@ import com.tatasky.binge.ui.features.splash.SplashAnalytics
 import com.tatasky.binge.utils.*
 import com.tatasky.binge.utils.imagepicker.ImagePicker
 import com.tatasky.binge.utils.imagepicker.ImagePicker.PERMISSION_REQUEST_CODE
-import java.io.File
 import javax.inject.Inject
+import java.io.File
 
 class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfileViewModel>() {
 
+    private lateinit var layoutParams: FrameLayout.LayoutParams
     private var dthStatus: String? = null
     private var prevEmail: String? = null
     private var prevName: String? = null
@@ -46,7 +51,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if(true == savedInstanceState?.containsKey("filePath")){
-            ImagePicker.setCameraFilePath(savedInstanceState?.getString("filePath", ""))
+            ImagePicker.setCameraFilePath(savedInstanceState.getString("filePath", ""))
         }
         //hideNudges()
         (activity as? LandingActivity)?.hideNudges()
@@ -59,13 +64,18 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
         return R.layout.fragment_edit_profile
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+    }
+
+
     override fun getViewModelOwner(): ViewModelStoreOwner {
         return this
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
         binding.etFirstName.et.setOnEditorActionListener { v, actionId, event ->
             binding.etEmail.et.focus()
             true
@@ -79,43 +89,6 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
             binding.root.closeKeyboard()
             true
         }
-
-        binding.etFirstName.et.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                binding.btnUpdateProfile.isEnabled =
-                    (!s?.toString()?.trim().equals(prevName)
-                            || binding.etEmail.et.text.toString().trim() != prevEmail)
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.etFirstName.til.clearError()
-            }
-        })
-
-        binding.etEmail.et.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                if(NON_DTH_USER.equals( dthStatus, true)) {
-                    binding.btnUpdateProfile.isEnabled =
-                        (!s?.toString()?.trim().equals(prevEmail)
-                                || binding.etFirstName.et.text.toString().trim() != prevName)
-                }
-                else {
-                    binding.btnUpdateProfile.isEnabled =
-                        !s?.toString()?.trim().equals(prevEmail)
-
-                }
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.etEmail.til.clearError()
-            }
-        })
     }
 
     override fun setObserver() {
@@ -126,13 +99,13 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
                 }
             }
         })
-        viewModel.getFetchProfileInfo().observe(viewLifecycleOwner, {
+        viewModel.getFetchProfileInfo().observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.userData?.let {
                 //update User profile
                 editProfileFragmentArgs.profileModel.image = it.image
                 updateUI(it)
             }
-        })
+        }
         viewModel.getEditProfileResponse().observe(viewLifecycleOwner, Observer { it ->
             it.getContentIfNotHandled()?.let { response ->
                 showToast(context, response.message?:"")
@@ -189,6 +162,48 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
             }
         })
     }
+    private fun checkConfirmBtnState() {
+
+        binding.etFirstName.et.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (binding.etFirstName.et.hasFocus()) {
+                    binding.btnUpdateProfile.isEnabled =
+                        (!s?.toString()?.trim().equals(prevName?.trim())
+                            || binding.etEmail.et.text.toString().trim() != prevEmail)
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                binding.etFirstName.til.clearError()
+            }
+        })
+
+        binding.etEmail.et.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (binding.etEmail.et.hasFocus()) {
+                    if (NON_DTH_USER.equals(dthStatus, true)) {
+                        binding.btnUpdateProfile.isEnabled =
+                            (!s?.toString()?.trim().equals(prevEmail)
+                                || binding.etFirstName.et.text.toString().trim() != prevName?.trim())
+                    } else {
+                        binding.btnUpdateProfile.isEnabled =
+                            !s?.toString()?.trim().equals(prevEmail?.trim())
+
+                    }
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                binding.etEmail.til.clearError()
+            }
+        })
+    }
 
     override fun toBeCalledOnce() {
         profileAnalytics.trackEditProfileVisit()
@@ -197,8 +212,28 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
         val model : SubscriberProfileListModel.Data = editProfileFragmentArgs.profileModel
         updateUI(model)
         setListeners()
+        uiChanges()
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        uiChanges()
+    }
+
+    private fun uiChanges() {
+        activity?.let {
+            if(isTablet(it)){
+                binding.toolbarLayout.visibility = View.INVISIBLE
+                layoutParams= binding.editOuter?.layoutParams as FrameLayout.LayoutParams
+                binding.editOuter?.layoutParams = layoutParams.apply {
+                    layoutParams.marginStart = it.resources.getDimensionPixelSize(R.dimen.tab_padding)
+                    layoutParams.marginEnd  = it.resources.getDimensionPixelSize(R.dimen.tab_padding_right)
+                }
+                // TODO: More better approach needed
+                activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+            }
+        }
+    }
     private fun setListeners() {
         binding.ivCaptureImage.setOnClickListener {
             showCaptureProfilePicAlert()
@@ -206,7 +241,6 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
 
         binding.tvCancel.setOnClickListener {
             findNavController().navigateUp()
-
         }
 
         binding.btnUpdateProfile.setOnClickListener {
@@ -254,12 +288,13 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
             editProfileFragmentArgs.profileModel.lastName
                 ?: ""
         }"
-        binding.userName = if(prevName?.trim()?.length?:0 >0) prevName else ""
+        binding.userName = if ((prevName?.trim()?.length ?: 0) > 0) prevName else ""
         setImage(editProfileFragmentArgs.profileModel)
+        checkConfirmBtnState()
     }
 
     private fun showCaptureProfilePicAlert() {
-        showProfilePicAlert(viewModel.profilePicExists,
+        showProfilePicAlert(viewModel.profilePicExists, viewModel.getSettingsPageVerbiage(),
             binding.root.context, object : ProfileDialogEventListener {
                 override fun onRemoveButtonClick() {
                     isRemovePic = true
@@ -356,7 +391,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
         binding.tvFirstName.etValue = selectedProfile.firstName+" "+selectedProfile.lastName
         selectedProfile.let {
             if(it.firstName?.isNotBlank() == true)
-                binding.tvLetter.text = (it.firstName?.substring(0, 1) ?: "A").toUpperCase()
+                binding.tvLetter.text = (it.firstName?.substring(0, 1) ?: "A").uppercase()
             if (it.image.isNullOrEmpty() && it.firstName?.isNotBlank() == true) {
                 viewModel.profilePicExists = false
                 binding.tvLetter.show()

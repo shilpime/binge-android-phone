@@ -19,7 +19,6 @@ import android.net.Uri
 import android.os.*
 import android.provider.Settings
 import android.text.TextUtils
-import android.util.Log
 import android.view.*
 import android.webkit.URLUtil
 import android.widget.ImageView
@@ -32,9 +31,12 @@ import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsService
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.SharedElementCallback
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -55,6 +57,7 @@ import com.bumptech.glide.request.target.Target
 import com.erosnow.partner.ENSDK
 import com.erosnow.partner.`interface`.EnLoginListener
 import com.erosnow.partner.model.ENError
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.transition.MaterialSharedAxis
 import com.google.gson.Gson
@@ -68,13 +71,15 @@ import com.sonylivandroidtssdk.SonyLivSDKInitializeModel
 import com.tatasky.binge.BuildConfig
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.*
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
+import com.tatasky.binge.analytics.util.emptyContentAnalyticsModel
 import com.tatasky.binge.data.database.model.GamesMixpanelInfoModel
 import com.tatasky.binge.data.networking.models.ErrorModel
+import com.tatasky.binge.data.networking.models.requests.HoichoiRequest
 import com.tatasky.binge.data.networking.models.response.*
 import com.tatasky.binge.databinding.FragmentDetailBinding
 import com.tatasky.binge.databinding.LayoutToastSuccessFailureBinding
 import com.tatasky.binge.helper.imageLoad
-import com.tatasky.binge.hoichoi.HoichoiRequest
 import com.tatasky.binge.interfaces.*
 import com.tatasky.binge.shemaroo.helper.ShemarooHelper
 import com.tatasky.binge.ui.base.MyApp
@@ -90,7 +95,9 @@ import com.tatasky.binge.ui.features.dialog.DialogModel
 import com.tatasky.binge.ui.features.home.HomeAnalytics
 import com.tatasky.binge.ui.features.home.LandingActivity
 import com.tatasky.binge.ui.features.home.PlayAuthTypeEnum
+import com.tatasky.binge.ui.features.home.PlayButtonType
 import com.tatasky.binge.ui.features.home.adapter.RailAdapter
+import com.tatasky.binge.ui.features.home.model.RailItemsModel
 import com.tatasky.binge.ui.features.home.model.RailsModel
 import com.tatasky.binge.ui.features.onboarding.login.bottomsheet.temp.GuestLoginBottomSheetResult
 import com.tatasky.binge.ui.features.parentalcontrol.bottomsheet.*
@@ -99,6 +106,7 @@ import com.tatasky.binge.ui.features.player.PlayerModel
 import com.tatasky.binge.ui.features.player.PlayerViewModel
 import com.tatasky.binge.ui.features.watchlist.WatchlistAnalytics
 import com.tatasky.binge.utils.*
+import com.tatasky.binge.utils.ContentUtil.isLiveContent
 import com.tatasky.binge.utils.OrientationManager.ScreenOrientation.*
 import com.tatasky.binge.utils.RECOMMENDATION
 import com.tatasky.binge.voot.model.VootRequest
@@ -106,11 +114,12 @@ import com.ttn.ttnplayer.player.SubtitleDTO
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import javax.inject.Inject
+import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.android.synthetic.main.custom_tab.*
 import java.net.URI
 import java.util.*
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 const val KEY_GUEST_LOGIN_BOTTOM_SHEET_RESULT = "keyGuestLoginBottomSheetResult"
 
@@ -120,11 +129,15 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     private var incrementCountOnlyOnce: Boolean = false
     private val TAG: String = DetailsFragment::class.java.simpleName
     private var isPackUpdated: Boolean =false
+    private var isTabletSwitchToFullScreen: Boolean =false
+    private var isTabletLandscape: Boolean =false
     private var partnerSubscriptionTypeForPlayBtn: String? = null
     private var partnerSubscriptionTypeOnPlay: String? = null
     private var isResultHandled = false
     private var iListItem: ContentItem? = null
     private var openSubscriptionActivity = false
+    private var isDeviceTablet = false
+    private var isNavigateToPlayer = false
 
     @Inject
     lateinit var playerAnalytics: PlayerAnalytics
@@ -138,7 +151,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     private var isWebShort: Boolean = false
     private var mWidth: Int = 0
     private var mHeight: Int = 0
-    private var isPlayButtonClick: Boolean = false
+    protected var isPlayButtonClick: Boolean = false
     protected var favToast: Toast? = null
     private var topOffset: Int = 0
     private var isLoadingSeries: Boolean = true
@@ -158,6 +171,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     private var isPaused: Boolean = false
     private var watchedSeconds: Int = 0
     private var isBrandResumeContent: Boolean = false
+
     //    private var isDeepLinkContent: Boolean = false
     private var liveOrientation =
         MutableLiveData<SingleEvent<OrientationManager.ScreenOrientation>>()
@@ -194,6 +208,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     var contentAuth = false
     private val SON_LIV_PHONE_PERMISSION: Int = 100
     private var mIsSeries: Boolean = false
+    private var mIsMovieOrShowStarted: Boolean = false
 
     @Inject
     lateinit var watchAnalytics: WatchlistAnalytics
@@ -216,18 +231,19 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             configType: String?,
             provider: String?,
             isMixedRail: Boolean,
-            isPrepand : Boolean,
-            item : HomeResponse.Items?,
+            isPrepand: Boolean,
+            item: HomeResponse.Items?,
             backgroundImage: String?,
             layoutType: String?,
-            refId : String,
-            packName : String?
+            refId: String,
+            packName: String?,
+            contentAnalyticsModel: ContentAnalyticsModel
         ) {
             exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
                 this.duration = 250
             }
-            var railResponse : RecommendationResponse? = null
-            if(!placeHolder.isNullOrEmpty()) {
+            var railResponse: RecommendationResponse? = null
+            if (!placeHolder.isNullOrEmpty()) {
                 railResponse = RecommendationResponse()
                 railResponse.data = item
             }
@@ -242,7 +258,8 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     placeHolder,
                     EVENT_VALUE_SOURCE_DETAIL,
                     configType ?: RECOMMENDATION,
-                    taContentResponse = railResponse
+                    taContentResponse = railResponse,
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             )
             homeAnalytics.trackHomeSeeAll(
@@ -295,14 +312,22 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if(true == savedInstanceState?.containsKey("id")){
+        if (true == savedInstanceState?.containsKey("id")) {
             id = savedInstanceState.getString("id", "")
         }
-        if(true == savedInstanceState?.containsKey("contentItem")){
-            contentItem = Gson().fromJson(savedInstanceState.getString("contentItem", null), ContentItem::class.java)
+        if (true == savedInstanceState?.containsKey("contentItem")) {
+            contentItem = Gson().fromJson(
+                savedInstanceState.getString("contentItem", null),
+                ContentItem::class.java
+            )
         }
         commonViewModel?.saveOrientation(OrientationManager.ScreenOrientation.PORTRAIT)
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        context?.let {
+            if(!isTablet(it)) {
+                activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+
+        }
 //        sharedElementEnterTransition = MaterialContainerTransform().apply {
 //            drawingViewId = R.id.fragment_container
 //        }
@@ -320,7 +345,9 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     }
 
     override fun toBeCalledOnce() {
-        Log.d("TAG111", "toBeCalledOnce: ${detailFragmentArgs.contentItem?.refId}")
+
+        isTabletLandscape = activity?.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE
+
         mWidth = when {
             detailFragmentArgs.contentItem?.railName == EVENT_VALUE_RAIL_HB -> (getDisplayMatics().widthPixels * 0.9999).toInt() + 1
             detailFragmentArgs.fromGrid -> (getNormalThumbnailDimensionGrid(requireContext()).x)
@@ -336,10 +363,9 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         }
 
 
-        if(detailFragmentArgs.contentItem?.provider.isNullOrBlank()){
+        if (detailFragmentArgs.contentItem?.provider.isNullOrBlank()) {
             binding.ivPoster.hide()
-        }
-        else
+        } else
             binding.ivPoster.show()
         binding.ivPoster.apply {
             transitionName = detailFragmentArgs.contentItem?.id + "image"
@@ -387,7 +413,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         }
         binding.watchlistBtn.setOnClickListener {
             if (NetworkUtil.checkInternetBeforeNavigate())
-                if(sharedPrefs.getLoginStatus())
+                if (sharedPrefs.getLoginStatus())
                     viewModel.markFavourite(parentId, getContentType(parentContentType), true)
                 else
                     loginPopup(false)
@@ -402,10 +428,10 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 detailsResponse?.data?.metaDetails?.genre,
                 detailsResponse?.data?.metaDetails?.provider ?: contentItem.provider,
                 detailsResponse?.data?.metaDetails?.audio,
-                contentItem.origin.toUpperCase(),
-                contentItem.railName,
-                contentItem.source.takeIf { it.isNotEmpty() }?: SOURCE_DEEPLINK,
-                detailsResponse?.data?.metaDetails?.getVodTitle()?:"",
+                contentItem.origin.uppercase(Locale.ROOT),
+                detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
+                contentItem.source.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
+                detailsResponse?.data?.metaDetails?.getVodTitle() ?: "",
                 /*Using Key partnerSubscriptionType to identify if the content is Free or Premium*/
                 detailsResponse?.data?.metaDetails?.partnerSubscriptionType?.contains(
                     FREE,
@@ -413,21 +439,25 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 ) == true,
                 (activity as? LandingActivity)?.getPageName() ?: EVENT_VALUE_SOURCE_DETAIL,
                 contentItem.railPosition,
-                contentItem.contentConfigType.toUpperCase(),
+                contentItem.contentConfigType.uppercase(Locale.getDefault()),
                 contentItem.railCategory,
                 detailsResponse?.data?.metaDetails?.audio?.getOrNull(0),
                 detailsResponse?.data?.metaDetails?.genre?.getOrNull(0),
-                if(contentAuth) YES else NO,
-                contentItem.categoryType?:"",
-                contentItem.contentPosition?:"",
+                if (contentAuth) YES else NO,
+                contentItem.categoryType ?: "",
+                contentItem.contentPosition ?: "",
                 detailsResponse?.data?.metaDetails?.rating ?: "",
                 detailsResponse?.data?.metaDetails?.releaseYear ?: "",
-                PLATFORM_ANDROID,
+                sharedPrefs.getDeviceType() ?: "",
                 detailsResponse?.data?.metaDetails?.actor,
                 sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
                 sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
                 if (isAutoPlayTrailer && isTrailerInitialized) YES else NO,
-                NO,
+                liveContent = if (isLiveContent(
+                        contentItem.contentType,
+                        detailsResponse?.data?.metaDetails?.isLiveContent
+                    )
+                ) YES else NO,
                 contentItem.contentConfigType
             )
         }
@@ -443,9 +473,9 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 detailsResponse?.data?.metaDetails?.provider ?: contentItem.provider,
                 detailsResponse?.data?.metaDetails?.audio,
                 contentItem.origin.toUpperCase(),
-                contentItem.railName,
-                contentItem.source.takeIf { it.isNotEmpty() }?: SOURCE_DEEPLINK,
-                detailsResponse?.data?.metaDetails?.getVodTitle()?:"",
+                detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
+                contentItem.source.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
+                detailsResponse?.data?.metaDetails?.getVodTitle() ?: "",
                 /*Using Key partnerSubscriptionType to identify if the content is Free or Premium*/
                 detailsResponse?.data?.metaDetails?.partnerSubscriptionType?.contains(
                     FREE,
@@ -457,17 +487,21 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 contentItem.railCategory,
                 detailsResponse?.data?.metaDetails?.audio?.getOrNull(0),
                 detailsResponse?.data?.metaDetails?.genre?.getOrNull(0),
-                if(contentAuth) YES else NO,
-                contentItem.categoryType?:"",
-                contentItem.contentPosition?:"",
+                if (contentAuth) YES else NO,
+                contentItem.categoryType ?: "",
+                contentItem.contentPosition ?: "",
                 detailsResponse?.data?.metaDetails?.rating ?: "",
                 detailsResponse?.data?.metaDetails?.releaseYear ?: "",
-                PLATFORM_ANDROID,
+                sharedPrefs.getDeviceType() ?: "",
                 detailsResponse?.data?.metaDetails?.actor,
                 sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
                 sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
                 if (isAutoPlayTrailer && isTrailerInitialized) YES else NO,
-                NO,
+                liveContent = if (isLiveContent(
+                        contentItem.contentType,
+                        detailsResponse?.data?.metaDetails?.isLiveContent
+                    )
+                ) YES else NO,
                 contentItem.contentConfigType
             )
             context?.let { ctx ->
@@ -500,8 +534,9 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 contentTitle = detailsResponse?.data?.metaDetails?.getVodTitle()!!,
                 contentType = detailsResponse?.data?.metaDetails?.contentType!!,
                 contentGenre = detailsResponse?.data?.metaDetails?.genre?.joinToString(",") ?: "",
-                pageName = (activity as? LandingActivity)?.getPageName() ?: EVENT_VALUE_SOURCE_DETAIL,
-                railTitle = contentItem.railName,
+                pageName = (activity as? LandingActivity)?.getPageName()
+                    ?: EVENT_VALUE_SOURCE_DETAIL,
+                railTitle = detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
                 railPosition = contentItem.railPosition,
                 railType = contentItem.origin,
                 railCategory = contentItem.railCategory,
@@ -511,8 +546,8 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 contentPartner = detailsResponse?.data?.metaDetails?.provider
                     ?: contentItem.provider,
                 contentAuth = if (contentAuth) YES else NO,
-                contentCategory = contentItem.categoryType?:"",
-                contentPosition = contentItem.contentPosition?:"",
+                contentCategory = contentItem.categoryType ?: "",
+                contentPosition = contentItem.contentPosition ?: "",
                 contentRating = detailsResponse?.data?.metaDetails?.rating ?: "",
                 contentParentTitle = detailsResponse?.data?.metaDetails?.getParentTitle()
                     ?: playerModel?.getParentTitle() ?: "",
@@ -522,13 +557,17 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     ))
                 ) YES else NO,
                 contentReleaseYear = metaDetailResponse?.releaseYear ?: "",
-                deviceType = DEVICE_TYPE,
+                deviceType = sharedPrefs.getDeviceType() ?: "",
                 actors = metaDetailResponse?.actor?.joinToString(separator = ",") ?: "",
                 packPrice = sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
                 source = contentItem.source.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
                 packName = sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
                 autoPlayed = if (isAutoPlayTrailer && isTrailerInitialized) YES else NO,
-                liveContent = NO,
+                liveContent = if (isLiveContent(
+                        contentItem.contentType,
+                        detailsResponse?.data?.metaDetails?.isLiveContent
+                    )
+                ) YES else NO,
                 contentConfigType = contentItem.contentConfigType,
                 contentLanguagePrimary = detailsResponse?.data?.metaDetails?.audio?.getOrNull(0)
                     ?: "",
@@ -541,12 +580,72 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                             detailsResponse,
                             binding.tabLayoutSeasons.selectedTabPosition,
                             selectedSeriesId,
-                            isContentSubscribed = isContentSubscribed
+                            isContentSubscribed = isContentSubscribed,
+                            detailFragmentArgs.contentAnalyticsModel
                         )
                     )
                 }
             }
         }
+
+        binding.ivActivateApple.setOnClickListener {
+
+            trackAppleActivateClick()
+
+            showAppleActivationPopup(true)
+
+        }
+
+        activity?.let {
+            if(isTablet(it)){
+                isDeviceTablet=true
+            }
+        }
+
+
+    }
+
+    fun showAppleActivationPopup(hideLinkButton: Boolean) {
+        val verbiageData = sharedPrefs.getConfigResponse()?.data?.config?.getLanguageVerbiage(
+            CATEGORY_APPLE_ACTIVATION_POPUP
+        )?.data
+        showDialog(
+            DialogModel(
+                cancelable = true,
+                imageIdBig = R.drawable.ic_premium_crown,
+                title = verbiageData?.header ?: "Activate Apple TV+",
+                text = verbiageData?.subHeader
+                    ?: "You are eligible to watch Apple TV+ content at no extra cost on Tata Play Binge App.",
+                primaryButtonText = verbiageData?.others?.buttonTitle ?: "Activate Now",
+                secondaryButtonText = (if (hideLinkButton) {
+                    null
+                } else {
+                    verbiageData?.others?.buttonHeader
+                })
+            ),
+            object : CommonDialogEventListener {
+                override fun onPrimaryButtonClick() {
+
+                    trackAppleActivateFromPopupClick()
+                    viewModel.fetchAppleRedemptionUrl()
+                    hideDialog()
+                }
+
+                override fun onSecondaryButtonClick() {
+
+                    trackAppleLinkAccountClick()
+                    detailsResponse?.data?.metaDetails?.partnerDeepLinkUrl?.let {
+                        playInAppBrowserContent(it)
+                    }
+                    hideDialog()
+                }
+
+                override fun onCloseButtonClick() {
+                    hideDialog()
+                }
+
+            }
+        )
     }
 
 
@@ -569,8 +668,8 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             }
         })
 
-        commonViewModel?.validateContentRatingResponse?.observe(viewLifecycleOwner){
-            it.getContentIfNotHandled()?.let { response->
+        commonViewModel?.validateContentRatingResponse?.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let { response ->
                 if (response.data?.pinRequired == true) {
                     //validate pin
                     isResultHandled = false
@@ -596,7 +695,10 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 //show error message here
             }
         }
-        orientationManager = OrientationManager(activity, SensorManager.SENSOR_DELAY_NORMAL, this)
+        orientationManager = OrientationManager(activity, SensorManager.SENSOR_DELAY_FASTEST, this)
+        context?.let {
+            if (isTablet(it) && ::orientationManager.isInitialized) orientationManager.enable()
+        }
         binding.lifecycleOwner = viewLifecycleOwner
     }
 
@@ -607,29 +709,27 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     override fun setObserver() {
         super.setObserver()
 
+        viewModel.getAppleRedemptionUrl().observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.data?.redemption_url?.let { url ->
+                openChromeTab(Uri.parse(url))
+            }
+        })
+
         viewModel.getGenericPlaybackUrls().observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.data?.playerDetail?.let { playerDetails ->
                 playerModel?.setPlaybackUrl(playerDetails.playUrl)
-                playerModel?.setDrmLicenseUrl(playerDetails.licenseUrl?:"")
-                val subtitleUrl = ArrayList<SubtitleDTO>()
-                if (playerDetails.subtitles != null)
-                    for (adaptiveUrl in playerDetails.subtitles!!) {
-                        val dto = SubtitleDTO()
-                        dto.lang = adaptiveUrl.language
-                        dto.url = adaptiveUrl.url
-                        subtitleUrl.add(dto)
-                    }
-                playerModel?.setPlaybackSubtitleUrl(subtitleUrl)
-                playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+                playerModel?.setDrmLicenseUrl(playerDetails.licenseUrl ?: "")
+                playerDetails.token?.let{playerModel?.setToken(it)}
+                playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
             }
         })
-        
+
         findNavController().currentBackStackEntry
             ?.savedStateHandle
             ?.getLiveData<SingleEventParcelizeWrapper>(UPDATE_IN_PACK)
             ?.observe(viewLifecycleOwner, Observer {
                 it.booleanEventValue.getContentIfNotHandled()?.let { isPackUpdated ->
-                    this.isPackUpdated=isPackUpdated
+                    this.isPackUpdated = isPackUpdated
                     //                    if (isPackUpdated) {
 //                        findNavController().previousBackStackEntry
 //                            ?.savedStateHandle
@@ -642,10 +742,13 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
         viewModel.getChaupalPlaybackUrls().observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.data?.let {
-                if(PROVIDER_PLANET_MARATHI.equals(detailsResponse?.data?.metaDetails?.provider, true)){
-                    playbackUrl  = it.playUrl
-                }
-                else {
+                if (PROVIDER_PLANET_MARATHI.equals(
+                        detailsResponse?.data?.metaDetails?.provider,
+                        true
+                    )
+                ) {
+                    playbackUrl = it.playUrl
+                } else {
                     /*Need to handle Subtitles Urls as well*/
                     for (adaptiveUrl in it.playUrls!!) {
                         if ("widevine".equals(adaptiveUrl.drmType, ignoreCase = true)) {
@@ -671,7 +774,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 }
             }
             playerModel?.setPlaybackUrl(playbackUrl)
-            playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+            playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
             isPlayButtonClick = false
         })
         viewModel.getChaupalTrailerUrls().observe(viewLifecycleOwner, Observer {
@@ -688,8 +791,8 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 startTrailer(detailsResponse?.data!!.detail!!.dashWidewineTrailerUrl, null)
             }
         })
-        viewModel.previouslyUsedMobileNumberResponse.observe(viewLifecycleOwner){
-            it.getContentIfNotHandled()?.let {response->
+        viewModel.previouslyUsedMobileNumberResponse.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let { response ->
                 findNavController().navigateSafe(
                     DetailsFragmentDirections.actionGlobalLoginBottomSheetDialogFragment(
                         isParentalPinSetupRequested = false,
@@ -702,7 +805,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             }
         }
 
-        viewModel.previouslyUsedMobileNumberError.observe(viewLifecycleOwner){
+        viewModel.previouslyUsedMobileNumberError.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let {
                 findNavController().navigateSafe(
                     DetailsFragmentDirections.actionGlobalLoginBottomSheetDialogFragment(
@@ -734,8 +837,8 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 KEY_PARENTAL_CONTROL_BOTTOM_DIALOG_RESULT
             )
             ?.observe(viewLifecycleOwner) { result ->
-                e("ParentalBack","isResultHandled: $isResultHandled")
-                if(!isResultHandled) {
+                e("ParentalBack", "isResultHandled: $isResultHandled")
+                if (!isResultHandled) {
                     isResultHandled = true
                     when (result.resultStatus) {
                         ParentalControlBottomSheetResultStatus.SUCCESS_DISMISS -> {
@@ -760,17 +863,20 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                             }
                         }
                         ParentalControlBottomSheetResultStatus.PIN_VERIFIED -> {
-                            e("ParentalBack","PIN_VERIFIED: $isResultHandled")
+                            e("ParentalBack", "PIN_VERIFIED: $isResultHandled")
                             when (result.actionBeforeOpeningBottomSheet) {
                                 ACTION_PIN_VERIFICATION -> {
                                     //play content
-                                    e("ParentalBack","partnerSubscriptionTypeOnPlay: $partnerSubscriptionTypeOnPlay")
+                                    e(
+                                        "ParentalBack",
+                                        "partnerSubscriptionTypeOnPlay: $partnerSubscriptionTypeOnPlay"
+                                    )
                                     if (isContentPlayable(partnerSubscriptionTypeOnPlay)) {
                                         playAfterRattingCheck()
                                     } else {
-                                        if(!openSubscriptionActivity) {
+                                        if (!openSubscriptionActivity) {
                                             handleNudgeClick()
-                                        } else if(!sharedPrefs.isManagedAppEnabled()){
+                                        } else if (!sharedPrefs.isManagedAppEnabled()) {
                                             startActivity(
                                                 getSubscriptionActivityIntent(
                                                     activity,
@@ -781,7 +887,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                                                 )
                                             )
 
-                                        } else if(upgradePlanClick){
+                                        } else if (upgradePlanClick) {
                                             showMiniDrawer(
                                                 context = activity,
                                                 fromLogin = false,
@@ -789,8 +895,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                                                 startPackListing = true,
                                                 journeyRef = HOME_CONTENT
                                             )
-                                        }
-                                        else {
+                                        } else {
                                             showMiniDrawer(
                                                 context = activity,
                                                 startPackListing = true,
@@ -815,8 +920,16 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
         viewModel.getSonylivShortToken().observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let {
-                e("SonyLIVSDKListener","observer t.data?.token: ${it}")
-                initSonyLiv(it)
+                e("SonyLIVSDKListener", "observer t.data?.token: ${it}")
+                val oldToken = sharedPrefs.getSonyOldToken() ?: ""
+                if(oldToken == it && (!sharedPrefs.isLoginAgain() && SonyLIVSDKManager.getInstance().status == SDKStatus.SUCCESS)) {
+                    e("SonyLIVSDKListener","play using old token")
+                    playSonyLivContent()
+                }
+                else {
+                    e("SonyLIVSDKListener","play using new token")
+                    initSonyLiv(it)
+                }
             }
         })
         viewModel.getCSPlaybackUrl().observe(viewLifecycleOwner, Observer {
@@ -828,11 +941,11 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 }
             }
         })
-        viewModel.getTvodContentToken().observe(viewLifecycleOwner, Observer {
+        viewModel.getContentToken().observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let {
                 playerModel?.setLA_URL(playerModel?.getLA_URL() + "&ls_session=$it")
-                playerModel?.setDrmLicenseUrl(playerModel?.getLA_URL()?:"")
-                playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+                playerModel?.setDrmLicenseUrl(playerModel?.getLA_URL() ?: "")
+                playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
             }
         })
         viewModel.getSignoutResponse().observe(requireActivity(), Observer {
@@ -856,7 +969,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
                 detailsResponse?.data?.detail?.dashWidewinePlayUrl = playbackUrl ?: ""
                 playerModel?.setPlaybackUrl(playbackUrl)
-                playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+                playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
                 isPlayButtonClick = false
             }
         })
@@ -874,7 +987,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
         viewModel.getHoichoiPlaybackUrls().observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let {
-                playHoiChoiContent(playerModel?.getPlaybackUrl(),it.data?.token?:"")
+                playHoiChoiContent(playerModel?.getPlaybackUrl(), it.data?.token ?: "")
             }
         })
 
@@ -889,21 +1002,27 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     findNavController().navigateUp()
             }
         })
-        liveOrientation.observe(viewLifecycleOwner, Observer {
-            it?.getContentIfNotHandled()?.let {
-                when (it) {
-                    PORTRAIT, REVERSED_PORTRAIT -> {
-                        changeToPortraitMode()
-                    }
-                    LANDSCAPE, REVERSED_LANDSCAPE -> {
-                        changeToLandscapeMode()
-                    }
-                    else -> {
-                        changeToPortraitMode()
-                    }
-                }
-            }
-        })
+
+
+       activity?.let {
+           if(!isTablet(it)) {
+               liveOrientation.observe(viewLifecycleOwner, Observer {
+                   it?.getContentIfNotHandled()?.let { screenOrientation ->
+                       when (screenOrientation) {
+                           PORTRAIT, REVERSED_PORTRAIT -> {
+                               changeToPortraitMode()
+                           }
+                           LANDSCAPE, REVERSED_LANDSCAPE -> {
+                                   changeToLandscapeMode()
+                           }
+                           else -> {
+                               changeToPortraitMode()
+                           }
+                       }
+                   }
+               })
+           }
+       }
         viewModel.getShemarooPlaybackUrls().observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let {
 
@@ -917,7 +1036,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     detailsResponse?.data?.detail?.dashWidewinePlayUrl = playbackUrl ?: ""
                 }
                 playerModel?.setPlaybackUrl(playbackUrl)
-                playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+                playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
                 isPlayButtonClick = false
             }
         })
@@ -943,7 +1062,10 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 //                detailsResponse?.data?.metaDetails?.contentTypeLocal = contentType
                 if (contentType == WEB_SHORTS)
                     isWebShort = true
-                e("ContentDetails","partnerSubscriptionType: ${detailsResponse?.data?.metaDetails?.partnerSubscriptionType}")
+                e(
+                    "ContentDetails",
+                    "partnerSubscriptionType: ${detailsResponse?.data?.metaDetails?.partnerSubscriptionType}"
+                )
                 response.data!!.metaDetails?.let { it1 -> onDetailFetched(it1) }
                 trackPIView()
                 fetchLastWatchData()
@@ -968,7 +1090,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 //                    binding.seriesRecycler.hide()
 //                    binding.networkView.show()
 //                } else {
-                mIsSeries=true
+                mIsSeries = true
                 binding.seriesRecycler.show()
                 binding.networkView.hide()
                 if (response.code == CUSTOM_RESPONSE_CODE_SERIES_ADDING) {
@@ -981,33 +1103,35 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 if (!alreadyFetchedRelatedRail)
                     handleRecommendationApi()
             }
-            e("onSeriesFetched","isDetailShown: $isDetailShown")
+            e("onSeriesFetched", "isDetailShown: $isDetailShown")
             if (!isDetailShown) {
                 showDetailViews()
-            }
+            } else
+                viewModel.setProgressing(false)
         })
         viewModel.getZee5TagResponse().observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let {
-                playZee5(it.data?.tag?:"")
+                playZee5(it.data?.tag ?: "")
             }
         })
         viewModel.getLionsgateTokenResponse().observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let {
-                if(it.data?.kid == null){
+                if (it.data?.kid == null) {
                     showToast(context, "Unable to play Content")
-                }
-                else {
-                    playerModel?.setKid(it.data?.kid ?:"")
-                    playerModel?.setToken(it.data?.token ?:"")
-                    playerModel?.setDrmProxyUrl(it.data?.widevineLicenceUrl ?: "https://widevine-proxy.drm.technology/proxy")
+                } else {
+                    playerModel?.setKid(it.data?.kid ?: "")
+                    playerModel?.setToken(it.data?.token ?: "")
+                    playerModel?.setDrmProxyUrl(
+                        it.data?.widevineLicenceUrl ?: "https://widevine-proxy.drm.technology/proxy"
+                    )
                     playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
                 }
             }
         })
 
-        viewModel.getVootPwaTokenResponse().observe(viewLifecycleOwner, Observer{
-            it.getContentIfNotHandled()?.let{ url->
-                d("VootPwaDeeplinkUrl" ,url)
+        viewModel.getVootPwaTokenResponse().observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { url ->
+                d("VootPwaDeeplinkUrl", url)
                 actionOnPlayClick()
                 openChromeTab(Uri.parse(url))
             }
@@ -1015,7 +1139,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
     }
 
-    fun handleUpdateInPack(it: Boolean){
+    fun handleUpdateInPack(it: Boolean) {
         if (it && !binding.trailerView.isTrailerStarted && !binding.trailerView.isVisibile()  /*When trailer is playing, Avoid API calls due to Pubnub push*/) {
             e("pubnub", "inside DetailsFragment updateInPack : $it")
             //show alert or update pack
@@ -1075,15 +1199,15 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
     private fun trackPIView() {
         detailAnalytics.trackViewContentDetail(
-            detailsResponse?.data?.metaDetails?.getVodTitle()?:"",
-            detailsResponse?.data?.metaDetails?.contentType?:"",
+            detailsResponse?.data?.metaDetails?.getVodTitle() ?: "",
+            detailsResponse?.data?.metaDetails?.contentType ?: "",
             detailsResponse?.data?.metaDetails?.genre,
             detailsResponse?.data?.metaDetails?.audio,
             contentItem.origin.toUpperCase(),
-            contentItem.railName,
-            contentItem.source.takeIf { it.isNotEmpty() }?: SOURCE_DEEPLINK,
-            detailsResponse?.data?.metaDetails?.provider?:contentItem.provider,
-            detailsResponse?.data?.metaDetails?.getParentTitle()?:"",
+            detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
+            contentItem.source.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
+            detailsResponse?.data?.metaDetails?.provider ?: contentItem.provider,
+            detailsResponse?.data?.metaDetails?.getParentTitle() ?: "",
             /*Using Key partnerSubscriptionType to identify if the content is Free or Premium*/
             detailsResponse?.data?.metaDetails?.partnerSubscriptionType?.contains(
                 FREE,
@@ -1100,13 +1224,20 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             contentItem.contentPosition,
             detailsResponse?.data?.metaDetails?.rating ?: "",
             detailsResponse?.data?.metaDetails?.releaseYear ?: "",
-            PLATFORM_ANDROID,
+            sharedPrefs.getDeviceType() ?: "",
             detailsResponse?.data?.metaDetails?.actor,
             sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
             sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
             if (isAutoPlayTrailer && isTrailerInitialized) YES else NO,
-            NO,
-            contentItem.contentConfigType
+            liveContent = if (isLiveContent(
+                    contentItem.contentType,
+                    detailsResponse?.data?.metaDetails?.isLiveContent
+                )
+            ) YES else NO,
+            contentItem.contentConfigType,
+            contentItem.searchKeyword,
+            contentItem.suggestorForMixpanel,
+            getAppleStatusValue()
         )
         if (contentItem.isQuerySubmitted) {
             val contentId = detailsResponse?.data?.metaDetails?.vodId
@@ -1125,7 +1256,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         }
     }
 
-    fun playHoiChoiContent(url:String?, token: String){
+    fun playHoiChoiContent(url: String?, token: String) {
         playbackUrl = url
 
         playbackUrl?.let {
@@ -1140,8 +1271,9 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         }
 
     }
+
     private fun handleNudgeClick() {
-        if(sharedPrefs.getSubscribedPack()?.upgradeFDOCheck == true){
+        if (sharedPrefs.getSubscribedPack()?.upgradeFDOCheck == true) {
             showDialog(
                 DialogModel(
                     false,
@@ -1150,13 +1282,15 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     getString(R.string.done),
                     "",
                     sharedPrefs.getSubscribedPack()?.upgradeFDOMessage ?: ""
-                ), object: CommonDialogEventListener{
+                ), object : CommonDialogEventListener {
                     override fun onPrimaryButtonClick() {
                         hideDialog()
                     }
+
                     override fun onSecondaryButtonClick() {
                         hideDialog()
                     }
+
                     override fun onCloseButtonClick() {
                         hideDialog()
                     }
@@ -1168,7 +1302,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     val currentPack =
                         sharedPrefs.getSubscribedPack()
                     if (currentPack?.planCTADetails?.getPlanOption == true) {
-                        if(!sharedPrefs.isManagedAppEnabled()){
+                        if (!sharedPrefs.isManagedAppEnabled()) {
                             startActivity(
                                 getSubscriptionActivityIntent(
                                     activity,
@@ -1178,7 +1312,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                                 )
                             )
 
-                        }else{
+                        } else {
                             showMiniDrawer(
                                 context = activity,
                                 startPackListing = true,
@@ -1279,26 +1413,6 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
     protected fun updateUIWithDeeplink() {
         handleApiCall(false)
-        /*handlePrimaryButtonText()
-            if (alreadyAddedSeason)
-                (binding.seriesRecycler.adapter as SeriesAdapter).updatePrimaryButtonState(
-                    primaryButtonState
-                )
-            val notificationIntent =
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse(
-                        getString(
-                            R.string.deeplink_detail, BuildConfig.hostName,
-                            contentType,
-                            id
-                        )
-                    ),
-                    activity?.applicationContext,
-                    LandingActivity::class.java
-                )
-            notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(notificationIntent)*/
     }
 
     /**
@@ -1352,7 +1466,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     }
                 }
             }
-            if(taRelatedRail == null){
+            if (taRelatedRail == null) {
                 fetchTtnRecommendation()
                 return
             }
@@ -1368,7 +1482,8 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     showType,
                     provider,
                     parentContentType,
-                    parentId
+                    parentId,
+                    it.fallbackUseCase
                 )
             }
         }
@@ -1387,7 +1502,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         if (contentType == TYPE_TV_SHOWS) {
             vodId = id
         }
-        if(contentItem.freeEpisodesAvailable && !contentItem.isPartnerSubscribed)
+        if (contentItem.freeEpisodesAvailable && !contentItem.isPartnerSubscribed)
             binding.tvEpisodeFree.show()
         mWidth = Resources.getSystem().displayMetrics.widthPixels
         binding.viewModel = viewModel
@@ -1410,13 +1525,13 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         }
         e(
             "DetailsFragment", "onSeriesFetched isPrepand : $isPrepand , offset : $offset " +
-                    "seriesLastOffset : $seriesLastOffset topOffset : $topOffset"
+                "seriesLastOffset : $seriesLastOffset topOffset : $topOffset"
         )
-        if(seriesListResponse.data != null)
+        if (seriesListResponse.data != null)
             if (clearSeriesList) {
                 topOffset = offset
                 binding.seriesRecycler.show()
-                mIsSeries=true
+                mIsSeries = true
                 (binding.seriesRecycler.adapter as? SeriesAdapter)?.updateList(
                     seriesListResponse.data!!.contentItem,
                     moreContentAvailable,
@@ -1432,7 +1547,8 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 (binding.seriesRecycler.adapter as? SeriesAdapter)?.addToList(
                     seriesListResponse.data!!.contentItem,
                     moreContentAvailable,
-                    isContentSubscribed
+                    isContentSubscribed,
+                    detailFragmentArgs.contentAnalyticsModel ?: emptyContentAnalyticsModel()
                 )
             }
     }
@@ -1475,14 +1591,15 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     providerLogos = viewModel.sharedPrefs.getProviderLogo(),
                     railPoint = RailPoint(),
                     viewModel.sharedPrefs,
-                    refId = recommendationResponse.data?.refId?:""
+                    refId = recommendationResponse.data?.refId ?: "",
+                    railSectionType = recommendationResponse.data?.sectionType ?: RAIL.uppercase(),
                 )
             )
             binding.recommendedRecycler.homeRecyclerView.clearOnScrollListeners()
             binding.recommendedRecycler.homeRecyclerView.addOnScrollListener(CustomScrollListener {
                 mRailScrollListener.onRailScrolled(
                     title,
-                    if(mIsSeries)2 else 1,
+                    if (mIsSeries) 2 else 1,
                     contentItem.contentConfigType.toUpperCase(),
                     recommendationResponse.data?.sectionSource
                         ?: EventConstants.TYPE_EDITORIAL
@@ -1501,7 +1618,12 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                         item = recommendationResponse.data,
                         backgroundImage = "",
                         layoutType = null,
-                        refId = ""
+                        refId = "",
+                        contentAnalyticsModel = ContentAnalyticsModel(
+                            recommendationResponse.data?.sectionSource,
+                            recommendationResponse.data?.sectionType,
+                            recommendationResponse.data?.title
+                        )
                     )
                 }
             }
@@ -1511,18 +1633,24 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     }
 
     private val mEpisodeClickListener = object : EpisodeClickListener {
-        override fun selectedEpisode(currentEpisode: ContentItem) {
+        override fun selectedEpisode(
+            currentEpisode: ContentItem,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
             mSeriesClickListener.onSubItemClick(
                 currentEpisode,
                 0,
                 0,
                 EventConstants.TYPE_RAIL,
-                null
+                null,
+                contentAnalyticsModel = contentAnalyticsModel
             )
         }
+
         override fun describeContents(): Int {
             return 0
         }
+
         override fun writeToParcel(dest: Parcel?, flags: Int) {
         }
     }
@@ -1537,32 +1665,30 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             transitions: List<Pair<View, String>>?,
             railTitle: String,
             origin: String?,
-            gamesMixpanelInfoModel: GamesMixpanelInfoModel?
+            gamesMixpanelInfoModel: GamesMixpanelInfoModel?,
+            railItemsModel: RailItemsModel?,
+            contentAnalyticsModel: ContentAnalyticsModel
         ) {
             val extras = if (!transitions.isNullOrEmpty())
                 FragmentNavigatorExtras(*transitions.toTypedArray())
             else FragmentNavigatorExtras()
             iListItem.railName = railTitle
-            iListItem.source = EVENT_VALUE_SOURCE_DETAIL //binding.recommendedRecycler.homeRecyclerViewTitle.text.toString()
+            iListItem.source =
+                EVENT_VALUE_SOURCE_DETAIL //binding.recommendedRecycler.homeRecyclerViewTitle.text.toString()
             iListItem.origin = origin ?: EventConstants.TYPE_EDITORIAL
-            iListItem.contentPosition = (iItemPosition+1).toString()
+            iListItem.contentPosition = (iItemPosition + 1).toString()
             iListItem.railPosition = iSectionPosition.toString()
             findNavController().navigateSafe(
                 DetailsFragmentDirections.actionToDetail(
-                    iListItem, false
+                    iListItem,
+                    false,
+                    contentAnalyticsModel = contentAnalyticsModel
                 ), extras
             )
-            trackBannerClick(
-                iListItem,
-                iItemPosition,
-                iSectionPosition,
-                iSectionType, railTitle
-            )
-
         }
     }
 
-    private val mEpisodeInfoClickListener = object: CommonDTOClickListener{
+    private val mEpisodeInfoClickListener = object : CommonDTOClickListener {
         override fun onSubItemClick(
             iListItem: ContentItem,
             iItemPosition: Int,
@@ -1571,14 +1697,20 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             transitions: List<Pair<View, String>>?,
             railTitle: String,
             origin: String?,
-            gamesMixpanelInfoModel: GamesMixpanelInfoModel?
+            gamesMixpanelInfoModel: GamesMixpanelInfoModel?,
+            railItemsModel: RailItemsModel?,
+            contentAnalyticsModel: ContentAnalyticsModel
         ) {
             iListItem.railName = railTitle
             iListItem.origin = origin ?: EventConstants.TYPE_EDITORIAL
-            iListItem.contentPosition = (iItemPosition+1).toString()
+            iListItem.contentPosition = (iItemPosition + 1).toString()
             iListItem.railPosition = iSectionPosition.toString()
             findNavController().navigateSafe(
-                DetailsFragmentDirections.actionDetailEpisodeBotttomSheet(iListItem,mEpisodeClickListener)
+                DetailsFragmentDirections.actionDetailEpisodeBotttomSheet(
+                    iListItem,
+                    mEpisodeClickListener,
+                    contentAnalyticsModel
+                )
             )
 
         }
@@ -1594,13 +1726,15 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             transitions: List<Pair<View, String>>?,
             railTitle: String,
             origin: String?,
-            gamesMixpanelInfoModel: GamesMixpanelInfoModel?
+            gamesMixpanelInfoModel: GamesMixpanelInfoModel?,
+            railItemsModel: RailItemsModel?,
+            contentAnalyticsModel: ContentAnalyticsModel
         ) {
             iListItem.railName = railTitle
             iListItem.origin = origin ?: EventConstants.TYPE_EDITORIAL
-            iListItem.contentPosition = (iItemPosition+1).toString()
+            iListItem.contentPosition = (iItemPosition + 1).toString()
             iListItem.railPosition = iSectionPosition.toString()
-            if(PROVIDER_TATA_SKY.equals(detailsResponse?.data?.metaDetails?.provider, true))
+            if (PROVIDER_TATA_SKY.equals(detailsResponse?.data?.metaDetails?.provider, true))
                 iListItem.partnerSubscriptionType = "Free"
             partnerSubscriptionTypeOnPlay = iListItem.partnerSubscriptionType
             if (isContentPlayable(iListItem.partnerSubscriptionType)) {
@@ -1610,46 +1744,21 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 })
             } else if (sharedPrefs.getLoginStatus()) {
                 showContentPlaybackDialog(iListItem)
-            }
-            else
+            } else
                 loginPopup()
-
-
-            trackBannerClick(
-                iListItem,
-                iItemPosition,
-                iSectionPosition,
-                iSectionType, railTitle
-            )
         }
     }
 
     protected fun showContentPlaybackDialog(iListItem: ContentItem?=null) {
-        changeToPortraitMode()
+        if(!isTabletLandscape)
+            changeToPortraitMode()
 //        val subscribedPack = sharedPrefs.getSubscribedPack()
         viewModel.onlyMessage = true
-        if(shouldStartCancellationTrigger()){
+        if (shouldStartCancellationTrigger()) {
             viewModel.fetchBaIdList(sharedPrefs.getOriginalSubscriberId())
             return
         }
         handleSubscriptionDialog()
-    }
-
-    private fun trackBannerClick(
-        iListItem: ContentItem,
-        iItemPosition: Int,
-        iSectionPosition: Int,
-        sectionType: String,
-        railTitle: String
-    ) {
-        val source = when (sectionType) {
-            EventConstants.TYPE_HERO -> {
-                EVENT_VALUE_RAIL_HB
-            }
-            EventConstants.TYPE_APPS -> APPS
-            else -> RAIL
-        }
-        watchAnalytics
     }
 
     lateinit var trailerDisposable: Disposable
@@ -1658,29 +1767,33 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         metaDetailResponse = it
         if (!isBackFromPlayer) {
             if (!(contentType.equals(TYPE_MOVIES, true)
-                        || contentType.equals(TYPE_TV_SHOWS, true)
-                        || contentType.equals(TYPE_SERIES, true)
-                        || contentType.equals(TYPE_SERIES_CHILD, true)
-                        || contentType.equals(TYPE_BRAND_CHILD, true)
-                        || contentType.equals(TYPE_BRAND, true)
-                        || contentType.equals(TYPE_WEB_SHORTS, true))
+                    || contentType.equals(TYPE_TV_SHOWS, true)
+                    || contentType.equals(TYPE_SERIES, true)
+                    || contentType.equals(TYPE_SERIES_CHILD, true)
+                    || contentType.equals(TYPE_BRAND_CHILD, true)
+                    || contentType.equals(TYPE_BRAND, true)
+                    || contentType.equals(TYPE_WEB_SHORTS, true))
             ) {
                 binding.ivPartnerLogo.setImageResource(R.drawable.logo_tatasky_details)
             }
             val mNonSubscribedPartnerList = HashSet<String>()
             sharedPrefs.getSubscribedPack()?.nonSubscribedPartnerList?.let { partnerList ->
-                for (partner in partnerList){
+                for (partner in partnerList) {
                     mNonSubscribedPartnerList.add((partner.partnerName ?: "").toLowerCase())
                 }
             }
             val isPackAvailed = sharedPrefs.getSubscribedPack() != null
-            val isPartnerSubscribed = isPackAvailed && !mNonSubscribedPartnerList.contains((metaDetailResponse?.provider?:"").toLowerCase())
+            val isPartnerSubscribed = isPackAvailed && !mNonSubscribedPartnerList.contains(
+                (metaDetailResponse?.provider ?: "").toLowerCase()
+            )
             if (!RENTAL.equals(detailsResponse?.data?.detail?.contractName, true)
                 && isShowCrownOnContent(
                     isPartnerSubscribed = isPartnerSubscribed,
                     isGuestUser = !sharedPrefs.getLoginStatus(),
                     metaDetailResponse?.provider,
-                    metaDetailResponse?.partnerSubscriptionType)
+                    metaDetailResponse?.partnerSubscriptionType,
+                    sharedPrefs.getSubscribedPack()?.appleRedemptionStatus
+                )
             ) {
                 contentAuth = false
                 binding.ivPremiumIndicator.show()
@@ -1696,6 +1809,23 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 R.drawable.ic_detail_placeholder,
                 viewModel.getCloudinaryUrl()
             )
+            if (PROVIDER_APPLE.equals(detailsResponse?.data?.metaDetails?.provider, true) &&
+                sharedPrefs.getSubscribedPack()?.appleRedemptionStatus?.equals(
+                    "Pending",
+                    true
+                ) == true
+                && isPartnerSubscribed
+            ) {
+                val ctaTitle = sharedPrefs.getConfigResponse()?.data?.config?.getLanguageVerbiage(
+                    CATEGORY_APPLE_ACTIVATION_CTA
+                )?.data?.header
+                ctaTitle?.let {
+                    binding.tvActivateAppleVeribage.text = it
+                    binding.btnActivateApple.show()
+                }
+            }
+
+
 
             binding.btnPrimary.setSingleOnClick(1000) {
                 handleBtnPlayClick()
@@ -1708,7 +1838,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             parentId = id
             if (it.parentContentType != contentType
                 && (it.parentContentType == TYPE_BRAND
-                        || it.parentContentType == TYPE_SERIES)
+                    || it.parentContentType == TYPE_SERIES)
             ) {
 //                isEpisode = true // Episode PI Handling
                 val url = getCloudinaryUrl(
@@ -1744,23 +1874,61 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         //handlePrimaryButtonText()
     }
 
+    private fun getAppleStatus(): Boolean {
+        if (sharedPrefs.getSubscribedPack()?.appleRedemptionStatus?.equals("Pending",true) == true) {
+            return false
+        } else return sharedPrefs.getSubscribedPack()?.appleRedemptionStatus?.equals("consumed",true) == true
+    }
+    private fun getAppleStatusValue(): String {
+        val status=sharedPrefs.getSubscribedPack()?.appleRedemptionStatus
+        if(status==null)
+            return "Null"
+        else
+            return status
+    }
+    private fun handleAppleTvPlayAction(playbackUrl: String?) {
+        if (getAppleStatus() == true) {
+            playInAppBrowserContent(playbackUrl)
+        } else
+            showAppleActivationPopup(false)
+    }
+
+    private fun playInAppBrowserContent(playbackUrl: String?) {
+
+        val uri = Uri.parse(playbackUrl)
+        try {
+            actionOnPlayClick()
+            trackOnThirdPartyPlayerPlay(playerModel)
+            openChromeTab(uri)
+        } catch (e: ActivityNotFoundException) {
+            onError(
+                ErrorModel(
+                    message = getString(R.string.no_browser),
+                    statusCode = CUSTOM_RESPONSE_CODE_ZEE5_ERROR
+                )
+            )
+        }
+    }
+
     private fun handleSecondaryBtnText() {
-        /*if (detailsResponse != null
+        /*if (detailsResponse != nullZEE5
             && (contentType.contains(TYPE_MOVIES)
                     || contentType.contains(TYPE_WEB_SHORTS))
         ) {*/
         var trailerProvider = detailsResponse?.data?.metaDetails?.provider ?: ""
-        if(PROVIDER_CHAUPAL.equals(detailsResponse?.data?.metaDetails?.provider,true) ||
-            PROVIDER_HOTSTAR.equals(detailsResponse?.data?.metaDetails?.provider,true) ||
+        if (PROVIDER_CHAUPAL.equals(detailsResponse?.data?.metaDetails?.provider, true) ||
+            PROVIDER_HOTSTAR.equals(detailsResponse?.data?.metaDetails?.provider, true) ||
             PROVIDER_ZEE5.equals(detailsResponse?.data?.metaDetails?.provider, true) ||
+            PROVIDER_APPLE.equals(detailsResponse?.data?.metaDetails?.provider, true) ||
             PROVIDER_MXPLAYER.equals(detailsResponse?.data?.metaDetails?.provider, true) ||
-            PROVIDER_SONYLIV.equals(detailsResponse?.data?.metaDetails?.provider, true)){
+            PROVIDER_SONYLIV.equals(detailsResponse?.data?.metaDetails?.provider, true)
+        ) {
             // these are deeplink partner so we can't use partnerTrailerInfo here
             detailsResponse?.data?.metaDetails?.partnerTrailerInfo = null
-        }
-        else if (
+        } else if (
             PROVIDER_HUNGAMA.equals(detailsResponse?.data?.metaDetails?.provider, true) ||
-            PROVIDER_EROSNOW.equals(detailsResponse?.data?.metaDetails?.provider, true)){
+            PROVIDER_EROSNOW.equals(detailsResponse?.data?.metaDetails?.provider, true)
+        ) {
             trailerUrl = detailsResponse?.data?.metaDetails?.partnerTrailerInfo
         }
         if (PROVIDER_EPIC_ON.equals(detailsResponse?.data?.metaDetails?.provider, true) ||
@@ -1774,15 +1942,17 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 detailsResponse?.data?.detail?.trailerUrl
             trailerUrl = detailsResponse?.data?.detail?.trailerUrl
             trailerProvider = ""
-        }
-        else if(detailsResponse?.data?.metaDetails?.partnerTrailerInfo.isNullOrEmpty()){
+        } else if (detailsResponse?.data?.metaDetails?.partnerTrailerInfo.isNullOrEmpty()) {
 //                detailsResponse?.data?.detail?.dashWidewineTrailerUrl = "https://cdn-s3-ts.videoready.tv/bitmovin-outputs/dcdrights_storyofmaths_101_eng_f25_sd_3548.mp4/2be4f2df4418f0d28edf0fcc82d121c2.mpd"
-            detailsResponse?.data?.metaDetails?.partnerTrailerInfo = detailsResponse?.data?.detail?.dashWidewineTrailerUrl
-            trailerUrl =detailsResponse?.data?.detail?.dashWidewineTrailerUrl
+            detailsResponse?.data?.metaDetails?.partnerTrailerInfo =
+                detailsResponse?.data?.detail?.dashWidewineTrailerUrl
+            trailerUrl = detailsResponse?.data?.detail?.dashWidewineTrailerUrl
             trailerProvider = ""
         }
         if (detailsResponse?.data?.metaDetails?.partnerTrailerInfo.isNullOrEmpty()) {
             binding.btnSecondary.hide()
+            binding.buttonView?.hide()
+            updateButtonLayoutWeight()
             return
         }
 
@@ -1790,12 +1960,18 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         if (!isAutoPlayTrailer) {
             secondaryButtonState = SecondaryButtonStateEnum.STATE_TRAILER
             binding.btnSecondary.text = getString(R.string.watch_trailer)
-            if(!isBackFromPlayer) {
-                binding.btnSecondary.show()
-                binding.btnSecondary.enable()
+            if (!isBackFromPlayer) {
+                binding.apply {
+                    btnSecondary.show()
+                    btnSecondary.enable()
+                    buttonView?.show()
+                }
+                updateButtonLayoutWeight()
             }
         } else {
             binding.btnSecondary.hide()
+            binding.buttonView?.hide()
+            updateButtonLayoutWeight()
         }
         if (!isTrailerInitialized) {
             binding.trailerView.init(
@@ -1828,10 +2004,17 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         binding.shareBtn.isClickable = true
         isPaused = false
         if (isNavigateToOther) {
+            activity?.let {
+                if(isTablet(it)){
+                    if(it.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE)
+                       disableFullscreenForLandscape()
+                    else updateButtonLayoutWeight()
+                }
+            }
             isNavigateToOther = false
             fetchLastWatchData()
 //            handleApiCall(false)
-            if(PROVIDER_SONYLIV.equals(detailsResponse?.data?.metaDetails?.provider, true))
+            if (PROVIDER_SONYLIV.equals(detailsResponse?.data?.metaDetails?.provider, true))
                 SonyLIVSDKManager.getInstance().stopContent()
         }
         if (isPlayerStarted && ::orientationManager.isInitialized)
@@ -1853,9 +2036,9 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        if(::id.isInitialized)
+        if (::id.isInitialized)
             outState.putString("id", id)
-        if(::contentItem.isInitialized)
+        if (::contentItem.isInitialized)
             outState.putString("contentItem", Gson().toJson(contentItem))
         super.onSaveInstanceState(outState)
     }
@@ -1867,18 +2050,23 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 "isErrorInRental : $isErrorInRental, contentItem.rentalExpiry:${contentItem.rentalExpiry}"
             )
             if (RENTAL.equals(detailsResponse?.data?.detail?.contractName, ignoreCase = true) ||
-                RENTAL.equals(contentItem.contractName, ignoreCase = true)) {
+                RENTAL.equals(contentItem.contractName, ignoreCase = true)
+            ) {
                 binding.whatsappBtn.hide()
                 binding.shareBtn.hide()
-                if(detailsResponse?.data?.metaDetails?.purchaseExpiry.isNullOrBlank()){
+                if (detailsResponse?.data?.metaDetails?.purchaseExpiry.isNullOrBlank()) {
                     detailsResponse?.data?.metaDetails?.purchaseExpiry = contentItem.rentalExpiry
                 }
-                if(detailsResponse?.data?.metaDetails?.purchaseExpiry.isNullOrBlank()){
+                if (detailsResponse?.data?.metaDetails?.purchaseExpiry.isNullOrBlank()) {
                     isErrorInRental = true
                     viewModel.onlyMessage = false
-                    onError(ErrorModel(statusCode = 190, message = getString(R.string.expired_content_msg)))
-                }
-                else if (!isErrorInRental) {
+                    onError(
+                        ErrorModel(
+                            statusCode = 190,
+                            message = getString(R.string.expired_content_msg)
+                        )
+                    )
+                } else if (!isErrorInRental) {
                     detailsResponse?.data?.metaDetails?.purchaseExpiry?.toLong()?.let {
                         val hour = changeMillisToHours(it)
                         e("checkRental", "hour : $hour")
@@ -1887,10 +2075,16 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                             if (min <= 1) {
                                 isErrorInRental = true
                                 viewModel.onlyMessage = false
-                                onError(ErrorModel(statusCode = 190,message = getString(R.string.expired_content_msg)))
+                                onError(
+                                    ErrorModel(
+                                        statusCode = 190,
+                                        message = getString(R.string.expired_content_msg)
+                                    )
+                                )
                             }
                         }
-                        binding.tvExpireValue.text = "Expires in: "+getExpiryTime(it, TimeLevel.DAY, TimeLevel.MINUTE)
+                        binding.tvExpireValue.text =
+                            "Expires in: " + getExpiryTime(it, TimeLevel.DAY, TimeLevel.MINUTE)
                     }
                 }
             }
@@ -1910,9 +2104,10 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     }
 
     override fun onPlayerFailure() {
-        if(binding.trailerView.isTrailerStarted
+        if (binding.trailerView.isTrailerStarted
             && binding.trailerView.isVisibile()
-            && binding.trailerView.alpha != 0f) {
+            && binding.trailerView.alpha != 0f
+        ) {
             viewModel.onlyMessage = true
             onError(
                 ErrorModel(
@@ -1936,8 +2131,11 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         if (::orientationManager.isInitialized)
             orientationManager.enable()
-        if((activity as AppCompatActivity).supportFragmentManager.findFragmentByTag(DIALOG_TAG) !=null
-            ||(activity as AppCompatActivity).supportFragmentManager.findFragmentByTag(LOGOUT_DIALOG_TAG) !=null) {
+        if ((activity as AppCompatActivity).supportFragmentManager.findFragmentByTag(DIALOG_TAG) != null
+            || (activity as AppCompatActivity).supportFragmentManager.findFragmentByTag(
+                LOGOUT_DIALOG_TAG
+            ) != null
+        ) {
             binding.trailerView.pauseTrailer(false)
         }
     }
@@ -1947,10 +2145,18 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     }
 
     override fun switchToFullScreen(switchFullScreen: Boolean) {
-        if (switchFullScreen)
+        (activity as LandingActivity).isScreenFullScreenMode=switchFullScreen
+        if (switchFullScreen){
             changeToLandscapeMode()
+        }
         else {
-            changeToPortraitMode()
+            if(!isTabletLandscape || !isDeviceTablet)
+                changeToPortraitMode()
+            else{
+                if(mIsInFullScreenMode)
+                    changeToTabletPortraitMode()
+                else changeToLandscapeMode()
+            }
         }
     }
 
@@ -2000,7 +2206,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         binding.trailerView.startPlayingTrailer()
         binding.trailerView.show()
         binding.ivPoster.alpha = 0f
-        binding.ivPosterOverlay.hide()
+
         if (context != null)
             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 if (!isTrailerEnded)
@@ -2011,7 +2217,11 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
     private fun hidePlayer() {
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            changeToPortraitMode()
+            context?.let {
+                if(!isTablet(it)){
+                    changeToPortraitMode()
+                }
+            }
         }
         disableOrientation()
         isPlaying = false
@@ -2019,7 +2229,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         binding.trailerView.hide()
 //        binding.ivPoster.show()
         binding.ivPoster.alpha = 1f
-        binding.ivPosterOverlay.show()
+
         binding.clDetails.show()
         binding.trailerView.onDestroyView()
         trailerUrl = null
@@ -2028,6 +2238,10 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     private fun startTrailer(trailerUrl: String?, trailerLicense: String?) {
         if (context != null && isNetworkConnected(requireContext()) && !isPaused) {
             binding.trailerView.onDestroyView()
+            /*Need to add this for QoE Probe Mitigation*/
+            binding.trailerView.setPlayerModel(id, contentType,
+                detailsResponse?.data?.metaDetails?.provider,
+                detailsResponse?.data?.metaDetails?.title)
             binding.trailerView.startTrailer(
                 trailerUrl,
                 this,
@@ -2052,8 +2266,9 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     if (!sharedPrefs.isActivePack()) NO else YES,
                     detailsResponse?.data?.metaDetails?.provider ?: contentItem.provider,
                     detailsResponse?.data?.metaDetails?.audio,
-                    pageName = (activity as? LandingActivity)?.getPageName() ?: EVENT_VALUE_SOURCE_DETAIL,
-                    railTitle = contentItem.railName,
+                    pageName = (activity as? LandingActivity)?.getPageName()
+                        ?: EVENT_VALUE_SOURCE_DETAIL,
+                    railTitle = detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
                     railPosition = contentItem.railPosition,
                     railType = contentItem.origin,
                     railCategory = contentItem.railCategory,
@@ -2071,13 +2286,17 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                         ))
                     ) YES else NO,
                     metaDetailResponse?.releaseYear ?: "",
-                    deviceType = DEVICE_TYPE,
+                    deviceType = sharedPrefs.getDeviceType() ?: "",
                     metaDetailResponse?.actor?.joinToString(separator = ",") ?: "",
                     contentItem.source.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
                     sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
                     packName = sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
                     autoPlayed = if (isAutoPlayTrailer && isTrailerInitialized) YES else NO,
-                    NO,
+                    liveContent = if (isLiveContent(
+                            contentItem.contentType,
+                            detailsResponse?.data?.metaDetails?.isLiveContent
+                        )
+                    ) YES else NO,
                     contentItem.contentConfigType
                 )
                 binding.trailerView.alpha = 1f
@@ -2096,13 +2315,19 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
     open fun changeToPortraitMode() {
         commonViewModel?.saveOrientation(OrientationManager.ScreenOrientation.PORTRAIT)
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        activity?.let {
+            if(!isTablet(it))
+                it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
         Completable.timer(1, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
             .subscribe {
                 activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
             }
         handlePortraitMode()
+    }
+    open fun changeToTabletPortraitMode(){
+        disableFullscreenForLandscape()
     }
 
     open fun changeToLandscapeMode() {
@@ -2112,11 +2337,11 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     }
 
 
-    private fun handlePrimaryBtnTextForEpisode(isReplay : Boolean){
-        if(metaDetailResponse?.vodId == viewModel.lastWatched?.vodId){
+    private fun handlePrimaryBtnTextForEpisode(isReplay: Boolean) {
+        if (metaDetailResponse?.vodId == viewModel.lastWatched?.vodId) {
             watchedSeconds = viewModel.lastWatched?.secondsWatched ?: 0
             var resumeBtnText = StringBuilder(getString(R.string.play))
-            if(!isReplay) {
+            if (!isReplay) {
                 binding.btnPrimary.icon =
                     ContextCompat.getDrawable(requireContext(), R.drawable.ic_small_play)
                 resumeBtnText =
@@ -2160,10 +2385,10 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                         ContextCompat.getDrawable(requireContext(), R.drawable.ic_small_replay)
                     binding.btnPrimary.text = getString(R.string.replay)
                 } else {
-                    if(contentItem.season != "0"){
+                    if (contentItem.season != "0") {
                         resumeBtnText.append(" S${contentItem?.season}")
                     }
-                    if(contentItem.season != "0"){
+                    if (contentItem.season != "0") {
                         resumeBtnText.append(" E${contentItem?.episodeId}")
                     }
 
@@ -2180,16 +2405,20 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     }
 
     open fun handlePrimaryButtonText() {
-        if(PROVIDER_TATA_SKY.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
+        if (PROVIDER_TATA_SKY.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             viewModel.lastWatched?.partnerSubscriptionType = "Free"
             detailsResponse?.data?.metaDetails?.partnerSubscriptionType = "Free"
         }
-        partnerSubscriptionTypeForPlayBtn = detailsResponse?.data?.metaDetails?.partnerSubscriptionType
-        if(detailFragmentArgs.playEpisode && !playEpisodeFromSeeAll) {
+        partnerSubscriptionTypeForPlayBtn =
+            detailsResponse?.data?.metaDetails?.partnerSubscriptionType
+        if (detailFragmentArgs.playEpisode && !playEpisodeFromSeeAll) {
             detailFragmentArgs.contentItem?.let {
-                if(PROVIDER_TATA_SKY.equals(detailsResponse?.data?.metaDetails?.provider, true))
+                if (PROVIDER_TATA_SKY.equals(detailsResponse?.data?.metaDetails?.provider, true))
                     it.offerIds = detailsResponse?.data?.detail?.offerIds
-                mEpisodeClickListener.selectedEpisode(it)
+                mEpisodeClickListener.selectedEpisode(
+                    it,
+                    detailFragmentArgs.contentAnalyticsModel ?: emptyContentAnalyticsModel()
+                )
             }
             playEpisodeFromSeeAll = true
         }
@@ -2203,10 +2432,9 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         totalContentDuration = detailsResponse?.data?.metaDetails?.duration ?: 0
         if (watchedSeconds > totalContentDuration)
             watchedSeconds = totalContentDuration
-        if(isEpisode){
+        if (isEpisode) {
             handlePrimaryBtnTextForEpisode(isReplay)
-        }
-        else{
+        } else {
             if (isReplay) {
                 watchedSeconds = 0
                 binding.btnPrimary.icon =
@@ -2216,7 +2444,9 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 if (contentType.equals(TYPE_BRAND, ignoreCase = true) ||
                     contentType.equals(TYPE_SERIES, ignoreCase = true)
                 ) {
-                    partnerSubscriptionTypeForPlayBtn = viewModel.lastWatched?.partnerSubscriptionType ?: detailsResponse?.data?.metaDetails?.firstEpisodeSubscriptionType
+                    partnerSubscriptionTypeForPlayBtn =
+                        viewModel.lastWatched?.partnerSubscriptionType
+                            ?: detailsResponse?.data?.metaDetails?.firstEpisodeSubscriptionType
                     if (viewModel.lastWatched?.season != 0) {
                         replayBtnText.append(" S${viewModel.lastWatched?.season}")
                     }
@@ -2227,8 +2457,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 //            detailsResponse?.data?.metaDetails?.vodId = viewModel.lastWatched?.id
                 binding.btnPrimary.text = replayBtnText
                 primaryButtonState = PrimaryButtonStateEnum.STATE_REPLAY
-            }
-            else if (!isReplay && viewModel.lastWatched?.contentTitle != null) {
+            } else if (!isReplay && viewModel.lastWatched?.contentTitle != null) {
                 watchedSeconds = viewModel.lastWatched?.secondsWatched ?: 0
                 binding.btnPrimary.icon =
                     ContextCompat.getDrawable(requireContext(), R.drawable.ic_small_play)
@@ -2239,7 +2468,9 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 if (contentType.equals(TYPE_BRAND, ignoreCase = true) ||
                     contentType.equals(TYPE_SERIES, ignoreCase = true)
                 ) {
-                    partnerSubscriptionTypeForPlayBtn = viewModel.lastWatched?.partnerSubscriptionType ?: detailsResponse?.data?.metaDetails?.firstEpisodeSubscriptionType
+                    partnerSubscriptionTypeForPlayBtn =
+                        viewModel.lastWatched?.partnerSubscriptionType
+                            ?: detailsResponse?.data?.metaDetails?.firstEpisodeSubscriptionType
                     if (viewModel.lastWatched?.season != 0) {
                         isBrandResumeContent = true
                         resumeBtnText.append(" S${viewModel.lastWatched?.season}")
@@ -2260,7 +2491,9 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 if (contentType.equals(TYPE_BRAND, ignoreCase = true) ||
                     contentType.equals(TYPE_SERIES, ignoreCase = true)
                 ) {
-                    partnerSubscriptionTypeForPlayBtn = detailsResponse?.data?.metaDetails?.firstEpisodeSubscriptionType ?: detailsResponse?.data?.metaDetails?.partnerSubscriptionType
+                    partnerSubscriptionTypeForPlayBtn =
+                        detailsResponse?.data?.metaDetails?.firstEpisodeSubscriptionType
+                            ?: detailsResponse?.data?.metaDetails?.partnerSubscriptionType
                     if (detailsResponse?.data?.metaDetails?.season != 0) {
                         replayBtnText.append(" S${detailsResponse?.data?.metaDetails?.season}")
                     }
@@ -2273,22 +2506,26 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         }
 
 //        if(watchedSeconds>0) {
-        if(viewModel.lastWatched?.partnerWebUrl?.isNotEmpty() == true)
-            detailsResponse?.data?.metaDetails?.partnerWebUrl = viewModel.lastWatched?.partnerWebUrl ?: ""
-        if(viewModel.lastWatched?.providerContentId?.isNotEmpty() == true)
-            detailsResponse?.data?.metaDetails?.providerContentId = viewModel.lastWatched?.providerContentId
-        if(viewModel.lastWatched?.dashWidewinePlayUrl?.isNotEmpty() == true)
-            detailsResponse?.data?.detail?.dashWidewinePlayUrl = viewModel.lastWatched?.dashWidewinePlayUrl
-        if(viewModel.lastWatched?.cookies?.isNotEmpty() == true)
+        if (viewModel.lastWatched?.partnerWebUrl?.isNotEmpty() == true)
+            detailsResponse?.data?.metaDetails?.partnerWebUrl =
+                viewModel.lastWatched?.partnerWebUrl ?: ""
+        if (viewModel.lastWatched?.providerContentId?.isNotEmpty() == true)
+            detailsResponse?.data?.metaDetails?.providerContentId =
+                viewModel.lastWatched?.providerContentId
+        if (viewModel.lastWatched?.dashWidewinePlayUrl?.isNotEmpty() == true)
+            detailsResponse?.data?.detail?.dashWidewinePlayUrl =
+                viewModel.lastWatched?.dashWidewinePlayUrl
+        if (viewModel.lastWatched?.cookies?.isNotEmpty() == true)
             detailsResponse?.data?.detail?.cookies = viewModel.lastWatched?.cookies
-        if(viewModel.lastWatched?.partnerDeepLinkUrl?.isNotEmpty() == true)
-            detailsResponse?.data?.metaDetails?.partnerDeepLinkUrl = viewModel.lastWatched?.partnerDeepLinkUrl ?: ""
+        if (viewModel.lastWatched?.partnerDeepLinkUrl?.isNotEmpty() == true)
+            detailsResponse?.data?.metaDetails?.partnerDeepLinkUrl =
+                viewModel.lastWatched?.partnerDeepLinkUrl ?: ""
 //        }
         if (PROVIDER_HOTSTAR.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             detailsResponse?.data?.detail?.dashWidewinePlayUrl =
                 viewModel.lastWatched?.hotstarAppDeeplink
                     ?: detailsResponse?.data?.metaDetails?.hotstarAppDeeplink
-                            ?: "hotstar://${detailsResponse?.data?.metaDetails?.providerContentId}"//1260049386
+                        ?: "hotstar://${detailsResponse?.data?.metaDetails?.providerContentId}"//1260049386
         }
 
         if (!isContentPlayable(partnerSubscriptionTypeForPlayBtn)) {
@@ -2306,33 +2543,40 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     }
 
     protected fun isContentPlayable(partnerSubscriptionType: String?): Boolean {
-        e("isContentPlayable","contractName : ${detailsResponse?.data?.detail?.contractName}," +
-                " partnerSubscriptionType: ${partnerSubscriptionType}")
+        e(
+            "isContentPlayable", "contractName : ${detailsResponse?.data?.detail?.contractName}," +
+                " partnerSubscriptionType: ${partnerSubscriptionType}"
+        )
         var partnerSubType = partnerSubscriptionType ?: PREMIUM
-        e("isContentPlayable","sharedPrefs.getLoginStatus() : ${sharedPrefs.getLoginStatus()}," +
-                " partnerSubType: $partnerSubType")
-        if(
+        e(
+            "isContentPlayable", "sharedPrefs.getLoginStatus() : ${sharedPrefs.getLoginStatus()}," +
+                " partnerSubType: $partnerSubType"
+        )
+        if (
             detailsResponse?.data?.metaDetails?.partnerId.equals("0") ||//TODO this line needs to be removed
-            RENTAL.equals(detailsResponse?.data?.detail?.contractName,true))
+            RENTAL.equals(detailsResponse?.data?.detail?.contractName, true)
+        )
             partnerSubType = RENTAL
         isContentSubscribed =
             PROVIDER_TATA_SKY.equals(detailsResponse?.data?.metaDetails?.provider, true)
-                    || isFreeContent(
+                || isFreeContent(
                 detailsResponse?.data?.detail?.contractName,
                 viewModel.sharedPrefs.getPartnerIdsList(),
                 detailsResponse?.data?.metaDetails?.partnerId ?: "",
                 sharedPrefs.getSubscribedPack()?.subscriptionStatus
             )
-        e("isContentPlayable","isContentSubscribed : $isContentSubscribed" +
+        e(
+            "isContentPlayable", "isContentSubscribed : $isContentSubscribed" +
                 " viewModel.sharedPrefs.getPartnerIdsList(): ${viewModel.sharedPrefs.getPartnerIdsList()}," +
-                " detailsResponse?.data?.metaDetails?.partnerId: ${detailsResponse?.data?.metaDetails?.partnerId}")
-        return if(!sharedPrefs.getLoginStatus() && PREMIUM.equals(partnerSubType, true))
+                " detailsResponse?.data?.metaDetails?.partnerId: ${detailsResponse?.data?.metaDetails?.partnerId}"
+        )
+        return if (!sharedPrefs.getLoginStatus() && PREMIUM.equals(partnerSubType, true))
             false
-        else if(sharedPrefs.getLoginStatus()){ //TODO Need to remove this
+        else if (sharedPrefs.getLoginStatus()) { //TODO Need to remove this
             (!PREMIUM.equals(partnerSubType, true) ||
-                    detailsResponse?.data?.detail?.contractName.equals("RENTAL") ||
-                    isContentSubscribed )
-                    && viewModel.sharedPrefs.contentPlaybackAllowed() && !shouldStartCancellationTrigger()
+                detailsResponse?.data?.detail?.contractName.equals("RENTAL") ||
+                isContentSubscribed)
+                && viewModel.sharedPrefs.contentPlaybackAllowed() && !shouldStartCancellationTrigger()
         } else
             true
     }
@@ -2346,13 +2590,14 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     }
 
     private fun playTrailer() {
-        if(isAutoPlayTrailer){
+        if (isAutoPlayTrailer) {
             miscAnalytics.trackMixPanelTrailerAutoplay(
                 contentTitle = detailsResponse?.data?.metaDetails?.getVodTitle()!!,
                 contentType = detailsResponse?.data?.metaDetails?.contentType!!,
                 contentGenre = detailsResponse?.data?.metaDetails?.genre?.joinToString(",") ?: "",
-                pageName = (activity as? LandingActivity)?.getPageName() ?: EVENT_VALUE_SOURCE_DETAIL,
-                railTitle = contentItem.railName,
+                pageName = (activity as? LandingActivity)?.getPageName()
+                    ?: EVENT_VALUE_SOURCE_DETAIL,
+                railTitle = detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
                 railPosition = contentItem.railPosition,
                 railType = contentItem.origin,
                 railCategory = contentItem.railCategory,
@@ -2362,8 +2607,8 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 contentPartner = detailsResponse?.data?.metaDetails?.provider
                     ?: contentItem.provider,
                 contentAuth = if (contentAuth) YES else NO,
-                contentCategory = contentItem.categoryType?:"",
-                contentPosition = contentItem.contentPosition?:"",
+                contentCategory = contentItem.categoryType ?: "",
+                contentPosition = contentItem.contentPosition ?: "",
                 contentRating = detailsResponse?.data?.metaDetails?.rating ?: "",
                 contentParentTitle = detailsResponse?.data?.metaDetails?.getParentTitle()
                     ?: playerModel?.getParentTitle() ?: "",
@@ -2373,13 +2618,17 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     ))
                 ) YES else NO,
                 contentReleaseYear = metaDetailResponse?.releaseYear ?: "",
-                deviceType = DEVICE_TYPE,
+                deviceType = sharedPrefs.getDeviceType() ?:"",
                 actors = metaDetailResponse?.actor?.joinToString(separator = ",") ?: "",
                 packPrice = sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
                 source = contentItem.source.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
                 packName = sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
                 autoPlayed = YES,
-                liveContent = NO,
+                liveContent = if (isLiveContent(
+                        contentItem.contentType,
+                        detailsResponse?.data?.metaDetails?.isLiveContent
+                    )
+                ) YES else NO,
                 contentConfigType = contentItem.contentConfigType,
                 contentLanguagePrimary = detailsResponse?.data?.metaDetails?.audio?.getOrNull(0)
                     ?: "",
@@ -2392,9 +2641,8 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             && trailerUrl == null
         ) {
             val trailerId = detailsResponse?.data?.metaDetails?.partnerTrailerInfo ?: ""
-            playChaupalContent(trailerId,contentType, true, false)
-        }
-        else if (PROVIDER_SHEMAROO.equals(
+            playChaupalContent(trailerId, contentType, true, false)
+        } else if (PROVIDER_SHEMAROO.equals(
                 detailsResponse?.data?.metaDetails?.provider,
                 ignoreCase = true
             )
@@ -2406,7 +2654,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 detailsResponse?.data?.metaDetails?.provider,
                 true
             )
-                    || PROVIDER_VOOTSELECT.equals(
+                || PROVIDER_VOOTSELECT.equals(
                 detailsResponse?.data?.metaDetails?.provider,
                 true
             ))
@@ -2449,17 +2697,16 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 when (primaryButtonState) {
                     PrimaryButtonStateEnum.STATE_PLAY, PrimaryButtonStateEnum.STATE_RESUME, PrimaryButtonStateEnum.STATE_REPLAY -> {
                         isBtnClicked = true
+                        mIsMovieOrShowStarted = true
                         if (isContentPlayable(partnerSubscriptionTypeForPlayBtn)) {
-                            checkForGuestUserPlaybackEligibility ({
+                            checkForGuestUserPlaybackEligibility({
                                 pauseTrailerInvoked()
                                 playContentWithParentalCheck(null)
                             })
-                        }
-                        else if(sharedPrefs.getLoginStatus()){
+                        } else if (sharedPrefs.getLoginStatus()) {
                             pauseTrailerInvoked()
                             showContentPlaybackDialog()
-                        }
-                        else
+                        } else
                             loginPopup()
                     }
                     PrimaryButtonStateEnum.STATE_BLOCKED_PLAYBACK -> {
@@ -2480,13 +2727,13 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
     }
 
-    private fun loginPopup(moveToSubscription:Boolean = true) {
+    private fun loginPopup(moveToSubscription: Boolean = true) {
         pauseTrailerInvoked()
-        if(!moveToSubscription){
+        if (!moveToSubscription) {
             viewModel.getPreviouslyUsedMobileNumbers()
             return
         }
-        if(partnerSubscriptionTypeOnPlay == null)
+        if (partnerSubscriptionTypeOnPlay == null)
             partnerSubscriptionTypeOnPlay = PREMIUM
         if (PREMIUM.equals(partnerSubscriptionTypeOnPlay, true)) {
             if (!sharedPrefs.isManagedAppEnabled())
@@ -2511,10 +2758,11 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
     private fun showDetailViews() {
         var delayTime = 5L
-        if(PROVIDER_HUNGAMA.equals(
+        if (PROVIDER_HUNGAMA.equals(
                 detailsResponse?.data?.metaDetails?.provider,
                 true
-            ) && trailerUrl?.isNotEmpty() == true)
+            ) && trailerUrl?.isNotEmpty() == true
+        )
             delayTime = 1000L
         //add delay of 500 milliseconds if Hungama trailer content
         Handler().postDelayed(Runnable {
@@ -2533,7 +2781,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             }
             isDetailShown = true
 
-            binding.ivPosterOverlay.show()
+
             binding.clDetails.show()
 
         }, delayTime)
@@ -2552,8 +2800,9 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     contentType = detailsResponse?.data?.metaDetails?.contentType!!,
                     contentGenre = detailsResponse?.data?.metaDetails?.genre?.joinToString(",")
                         ?: "",
-                    pageName = (activity as? LandingActivity)?.getPageName() ?: EVENT_VALUE_SOURCE_DETAIL,
-                    railTitle = contentItem.railName,
+                    pageName = (activity as? LandingActivity)?.getPageName()
+                        ?: EVENT_VALUE_SOURCE_DETAIL,
+                    railTitle = detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
                     railPosition = contentItem.railPosition,
                     railType = contentItem.origin,
                     railCategory = contentItem.railCategory,
@@ -2574,13 +2823,17 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                         ))
                     ) YES else NO,
                     contentReleaseYear = metaDetailResponse?.releaseYear ?: "",
-                    deviceType = DEVICE_TYPE,
+                    deviceType = sharedPrefs.getDeviceType() ?:"",
                     actors = metaDetailResponse?.actor?.joinToString(separator = ",") ?: "",
                     packPrice = sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
                     source = contentItem.source.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
                     packName = sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
                     autoPlayed = if (isAutoPlayTrailer && isTrailerInitialized) YES else NO,
-                    liveContent = NO,
+                    liveContent = if (isLiveContent(
+                            contentItem.contentType,
+                            detailsResponse?.data?.metaDetails?.isLiveContent
+                        )
+                    ) YES else NO,
                     contentConfigType = contentItem.contentConfigType,
                     contentLanguagePrimary = detailsResponse?.data?.metaDetails?.audio?.getOrNull(0)
                         ?: "",
@@ -2603,7 +2856,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         if (viewModel.onlyMessage) {
             super.onError(errorModel)
             return
-        } else if(errorModel.statusCode != 190){
+        } else if (errorModel.statusCode != 190) {
             if (detailsResponse != null) return
         }
         showDialog(DialogModel(false, null, errorModel.message, "Ok", null),
@@ -2638,15 +2891,19 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
                 binding.seriesRecycler.adapter = SeriesAdapter(
                     mSeriesClickListener,
-                    mutableListOf<ContentItem>(), 0, primaryButtonState,
-                    contentItem.contentType, contentItem.id,
-                    viewModel.getCloudinaryUrl(), this,
+                    mutableListOf(),
+                    0,
+                    primaryButtonState,
+                    contentItem.contentType,
+                    contentItem.id,
+                    viewModel.getCloudinaryUrl(),
+                    this,
                     mEpisodeInfoClickListener,
-                    isContentSubscribed
+                    isContentSubscribed,
                 )
 
                 binding.seriesRecycler.clearOnScrollListeners()
-                binding.seriesRecycler.addOnScrollListener(CustomScrollListener{
+                binding.seriesRecycler.addOnScrollListener(CustomScrollListener {
                     mRailScrollListener.onRailScrolled(
                         TYPE_SEASONS,
                         1,
@@ -2678,7 +2935,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             } else if (response.data?.metaDetails?.parentContentType == TYPE_BRAND
                 || response.data?.metaDetails?.contentType == TYPE_BRAND
             ) {
-                if((response.data?.seriesList?.size ?: 0) == 0){
+                if ((response.data?.seriesList?.size ?: 0) == 0) {
                     showDetailViews()
                     if (!alreadyFetchedRelatedRail)
                         handleRecommendationApi()
@@ -2689,15 +2946,19 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
                 binding.seriesRecycler.adapter = SeriesAdapter(
                     mSeriesClickListener,
-                    mutableListOf<ContentItem>(), 0, primaryButtonState,
-                    contentItem.contentType, contentItem.id,
-                    viewModel.getCloudinaryUrl(), this,
+                    mutableListOf(),
+                    0,
+                    primaryButtonState,
+                    contentItem.contentType,
+                    contentItem.id,
+                    viewModel.getCloudinaryUrl(),
+                    this,
                     mEpisodeInfoClickListener,
-                    isContentSubscribed
+                    isContentSubscribed,
                 )
 
                 binding.seriesRecycler.clearOnScrollListeners()
-                binding.seriesRecycler.addOnScrollListener(CustomScrollListener{
+                binding.seriesRecycler.addOnScrollListener(CustomScrollListener {
                     mRailScrollListener.onRailScrolled(
                         TYPE_SEASONS,
                         1,
@@ -2732,8 +2993,8 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     }, 500
                 )
                 var id1: String? = null
-                if((response.data?.seriesList?.size ?: 0) > mSelectedPosition) {
-                    id1  = response.data!!.seriesList!![mSelectedPosition].id.toString()
+                if ((response.data?.seriesList?.size ?: 0) > mSelectedPosition) {
+                    id1 = response.data!!.seriesList!![mSelectedPosition].id.toString()
                     if (id1 != null) {
                         selectedSeriesId = id1
                     }
@@ -2769,7 +3030,13 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                                 } else {
                                     pageOffset = 0
                                 }*/
-                                fetchSeries(false, pageOffset, viewModel.SERIES_LIMIT, pageOffset > 0, true)
+                                fetchSeries(
+                                    false,
+                                    pageOffset,
+                                    viewModel.SERIES_LIMIT,
+                                    pageOffset > 0,
+                                    true
+                                )
                             }
                         }
                     }
@@ -2822,8 +3089,8 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     private fun getDetailsContentType(contentType: String): String {
         return when {
             contentType.contains(TYPE_BRAND_CHILD) || contentType.contains(TYPE_SERIES_CHILD)
-                    || contentType.contains(TYPE_MOVIES) || contentType.contains(TYPE_WEB_SHORTS)
-                    || contentType.contains(TYPE_TV_SHOWS) -> DetailTypeEnum.VOD.type
+                || contentType.contains(TYPE_MOVIES) || contentType.contains(TYPE_WEB_SHORTS)
+                || contentType.contains(TYPE_TV_SHOWS) -> DetailTypeEnum.VOD.type
             contentType.contains(TYPE_BRAND) -> DetailTypeEnum.BRAND.type
             contentType.contains(TYPE_SERIES) -> DetailTypeEnum.SERIES.type
             contentType.contains(TYPE_CATCH_UP) -> DetailTypeEnum.CATCHUP.type
@@ -2853,12 +3120,30 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         e("HungamaPlayerFragmnet", "inside handleLandscapeMode")
         val layoutParams = binding.trailerView.layoutParams as ConstraintLayout.LayoutParams
         layoutParams.height = mWidth
+        activity?.let {
+            if(isTablet(it)) {
+                layoutParams.width=ConstraintLayout.LayoutParams.MATCH_PARENT
+                layoutParams.height=ConstraintLayout.LayoutParams.MATCH_PARENT
+            }
+        }
         binding.trailerView.layoutParams = layoutParams
         val posterLayoutParams = binding.ivPoster.layoutParams as ConstraintLayout.LayoutParams
         posterLayoutParams.height = mWidth
+        activity?.let {
+            if(isTablet(it)){
+                posterLayoutParams.width=ConstraintLayout.LayoutParams.MATCH_PARENT
+                posterLayoutParams.height=ConstraintLayout.LayoutParams.MATCH_PARENT
+            }
+        }
         binding.ivPoster.layoutParams = posterLayoutParams
         val playerFrameParams = binding.playerFrame.layoutParams as ConstraintLayout.LayoutParams
         playerFrameParams.height = mWidth
+        activity?.let {
+            if(isTablet(it)) {
+                playerFrameParams.width=ConstraintLayout.LayoutParams.MATCH_PARENT
+                playerFrameParams.height=ConstraintLayout.LayoutParams.MATCH_PARENT
+            }
+        }
         binding.playerFrame.layoutParams = playerFrameParams
         binding.scrollingContent.hide()
         binding.miniProgress.hide()
@@ -2866,11 +3151,54 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         if (isTrailerInitialized)
             binding.trailerView.switchToFullScreen()
         mIsInFullScreenMode = true
+        (activity as LandingActivity).isScreenFullScreenMode=true
     }
+
+    protected fun disableFullscreenForLandscape(){
+        commonViewModel?.saveOrientation(OrientationManager.ScreenOrientation.LANDSCAPE)
+        var widthTablet:Int = 0
+        var heightTablet:Int =0
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR
+        context?.let {
+            widthTablet=it.resources.getDimension(R.dimen.player_view_width).toInt()
+            heightTablet=it.resources.getDimension(R.dimen.player_view_height).toInt()
+        }
+        updateButtonLayoutWeight()
+
+        val layoutParams = binding.trailerView.layoutParams as ConstraintLayout.LayoutParams
+        binding.trailerView.layoutParams = setPlayerViewLayouts(layoutParams,widthTablet,heightTablet)
+        val posterLayoutParams = binding.ivPoster.layoutParams as ConstraintLayout.LayoutParams
+        binding.ivPoster.layoutParams = setPlayerViewLayouts(posterLayoutParams,widthTablet,heightTablet)
+        val playerFrameParams = binding.playerFrame.layoutParams as ConstraintLayout.LayoutParams
+        binding.playerFrame.layoutParams = setPlayerViewLayouts(playerFrameParams,widthTablet,heightTablet)
+        binding.ivPoster.alpha = 1f
+        binding.imgBack.show()
+        binding.watchlistBtn.show()
+        if (binding.trailerView.isVisible && !isTrailerEnded)
+            binding.miniProgress.show()
+        if (isTrailerInitialized)
+            binding.trailerView.switchToMiniScreen()
+        mIsInFullScreenMode = false
+        binding.scrollingContent.show()
+        (activity as LandingActivity).isScreenFullScreenMode=false
+    }
+
+    private fun setPlayerViewLayouts(layoutParams: ConstraintLayout.LayoutParams, width: Int, height:Int):ConstraintLayout.LayoutParams{
+        layoutParams.width=width
+        layoutParams.height=height
+        layoutParams.startToStart = ConstraintSet.PARENT_ID
+        layoutParams.endToEnd = ConstraintSet.PARENT_ID
+        return layoutParams
+    }
+
 
     protected fun handlePortraitMode() {
         e("HungamaPlayerFragmnet", "inside handlePortraitMode")
-        if(!mIsInFullScreenMode) return
+        if(!isDeviceTablet) {
+            if (!mIsInFullScreenMode) return
+        }
+        else updateButtonLayoutWeight()
+
         val layoutParams = binding.trailerView.layoutParams as ConstraintLayout.LayoutParams
         layoutParams.height = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
         layoutParams.dimensionRatio = "16:9"
@@ -2892,6 +3220,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             binding.trailerView.switchToMiniScreen()
         mIsInFullScreenMode = false
         binding.scrollingContent.show()
+        (activity as? LandingActivity)?.handlePortraitForBottomNav()
     }
 
     override fun onAttach(context: Context) {
@@ -2900,11 +3229,12 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             true // default to enabled
         ) {
             override fun handleOnBackPressed() {
-//                disableOrientation()
                 if (mIsInFullScreenMode) {
-                    changeToPortraitMode()
+                    if(isTabletLandscape && isDeviceTablet)
+                        changeToTabletPortraitMode()
+                    else changeToPortraitMode()
                 } else {
-                    if(refreshHomeRequired){
+                    if (refreshHomeRequired) {
                         //commonViewModel?.refreshHome?.postValue(SingleEvent(true))
                         refreshHomeRequired = false
                     }
@@ -2938,7 +3268,11 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                             val token = viewModel.getToken(id)
                             if (!token.isNullOrEmpty()) {
                                 playerModel?.setLA_URL(playerModel?.getLA_URL() + "&ls_session=" + token)
-                                playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+                                playerModel?.let { playerModel: PlayerModel ->
+                                    navigateToPlayer(
+                                        playerModel
+                                    )
+                                }
                             } else {
                                 viewModel.generateControlToken(
                                     detailsResponse?.data?.detail?.offerIds?.epids!!,
@@ -2984,17 +3318,21 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         ) {
             binding.btnSecondary.disable()
             binding.btnSecondary.hide()
+            binding.buttonView?.hide()
+            updateButtonLayoutWeight()
+
         }
     }
 
     //to do for episode check
-    private fun checkAndPlayContent(){
-        if(isEpisode && (metaDetailResponse?.vodId != viewModel.lastWatched?.vodId)){
+    private fun checkAndPlayContent() {
+        if (isEpisode && (metaDetailResponse?.vodId != viewModel.lastWatched?.vodId)) {
             playContent(contentItem)
-        }else {
+        } else {
             playContent()
         }
     }
+
     private fun playAfterRattingCheck() {
         if (iListItem == null)
             checkAndPlayContent()
@@ -3009,16 +3347,17 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             detailsResponse?.data?.detail?.offerIds?.epids?.let {
                 val epids = viewModel.lastWatched?.offerIds?.epids ?: it
                 if (!viewModel.tvodToken.isNullOrEmpty()
-                    && RENTAL.equals(contentItem.contractName, ignoreCase = true)) {
+                    && RENTAL.equals(contentItem.contractName, ignoreCase = true)
+                ) {
                     playerModel?.setLA_URL(playerModel?.getLA_URL() + "&ls_session=" + viewModel.tvodToken)
-                    playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+                    playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
                 } else {
                     viewModel.generateControlToken(
                         epids,
                         id,
                         true
                     )
-                }?: kotlin.run {
+                } ?: kotlin.run {
                     showToast(context, "No Entitlements found")
                 }
             }
@@ -3043,7 +3382,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 true,
                 playerModel?.getContentType() ?: "TV_SHOWS",
                 partnerSubscriptionType = partnerSubscriptionTypeForPlayBtn,
-                partnerDeepLinkUrl = detailsResponse?.data?.metaDetails?.partnerDeepLinkUrl?: ""
+                partnerDeepLinkUrl = detailsResponse?.data?.metaDetails?.partnerDeepLinkUrl ?: ""
             )
         } else if (PROVIDER_VOOTKIDS.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             playerModel = null
@@ -3063,14 +3402,18 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             )
         ) {
             playerModel = viewModel.generatePlayerModel(detailsResponse!!)
-            detailsResponse?.data?.detail?.dashWidewinePlayUrl = viewModel.lastWatched?.dashWidewinePlayUrl ?: detailsResponse?.data?.detail?.dashWidewinePlayUrl
+            detailsResponse?.data?.detail?.dashWidewinePlayUrl =
+                viewModel.lastWatched?.dashWidewinePlayUrl
+                    ?: detailsResponse?.data?.detail?.dashWidewinePlayUrl
             if (detailsResponse?.data?.detail?.dashWidewinePlayUrl == null
                 && viewModel.lastWatched?.vodId != null
             ) {
-                viewModel.fetchCSBoxsetDetails(viewModel.lastWatched?.vodId!!,
-                    detailsResponse?.data?.metaDetails?.provider!!)
+                viewModel.fetchCSBoxsetDetails(
+                    viewModel.lastWatched?.vodId!!,
+                    detailsResponse?.data?.metaDetails?.provider!!
+                )
             } else
-                playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+                playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
         } else if (PROVIDER_ZEE5.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             detailsResponse?.data?.detail?.dashWidewinePlayUrl =
                 detailsResponse?.data?.metaDetails?.partnerWebUrl
@@ -3080,120 +3423,126 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             playerModel = viewModel.generatePlayerModel(detailsResponse!!)
 
             playHotstarContent()
-        }
-        else if(PROVIDER_EROSNOW.equals(detailsResponse?.data?.metaDetails?.provider, true)){
+        } else if (PROVIDER_EROSNOW.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             playerModel = viewModel.generatePlayerModel(detailsResponse!!)
             playErosNowContent()
-        }
-        else if (PROVIDER_SONYLIV.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
+        } else if (PROVIDER_SONYLIV.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             playerModel = viewModel.generatePlayerModel(detailsResponse!!)
             checkAndPlaySonyContent()
-        }
-        else if (PROVIDER_EPIC_ON.equals(detailsResponse?.data?.metaDetails?.provider, true) ||
-            PROVIDER_DOCU_BAY.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
+        } else if (PROVIDER_EPIC_ON.equals(detailsResponse?.data?.metaDetails?.provider, true) ||
+            PROVIDER_DOCU_BAY.equals(detailsResponse?.data?.metaDetails?.provider, true)
+        ) {
             playerModel = null
-            detailsResponse?.data?.detail?.dashWidewinePlayUrl = viewModel.lastWatched?.playUrl ?: detailsResponse?.data?.detail?.playUrl
+            detailsResponse?.data?.detail?.dashWidewinePlayUrl =
+                viewModel.lastWatched?.playUrl ?: detailsResponse?.data?.detail?.playUrl
             playerModel = viewModel.generatePlayerModel(detailsResponse!!)
             if (detailsResponse?.data?.detail?.playUrl == null
                 && viewModel.lastWatched?.vodId != null
             ) {
-                viewModel.fetchCSBoxsetDetails(viewModel.lastWatched?.vodId!!,
-                    detailsResponse?.data?.metaDetails?.provider!!)
+                viewModel.fetchCSBoxsetDetails(
+                    viewModel.lastWatched?.vodId!!,
+                    detailsResponse?.data?.metaDetails?.provider!!
+                )
             } else
-                playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+                playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
         } else if (PROVIDER_HOICHOI.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             playerModel = null
-            detailsResponse?.data?.detail?.dashWidewinePlayUrl = viewModel.lastWatched?.playUrl ?: detailsResponse?.data?.detail?.playUrl?:""
+            detailsResponse?.data?.detail?.dashWidewinePlayUrl =
+                viewModel.lastWatched?.playUrl ?: detailsResponse?.data?.detail?.playUrl ?: ""
             playbackUrl = detailsResponse?.data?.detail?.dashWidewinePlayUrl
 
             playerModel = viewModel.generatePlayerModel(detailsResponse!!)
-            playerModel?.setPlaybackSubtitleUrl(viewModel.lastWatched?.subtitlePlayUrl ?:
-            detailsResponse?.data?.metaDetails?.subtitlePlayUrl)
+
             val token = viewModel.getToken(id)
-            if(playerModel?.getPlaybackUrl().isNullOrEmpty())
-                playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+            if (playerModel?.getPlaybackUrl().isNullOrEmpty())
+                playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
             else if (!token.isNullOrEmpty()) {
                 playHoiChoiContent(playbackUrl, token)
             } else {
                 val request = HoichoiRequest(partner = "hoichoi")
-                viewModel.fetchHoichoiPlaybackUrl(request,id)
+                viewModel.fetchHoichoiPlaybackUrl(request, id)
             }
-        }
-        else if(PROVIDER_MXPLAYER.equals(detailsResponse?.data?.metaDetails?.provider, true)){
+        } else if (PROVIDER_MXPLAYER.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             playerModel = null
             playbackUrl = detailsResponse?.data?.detail?.dashWidewinePlayUrl
             playerModel = viewModel.generatePlayerModel(detailsResponse!!)
             playMXPlayer()
-        }
-        else if(PROVIDER_CHAUPAL.equals(detailsResponse?.data?.metaDetails?.provider, true)){
+        } else if (PROVIDER_CHAUPAL.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             playerModel = null
             playerModel = viewModel.generatePlayerModel(detailsResponse!!)
             playChaupalContent(
                 detailsResponse?.data?.metaDetails?.providerContentId ?: "",
-                playerModel?.getContentType()?:contentType, false, true)
-        }
-        else if(PROVIDER_PLANET_MARATHI.equals(detailsResponse?.data?.metaDetails?.provider, true)){
+                playerModel?.getContentType() ?: contentType, false, true
+            )
+        } else if (PROVIDER_PLANET_MARATHI.equals(
+                detailsResponse?.data?.metaDetails?.provider,
+                true
+            )
+        ) {
             playerModel = null
             isPlayButtonClick = true
-            detailsResponse?.data?.detail?.dashWidewinePlayUrl = viewModel.lastWatched?.playUrl ?: detailsResponse?.data?.detail?.playUrl
+            detailsResponse?.data?.detail?.dashWidewinePlayUrl =
+                viewModel.lastWatched?.playUrl ?: detailsResponse?.data?.detail?.playUrl
             playerModel = viewModel.generatePlayerModel(detailsResponse!!)
-            if(TYPE_WEB_SHORTS.equals(contentType, true) && !playerModel?.getPlaybackUrl().isNullOrEmpty())
-                playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+            if (TYPE_WEB_SHORTS.equals(contentType, true) && !playerModel?.getPlaybackUrl()
+                    .isNullOrEmpty()
+            )
+                playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
             else {
                 viewModel.fetchPlanetMarathiPlayUrl(
-                    playerModel?.getProviderContentId()?:"",
-                    playerModel?.getContentType()?:""
+                    playerModel?.getProviderContentId() ?: "",
+                    playerModel?.getContentType() ?: ""
                 )
             }
-        }
-        /*else if (PROVIDER_NAMMAFLIX.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
-            playerModel = null
-            detailsResponse?.data?.detail?.dashWidewinePlayUrl = viewModel.lastWatched?.playUrl ?: detailsResponse?.data?.detail?.playUrl?:""
-            playbackUrl = detailsResponse?.data?.detail?.dashWidewinePlayUrl
-            playerModel = viewModel.generatePlayerModel(detailsResponse!!)
-            playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
-        }*/
-        else if (PROVIDER_LIONSGATE.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
+        } else if (PROVIDER_LIONSGATE.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             playerModel = null
             playerModel = viewModel.generatePlayerModel(detailsResponse!!)
             playbackUrl = playerModel?.getPlaybackUrl()
             viewModel.fetchLionsgateToken(playbackUrl)
-        }
-        else {
+        } else {
 
             playerModel = null
-            if(detailsResponse?.data?.detail?.dashWidewinePlayUrl.isNullOrEmpty()){
-                detailsResponse?.data?.detail?.dashWidewinePlayUrl = viewModel.lastWatched?.playUrl ?: detailsResponse?.data?.detail?.playUrl
-            }
-            else {
-                detailsResponse?.data?.detail?.dashWidewinePlayUrl = viewModel.lastWatched?.dashWidewinePlayUrl ?: detailsResponse?.data?.detail?.dashWidewinePlayUrl
+            if (detailsResponse?.data?.detail?.dashWidewinePlayUrl.isNullOrEmpty()) {
+                detailsResponse?.data?.detail?.dashWidewinePlayUrl =
+                    viewModel.lastWatched?.playUrl ?: detailsResponse?.data?.detail?.playUrl
+            } else {
+                detailsResponse?.data?.detail?.dashWidewinePlayUrl =
+                    viewModel.lastWatched?.dashWidewinePlayUrl
+                        ?: detailsResponse?.data?.detail?.dashWidewinePlayUrl
             }
             playbackUrl = detailsResponse?.data?.detail?.dashWidewinePlayUrl
             playerModel = viewModel.generatePlayerModel(detailsResponse!!)
-            val epids = viewModel.lastWatched?.offerIds?.epids ?: detailsResponse?.data?.detail?.offerIds?.epids
+            val epids = viewModel.lastWatched?.offerIds?.epids
+                ?: detailsResponse?.data?.detail?.offerIds?.epids
             playerModel?.setEpids(epids)
             playerModel?.let {
-                playGenericPartnerWithAuthType(detailsResponse?.data?.metaDetails?.provider?:"",
-                    playbackUrl, it)
+                val contentMetaDetails=detailsResponse?.data?.metaDetails
+                playGenericPartnerWithAuthType(
+                    contentMetaDetails?.provider ?: "",
+                    playbackUrl,
+                    it,
+                    contentMetaDetails?.partnerDeepLinkUrl,
+                    contentMetaDetails?.liveContent ?: false,
+                    it.getContentType() ?: TYPE_TV_SHOWS
+                )
             }
         }
     }
 
     private fun playErosNowContent() {
-        e("Eros","partnerUniqueId : ${viewModel.sharedPrefs.getPartnerUniqueId()}")
+        e("Eros", "partnerUniqueId : ${viewModel.sharedPrefs.getPartnerUniqueId()}")
         context?.let {
-            if(ENSDK.getLoggedIn()) {
+            if (ENSDK.getLoggedIn()) {
 //                trackOnThirdPartyPlayerPlay(playerModel)
-                playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
-            }
-            else{
+                playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
+            } else {
                 viewModel.showHideLoader(true)
                 erosnowLogin(
                     it,
                     enListener,
                     viewModel.sharedPrefs.getPartnerUniqueIdInfo(PROVIDER_EROSNOW),
 //                    viewModel.sharedPrefs.getPartnerUniqueId(),
-                    viewModel.sharedPrefs.getDeviceToken()?:""
+                    viewModel.sharedPrefs.getDeviceToken() ?: ""
                 )
             }
         }
@@ -3270,11 +3619,15 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         }
 
 
-        e("SonyLIVSDKListener","SonyLIVSDKManager.getInstance().status:${SonyLIVSDKManager.getInstance().status}")
-        if(!sharedPrefs.isLoginAgain() && SonyLIVSDKManager.getInstance().status == SDKStatus.SUCCESS)
+        e(
+            "SonyLIVSDKListener",
+            "SonyLIVSDKManager.getInstance().status:${SonyLIVSDKManager.getInstance().status}"
+        )
+        /*if (!sharedPrefs.isLoginAgain() && SonyLIVSDKManager.getInstance().status == SDKStatus.SUCCESS)
             playSonyLivContent()
-        else
-            viewModel.generateSonylivShortToken(true)
+        else*/
+        /*Commented for this Task TSF-16639*/
+        viewModel.generateSonylivShortToken(true)
     }
 
     private fun playContent(seriesItem: ContentItem) {
@@ -3293,20 +3646,17 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     id,
                     true
                 )
-            }?: kotlin.run {
+            } ?: kotlin.run {
                 showToast(context, "No Entitlements found")
             }
 
-        }
-        else if(PROVIDER_CURIOSITY_STREAM.equals(seriesItem.provider, true)){
-            playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
-        }
-        else if (PROVIDER_HUNGAMA.equals(seriesItem.provider, true)) {
-            playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+        } else if (PROVIDER_CURIOSITY_STREAM.equals(seriesItem.provider, true)) {
+            playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
+        } else if (PROVIDER_HUNGAMA.equals(seriesItem.provider, true)) {
+            playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
         } else if (PROVIDER_SHEMAROO.equals(seriesItem.provider, true)) {
             playShemarooMeContent(seriesItem.partnerDeepLinkUrl, false, false)
-        }
-        else if(PROVIDER_VOOTSELECT.equals(seriesItem.provider, true)){
+        } else if (PROVIDER_VOOTSELECT.equals(seriesItem.provider, true)) {
             playVootContent(
                 seriesItem.providerContentId,
                 false,
@@ -3315,8 +3665,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 partnerSubscriptionType = seriesItem.partnerSubscriptionType,
                 partnerDeepLinkUrl = seriesItem.partnerDeepLinkUrl
             )
-        }
-        else if(PROVIDER_VOOTKIDS.equals(seriesItem.provider, true)){
+        } else if (PROVIDER_VOOTKIDS.equals(seriesItem.provider, true)) {
             playVootContent(
                 seriesItem.providerContentId,
                 false,
@@ -3335,9 +3684,11 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     seriesItem,
                     detailsResponse?.data?.metaDetails?.taShowType ?: ""
                 )
-            e("playZee5Content","seriesItem : ${seriesItem.partnerDeepLinkUrl}, " +
+            e(
+                "playZee5Content", "seriesItem : ${seriesItem.partnerDeepLinkUrl}, " +
                     "partnerWebUrl : ${seriesItem.partnerWebUrl}, " +
-                    "getPlaybackUrl: ${playerModel?.getPlaybackUrl()}")
+                    "getPlaybackUrl: ${playerModel?.getPlaybackUrl()}"
+            )
             playZee5Content(seriesItem.partnerSubscriptionType ?: partnerSubscriptionTypeForPlayBtn)
         } else if (PROVIDER_HOTSTAR.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             //seriesItem.playerDetails?.dashWidewinePlayUrl = seriesItem.hotstarAppDeeplink ?: "hotstar://${seriesItem.providerContentId}"//1260049386
@@ -3353,11 +3704,9 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 )
             }
             playHotstarContent()
-        }
-        else if(PROVIDER_EROSNOW.equals(detailsResponse?.data?.metaDetails?.provider, true)){
+        } else if (PROVIDER_EROSNOW.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             playErosNowContent()
-        }
-        else if (PROVIDER_SONYLIV.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
+        } else if (PROVIDER_SONYLIV.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             playerModel = null
             playerModel = viewModel.generatePlayerModel(
                 seriesItem,
@@ -3377,7 +3726,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             if (viewModel.lastWatched?.dashWidewinePlayUrl == null) {
                 viewModel.fetchCSBoxsetDetails(seriesItem.id, seriesItem.provider)
             } else
-                playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+                playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
         } else if (PROVIDER_HOICHOI.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             playerModel = null
 
@@ -3388,27 +3737,25 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 seriesItem,
                 detailsResponse?.data?.metaDetails?.taShowType ?: ""
             )
-            playerModel?.setPlaybackSubtitleUrl(seriesItem.subtitlePlayUrl)
-            if(playerModel?.getPlaybackUrl().isNullOrEmpty())
-                playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+//            playerModel?.setPlaybackSubtitleUrl(seriesItem.subtitlePlayUrl)
+            if (playerModel?.getPlaybackUrl().isNullOrEmpty())
+                playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
             else if (!token.isNullOrEmpty()) {
                 playHoiChoiContent(playbackUrl, token)
             } else {
                 val request = HoichoiRequest(partner = "hoichoi")
 
-                viewModel.fetchHoichoiPlaybackUrl(request,id)
+                viewModel.fetchHoichoiPlaybackUrl(request, id)
             }
 
 
-        }
-        else if(PROVIDER_MXPLAYER.equals(detailsResponse?.data?.metaDetails?.provider, true)){
+        } else if (PROVIDER_MXPLAYER.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             playerModel = viewModel.generatePlayerModel(
                 seriesItem,
                 detailsResponse?.data?.metaDetails?.taShowType ?: ""
             )
             playMXPlayer()
-        }
-        else if(PROVIDER_CHAUPAL.equals(detailsResponse?.data?.metaDetails?.provider, true)){
+        } else if (PROVIDER_CHAUPAL.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             playerModel = null
             seriesItem.playerDetails?.dashWidewinePlayUrl = seriesItem.playerDetails?.playUrl
             playerModel = viewModel.generatePlayerModel(
@@ -3417,28 +3764,39 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             )
             playChaupalContent(
                 seriesItem.providerContentId,
-                seriesItem.contentType, false, false)
-        }
-        else if(PROVIDER_PLANET_MARATHI.equals(detailsResponse?.data?.metaDetails?.provider, true)){
-            viewModel.fetchPlanetMarathiPlayUrl(
-                playerModel?.getProviderContentId()?:"",
-                playerModel?.getContentType()?:""
+                seriesItem.contentType, false, false
             )
-        }
-        else if (PROVIDER_LIONSGATE.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
+        } else if (PROVIDER_PLANET_MARATHI.equals(
+                detailsResponse?.data?.metaDetails?.provider,
+                true
+            )
+        ) {
+            viewModel.fetchPlanetMarathiPlayUrl(
+                playerModel?.getProviderContentId() ?: "",
+                playerModel?.getContentType() ?: ""
+            )
+        } else if (PROVIDER_LIONSGATE.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
             playbackUrl = seriesItem.playerDetails?.dashWidewinePlayUrl
             viewModel.fetchLionsgateToken(playbackUrl)
-        }
-        else {
+        } else {
             playerModel = null
-            seriesItem.playerDetails?.dashWidewinePlayUrl =seriesItem.playerDetails?.dashWidewinePlayUrl ?: seriesItem.playerDetails?.playUrl
+            seriesItem.playerDetails?.dashWidewinePlayUrl =
+                seriesItem.playerDetails?.dashWidewinePlayUrl ?: seriesItem.playerDetails?.playUrl
             playbackUrl = seriesItem.playerDetails?.dashWidewinePlayUrl
-            playerModel = viewModel.generatePlayerModel(seriesItem,
-                detailsResponse?.data?.metaDetails?.taShowType ?: "")
+            playerModel = viewModel.generatePlayerModel(
+                seriesItem,
+                detailsResponse?.data?.metaDetails?.taShowType ?: ""
+            )
             playerModel?.setEpids(seriesItem.playerDetails?.offerIds?.epids)
             playerModel?.let {
-                playGenericPartnerWithAuthType(detailsResponse?.data?.metaDetails?.provider?:"",
-                    playbackUrl, it)
+                playGenericPartnerWithAuthType(
+                    detailsResponse?.data?.metaDetails?.provider ?: "",
+                    playbackUrl,
+                    it,
+                    seriesItem.partnerDeepLinkUrl,
+                    seriesItem.liveContent,
+                    it.getContentType() ?: TYPE_TV_SHOWS
+                )
             }
         }
     }
@@ -3458,7 +3816,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 trailerDisposable.dispose()
             binding.trailerView.onDestroyView()
             binding.trailerView.hide()
-
+            isNavigateToPlayer = true
             actionOnPlayClick()
 
             binding.btnPlayerController.setText("Pause", null)
@@ -3467,7 +3825,11 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             if (secondaryButtonState == SecondaryButtonStateEnum.STATE_TRAILER) {
                 binding.btnSecondary.disable()
                 binding.btnSecondary.hide()
+                binding.buttonView?.hide()
             }
+            if(isDeviceTablet)
+                updateButtonLayoutWeight()
+            else binding.layLinearButtons.weightSum=1.0f
             binding.btnPrimary.hide()
             viewModel.startPlayer(playerModel)
             isBackFromPlayer = true
@@ -3527,28 +3889,28 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             && contentType == TYPE_MOVIES
         ) {
             playerModel = viewModel.generatePlayerModel(detailsResponse!!)
-            playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+            playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
         } else {
             val signedURL = ShemarooHelper.decryptMd5(smartURL)
             viewModel.fetchShemarooMeContentPlayback(signedURL, isTrailer)
         }
     }
 
-    private fun playVootContent(
+    protected fun playVootContent(
         providerContentId: String, isTrailer: Boolean,
         isPlayButtonClick: Boolean, contentType: String, isKids: Boolean = false,
         partnerSubscriptionType: String? = "",
         partnerDeepLinkUrl: String = ""
     ) {
         if (!isContentSubscribed && !PREMIUM.equals(partnerSubscriptionType, true) && !isTrailer) {
-            if(URLUtil.isValidUrl(partnerDeepLinkUrl)) {
-                var partnerDeepLinkUrl = partnerDeepLinkUrl//getUrlWithoutParameters(partnerDeepLinkUrl)
+            if (URLUtil.isValidUrl(partnerDeepLinkUrl)) {
+                var partnerDeepLinkUrl =
+                    partnerDeepLinkUrl//getUrlWithoutParameters(partnerDeepLinkUrl)
                 if (partnerDeepLinkUrl != null && !partnerDeepLinkUrl.contains("utm_source")) {
                     partnerDeepLinkUrl += "?&url_source=marketing&utm_source=tataplaybinge"
                 }
                 viewModel.generateVootPwaToken(partnerDeepLinkUrl ?: "")
-            }
-            else{
+            } else {
                 showToast(context, viewModel.VIDEO_UNAVAILABLE_MESSAGE_URL)
             }
             return
@@ -3578,8 +3940,13 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     }
 
     private fun disableOrientation() {
-        if (::orientationManager.isInitialized)
-            orientationManager.disable()
+        context?.let {
+            if(!isTablet(it)){
+                if (::orientationManager.isInitialized)
+                    orientationManager.disable()
+            }
+        }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -3618,7 +3985,8 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                             fromScreen = SOURCE_PLAY_CLICK,
                             startPackListing = true,
                             partnerId = detailsResponse?.data?.metaDetails?.partnerId ?: ""
-                        ), REQUEST_FOR_PACK_SELECTION)
+                        ), REQUEST_FOR_PACK_SELECTION
+                    )
                 } else {
                     if (upgrade) {
                         showMiniDrawer(
@@ -3641,9 +4009,6 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     }
 
 
-
-
-
     private fun showMiniDrawer(
         context: Context?,
         fromLogin: Boolean = false,
@@ -3663,8 +4028,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     startPackListing = startPackListing
                 )
             )
-        }
-        else {
+        } else {
             if (activity is LandingActivity) {
                 if (sharedPrefs.getConfigResponse()?.data?.config?.enableTickTickJourney == false) {
                     //Added journeyRef so that directly open managed app by skipping drawer
@@ -3687,10 +4051,8 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         }
     }
 
-    var upgradePlanClick=false
+    var upgradePlanClick = false
     private fun handleSubscriptionDialog() {
-
-
 
         isPausedTrailer = true
         var trackSubscribePopup = false
@@ -3752,8 +4114,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     }
                 }
             )
-        }
-        else if (subscribedPack?.upgradeFDOCheck == true) {
+        } else if (subscribedPack?.upgradeFDOCheck == true) {
             showDialog(
                 DialogModel(
                     false,
@@ -3776,8 +4137,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     }
                 }
             )
-        }
-        else if (subscribedPack?.isInactive == true) { //Pack expired free/paid
+        } else if (subscribedPack?.isInactive == true) { //Pack expired free/paid
             fun getVerbiage(): Triple<String, String, String> {
                 val title =
                     if (subscribedPack.freeTrialStatus == true) subscribedPack.freeTrialNudgeDetails?.nudgeTitle
@@ -3805,8 +4165,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     btnText
                 )
             }
-        }
-        else { //binge anywhere
+        } else { //binge anywhere
             if ((sharedPrefs.getUserDetails()?.freeTrialAvailed == false && sharedPrefs.getSubscribedPack() == null) || sharedPrefs.getSubscribedPack()
                     ?.let {
                         it.mobileUpgradable && it.subscriptionDetailInfo?.bingeAccountStatus.equals(
@@ -3837,21 +4196,57 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     )
                     miscAnalytics.trackMixPanelUpgradePopup()
                     trackUpgradePopup = true
-                    if (sharedPrefs.getConfigResponse()?.data?.config?.enableTickTickJourney == false) {
-                        upgradePlanClick=true
-                        navigateToSubscriptionActivity(upgradePlanClick)
-                        return
-                    }else
+
+
+                    if (PROVIDER_APPLE.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
+                        val verbiage =
+                            sharedPrefs.getConfigResponse()?.data?.config?.getLanguageVerbiage(
+                                CATEGORY_APPLE_UPGRADE_POPUP
+                            )
                         showDialog(
                             DialogModel(
-                                false,
-                                R.drawable.ic_subscribe,
-                                getString(R.string.upgrade_subscription),
-                                getString(R.string.upgrade),
-                                getString(R.string.cancel),
-                                upgrade_subscription_message
-                            ), dialogListener
+                                cancelable = false,
+                                imageIdBig = R.drawable.ic_premium_crown,
+                                title = verbiage?.data?.header ?: "Upgrade to Binge Mega Plan",
+                                text = verbiage?.data?.subHeader
+                                    ?: "Enjoy, star-studded, award winning, series, films & more from Apple TV+ on Tata Play Binge App.",
+                                primaryButtonText = verbiage?.data?.others?.buttonTitle
+                                    ?: getString(R.string.upgrade),
+                                secondaryButtonText = verbiage?.data?.others?.exitButtonTitle?:getString(R.string.not_now)
+                            ),
+                            object : CommonDialogEventListener {
+                                override fun onPrimaryButtonClick() {
+                                    upgradePlanClick = true
+                                    navigateToSubscriptionActivity(upgradePlanClick)
+                                    hideDialog()
+                                }
+
+                                override fun onSecondaryButtonClick() {
+                                    hideDialog()
+                                }
+
+                                override fun onCloseButtonClick() {
+                                    hideDialog()
+                                }
+
+                            }
                         )
+                    } else
+                        if (sharedPrefs.getConfigResponse()?.data?.config?.enableTickTickJourney == false) {
+                            upgradePlanClick = true
+                            navigateToSubscriptionActivity(upgradePlanClick)
+                            return
+                        } else
+                            showDialog(
+                                DialogModel(
+                                    false,
+                                    R.drawable.ic_subscribe,
+                                    getString(R.string.upgrade_subscription),
+                                    getString(R.string.upgrade),
+                                    getString(R.string.cancel),
+                                    upgrade_subscription_message
+                                ), dialogListener
+                            )
                 } else if (!subscribedEntitlements.isNullOrEmpty()
                     && !subscribedEntitlements.contains(detailsResponse?.data?.metaDetails?.partnerId)
                     && subscribedPack.isCancelled && !subscribedPack.isInactive
@@ -3859,10 +4254,10 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     miscAnalytics.trackMixPanelUpgradePopup()
                     trackUpgradePopup = true
                     if (sharedPrefs.getConfigResponse()?.data?.config?.enableTickTickJourney == false) {
-                        upgradePlanClick=true
+                        upgradePlanClick = true
                         navigateToSubscriptionActivity(upgradePlanClick)
                         return
-                    }else
+                    } else
                         showDialog(
                             DialogModel(
                                 false,
@@ -3911,12 +4306,22 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             )
     }
 
+    override fun onStop() {
+        super.onStop()
+        isNavigateToOther = true
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         try {
             activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-            commonViewModel?.saveOrientation(OrientationManager.ScreenOrientation.PORTRAIT)
-            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            context?.let {
+                if(!isTablet(it)){
+                    commonViewModel?.saveOrientation(OrientationManager.ScreenOrientation.PORTRAIT)
+                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                }
+
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -3982,14 +4387,14 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             .into(imageView)
     }
 
-    private fun playZee5Content(partnerSubscriptionType : String?) {
-        if(isContentSubscribed || PREMIUM.equals(partnerSubscriptionType,true))
+    private fun playZee5Content(partnerSubscriptionType: String?) {
+        if (isContentSubscribed || PREMIUM.equals(partnerSubscriptionType, true))
             viewModel.fetchZee5Tag(playerModel?.getPlaybackUrl())
         else
             playZee5("")
     }
 
-    private fun playZee5(tag : String){
+    private fun playZee5(tag: String) {
         actionOnPlayClick()
         val uri = Uri.parse(
             getUrlWithoutParameters(
@@ -3998,7 +4403,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         )
         try {
             openChromeTab(uri)
-            trackOnThirdPartyPlayerPlay(playerModel)
+            trackOnThirdPartyPlayerPlay(playerModel, tag)
         } catch (e: ActivityNotFoundException) {
             onError(
                 ErrorModel(
@@ -4025,12 +4430,12 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
         val url = playerModel?.getPlaybackUrl()
             ?: "hotstar://${playerModel?.getProviderContentId()}"//1260049386
-        e("playHotstar","url : $url")
+        e("playHotstar", "url : $url")
         activity?.let {
             try {
                 val i = Intent(Intent.ACTION_VIEW)
                 i.data = Uri.parse(url.trim())
-                if(!sharedPrefs.getLoginStatus()) {
+                if (!sharedPrefs.getLoginStatus()) {
                     startActivity(i)
                     return
                 }
@@ -4115,8 +4520,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                         sharedPrefs.setHotstarLastFinalPopupShownTime(currentDate.timeInMillis)
                         sharedPrefs.setHotstarPopupFirstCycleCompleted(true)
                     }
-                }
-                else {
+                } else {
                     trackOnThirdPartyPlayerPlay(playerModel)
                     if (i.resolveActivity(it.packageManager) != null) {
                         actionOnPlayClick()
@@ -4163,7 +4567,6 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             CLICK_LEARN_ACTION,
             contentItem.refId
         )
-
     }
 
     @Throws(ActivityNotFoundException::class)
@@ -4202,12 +4605,11 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     customTabsIntent.launchUrl(it, uri)
                 }
             } else {
-                try{
+                try {
                     val builder = CustomTabsIntent.Builder()
                     val customTabsIntent = builder.build()
                     customTabsIntent.launchUrl(it, uri)
-                }
-                catch (e:Exception){
+                } catch (e: Exception) {
                     onError(
                         ErrorModel(
                             message = getString(R.string.no_browser),
@@ -4254,9 +4656,16 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     val enListener = object : EnLoginListener {
         override fun onError(error: ENError) {
             viewModel.showHideLoader(false)
-            e("ErosNowListener","onerror : ${error.message}")
-            trackOnPlayerFailure(playerModel, error.error_code +" : "+error.message, contentItem)
-            trackOnPlayerError(playerModel, error.error_code, error.message, PARA_PI_ERROR_ORIGIN, PARA_ERROR_TYPE_SDK)
+            e("ErosNowListener", "onerror : ${error.message}")
+            trackOnPlayerFailure(playerModel, error.error_code + " : " + error.message, contentItem)
+            trackOnPlayerError(
+                playerModel,
+                error.error_code,
+                error.message,
+                PARA_PI_ERROR_ORIGIN,
+                PARA_ERROR_TYPE_SDK
+            )
+            trackProbeSSOError(error.error_code, error.message, PARA_ERROR_TYPE_SDK)
             context?.let {
                 val errorMsg = String.format(getString(R.string.error_sso), error.error_code)
                 showToast(context, errorMsg)
@@ -4283,10 +4692,12 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         )
 
         shareIntent.type = "text/plain"
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Watch " + (detailsResponse?.data?.metaDetails?.getVodTitle()
-            ?: detailFragmentArgs.contentItem?.title)?.plus(
-            " on Tata Play Binge! "
-        ))
+        shareIntent.putExtra(
+            Intent.EXTRA_SUBJECT, "Watch " + (detailsResponse?.data?.metaDetails?.getVodTitle()
+                ?: detailFragmentArgs.contentItem?.title)?.plus(
+                " on Tata Play Binge! "
+            )
+        )
         shareIntent.putExtra(
             Intent.EXTRA_TEXT,
             "Watch " + (detailsResponse?.data?.metaDetails?.getVodTitle()
@@ -4299,21 +4710,25 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
 
     protected fun isExternalDisplayAvailable(): Boolean {
-        e("PlayerBaseFragment","inside isExternalDisplayAvailable" +
-                ", mDisplayManager!!.displays.size: ${mDisplayManager?.displays?.size}")
+        e(
+            "PlayerBaseFragment", "inside isExternalDisplayAvailable" +
+                ", mDisplayManager!!.displays.size: ${mDisplayManager?.displays?.size}"
+        )
         return mDisplayManager != null && mDisplayManager?.displays != null && mDisplayManager!!.displays.size > 1
     }
 
     private fun playSonyLivContent() {
         sharedPrefs.setLoginAgain(false)
         context?.let {
-            if(playerModel?.isTrailer()==false) {
+            if (playerModel?.isTrailer() == false) {
                 actionOnPlayClick()
                 trackOnThirdPartyPlayerPlay(playerModel)
                 isNavigateToOther = true
             }
-            e("SonyLIVSDKListener","playeSonyLivConent playerModel?.getContentId(): ${playerModel?.getProviderContentId()}")
-//        SonyLIVSDKManager.getInstance().isSplashDisplayed = true
+            e(
+                "SonyLIVSDKListener",
+                "inside playSonyLivConent playerModel?.getContentId(): ${playerModel?.getProviderContentId()}"
+            )
             SonyLIVSDKManager.getInstance().playContent(
                 playerModel?.getProviderContentId(),
                 it
@@ -4323,11 +4738,11 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     }
 
 
-    protected fun updatePurchseExpiryView(){
+    protected fun updatePurchseExpiryView() {
         checkRental()
     }
 
-    protected fun trackOnThirdPartyPlayerPlay(playerModel: PlayerModel?) {
+    protected fun trackOnThirdPartyPlayerPlay(playerModel: PlayerModel?, tag: String = "") {
         playerAnalytics.trackPlayContent(
             playerModel?.getTitle() ?: "Not Available",
             playerModel?.getGenre(),
@@ -4341,9 +4756,9 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             "",
             "",
             playerModel?.getProvider() ?: "",
-            contentItem.railName,
+            detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
             contentItem.origin.toUpperCase(),
-            contentItem.source.takeIf { it.isNotEmpty() }?: SOURCE_DEEPLINK,
+            contentItem.source.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
             playerModel?.getAudioLanguages(),
             sharedPrefs.getSubscribedPack(),
             contentItem.railPosition,
@@ -4361,16 +4776,22 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             contentItem.contentPosition,
             detailsResponse?.data?.metaDetails?.rating ?: "",
             detailsResponse?.data?.metaDetails?.releaseYear ?: "",
-            PLATFORM_ANDROID,
+            sharedPrefs.getDeviceType() ?: "",
             detailsResponse?.data?.metaDetails?.actor,
             if (sharedPrefs.getAutoPlayTrailerOn() && isTrailerInitialized) YES else NO,
-            NO,
+            liveContent = if (isLiveContent(
+                    contentItem.contentType,
+                    detailsResponse?.data?.metaDetails?.isLiveContent
+                )
+            ) YES else NO,
             "",
             "",
-            contentItem.contentConfigType
+            contentItem.contentConfigType,
+            tag,
+            getAppleStatusValue()
         )
-        if(contentItem.partnerSubscriptionType?.contains(PREMIUM, true) == false){
-            if(!sharedPrefs.getFirstFreeContentPlay()){
+        if (contentItem.partnerSubscriptionType?.contains(PREMIUM, true) == false) {
+            if (!sharedPrefs.getFirstFreeContentPlay()) {
                 playerAnalytics.trackFirstFreeContentPlay(
                     playerModel?.getTitle() ?: "Not Available",
                     playerModel?.getContentType() ?: "",
@@ -4379,7 +4800,7 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 sharedPrefs.saveFirstFreeContentPlay()
             }
         } else {
-            if(!sharedPrefs.getFirstPremiumContentPlay()){
+            if (!sharedPrefs.getFirstPremiumContentPlay()) {
                 playerAnalytics.trackFirstPremiumContentPlay(
                     playerModel?.getTitle() ?: "Not Available",
                     playerModel?.getContentType() ?: "",
@@ -4398,13 +4819,15 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             binding.miniProgress.hide()
             binding.ivPoster.show()
             binding.trailerView.onDestroyView()
-        } catch (e: Exception) { }
-        if(mIsInFullScreenMode)
+        } catch (e: Exception) {
+        }
+        if (mIsInFullScreenMode)
             changeToPortraitMode()
         super.forceLogout()
     }
 
-    private fun initSonyLiv(shortToken : String) {
+    private fun initSonyLiv(shortToken: String) {
+        sharedPrefs.setSonyOldToken(shortToken)
         viewModel.showHideLoader(true)
         val sonyLivSDKInitializeModel = SonyLivSDKInitializeModel()
         sonyLivSDKInitializeModel.partnerLoginToken = viewModel.sharedPrefs.getDeviceToken()
@@ -4416,15 +4839,22 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             SonyLIVSDKListener { status, errorModel ->
                 viewModel.showHideLoader(false)
                 SonyLIVSDKManager.getInstance().isSplashDisplayed = false
-                if(SonyLIVSDKManager.getInstance().status == SDKStatus.SUCCESS)
+                if (SonyLIVSDKManager.getInstance().status == SDKStatus.SUCCESS)
                     playSonyLivContent()
                 else {
                     trackOnPlayerFailure(
                         playerModel,
-                        errorModel.errorCode +" : "+errorModel.errorMessage,
+                        errorModel.errorCode + " : " + errorModel.errorMessage,
                         contentItem
                     )
-                    trackOnPlayerError(playerModel, errorModel.errorCode, errorModel.errorMessage, PARA_PI_ERROR_ORIGIN, PARA_ERROR_TYPE_SDK)
+                    trackOnPlayerError(
+                        playerModel,
+                        errorModel.errorCode,
+                        errorModel.errorMessage,
+                        PARA_PI_ERROR_ORIGIN,
+                        PARA_ERROR_TYPE_SDK
+                    )
+                    trackProbeSSOError(errorModel.errorCode, errorModel.errorMessage, PARA_ERROR_TYPE_SDK)
                     context?.let {
                         val errorMsg =
                             String.format(getString(R.string.error_sso), errorModel.errorCode)
@@ -4434,47 +4864,58 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
 
             }
 
-        e("SonyLIVSDKListener","shortValidityToken : ${sonyLivSDKInitializeModel.shortValidityToken}" +
+        e(
+            "SonyLIVSDKListener",
+            "shortValidityToken : ${sonyLivSDKInitializeModel.shortValidityToken}" +
                 ", partnerLoginToken : ${sonyLivSDKInitializeModel.partnerLoginToken}" +
                 ", partnerDSN : ${sonyLivSDKInitializeModel.partnerDSN}" +
                 ", partnerName : ${sonyLivSDKInitializeModel.partnerName}" +
                 ", partnerSource : ${sonyLivSDKInitializeModel.partnerSource}" +
-                "")
+                ""
+        )
         context?.let {
             SonyLIVSDKManager.getInstance().initSDK(it, sonyLivSDKInitializeModel)
         }
     }
 
-    protected fun trackOnPlayerFailure(playerModel: PlayerModel?, errorMsg: String, contentItem: ContentItem?) {
+    protected fun trackOnPlayerFailure(
+        playerModel: PlayerModel?,
+        errorMsg: String,
+        contentItem: ContentItem?
+    ) {
         playerAnalytics.trackPlaybackFailure(
             playerModel?.getTitle() ?: "Not Available",
             playerModel?.getGenre(),
             playerModel?.getContentType() ?: "",
             errorMsg,
             playerModel?.getProvider() ?: "",
-            contentItem?.railName?:"",
-            (contentItem?.origin?:"").toUpperCase(),
-            contentItem?.source?.takeIf { it.isNotEmpty() }?: SOURCE_DEEPLINK,
+            detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
+            (contentItem?.origin ?: "").toUpperCase(),
+            contentItem?.source?.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
             playerModel?.getAudioLanguages(),
             sharedPrefs.getSubscribedPack(),
             contentItem?.railPosition ?: "",
             detailsResponse?.data?.metaDetails?.getParentTitle()
                 ?: playerModel?.getParentTitle() ?: "",
             contentItem?.partnerSubscriptionType?.contains(FREE, true) == true,
-            contentItem?.source?:"",
-            contentItem?.origin?:"",
-            contentItem?.railCategory?:"",
+            contentItem?.source ?: "",
+            contentItem?.origin ?: "",
+            contentItem?.railCategory ?: "",
             playerModel?.getAudioLanguages()?.getOrNull(0),
             playerModel?.getGenre()?.getOrNull(0),
-            if(contentAuth) YES else NO,
-            contentItem?.contentType?:"",
-            contentItem?.contentPosition?:"",
+            if (contentAuth) YES else NO,
+            contentItem?.contentType ?: "",
+            contentItem?.contentPosition ?: "",
             detailsResponse?.data?.metaDetails?.rating ?: "",
             detailsResponse?.data?.metaDetails?.releaseYear ?: "",
-            PLATFORM_ANDROID,
+            sharedPrefs.getDeviceType() ?: "",
             detailsResponse?.data?.metaDetails?.actor,
             if (sharedPrefs.getAutoPlayTrailerOn() && isTrailerInitialized) YES else NO,
-            "NO",
+            liveContent = if (isLiveContent(
+                    contentItem?.contentType,
+                    detailsResponse?.data?.metaDetails?.isLiveContent
+                )
+            ) YES else NO,
             contentItem?.contentConfigType ?: ""
         )
     }
@@ -4482,7 +4923,13 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
     /**
      * Track player playback errors with error details
      */
-    protected fun trackOnPlayerError(playerModel: PlayerModel?, errorCode: String?, errorMsg: String?, origin: String?, type: String?) {
+    protected fun trackOnPlayerError(
+        playerModel: PlayerModel?,
+        errorCode: String?,
+        errorMsg: String?,
+        origin: String?,
+        type: String?
+    ) {
         playerAnalytics.trackPlaybackError(
             errorCode = errorCode ?: "",
             errorMsg = errorMsg ?: "",
@@ -4539,43 +4986,49 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 .withContent("4694edb9f78497662881d646798d5425", "tvshow_episode")
                 .play(it)
         }*/
-        /*activity?.let {
-            playerModel?.let { model ->
-                actionOnPlayClick()
-                trackOnThirdPartyPlayerPlay(model)
-                e("MXplayer","getMXContentType(model.getContentType() ?: TYPE_TV_SHOWS): ${getMXContentType(model.getContentType() ?: TYPE_TV_SHOWS)}," +
-                        "viewModel.sharedPrefs.getAccessToken(): ${viewModel.sharedPrefs.getAccessToken()}," +
-                        "viewModel.sharedPrefs.getDsn() :  ${viewModel.sharedPrefs.getDsn()}")
-                if(sharedPrefs.getLoginStatus() && isContentSubscribed) {
-                    MxSDK.startPlay()
-                        .withContent(
-                            model.getProviderContentId() ?: "",//"tvshow_episode","4694edb9f78497662881d646798d5425"
-                            getMXContentType(model.getContentType() ?: TYPE_TV_SHOWS)
-                        )
-                        .withToken(viewModel.sharedPrefs.getAccessToken())
-                        .withDSN(viewModel.sharedPrefs.getDsn())
-//                        .withUserId(viewModel.sharedPrefs.getOriginalSubscriberId())
-                        .play(it)
-                }
-                else{
-                    MxSDK.startPlay()
-                        .withContent(
-                            model.getProviderContentId()
-                                ?: "4694edb9f78497662881d646798d5425",//"tvshow_episode"
-                            getMXContentType(model.getContentType() ?: TYPE_TV_SHOWS)
-                        )
-                        .play(it)
-                }
-                isNavigateToOther = true
-            }
-        }*/
+//        activity?.let {
+//            playerModel?.let { model ->
+//                actionOnPlayClick()
+//                trackOnThirdPartyPlayerPlay(model)
+//                e(
+//                    "MXplayer",
+//                    "getMXContentType(model.getContentType() ?: TYPE_TV_SHOWS): ${
+//                        getMXContentType(model.getContentType() ?: TYPE_TV_SHOWS)
+//                    }," +
+//                        "viewModel.sharedPrefs.getAccessToken(): ${viewModel.sharedPrefs.getAccessToken()}," +
+//                        "viewModel.sharedPrefs.getDsn() :  ${viewModel.sharedPrefs.getDsn()}"
+//                )
+//                if (sharedPrefs.getLoginStatus() && isContentSubscribed) {
+//                    MxSDK.startPlay()
+//                        .withContent(
+//                            model.getProviderContentId()
+//                                ?: "",//"tvshow_episode","4694edb9f78497662881d646798d5425"
+//                            getMXContentType(model.getContentType() ?: TYPE_TV_SHOWS)
+//                        )
+//                        .withToken(viewModel.sharedPrefs.getAccessToken())
+//                        .withDSN(viewModel.sharedPrefs.getDsn())
+////                        .withUserId(viewModel.sharedPrefs.getOriginalSubscriberId())
+//                        .play(it)
+//                } else {
+//                    MxSDK.startPlay()
+//                        .withContent(
+//                            model.getProviderContentId()
+//                                ?: "4694edb9f78497662881d646798d5425",//"tvshow_episode"
+//                            getMXContentType(model.getContentType() ?: TYPE_TV_SHOWS)
+//                        )
+//                        .play(it)
+//                }
+//                isNavigateToOther = true
+//            }
+//        }
     }
-    fun getMXContentType(contentType: String):String{
+
+    fun getMXContentType(contentType: String): String {
         return when {
             contentType.contains(TYPE_TV_SHOWS) -> MXPlayerTypeEnum.TV_SHOW.type
             contentType.contains(TYPE_BRAND) -> MXPlayerTypeEnum.TV_SHOW.type
             contentType.contains(TYPE_SERIES) -> MXPlayerTypeEnum.TV_SHOW.type
-            contentType.contains(TYPE_MOVIES)-> MXPlayerTypeEnum.MOVIES.type
+            contentType.contains(TYPE_MOVIES) -> MXPlayerTypeEnum.MOVIES.type
             contentType.contains(TYPE_WEB_SHORTS) -> MXPlayerTypeEnum.SHORTS.type
             else -> MXPlayerTypeEnum.TV_SHOW.type
         }
@@ -4595,24 +5048,36 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             && contentType == TYPE_MOVIES
         ) {
             playerModel = viewModel.generatePlayerModel(detailsResponse!!)
-            playerModel?.let { playerModel: PlayerModel ->  navigateToPlayer(playerModel) }
+            playerModel?.let { playerModel: PlayerModel -> navigateToPlayer(playerModel) }
         } else {
-            val contentType = if(isTrailer) "TRAILER" else contentType //"MOVIE"//
-            viewModel.fetchChaupalContentPlayback(/*"78fe0ac8-c994-4048-9c5a-acb85778ce01"*/contentId, contentType, isTrailer)
+            val contentType = if (isTrailer) "TRAILER" else contentType //"MOVIE"//
+            viewModel.fetchChaupalContentPlayback(/*"78fe0ac8-c994-4048-9c5a-acb85778ce01"*/
+                contentId,
+                contentType,
+                isTrailer
+            )
         }
     }
 
-    fun playGenericPartnerWithAuthType(provider : String, playbackUrl : String?, playerModel : PlayerModel){
-        val playAuthType = ProvidersCache.availableProviders[provider.lowercase()]?.authType?.android?.playAuthType ?: PlayAuthTypeEnum.NONE.value
-        if(playAuthType.lowercase() == PlayAuthTypeEnum.NONE.value) {
+    fun playGenericPartnerWithAuthType(
+        provider: String,
+        playbackUrl: String?,
+        playerModel: PlayerModel,
+        partnerDeeplinkUrl: String?,
+        isLiveContent: Boolean,
+        contentType: String
+    ) {
+        val playAuthType =
+            ProvidersCache.availableProviders[provider.lowercase()]?.authType?.android?.playAuthType
+                ?: PlayAuthTypeEnum.NONE.value
+        if (playAuthType.lowercase() == PlayAuthTypeEnum.NONE.value) {
             playerModel.setPlaybackUrl(
                 playbackUrl
             )
-            playerModel.let{
+            playerModel.let {
                 navigateToPlayer(it)
             }
-        }
-        else if(playAuthType.lowercase() == PlayAuthTypeEnum.JWT_TOKEN.value){
+        } else if (playAuthType.lowercase() == PlayAuthTypeEnum.JWT_TOKEN.value) {
             playerModel.getEpids()?.let {
                 viewModel.generateControlToken(
                     it,
@@ -4620,27 +5085,53 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                     true,
                     provider
                 )
-            }?: kotlin.run {
+            } ?: kotlin.run {
                 showToast(context, "No Entitlements found")
             }
-        }
-        else if(playAuthType.lowercase() == PlayAuthTypeEnum.DRM_TOKENAPI.value){
+        } else if (playAuthType.lowercase() == PlayAuthTypeEnum.DRM_TOKENAPI.value) {
             /*Handling of new api to play drm content*/
             viewModel.fetchGenericPartnerDRMAPI(
                 playerModel.getProviderContentId(),
-                provider
+                provider,
+                if (isLiveContent) TYPE_LIVE.lowercase() else TYPE_VOD.lowercase(),
+                if (contentType.equals(BRAND, true) ||
+                    contentType.equals(SERIES, true)
+                ) {
+                    TV_SHOWS
+                } else {
+                    contentType
+                }
             )
-        }
-        else{
-            val appUpgrade=sharedPrefs.getConfigAppVersion()
-            val message = appUpgrade?.partnerUpdateMessage.takeIf { !it.isNullOrBlank() } ?: (String.format(
-                getText(R.string.recommended_upgrade_message).toString(),
-                appUpgrade?.recommendedVersion.toString()
-            ))
+        } else if (playAuthType.lowercase() == PlayAuthTypeEnum.INAPPBROWSER.value) {
+
+            if (PROVIDER_APPLE.equals(detailsResponse?.data?.metaDetails?.provider, true)) {
+                trackApplePlayClick()
+                handleAppleTvPlayAction(playbackUrl)
+            }else
+                playInAppBrowserContent(partnerDeeplinkUrl)
+
+        } else if (playAuthType.equals(PlayAuthTypeEnum.DEEPLINK.value, true)) {
+            val packageName =
+                ProvidersCache.availableProviders.getOrDefault(
+                    provider.lowercase(),
+                    null
+                )?.authType?.android?.partnerAppPackageId
+            checkAndRedirectToPartnerApp(
+                deeplinkUrl = partnerDeeplinkUrl,
+                provider = provider,
+                packageName = packageName
+            )
+        } else {
+            val appUpgrade = sharedPrefs.getConfigAppVersion()
+            val message =
+                appUpgrade?.partnerUpdateMessage.takeIf { !it.isNullOrBlank() } ?: (String.format(
+                    getText(R.string.recommended_upgrade_message).toString(),
+                    appUpgrade?.recommendedVersion.toString()
+                ))
             showForceUpdateForProvider(
-                title=getString(R.string.new_version_available),
-                message=message,
-                positiveBtnText=getString(R.string.update),
+                title = getString(R.string.new_version_available),
+                message = message,
+                positiveBtnText = getString(R.string.update),
                 negativeBtnText = getString(R.string.not_now),
                 primaryBtnLink = null,
                 isForceUpdate = true
@@ -4648,7 +5139,39 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
         }
     }
 
-    private val mRailScrollListener = object : RailScrollListener{
+
+
+    private fun checkAndRedirectToPartnerApp(
+        deeplinkUrl: String?,
+        provider: String,
+        packageName: String?,
+    ) {
+        if (deeplinkUrl != null && packageName != null)
+            context?.let {
+                try {
+                    actionOnPlayClick()
+                    val launchIntent = Intent(Intent.ACTION_VIEW, deeplinkUrl.trim().toUri()).apply {
+                        `package` = packageName
+                    }
+                    startActivity(launchIntent)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    this.showAppNotInstalledDialog(
+                        provider = provider,
+                        packageName = packageName
+                    )
+                }
+            }
+        else
+            onError(
+                ErrorModel(
+                    title = viewModel.VIDEO_UNAVAILABLE_TITLE,
+                    message = viewModel.VIDEO_UNAVAILABLE_MESSAGE
+                )
+            )
+    }
+
+    private val mRailScrollListener = object : RailScrollListener {
         override fun onRailScrolled(
             railName: String,
             position: Int,
@@ -4658,7 +5181,8 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
             detailAnalytics.trackDetailsRailWatched(
                 railName,
                 position.toString(),
-                pageName = (activity as? LandingActivity)?.getPageName() ?: EVENT_VALUE_SOURCE_DETAIL,
+                pageName = (activity as? LandingActivity)?.getPageName()
+                    ?: EVENT_VALUE_SOURCE_DETAIL,
                 partnerName = detailsResponse?.data?.metaDetails?.provider ?: contentItem.provider,
                 railType,
                 railCategory,
@@ -4668,5 +5192,223 @@ open class DetailsFragment : CancellationBaseFragment<FragmentDetailBinding, Pla
                 sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
             )
         }
+    }
+
+    private fun trackApplePlayClick(){
+        val metaDetails =detailsResponse?.data?.metaDetails
+
+        detailAnalytics.trackApplePlayCTAClick(
+            metaDetails?.getVodTitle() ?: "",
+            metaDetails?.contentType ?: "",
+            metaDetails?.genre,
+            metaDetails?.audio,
+            contentItem.origin.toUpperCase(),
+            detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
+            contentItem.source.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
+            metaDetails?.provider ?: contentItem.provider,
+            metaDetails?.getParentTitle() ?: "",
+            metaDetails?.partnerSubscriptionType?.contains(
+                FREE,
+                true
+            ) == true,
+            (activity as? LandingActivity)?.getPageName() ?: EVENT_VALUE_SOURCE_DETAIL,
+            contentItem.railPosition,
+            contentItem.origin,
+            contentItem.railCategory,
+            metaDetails?.audio?.getOrNull(0),
+            metaDetails?.genre?.getOrNull(0),
+            contentAuth = if (contentAuth) YES else NO,
+            contentItem.contentType,
+            contentItem.contentPosition,
+            metaDetails?.rating ?: "",
+            metaDetails?.releaseYear ?: "",
+            sharedPrefs.getDeviceType() ?: "",
+            metaDetails?.actor,
+            sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
+            sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
+            if (isAutoPlayTrailer && isTrailerInitialized) YES else NO,
+            contentItem.contentConfigType,
+            getAppleStatusValue()
+        )
+    }
+
+    private fun trackAppleActivateFromPopupClick(){
+        val metaDetails =detailsResponse?.data?.metaDetails
+
+        detailAnalytics.trackAppleActivateNowClick(
+            metaDetails?.getVodTitle() ?: "",
+            metaDetails?.contentType ?: "",
+            metaDetails?.genre,
+            metaDetails?.audio,
+            contentItem.origin.toUpperCase(),
+            detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
+            contentItem.source.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
+            metaDetails?.provider ?: contentItem.provider,
+            metaDetails?.getParentTitle() ?: "",
+            /*Using Key partnerSubscriptionType to identify if the content is Free or Premium*/
+            metaDetails?.partnerSubscriptionType?.contains(
+                FREE,
+                true
+            ) == true,
+            (activity as? LandingActivity)?.getPageName() ?: EVENT_VALUE_SOURCE_DETAIL,
+            contentItem.railPosition,
+            contentItem.origin,
+            contentItem.railCategory,
+            metaDetails?.audio?.getOrNull(0),
+            metaDetails?.genre?.getOrNull(0),
+            contentAuth = if (contentAuth) YES else NO,
+            contentItem.contentType,
+            contentItem.contentPosition,
+            metaDetails?.rating ?: "",
+            metaDetails?.releaseYear ?: "",
+            sharedPrefs.getDeviceType() ?: "",
+            metaDetails?.actor,
+            sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
+            sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
+            if (isAutoPlayTrailer && isTrailerInitialized) YES else NO,
+            liveContent = if (isLiveContent(
+                    contentItem.contentType,
+                    detailsResponse?.data?.metaDetails?.isLiveContent
+                )
+            ) YES else NO,
+            contentItem.contentConfigType,
+            getAppleStatusValue(),
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        )
+    }
+
+    private fun trackAppleActivateClick(){
+        val metaDetails =detailsResponse?.data?.metaDetails
+
+        detailAnalytics.trackActivateAppleTvSubscriptionClick(
+            metaDetails?.getVodTitle() ?: "",
+            metaDetails?.contentType ?: "",
+            metaDetails?.genre,
+            metaDetails?.audio,
+            contentItem.origin.toUpperCase(),
+            detailFragmentArgs.contentAnalyticsModel?.railTitleForAnalytics ?: "",
+            contentItem.source.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
+            metaDetails?.provider ?: contentItem.provider,
+            metaDetails?.getParentTitle() ?: "",
+            /*Using Key partnerSubscriptionType to identify if the content is Free or Premium*/
+            metaDetails?.partnerSubscriptionType?.contains(
+                FREE,
+                true
+            ) == true,
+            (activity as? LandingActivity)?.getPageName() ?: EVENT_VALUE_SOURCE_DETAIL,
+            contentItem.railPosition,
+            contentItem.origin,
+            contentItem.railCategory,
+            metaDetails?.audio?.getOrNull(0),
+            metaDetails?.genre?.getOrNull(0),
+            contentAuth = if (contentAuth) YES else NO,
+            contentItem.contentType,
+            contentItem.contentPosition,
+            metaDetails?.rating ?: "",
+            metaDetails?.releaseYear ?: "",
+            sharedPrefs.getDeviceType() ?: "",
+            metaDetails?.actor,
+            sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
+            sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
+            NO,
+            liveContent = if (isLiveContent(
+                    contentItem.contentType,
+                    detailsResponse?.data?.metaDetails?.isLiveContent
+                )
+            ) YES else NO,
+            contentItem.contentConfigType,
+            getAppleStatusValue()
+        )
+
+
+
+
+    }
+
+    private fun trackAppleLinkAccountClick(){
+        detailAnalytics.trackLinkAppleTvAccountClick(
+            contentItem.source.takeIf { it.isNotEmpty() } ?: SOURCE_DEEPLINK,
+            (activity as? LandingActivity)?.getPageName() ?: EVENT_VALUE_SOURCE_DETAIL,
+            sharedPrefs.getDeviceType() ?: "",
+            sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
+            sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
+            getAppleStatusValue()
+        )
+    }
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        isTabletLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
+        activity?.let {
+            if (isTablet(it) &&  !(activity as LandingActivity).isScreenFullScreenMode) {
+                (binding.seriesRecycler.adapter as? SeriesAdapter)?.resetContentCardDimension()
+                var margin:Int=0
+                if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    disableFullscreenForLandscape()
+                    margin=it.resources.getDimension(R.dimen.margin_150dp).toInt()
+                } else {
+                    changeToPortraitMode()
+                    margin=it.resources.getDimension(R.dimen.margin_100dp).toInt()
+                }
+                binding.shareBtn.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    setMargins(margin,0,0,0)
+                }
+                binding.watchlistBtn.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    setMargins(0,0,margin,0)
+                }
+            }
+        }
+    }
+
+    private fun updateButtonLayoutWeight(){
+        if(isDeviceTablet) {
+            isAutoPlayTrailer = viewModel.sharedPrefs.getAutoPlayTrailerOn()
+            context?.let {
+                setPlayButtonsWeight(binding.layLinearButtons,getPlayButtonType(isPortrait(it)))
+            }
+        } else {
+            if(detailsResponse?.data?.metaDetails?.partnerTrailerInfo.isNullOrEmpty()){
+                binding.layLinearButtons.weightSum = 1F
+                return
+            }
+            if(!isAutoPlayTrailer){
+                binding.layLinearButtons.weightSum = if(isNavigateToPlayer) 1F else 2F
+            }else binding.layLinearButtons.weightSum = 1F
+        }
+    }
+
+
+    private fun getPlayButtonType(isPortrait: Boolean):PlayButtonType{
+        return when{
+            detailsResponse?.data?.metaDetails?.partnerTrailerInfo.isNullOrEmpty() ->
+                if(isPortrait) PlayButtonType.MATCH_PLAY_BUTTON else PlayButtonType.CENTER_PLAY_BUTTON
+
+            isAutoPlayTrailer -> if(isPortrait) PlayButtonType.MATCH_PLAY_BUTTON else PlayButtonType.CENTER_PLAY_BUTTON
+            isNavigateToPlayer -> if(isPortrait) PlayButtonType.MATCH_PLAY_BUTTON else PlayButtonType.CENTER_PLAY_BUTTON
+            else -> if(isPortrait) PlayButtonType.PLAY_BUTTON_WITH_TRAILER_PORTRAIT else PlayButtonType.PLAY_BUTTON_WITH_TRAILER_LANDSCAPE
+        }
+    }
+
+    private fun checkForAutoPlayTrailer():Boolean{
+        if(detailsResponse?.data?.metaDetails?.partnerTrailerInfo.isNullOrEmpty())
+            return false
+        if(isAutoPlayTrailer)
+            return true
+        return false
+    }
+
+    private fun trackProbeSSOError(
+        errorCode: String?,
+        errorMessage: String?,
+        type: String
+    ) {
+        probePlayerEventInitSdk(null, playerModel, DefaultBandwidthMeter(), sharedPrefs.getOriginalSubscriberId())
+        probePlayerEventError(errorCode, type?:"NA", errorMessage?:"NA")
     }
 }

@@ -35,8 +35,8 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginStart="@dimen/view_margin_xlarge"
-                android:layout_marginEnd="@dimen/view_margin_xlarge">
+                android:layout_marginStart="@dimen/tab_padding"
+                android:layout_marginEnd="@dimen/tab_padding_right">
 
                 <TextView
                     android:id="@+id/tvTitle"
@@ -44,7 +44,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/view_margin_xlarge"
-                    android:text="@string/title_multiple_bs"
+                    android:text="@{viewModel.getVerbiageFromConfig().header}"
                     android:textSize="@dimen/text_size_20"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -59,7 +59,7 @@
                     android:textSize="@dimen/text_size_16"
                     app:layout_constraintTop_toBottomOf="@id/tvTitle"
                     tools:text="Sub ID: 0123456789"
-                    android:text="@{String.format(@string/tran_history_sub_id, viewModel.sharedPrefs.getOriginalSubscriberId())}"/>
+                    android:text="@{viewModel.splitSubID().get(0) + viewModel.sharedPrefs.getOriginalSubscriberId()}"/>
 
                 <TextView
                     android:id="@+id/tv_multiple"
@@ -67,7 +67,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/view_margin_large"
-                    android:text="@string/select_one_bs"
+                    android:text="@{viewModel.splitSubID().get(1)}"
                     android:textSize="@dimen/text_size_16"
                     app:layout_constraintTop_toBottomOf="@id/subID_TV" />
 
@@ -88,7 +88,7 @@
                     android:layout_width="@dimen/margin_0"
                     android:layout_height="@dimen/button_height"
                     android:enabled="true"
-                    android:text="@string/change"
+                    android:text="@{viewModel.getVerbiageFromConfig().cta}"
                     app:layout_constraintBottom_toTopOf="@id/guideline_3"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

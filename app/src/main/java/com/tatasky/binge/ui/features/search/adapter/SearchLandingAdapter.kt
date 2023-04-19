@@ -4,14 +4,18 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tatasky.binge.R
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
+import com.tatasky.binge.analytics.util.getContentAnalyticsModel
 import com.tatasky.binge.customviews.RVGridLayoutManager
 import com.tatasky.binge.data.networking.models.response.HomeResponse
 import com.tatasky.binge.data.networking.models.response.ProviderLogo
 import com.tatasky.binge.data.networking.models.response.RailPoint
+import com.tatasky.binge.databinding.GenreHomeRecyclerViewBinding
 import com.tatasky.binge.databinding.HomeRecyclerviewBinding
 import com.tatasky.binge.databinding.HomeRecyclerviewGridBinding
 import com.tatasky.binge.interfaces.*
@@ -19,14 +23,12 @@ import com.tatasky.binge.ui.base.frameworks.extensions.hide
 import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.features.home.ItemLayoutType
 import com.tatasky.binge.ui.features.home.ItemViewType
+import com.tatasky.binge.ui.features.home.TabletType
 import com.tatasky.binge.ui.features.home.adapter.RailAdapter
 import com.tatasky.binge.ui.features.home.model.RailsModel
 import com.tatasky.binge.ui.features.search.model.SearchViewModel
 import com.tatasky.binge.ui.features.search.model.TrendingModel
-import com.tatasky.binge.utils.CustomScrollListener
-import com.tatasky.binge.utils.EDITORIAL
-import com.tatasky.binge.utils.getNormalThumbnailForGenreDimension
-import com.tatasky.binge.utils.getCharcterGenrePoint
+import com.tatasky.binge.utils.*
 
 class SearchLandingAdapter(
     val viewModel: SearchViewModel,
@@ -46,7 +48,10 @@ class SearchLandingAdapter(
         continuePaging = isPaging
     }
     private val RAIL = 3000
+    private val GENRE_RAIL = 2000
     private val viewPool: RecyclerView.RecycledViewPool = RecyclerView.RecycledViewPool()
+    private val genreViewPool = RecyclerView.RecycledViewPool()
+    private var orientationChanged = false
     private val railPoint = RailPoint()
     private fun calculateWidthAndHeight(context : Context) {
         railPoint.genreCharPoint = getCharcterGenrePoint(context)
@@ -66,7 +71,13 @@ class SearchLandingAdapter(
         val inflater: LayoutInflater = LayoutInflater.from(parent.context)
 
         when (viewType) {
-
+            GENRE_RAIL -> {
+                view = inflater.inflate(R.layout.genre_home_recycler_view, parent, false)
+                viewHolder = ViewHolderGenreNew(view)
+                viewHolder.binding?.homeRecyclerView?.setRecycledViewPool(
+                    genreViewPool
+                )
+            }
             RAIL -> {
                 view = inflater.inflate(R.layout.home_recyclerview, parent, false)
                 viewHolder = ViewHolderRails(view)
@@ -92,6 +103,61 @@ class SearchLandingAdapter(
         return list.size
     }
 
+    inner class ViewHolderGenreNew(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding: GenreHomeRecyclerViewBinding? = DataBindingUtil.bind(itemView)
+        fun bind(
+            model: RailsModel
+        ) {
+            binding?.let { it ->
+                var wheelSpeed = 8 //Less value = More rotation speed
+                if(it.homeRecyclerView.adapter != null && !orientationChanged){
+                    binding.homeRecyclerView.swapAdapter(model.adapter,false)
+                } else {
+                    val params: ConstraintLayout.LayoutParams =
+                        it.guide.layoutParams as ConstraintLayout.LayoutParams
+                    it.railsModel = model
+                    orientationChanged = false
+                    when(getTabletType(it.root.context)){
+                        TabletType.TABLET, TabletType.TABLET_7_INCH -> {
+                            binding.homeRecyclerView.setPadding(
+                                it.root.resources.getDimension(R.dimen.genre_items_wheel_padding)
+                                    .toInt(),
+                                0,
+                                0,
+                                0
+                            )
+                            params.guidePercent = .20f
+                        }
+                        TabletType.TABLET_LANDSCAPE -> {
+                            binding.homeRecyclerView.setPadding(
+                                it.root.resources.getDimension(R.dimen.genre_items_wheel_padding)
+                                    .toInt(),
+                                0,
+                                0,
+                                0
+                            )
+                            params.guidePercent = .14f
+                        }
+                        else -> {
+                            wheelSpeed = 10
+                            params.guidePercent = .30f
+                        }
+                    }
+                }
+                it.homeRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        super.onScrolled(recyclerView, dx, dy)
+                        // Get the current scroll position of the RecyclerView
+                        val scrollX = recyclerView.computeHorizontalScrollOffset()
+                        // Update the rotation of the SVG based on the scroll position
+                        it.ivGenreWheel.rotation = scrollX.toFloat()/wheelSpeed
+                    }
+                })
+            }
+        }
+    }
+
+
     inner class ViewHolderRails(itemView: View) :
         RecyclerView.ViewHolder /*implements View.OnClickListener */(itemView) {
         val binding: HomeRecyclerviewBinding? = DataBindingUtil.bind(itemView)
@@ -108,9 +174,10 @@ class SearchLandingAdapter(
             isMixedRail: Boolean,
             isPrepand: Boolean,
             item: HomeResponse.Items,
-            backgroundImage : String?,
+            backgroundImage: String?,
             layoutType: String?,
-            refId : String
+            refId: String,
+            contentAnalyticsModel: ContentAnalyticsModel
         ) {
 //            binding?.homeRecyclerViewTitle?.textSize = dpToPx()
             if (binding?.homeRecyclerView?.adapter != null) {
@@ -148,7 +215,8 @@ class SearchLandingAdapter(
                     item,
                     backgroundImage,
                     layoutType,
-                    refId
+                    refId,
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             }
         }
@@ -159,24 +227,43 @@ class SearchLandingAdapter(
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-
-        val contentItem = list[position]
+        val railData = list[position]
         when (holder.itemViewType) {
+            GENRE_RAIL -> {
+                val genreNewViewHolder = holder as ViewHolderGenreNew
+                genreNewViewHolder.bind(
+                    RailsModel(
+                        railData.title,
+                        RailAdapter(
+                            mBannerClick,
+                            railData.contentItem,
+                            railData.layoutType,
+                            position,
+                            cloudinaryUrl,
+                            railData.sectionSource,
+                            railData.continueWatching,
+                            railData.title,
+                            providerLogos,
+                            railPoint,
+                            sharedPrefs = viewModel.sharedPrefs,
+                            refId = railData.refId
+                        )
+                    )
+                )
+            }
 
             RAIL -> {
                 val railsViewHolder = holder as SearchLandingAdapter.ViewHolderRails
-                var contentList = contentItem.filteredContentItems
-                if (contentItem.sectionSource.equals(ItemViewType.LANGUAGE.name, true) ||
-                    contentItem.sectionSource.equals(ItemViewType.GENRE.name, true) ||
-                    contentItem.sectionSource.equals(ItemLayoutType.POPULAR_CHARACTER.name, true)||
-                    contentItem.sectionSource.equals(ItemLayoutType.CATEGORY.name, true)
+                var contentList = railData.filteredContentItems
+                if (railData.sectionSource.equals(ItemViewType.LANGUAGE.name, true) ||
+                    railData.sectionSource.equals(ItemLayoutType.POPULAR_CHARACTER.name, true)||
+                    railData.sectionSource.equals(ItemLayoutType.CATEGORY.name, true)
                 ) {
-                    contentList = contentItem.contentItem
+                    contentList = railData.contentItem
                 }
-                if(!(contentItem.sectionSource.equals(ItemViewType.LANGUAGE.name, true) ||
-                    contentItem.sectionSource.equals(ItemViewType.GENRE.name, true) ||
-                    contentItem.sectionSource.equals(ItemViewType.CATEGORY.name, true) ||
-                    contentItem.sectionSource.equals(ItemViewType.PROVIDER.name, true))){
+                if(!(railData.sectionSource.equals(ItemViewType.LANGUAGE.name, true) ||
+                    railData.sectionSource.equals(ItemViewType.CATEGORY.name, true) ||
+                    railData.sectionSource.equals(ItemViewType.PROVIDER.name, true))){
                     railsViewHolder.binding?.clHomeRoot?.hide()
                 }
                 else if (contentList.isEmpty()) {
@@ -185,7 +272,7 @@ class SearchLandingAdapter(
                 } else {
 //                    ignorePositions.remove(position)
                     railsViewHolder.binding?.clHomeRoot?.show()
-                    if (contentItem.sectionSource.equals(ItemViewType.PRIME.name, true) &&
+                    if (railData.sectionSource.equals(ItemViewType.PRIME.name, true) &&
                         railsViewHolder.binding != null
                     ) {
                         railsViewHolder.binding.providerLogo.hide()
@@ -201,11 +288,10 @@ class SearchLandingAdapter(
                             railsViewHolder.binding.providerLogo.show()
                             railsViewHolder.binding.homeSeeAll.hide()
                         }*/
-                    else if (contentItem.sectionSource.equals(ItemViewType.LANGUAGE.name, true) ||
-                        contentItem.sectionSource.equals(ItemViewType.GENRE.name, true) ||
-                        contentItem.sectionSource.equals(ItemViewType.CATEGORY.name, true) ||
-                        contentItem.sectionSource.equals(ItemLayoutType.POPULAR_CHARACTER.name, true) ||
-                        contentItem.layoutType.equals(ItemLayoutType.TOP_PORTRAIT.name, true)
+                    else if (railData.sectionSource.equals(ItemViewType.LANGUAGE.name, true) ||
+                        railData.sectionSource.equals(ItemViewType.CATEGORY.name, true) ||
+                        railData.sectionSource.equals(ItemLayoutType.POPULAR_CHARACTER.name, true) ||
+                        railData.layoutType.equals(ItemLayoutType.TOP_PORTRAIT.name, true)
                     ) {
                         railsViewHolder.binding?.homeSeeAll?.hide()
                         railsViewHolder.binding?.providerLogo?.hide()
@@ -214,43 +300,46 @@ class SearchLandingAdapter(
                         railsViewHolder.binding?.homeSeeAll?.show()
                     }
                 }
-                val isPrepand = !"APPEND".equals(contentItem.recommendationPosition, true)
-                val isMixedRail = !contentItem.recommendationPosition.isNullOrEmpty()
+                val isPrepand = !"APPEND".equals(railData.recommendationPosition, true)
+                val isMixedRail = !railData.recommendationPosition.isNullOrEmpty()
+                val contentAnalyticsModel = railData.getContentAnalyticsModel()
                 railsViewHolder.bind(
                     RailsModel(
-                        contentItem.title,
+                        railData.title,
                         RailAdapter(
                             mBannerClick,
                             contentList,
-                            contentItem.layoutType,
+                            railData.layoutType,
                             position,
                             cloudinaryUrl,
-                            contentItem.sectionSource,
-                            contentItem.continueWatching,
-                            contentItem.title,
+                            railData.sectionSource,
+                            railData.continueWatching,
+                            railData.title,
                             providerLogos,
                             railPoint,
                             sharedPrefs = viewModel.sharedPrefs,
-                            refId = contentItem.refId
+                            refId = railData.refId,
+                            railSectionType = railData.sectionType,
                         )
                     ),
                     mSeeAllClickListener,
-                    contentItem.id, contentItem.title,
-                    contentItem.sectionSource,
-                    contentItem.lastPosition,
-                    contentItem.placeHolder,
-                    contentItem.configType,
-                    contentItem.trendingProvider,
+                    railData.id,
+                    railData.title,
+                    railData.sectionSource,
+                    railData.lastPosition,
+                    railData.placeHolder,
+                    railData.configType,
+                    railData.trendingProvider,
                     isMixedRail,
                     isPrepand,
-                    contentItem,
-                    contentItem.backgroundImage,
-                    contentItem.layoutType,
-                    contentItem.refId
+                    railData,
+                    railData.backgroundImage,
+                    railData.layoutType,
+                    railData.refId,
+                    contentAnalyticsModel
                 )
             }
         }
-
     }
 
 
@@ -268,7 +357,7 @@ class SearchLandingAdapter(
             else
                 binding.llTitle.show()
             binding.searchRecyclerView.show()
-            val gridLayoutManager = RVGridLayoutManager(context)
+            val gridLayoutManager = RVGridLayoutManager(context, context.resources.getInteger(R.integer.grid_landscape))
             gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
                     return if (position ==  (binding.searchRecyclerView.adapter as TrendingAdapter).getListSize()) 2 else 1
@@ -290,6 +379,13 @@ class SearchLandingAdapter(
 
     override fun getItemViewType(position: Int): Int {
         when {
+            list[position].sectionSource.equals(
+                ItemViewType.GENRE.name,
+                true
+            ) -> {
+                list[position].viewType = GENRE_RAIL
+                return GENRE_RAIL
+            }
             list[position].sectionType.equals(
                 ItemViewType.RAIL.name,
                 ignoreCase = true
@@ -299,5 +395,11 @@ class SearchLandingAdapter(
             }
             else -> return RAIL
         }
+    }
+
+
+    fun notifyOrientationChange() {
+        notifyDataSetChanged()
+        orientationChanged = true
     }
 }

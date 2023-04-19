@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.home.bottomsheet.HomeBottomSheetViewModel" />
+        <import type="android.text.TextUtils" />
+
+        <variable
+            name="verbiage"
+            type="com.tatasky.binge.data.networking.models.response.Verbiages" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.features.sidemenunavdrawer.contentlanguage.ContentLanguageFragment">
+
+
+        <include
+            android:id="@+id/toolbar_layout"
+            layout="@layout/shadowed_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/textView"
+            style="@style/TSText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/tab_padding"
+            android:text="@string/content_language"
+            android:textSize="@dimen/tab_toolbar_text"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar_layout" />
+
+        <TextView
+            android:id="@+id/tv_language_header"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="@dimen/margin_20"
+            android:text="@{verbiage.data.subHeader}"
+            android:textColor="@color/purple_25"
+            android:textSize="@dimen/sp_16"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/textView"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+
+        <com.tatasky.binge.customviews.CustomRecyclerView
+            android:id="@+id/rv_language_listing"
+            setAdapter="@{vm.languageAdapter}"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginEnd="@dimen/tab_padding_right"
+            android:layout_marginStart="@dimen/tab_padding"
+            android:orientation="vertical"
+            app:layoutManager="com.tatasky.binge.customviews.RVGridLayoutManager"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_language_header"
+            app:spanCount="2"
+            tools:listitem="@layout/item_select_language" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_select_lang"
+            style="@style/Widget.AppTheme.ButtonStyle.Icon"
+            android:layout_marginBottom="@dimen/margin_20"
+            android:layout_marginTop="@dimen/margin_37"
+            android:enabled="false"
+            android:text="@{verbiage.data.others.buttonTitle}"
+            android:visibility="gone"
+            android:layout_marginStart="22dp"
+            android:layout_marginEnd="22dp"
+            app:layout_constraintEnd_toEndOf="@+id/rv_language_listing"
+            app:layout_constraintStart_toStartOf="@+id/rv_language_listing"
+            app:layout_constraintTop_toBottomOf="@+id/rv_language_listing"
+            app:layout_goneMarginEnd="0dp" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.NonNull
@@ -17,7 +16,6 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.transition.Hold
 import com.google.android.material.transition.MaterialSharedAxis
 import com.tatasky.binge.BuildConfig
 import com.tatasky.binge.R
@@ -41,7 +39,6 @@ import com.tatasky.binge.ui.features.home.LandingActivity
 import com.tatasky.binge.ui.features.home.adapter.HomeAdapter
 import com.tatasky.binge.ui.features.home.sub.SubFragmentDirections
 import com.tatasky.binge.ui.features.home.sub.SubViewModel
-import com.tatasky.binge.ui.features.search.SearchFragment
 import com.tatasky.binge.utils.*
 
 class SubHomeFragment : CancellationBaseFragment<FragmentSubpageBinding, SubViewModel>() {
@@ -195,7 +192,7 @@ class SubHomeFragment : CancellationBaseFragment<FragmentSubpageBinding, SubView
         viewModel.miscAnalytics.trackMixPanelHomePageView(
             name = viewModel.getPageNameDrp(),
             source = source,
-            drpEnabled = if (viewModel.checkDRPpages(sharedPrefs.getConfigResponse()?.data?.config?.drpPartnerPages)) YES else NO
+            drpEnabled = if (viewModel.checkDRPpages()) YES else NO
         )
         providerId = args.providerId
         isSubscribed = sharedPrefs.isActivePack() && sharedPrefs.getPartnerIdsList()
@@ -227,11 +224,11 @@ class SubHomeFragment : CancellationBaseFragment<FragmentSubpageBinding, SubView
             viewModel.subscribed = checkSubscription(sharedPrefs.getPartnerIdsList())
             viewModel.unsubscribed = !viewModel.subscribed
         }
-        viewModel.fetchHierarchyData(true)
+        viewModel.fetchHierarchyData(true, context?.let { it1 -> isTablet(it1) })
         binding.swipeRefresh.setColorSchemeColors(Color.BLUE, Color.MAGENTA, Color.RED)
         binding.swipeRefresh.setOnRefreshListener {
             viewModel.pageOffset = 0
-            viewModel.fetchHierarchyData(false)
+            viewModel.fetchHierarchyData(false, context?.let { it1 -> isTablet(it1) })
         }
         val animator = object : DefaultItemAnimator() {
             override fun canReuseUpdatedViewHolder(@NonNull viewHolder: RecyclerView.ViewHolder): Boolean {
@@ -257,6 +254,8 @@ class SubHomeFragment : CancellationBaseFragment<FragmentSubpageBinding, SubView
         if (viewModel.isContinueWatching)
             viewModel.refreshContinueWatching()
         if(viewModel.isGameFav)
+                viewModel.refreshGameFav()
+        if(viewModel.isGameRP)
                 viewModel.refreshGameFav()
         (viewModel.getAdapter() as HomeAdapter).handleHomeTrailerPlayBack(false)
     }
@@ -313,6 +312,14 @@ class SubHomeFragment : CancellationBaseFragment<FragmentSubpageBinding, SubView
             ?.observe(viewLifecycleOwner, Observer {
                 if(it)
                     viewModel.refreshGameFav()
+            })
+
+        findNavController().currentBackStackEntry
+            ?.savedStateHandle
+            ?.getLiveData<Boolean>(KEY_REFRESH_GAME_CW)
+            ?.observe(viewLifecycleOwner, Observer {
+                if(it)
+                    viewModel.refreshGameCW()
             })
 
 
@@ -376,10 +383,10 @@ class SubHomeFragment : CancellationBaseFragment<FragmentSubpageBinding, SubView
         })
 
         viewModel.getClickedItem().observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let { contentIfNotHandled ->
-                if (contentIfNotHandled.sectionSource == EventConstants.TYPE_SELECT_PAID_PACK
-                    || contentIfNotHandled.sectionSource == EventConstants.TYPE_START_FREE_TRIAL
-                    || contentIfNotHandled.sectionSource == EventConstants.TYPE_FREE_TRIAL_UPGRADE
+            it.getContentIfNotHandled()?.let { clickedItem ->
+                if (clickedItem.sectionSource == EventConstants.TYPE_SELECT_PAID_PACK
+                    || clickedItem.sectionSource == EventConstants.TYPE_START_FREE_TRIAL
+                    || clickedItem.sectionSource == EventConstants.TYPE_FREE_TRIAL_UPGRADE
                 ) {
                     activity?.let { activity ->
                         startActivityForResult(
@@ -393,25 +400,26 @@ class SubHomeFragment : CancellationBaseFragment<FragmentSubpageBinding, SubView
                             ), REQUEST_FOR_PACK_SELECTION
                         )
                     }
-                } else if (contentIfNotHandled.sectionSource == EventConstants.TYPE_SELECT_LANGUAGE_POP_UP) {
+                } else if (clickedItem.sectionSource == EventConstants.TYPE_SELECT_LANGUAGE_POP_UP) {
                     findNavController().navigateSafe(
                         SubFragmentDirections.actionSelectLanguageBottomSheetDialog()
                     )
                 }
-                else if (contentIfNotHandled.sectionSource.equals(
+                else if (clickedItem.sectionSource.equals(
                         ItemViewType.LANGUAGE.name,
                         true
                     ) ||
-                    contentIfNotHandled.sectionSource.equals(ItemViewType.GENRE.name, true)
+                    clickedItem.sectionSource.equals(ItemViewType.GENRE.name, true)
                 ) {
                     findNavController().navigateSafe(
                         SubFragmentDirections.actionHomeFragmentToLanguageGenreFragment(
-                            contentIfNotHandled.contentItem.title,
-                            contentIfNotHandled.sectionSource,
+                            clickedItem.contentItem.title,
+                            clickedItem.sectionSource,
                             viewModel.searchPageName ?: "",
-                            contentIfNotHandled.contentItem.backgroundImage?:"",
-                            contentIfNotHandled.contentItem.image,
-                            refId = contentIfNotHandled.contentItem.refId
+                            clickedItem.contentItem.getLangGenreBackDrop(clickedItem.sectionSource)?:"",
+                            clickedItem.contentItem.getLangGenreIcon(clickedItem.sectionSource),
+                            refId = clickedItem.contentItem.refId,
+                            contentAnalyticsModel = clickedItem.contentAnalyticsModel
                         )
                     )
                     (activity as? LandingActivity)?.parentalControlSnackbarUtil?.hideParentalControlSnackbar()
@@ -419,8 +427,11 @@ class SubHomeFragment : CancellationBaseFragment<FragmentSubpageBinding, SubView
                 else {
                     findNavController().navigateSafe(
                         SubFragmentDirections.actionToDetail(
-                            contentIfNotHandled.contentItem
-                        ), contentIfNotHandled.extras
+                            clickedItem.contentItem,
+                            railItemsModel = clickedItem.railItemsModel,
+                            contentAnalyticsModel = clickedItem.contentAnalyticsModel
+                        ),
+                        clickedItem.extras
                     )
                 }
             }
@@ -458,7 +469,8 @@ class SubHomeFragment : CancellationBaseFragment<FragmentSubpageBinding, SubView
                             taContentResponse = railResponse,
                             backgroundImage = seeAllTransition.backgroundImage,
                             railPosition = seeAllTransition.railPosition.toString(),
-                            refId = seeAllTransition.refId
+                            refId = seeAllTransition.refId,
+                            contentAnalyticsModel = seeAllTransition.contentAnalyticsModel
                         )
                     )
                 }
@@ -468,7 +480,7 @@ class SubHomeFragment : CancellationBaseFragment<FragmentSubpageBinding, SubView
 
     private fun doPullToRefresh() {
         viewModel.pageOffset = 0
-        viewModel.fetchHierarchyData(false)
+        viewModel.fetchHierarchyData(false, context?.let { it1 -> isTablet(it1) })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable name="contentItem" type="com.tatasky.binge.data.networking.models.response.ContentItem"/>
 
@@ -21,6 +21,8 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:textSize="@dimen/text_size_10"
+            tools:text="Rental text"
+            tools:visibility="visible"
             android:visibility="@{contentItem.rental != null ? View.VISIBLE : View.GONE, default=gone}"
             android:text="@{contentItem.rental}"
             android:textColor="@color/darkError"

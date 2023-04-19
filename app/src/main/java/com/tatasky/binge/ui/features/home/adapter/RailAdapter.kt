@@ -1,30 +1,42 @@
 package com.tatasky.binge.ui.features.home.adapter
 
-import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
-import android.provider.MediaStore.Video.VideoColumns.CATEGORY
+import android.graphics.Point
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.tatasky.binge.R
+import com.tatasky.binge.analytics.RAIL
 import com.tatasky.binge.analytics.SOURCE_GAMES
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
 import com.tatasky.binge.data.database.model.GamesMixpanelInfoModel
 import com.tatasky.binge.data.networking.models.response.ContentItem
 import com.tatasky.binge.data.networking.models.response.PartnerData
 import com.tatasky.binge.data.networking.models.response.ProviderLogo
 import com.tatasky.binge.data.networking.models.response.RailPoint
-import com.tatasky.binge.databinding.*
+import com.tatasky.binge.databinding.ItemGameSquareBinding
+import com.tatasky.binge.databinding.LayoutCategoryLandscapeBinding
+import com.tatasky.binge.databinding.LayoutChannelRailItemBinding
+import com.tatasky.binge.databinding.LayoutCharacterBinding
+import com.tatasky.binge.databinding.LayoutGenreBinding
+import com.tatasky.binge.databinding.LayoutGenreGamesBinding
+import com.tatasky.binge.databinding.LayoutGenreLandscapeBinding
+import com.tatasky.binge.databinding.LayoutLanguageRailItemBinding
+import com.tatasky.binge.databinding.LayoutMidscrollItemBinding
+import com.tatasky.binge.databinding.LayoutPortraitRailItemBinding
+import com.tatasky.binge.databinding.LayoutProviderPortraitRailItemBinding
+import com.tatasky.binge.databinding.LayoutRailItemBinding
+import com.tatasky.binge.databinding.LayoutRailItemTempBinding
+import com.tatasky.binge.databinding.LayoutRailItemTrailerBinding
+import com.tatasky.binge.databinding.LayoutRailTopTenPortraitItemBinding
+import com.tatasky.binge.databinding.LayoutRotateItemBinding
 import com.tatasky.binge.domain.repositories.PrefsRepo
 import com.tatasky.binge.helper.circularImageApps
 import com.tatasky.binge.helper.imageLoad
@@ -35,7 +47,35 @@ import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.features.home.ItemLayoutType
 import com.tatasky.binge.ui.features.home.ItemViewType
 import com.tatasky.binge.ui.features.home.home_trailer.TrailerView
-import com.tatasky.binge.utils.*
+import com.tatasky.binge.ui.features.home.model.RailItemsModel
+import com.tatasky.binge.ui.features.home.sub.SubFragment.Companion.pointCharacterGenre
+import com.tatasky.binge.ui.features.home.sub.SubFragment.Companion.pointGameSquare
+import com.tatasky.binge.ui.features.home.sub.SubFragment.Companion.pointLargeThumbnail
+import com.tatasky.binge.ui.features.home.sub.SubFragment.Companion.pointMidScrollCard
+import com.tatasky.binge.ui.features.home.sub.SubFragment.Companion.pointNormal
+import com.tatasky.binge.ui.features.home.sub.SubFragment.Companion.pointNormalCategory
+import com.tatasky.binge.ui.features.home.sub.SubFragment.Companion.pointNormalForGenre
+import com.tatasky.binge.ui.features.home.sub.SubFragment.Companion.pointPortraitMixedThumbnail
+import com.tatasky.binge.ui.features.home.sub.SubFragment.Companion.pointTop10
+import com.tatasky.binge.utils.ADD_HEIGHT_LANDSCAPE
+import com.tatasky.binge.utils.EDITORIAL
+import com.tatasky.binge.utils.EventConstants
+import com.tatasky.binge.utils.PROVIDER_GAMEZOP
+import com.tatasky.binge.utils.PROVIDER_TATA_SKY
+import com.tatasky.binge.utils.RECOMMENDATION
+import com.tatasky.binge.utils.SubscriptionPackStatusEnum
+import com.tatasky.binge.utils.d
+import com.tatasky.binge.utils.dpToPx
+import com.tatasky.binge.utils.e
+import com.tatasky.binge.utils.getCloudinaryUrl
+import com.tatasky.binge.utils.getCloudinaryUrlByWidthOrHeight
+import com.tatasky.binge.utils.getNormalThumbnailDimension
+import com.tatasky.binge.utils.getPortraitMixedThumbnailDimension
+import com.tatasky.binge.utils.isLandTablet
+import com.tatasky.binge.utils.isTablet
+import com.tatasky.binge.utils.updateProviderImage
+import com.tatasky.binge.utils.updateProviderLogo
+import java.util.*
 
 class RailAdapter(
     val listener: CommonDTOClickListener,
@@ -51,11 +91,12 @@ class RailAdapter(
     val sharedPrefs: PrefsRepo,
     var mixedLayoutType: String = "",
     var partnerName: String? = null,
-    var mNonSubscribedPartnerList: HashSet<String> ?= null,
-    var isPackAvailed : Boolean = false,
-    var viewPortPosition : Int = -1,
-    var refId : String,
-    val pageName : String = "",
+    var mNonSubscribedPartnerList: HashSet<String>? = null,
+    var isPackAvailed: Boolean = false,
+    var viewPortPosition: Int = -1,
+    var refId: String,
+    val pageName: String = "",
+    val railSectionType: String = RAIL.uppercase(),
     val trailerExchanger: ((TrailerView?, Boolean, Int) -> Unit)? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var length: Int = 0
@@ -76,53 +117,48 @@ class RailAdapter(
     private val GENRE_RAIL_FOR_GAMES = 15
     private val MID_SCROLL_RAIL_GAME = 16
     private val CATEGORY = 17
+    private val BINGE_CHANNEL = 18
+    private val SINGLE_PROVIDER_BANNER_RAIL = 19
     private var mTrailerView: TrailerView? = null
     private var mIsUserLogin = sharedPrefs.getLoginStatus()
 
 
     init {
-        if(mNonSubscribedPartnerList == null){
+        if (mNonSubscribedPartnerList == null) {
             updateSbscriberList()
         }
-        e("RailAdapter","sectionSource:$sectionSource, layoutType : $layoutType, " +
-                "partnerName: $partnerName")
         e(
             "RailAdapter", "sectionSource:$sectionSource, layoutType : $layoutType, " +
                     "partnerName: $partnerName"
         )
         continueWatching = false
-
-        if(sectionSource.equals(ItemViewType.TITLE_RAIL.name, true))
+        if (sectionSource.equals(ItemViewType.BINGE_CHANNEL.name, true))
+            layoutType = ItemLayoutType.BINGE_CHANNEL.name
+        else if (sectionSource.equals(ItemViewType.DARSHAN_CHANNEL.name, true))
+            layoutType = ItemLayoutType.LANDSCAPE.name
+        else if (sectionSource.equals(ItemViewType.TITLE_RAIL.name, true))
             layoutType = ItemLayoutType.TITLE_RAIL.name
-        else if(sectionSource.equals(ItemLayoutType.POPULAR_CHARACTER.name, true))
+        else if (sectionSource.equals(ItemLayoutType.POPULAR_CHARACTER.name, true))
             layoutType = ItemLayoutType.POPULAR_CHARACTER.name
         else if (sectionSource.equals(ItemViewType.PROVIDER.name, true)) {
             layoutType = ItemLayoutType.APP_RAIL.name
-        }
-        else if(sectionSource.equals(ItemLayoutType.LANGUAGE.name, true)){
+        } else if (sectionSource.equals(ItemLayoutType.LANGUAGE.name, true)) {
             layoutType = ItemLayoutType.LANGUAGE.name
-        }
-        else if (sectionSource.equals(ItemViewType.GENRE_RAIL_FOR_GAMES.name, true)) {
+        } else if (sectionSource.equals(ItemViewType.GENRE_RAIL_FOR_GAMES.name, true)) {
+            layoutType = ItemLayoutType.GENRE_GAMES.name
+        } else if (sectionSource.equals(ItemLayoutType.GENRE.name, true)
+            && layoutType.equals(ItemLayoutType.LANDSCAPE.name, true)
+        ) {
             layoutType = ItemLayoutType.GENRE_LANDSCAPE.name
-        }
-        else if(sectionSource.equals(ItemLayoutType.GENRE.name, true)
-            && layoutType.equals(ItemLayoutType.LANDSCAPE.name, true)){
-            layoutType = ItemLayoutType.GENRE_LANDSCAPE.name
-        }
-        else if(sectionSource.equals(ItemLayoutType.CATEGORY.name, true)){
+        } else if (sectionSource.equals(ItemLayoutType.CATEGORY.name, true)) {
             layoutType = ItemLayoutType.CATEGORY.name
-        }
-        else if(sectionSource.equals(ItemLayoutType.GENRE.name, true)){
+        } else if (sectionSource.equals(ItemLayoutType.GENRE.name, true)) {
             layoutType = ItemLayoutType.GENRE.name
-        }
-        else if(sectionSource.equals(ItemLayoutType.MID_SCROLL_RAIL.name, true)){
+        } else if (sectionSource.equals(ItemLayoutType.MID_SCROLL_RAIL.name, true)) {
+            layoutType = ItemLayoutType.MID_SCROLL_RAIL.name
+        } else if (sectionSource.equals(ItemViewType.MID_BANNER_GAMES.name, true)) {
             layoutType = ItemLayoutType.MID_SCROLL_RAIL.name
         }
-        else if(sectionSource.equals(ItemViewType.MID_BANNER_GAMES.name, true)){
-            layoutType = ItemLayoutType.MID_SCROLL_RAIL.name
-        }
-//        else if(sectionSource.equals(ItemViewType.GAMES.name, true))
-//            layoutType = ItemLayoutType.SQUARE.name
         length = list.size
         if (length > 7 && (layoutType.equals(ItemLayoutType.MIXED.name, true)
                     || layoutType.equals(ItemLayoutType.MIXED_WITH_PROVIDER_DATA.name, true))
@@ -130,20 +166,33 @@ class RailAdapter(
             calculateLength()
     }
 
+    /** Generate the content related analytics data
+     * Pass this data while binding, as sometimes getting
+     * data of another rail
+     */
+    private fun getContentAnalyticsModel() = ContentAnalyticsModel(
+        sectionSource,
+        railSectionType,
+        railTitle
+    )
+
     fun updateSbscriberList() {
-        mNonSubscribedPartnerList = HashSet()
-        mNonSubscribedPartnerList = HashSet()
-        isPackAvailed = sharedPrefs.getSubscribedPack() != null
-        sharedPrefs.getSubscribedPack()?.nonSubscribedPartnerList?.let { partnerList ->
-            e("RailAdapter","partnerList:$partnerList")
-            for (partner in partnerList){
-                mNonSubscribedPartnerList?.add((partner.partnerName ?: "").toLowerCase())
-            }
-        }
+//        mNonSubscribedPartnerList = HashSet()
+//        mNonSubscribedPartnerList = HashSet()
+//        isPackAvailed = sharedPrefs.getSubscribedPack() != null
+//        sharedPrefs.getSubscribedPack()?.nonSubscribedPartnerList?.let { partnerList ->
+//            e("RailAdapter","partnerList:$partnerList")
+//            for (partner in partnerList){
+//                mNonSubscribedPartnerList?.add((partner.partnerName ?: "").toLowerCase())
+//            }
+//        }
     }
 
     override fun getItemViewType(position: Int): Int {
         return when {
+            layoutType.equals(ItemLayoutType.BINGE_CHANNEL.name, true) -> {
+                BINGE_CHANNEL
+            }
             layoutType.equals(ItemLayoutType.SQUARE.name, true) -> {
                 SQUARE
             }
@@ -152,6 +201,9 @@ class RailAdapter(
             }
             layoutType.equals(ItemLayoutType.GENRE_LANDSCAPE.name, true) -> {
                 GENRE_LANDSCAPE
+            }
+            layoutType.equals(ItemLayoutType.GENRE_GAMES.name, true) -> {
+                GENRE_RAIL_FOR_GAMES
             }
             layoutType.equals(ItemLayoutType.GENRE.name, true) -> {
                 GENRE
@@ -168,14 +220,14 @@ class RailAdapter(
             layoutType.equals(ItemLayoutType.TITLE_RAIL.name, true) -> {
                 SPORTS_RAIL
             }
+            layoutType.equals(ItemLayoutType.SINGLE_PROVIDER_BANNER_RAIL.name, true) -> {
+                SINGLE_PROVIDER_BANNER_RAIL
+            }
             layoutType.equals(ItemLayoutType.LANDSCAPE.name, true) -> {
                 LANDSCAPE
             }
             layoutType.equals(ItemLayoutType.LANGUAGE.name, true) -> {
                 LANGUAGE
-            }
-            layoutType.equals(ItemLayoutType.GENRE_RAIL_FOR_GAMES.name, true) -> {
-                GENRE_RAIL_FOR_GAMES
             }
             layoutType.equals(ItemLayoutType.CIRCULAR.name, true) -> {
                 CIRCULAR
@@ -185,7 +237,7 @@ class RailAdapter(
             }
             layoutType.equals(ItemLayoutType.MIXED.name, true)
                     || layoutType.equals(ItemLayoutType.MIXED_WITH_PROVIDER_DATA.name, true) -> {
-                if ( ItemLayoutType.PORTRAIT.name.equals(mixedLayoutType,true)) {
+                if (ItemLayoutType.PORTRAIT.name.equals(mixedLayoutType, true)) {
                     return PROVIDER_PORTRAIT
                 }
                 return when (position) {
@@ -202,27 +254,41 @@ class RailAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            SQUARE -> GameSquareViewHolder(
-                ItemGameSquareBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
+            BINGE_CHANNEL -> {
+                ChannelItemViewHolder(
+                    LayoutChannelRailItemBinding.inflate(
+                        LayoutInflater.from(parent.context),
+                        parent,
+                        false
+                    )
                 )
+            }
+            SQUARE -> GameSquareViewHolder(
+                ItemGameSquareBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             )
             POPULAR_CHARACTER -> CharacterViewHolder(
                 LayoutCharacterBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
-                    false)
+                    false
+                )
             )
             GENRE_LANDSCAPE -> GenreLandViewHolder(
                 LayoutGenreLandscapeBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
-                    false)
+                    false
+                )
             )
             CATEGORY -> CategoryViewHolder(
                 LayoutCategoryLandscapeBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+            )
+            GENRE_RAIL_FOR_GAMES -> GenreGameViewHolder(
+                LayoutGenreGamesBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
@@ -235,43 +301,38 @@ class RailAdapter(
                     false
                 )
             )
-            LANGUAGE -> GenreItemViewHolder(
-                LayoutGenreBinding.inflate(
+            LANGUAGE -> LanguageItemViewHolder(
+                LayoutLanguageRailItemBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
                 )
             )
-            GENRE_RAIL_FOR_GAMES -> GenreItemViewHolder(
-                LayoutGenreBinding.inflate(
+
+            PORTRAIT -> RailItemPortraitViewHolder(
+                LayoutPortraitRailItemBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
                 )
             )
-            PORTRAIT -> RailItemViewHolder(
-                LayoutRailItemBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
-            )
-            PROVIDER -> RotateItemViewHolder(
+            PROVIDER, CIRCULAR -> RotateItemViewHolder(
                 LayoutRotateItemBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
                 )
             )
-            CIRCULAR -> RotateItemViewHolder(
-                LayoutRotateItemBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
-            )
+
             PROVIDER_LANDSCAPE -> RailItemTrailerViewHolder(
                 LayoutRailItemTrailerBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+            )
+            PROVIDER_PORTRAIT -> RailItemProviderPortraitViewHolder(
+                LayoutProviderPortraitRailItemBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
@@ -284,8 +345,20 @@ class RailAdapter(
                     false
                 )
             )
-            else -> RailItemViewHolder(
-                LayoutRailItemBinding.inflate(
+            PORTRAIT_TOP10 -> RailItemTop10PortraitViewHolder(
+                (LayoutRailTopTenPortraitItemBinding.inflate(
+                    LayoutInflater.from(parent.context), parent, false
+                ))
+            )
+            SINGLE_PROVIDER_BANNER_RAIL -> SingleProviderBannerRailViewHolder(
+                LayoutRailItemTempBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+            )
+            else -> RailItemTempViewHolder(
+                LayoutRailItemTempBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
@@ -303,26 +376,85 @@ class RailAdapter(
         try {
             val contentItem = list[position]
             when (getItemViewType(position)) {
+                BINGE_CHANNEL -> {
+                    if (holder is ChannelItemViewHolder) {
+                        val contentAnalyticsModel = getContentAnalyticsModel()
+                        holder.bind(
+                            contentItem,
+                            pointCharacterGenre,
+                            /** Passing the data while binding,
+                             * as sometimes getting data of another rail
+                             */
+                            RailItemsModel(
+                                list,
+                                sectionSource,
+                                layoutType,
+                                railSectionType,
+                                railTitle,
+                                if (sectionSource.equals(RECOMMENDATION, true))
+                                    RECOMMENDATION
+                                else
+                                    EDITORIAL.uppercase()
+                            ),
+                            contentAnalyticsModel
+                        )
+                    }
+                }
                 SQUARE -> {
                     if (holder is GameSquareViewHolder) {
-                        if (railPoint.gameSquarePoint == null) {
-                            railPoint.gameSquarePoint =
-                                getSquareGameThumbnailDimension(holder.binding.root.context!!)
-                        }
-                        val width =
-                            railPoint.gameSquarePoint?.x ?: dpToPx(holder.binding.root.context, 120)
-                        val layoutParams =
-                            ConstraintLayout.LayoutParams(
-                                width,
-                                ViewGroup.LayoutParams.WRAP_CONTENT
-                            )
-                        layoutParams.setMargins(0, 0, dpToPx(holder.binding.root.context, 8), 0)
-                        holder.binding.clHomeGamingRoot.layoutParams = layoutParams
-                        ConstraintLayout.LayoutParams(width, width)
-                            .also { holder.binding.ivItemGameSqaure.layoutParams = it }
+                        val contentAnalyticsModel = getContentAnalyticsModel()
+                        holder.bind(contentItem, position, pointGameSquare, contentAnalyticsModel)
+                    }
+                }
+                POPULAR_CHARACTER -> {
+                    //Popular character UI
+                    if (holder is CharacterViewHolder) {
+                        val contentAnalyticsModel = getContentAnalyticsModel()
+                        holder.bind(
+                            contentItem,
+                            pointNormalForGenre,
+                            position,
+                            contentAnalyticsModel
+                        )
+                    }
+                }
+                CATEGORY -> {
+                    if (holder is CategoryViewHolder) {
+                        val contentAnalyticsModel = getContentAnalyticsModel()
+                        holder.bind(
+                            contentItem,
+                            pointNormalCategory,
+                            position,
+                            contentAnalyticsModel
+                        )
+                    }
+                }
 
+                GENRE_LANDSCAPE -> {
+                    if (holder is GenreLandViewHolder) {
+                        val contentAnalyticsModel = getContentAnalyticsModel()
+                        holder.bind(
+                            contentItem,
+                            pointCharacterGenre,
+                            position,
+                            contentAnalyticsModel
+                        )
+                    }
+                }
+                CIRCULAR -> {
+                    if (holder is RotateItemViewHolder) {
                         holder.bind(contentItem)
+
+                        val url = getCloudinaryUrl(
+                            cloudinaryUrl,
+                            holder.binding.rlParent.width, holder.binding.rlParent.height,
+                            contentItem.getImageItem()
+                        )
+                        circularImageApps(holder.binding.imageView1, url)
+                        val contentAnalyticsModel = getContentAnalyticsModel()
                         holder.binding.root.setOnClickListener {
+                            if (contentItem.refId.isEmpty())
+                                contentItem.refId = refId
                             listener.onSubItemClick(
                                 contentItem,
                                 position,
@@ -331,175 +463,7 @@ class RailAdapter(
                                 null,
                                 railTitle,
                                 sectionSource,
-                                GamesMixpanelInfoModel(
-                                    pageName = pageName,
-                                    railTitle = railTitle,
-                                    railPosition = "$sectionPosition",
-                                    railType = contentItem.origin,
-                                    railCategory = ItemViewType.RAIL.name,
-                                    gameGenre = contentItem.getSubTitle(),
-                                    gamePartner = contentItem.provider,
-                                    gamePosition = "${position + 1}",
-                                    gameRating = contentItem.gameRating,
-                                    releaseYear = "",
-                                    source = if (pageName.equals(
-                                            PROVIDER_GAMEZOP,
-                                            true
-                                        )
-                                    ) SOURCE_GAMES else pageName
-                                )
-                            )
-                        }
-
-                        val url = getCloudinaryUrl(
-                            cloudinaryUrl,
-                            width, width,
-                            contentItem.getImageItem()
-                        )
-                        val favBtn = holder.binding.lvGameFav
-
-                        // TODO: set the initial state of the fav button first then perofrm click listener
-//                    if (contentItem.isGameFavourite) {
-//                        favBtn.progress = 1F
-//                    } else {
-//                        favBtn.progress = 0F
-//                    }
-
-
-                        favBtn.setOnClickListener {
-                            if (!favBtn.isAnimating) {
-                                if (favBtn.progress == 0F) {
-                                    //TODO: Add to favourite
-                                    favBtn.playAnimation()
-                                } else {
-                                    //TODO: Remove from favourite
-                                    favBtn.progress = 0F
-                                }
-                            }
-                        }
-
-
-                        imageLoad(holder.binding.ivItemGameSqaure, url)
-                    }
-                }
-                POPULAR_CHARACTER -> {
-                    //Popular character UI
-                    holder as CharacterViewHolder
-                    if (railPoint.landscapeGenrePoint == null || railPoint.mLandscapeGenreWidth == null) {
-                        railPoint.landscapeGenrePoint =
-                            getNormalThumbnailForGenreDimension(holder.binding.root.context)
-                        railPoint.mLandscapeGenreWidth = railPoint.landscapeGenrePoint?.x
-                        railPoint.mLandscapeGenreHeight = railPoint.landscapeGenrePoint?.y
-                    }
-                    holder.bind(contentItem, cloudinaryUrl, railPoint, position)
-                    holder.binding.root.setOnClickListener {
-
-                        listener.onSubItemClick(
-                            contentItem,
-                            position,
-                            sectionPosition,
-                            ItemViewType.CHARACTER.name, null, railTitle,
-                            sectionSource
-                        )
-                    }
-                }
-                CATEGORY -> {
-                    holder as CategoryViewHolder
-                    if (railPoint.landscapeCategoryPoint == null || railPoint.mLandscapeCategoryWidth == null){
-                        railPoint.landscapeCategoryPoint =
-                            getNormalThumbnailForCategoryDimension(holder.binding.root.context)
-                        railPoint.mLandscapeCategoryWidth = railPoint.landscapeCategoryPoint?.x
-                        railPoint.mLandscapeCategoryHeight = railPoint.landscapeCategoryPoint?.y
-                    }
-
-
-                    holder.bind(contentItem,cloudinaryUrl,railPoint,pageName)
-
-                    holder.binding.root.setOnClickListener {
-                        if(contentItem.refId.isNullOrEmpty())
-                            contentItem.refId = refId
-                        listener.onSubItemClick(
-                            contentItem,
-                            position,
-                            sectionPosition,
-                            ItemViewType.CATEGORY.name,
-                            null,
-                            railTitle,
-                            sectionSource
-                        )
-                    }
-                }
-
-
-                GENRE_LANDSCAPE -> {
-                    holder as GenreLandViewHolder
-                    if (railPoint.landscapeGenrePoint == null || railPoint.mLandscapeGenreWidth == null) {
-                        railPoint.landscapeGenrePoint =
-                            getNormalThumbnailForGenreDimension(holder.binding.root.context)
-                        railPoint.mLandscapeGenreWidth = railPoint.landscapeGenrePoint?.x
-                        railPoint.mLandscapeGenreHeight = railPoint.landscapeGenrePoint?.y
-                    }
-                    var isGameGenre = false
-                    if (sectionSource.equals(ItemViewType.GENRE_RAIL_FOR_GAMES.name, true)) {
-                        isGameGenre = true
-                        holder.binding.tvContentTitle.hide()
-                    } else {
-                        holder.binding.tvContentTitle.show()
-                    }
-                    holder.bind(contentItem, cloudinaryUrl, railPoint, pageName, isGameGenre)
-                    holder.binding.root.setOnClickListener {
-                        if(contentItem.refId.isNullOrEmpty())
-                            contentItem.refId = refId
-                        listener.onSubItemClick(
-                            contentItem,
-                            position,
-                            sectionPosition,
-                            if (sectionSource.equals(
-                                    ItemViewType.GENRE_RAIL_FOR_GAMES.name,
-                                    true
-                                )
-                            ) ItemViewType.GENRE_RAIL_FOR_GAMES.name else ItemViewType.GENRE.name,
-                            null,
-                            railTitle,
-                            sectionSource
-                        )
-                    }
-                }
-                CIRCULAR -> {
-                    if (holder is RotateItemViewHolder) {
-                        holder.bind(contentItem)
-                        if (railPoint.circularPoint == null) {
-                            railPoint.circularPoint =
-                                getCircularProviderIconPoint(holder.binding.root.context)
-                        }
-                        val wH =
-                            railPoint.circularPoint?.x ?: dpToPx(holder.binding.root.context, 64)
-                        val url = getCloudinaryUrl(
-                            cloudinaryUrl,
-                            wH, wH,
-                            contentItem.getImageItem()
-                        )
-                        val layoutParams =
-                            RelativeLayout.LayoutParams(wH, wH)
-                        layoutParams.setMargins(0, 0, dpToPx(holder.binding.root.context, 10), 0)
-                        holder.binding.rlParent.layoutParams = layoutParams
-
-                        holder.binding.imageView1.layoutParams =
-                            RelativeLayout.LayoutParams(wH, wH)
-                        circularImageApps(holder.binding.imageView1, url)
-
-                        holder.binding.root.setOnClickListener {
-                            if(contentItem.refId.isNullOrEmpty())
-                                contentItem.refId = refId
-                            listener.onSubItemClick(
-                                contentItem,
-                                position,
-                                sectionPosition,
-                                EventConstants.TYPE_RAIL,
-                                null,
-                                railTitle,
-                                sectionSource
-
+                                contentAnalyticsModel = contentAnalyticsModel
                             )
                         }
                     }
@@ -507,33 +471,19 @@ class RailAdapter(
                 PROVIDER -> {
                     if (holder is RotateItemViewHolder) {
                         holder.bind(contentItem)
-                        if (railPoint.circularPoint == null) {
-                            railPoint.circularPoint =
-                                getCircularProviderIconPoint(holder.binding.root.context)
-                        }
-                        val wH =
-                            railPoint.circularPoint?.x ?: dpToPx(holder.binding.root.context, 64)
-                        val layoutParams =
-                            RelativeLayout.LayoutParams(wH, wH)
-                        layoutParams.setMargins(0, 0, dpToPx(holder.binding.root.context, 10), 0)
-                        holder.binding.rlParent.layoutParams = layoutParams
-
-                        val rl = RelativeLayout.LayoutParams(wH, wH)
-                        /*rl.setMargins( dpToPx(holder.binding.root.context, 8),
-                        dpToPx(holder.binding.root.context, 12),
-                        dpToPx(holder.binding.root.context, 8),
-                        dpToPx(holder.binding.root.context, 12))*/
-                        holder.binding.imageView1.layoutParams = rl
-
+                        val contentAnalyticsModel = getContentAnalyticsModel()
                         holder.binding.root.setOnClickListener {
-                            if(contentItem.refId.isNullOrEmpty())
+                            if (contentItem.refId.isNullOrEmpty())
                                 contentItem.refId = refId
                             listener.onSubItemClick(
                                 contentItem,
                                 position,
                                 sectionPosition,
-                                EventConstants.TYPE_APPS, null, railTitle,
-                                sectionSource
+                                EventConstants.TYPE_APPS,
+                                null,
+                                railTitle,
+                                sectionSource,
+                                contentAnalyticsModel = contentAnalyticsModel
                             )
                         }
 
@@ -547,42 +497,50 @@ class RailAdapter(
                     }
                 }
                 GENRE -> {
-                    holder as GenreItemViewHolder
-                    holder.bind(contentItem, cloudinaryUrl, railPoint, pageName)
-                    holder.binding.root.setOnClickListener {
-                        if(contentItem.refId.isNullOrEmpty())
-                            contentItem.refId = refId
-                        listener.onSubItemClick(
-                            contentItem,
-                            position,
-                            sectionPosition,
-                            ItemViewType.GENRE.name, null, railTitle,
-                            sectionSource
-                        )
+                    if (holder is GenreItemViewHolder) {
+                        holder.bind(contentItem, pointCharacterGenre)
+                        val contentAnalyticsModel = getContentAnalyticsModel()
+                        holder.binding.root.setOnClickListener {
+                            if (contentItem.refId.isNullOrEmpty())
+                                contentItem.refId = refId
+                            listener.onSubItemClick(
+                                contentItem,
+                                position,
+                                sectionPosition,
+                                ItemViewType.GENRE.name,
+                                null,
+                                railTitle,
+                                sectionSource,
+                                contentAnalyticsModel = contentAnalyticsModel
+                            )
+                        }
                     }
                 }
                 LANGUAGE -> {
-                    holder as GenreItemViewHolder
-                    holder.bind(contentItem, cloudinaryUrl, railPoint, pageName)
-                    holder.binding.root.setOnClickListener {
-                        if(contentItem.refId.isNullOrEmpty())
-                            contentItem.refId = refId
-                        listener.onSubItemClick(
-                            contentItem,
-                            position,
-                            sectionPosition,
-                            ItemViewType.LANGUAGE.name, null,
-                            railTitle,
-                            sectionSource
-
-                        )
+                    if (holder is LanguageItemViewHolder) {
+                        holder.bind(contentItem, pointCharacterGenre)
+                        val contentAnalyticsModel = getContentAnalyticsModel()
+                        holder.binding.root.setOnClickListener {
+                            if (contentItem.refId.isNullOrEmpty())
+                                contentItem.refId = refId
+                            listener.onSubItemClick(
+                                contentItem,
+                                position,
+                                sectionPosition,
+                                ItemViewType.LANGUAGE.name, null,
+                                railTitle,
+                                sectionSource,
+                                contentAnalyticsModel = contentAnalyticsModel
+                            )
+                        }
                     }
                 }
                 GENRE_RAIL_FOR_GAMES -> {
-                    holder as GenreItemViewHolder
-                    holder.bind(contentItem, cloudinaryUrl, railPoint, pageName)
+                    holder as GenreGameViewHolder
+                    val contentAnalyticsModel = getContentAnalyticsModel()
+                    holder.bind(contentItem, pointCharacterGenre, position, contentAnalyticsModel)
                     holder.binding.root.setOnClickListener {
-                        if(contentItem.refId.isNullOrEmpty())
+                        if (contentItem.refId.isEmpty())
                             contentItem.refId = refId
                         listener.onSubItemClick(
                             contentItem,
@@ -591,96 +549,63 @@ class RailAdapter(
                             ItemViewType.GENRE_RAIL_FOR_GAMES.name,
                             null,
                             railTitle,
-                            sectionSource
+                            sectionSource,
+                            contentAnalyticsModel = contentAnalyticsModel
                         )
                     }
                 }
                 PORTRAIT -> {
-                    if (holder is RailItemViewHolder) {
-                        if (railPoint.portraitPoint == null || railPoint.mPortraitWidth == null || railPoint.mPortraitHeight == null) {
-                            railPoint.portraitPoint =
-                                getLargeThumbnailDimension(holder.binding.root.context!!)
-                            railPoint.mPortraitWidth =
-                                railPoint.portraitPoint?.x//dpToPx(holder.binding.root.context, 137)//
-                            railPoint.mPortraitHeight =
-                                railPoint.portraitPoint?.y//dpToPx(holder.binding.root.context, 205)//
-                        }
-                        val width = railPoint.mPortraitWidth ?: 0
-                        val height = railPoint.mPortraitHeight ?: 0
-                        handleRailItemLayout(
-                            holder,
-                            contentItem,
-                            position,
-                            width,
-                            height
-                        )
+                    if (holder is RailItemPortraitViewHolder) {
+                        val contentAnalyticsModel = getContentAnalyticsModel()
+                        holder.bind(contentItem, pointLargeThumbnail, contentAnalyticsModel)
                     }
                 }
                 PORTRAIT_TOP10 -> {
-                    if (holder is RailItemViewHolder) {
-                        holder.binding.contentItem?.isTop10 = true
-                        if (railPoint.portraitTop10Point == null
-                            || railPoint.mPortraitTop10Width == null
-                            || railPoint.mPortraitTop10Height == null
-                        ) {
-                            railPoint.portraitTop10Point =
-                                getLargeThumbnailTop10Dimension(holder.binding.root.context!!)
-                            railPoint.mPortraitTop10Width =
-                                railPoint.portraitTop10Point?.x//dpToPx(holder.binding.root.context, 137)//
-                            railPoint.mPortraitTop10Height =
-                                railPoint.portraitTop10Point?.y//dpToPx(holder.binding.root.context, 205)//
-                        }
-                        val width = railPoint.mPortraitTop10Width ?: 0
-                        val height = railPoint.mPortraitTop10Height ?: 0
-                        handleRailItemLayout(
-                            holder,
+                    println("Top 10")
+                    if (holder is RailItemTop10PortraitViewHolder) {
+                        val contentAnalyticsModel = getContentAnalyticsModel()
+                        holder.bind(contentItem, pointTop10, position, contentAnalyticsModel)
+                    }
+                }
+                SPORTS_RAIL, LANDSCAPE -> {
+                    if (holder is RailItemTempViewHolder) {
+                        val contentAnalyticsModel = getContentAnalyticsModel()
+                        holder.bind(
                             contentItem,
-                            position,
-                            width,
-                            height
+                            pointNormal,
+                            /** Passing the data while binding,
+                             * as sometimes getting data of another rail
+                             */
+                            if (sectionSource == ItemViewType.DARSHAN_CHANNEL.name)
+                                RailItemsModel(
+                                    list,
+                                    sectionSource,
+                                    layoutType,
+                                    railSectionType,
+                                    railTitle,
+                                    if (sectionSource.equals(RECOMMENDATION, true))
+                                        RECOMMENDATION
+                                    else
+                                        EDITORIAL.uppercase()
+                                )
+                            else
+                                null,
+                            contentAnalyticsModel
                         )
                     }
                 }
-                SPORTS_RAIL -> {
-                    if (holder is RailItemViewHolder) {
-                        if (railPoint.landscapePoint == null || railPoint.mLandscapeHeight == null || railPoint.mLandscapeWidth == null) {
-                            railPoint.landscapePoint =
-                                getNormalThumbnailDimension(holder.binding.root.context!!)
-                            railPoint.mLandscapeWidth = railPoint.landscapePoint?.x
-                            railPoint.mLandscapeHeight = railPoint.landscapePoint?.y
-                        }
-                        val width = railPoint.mLandscapeWidth ?: 0
-                        val height = railPoint.mLandscapeHeight ?: 0
-                        handleRailItemLayout(
-                            holder,
-                            contentItem,
-                            position,
-                            width,
-                            height
-                        )
-                    }
-                }
-                LANDSCAPE -> {
-                    if (holder is RailItemViewHolder) {
-                        if (railPoint.landscapePoint == null || railPoint.mLandscapeHeight == null || railPoint.mLandscapeWidth == null) {
-                            railPoint.landscapePoint =
-                                getNormalThumbnailDimension(holder.binding.root.context!!)
-                            railPoint.mLandscapeWidth = railPoint.landscapePoint?.x
-                            railPoint.mLandscapeHeight = railPoint.landscapePoint?.y
-                        }
-                        val width = railPoint.mLandscapeWidth ?: 0
-                        val height = railPoint.mLandscapeHeight ?: 0
-                        handleRailItemLayout(
-                            holder,
-                            contentItem,
-                            position,
-                            width,
-                            height
-                        )
+                SINGLE_PROVIDER_BANNER_RAIL -> {
+                    if(holder is SingleProviderBannerRailViewHolder) {
+                        val contentAnalyticsModel = getContentAnalyticsModel()
+                        holder.bind(contentItem, pointNormal, contentAnalyticsModel)
                     }
                 }
                 PROVIDER_PORTRAIT -> {
-                    handleMixedPortrait(holder, contentItem, position)
+                    //   handleMixedPortrait(holder, contentItem, position)
+                    if (holder is RailItemProviderPortraitViewHolder) {
+                        val contentAnalyticsModel = getContentAnalyticsModel()
+                        holder.bind(contentItem, pointPortraitMixedThumbnail, contentAnalyticsModel)
+                    }
                 }
 
                 PROVIDER_LANDSCAPE -> {
@@ -688,65 +613,100 @@ class RailAdapter(
                 }
 
                 MID_SCROLL_RAIL -> {
-                    holder as MidscrollItemViewHolder
-                    val railPoint = RailPoint()
-                    if (railPoint.landscapePoint == null || railPoint.mLandscapeHeight == null || railPoint.mLandscapeWidth == null) {
-                        railPoint.landscapePoint =
-                            getMidscrollCardDimension(holder.binding.root.context!!)
-                        railPoint.mLandscapeWidth = railPoint.landscapePoint?.x
-                        railPoint.mLandscapeHeight = railPoint.landscapePoint?.y
+                    if (holder is MidscrollItemViewHolder) {
+                        val layoutParams = holder.binding.mcvRoot.layoutParams
+                        layoutParams.width = pointMidScrollCard?.x ?: 0
+                        layoutParams.height = pointMidScrollCard?.y ?: 0
+                        holder.binding.root.layoutParams = layoutParams
+
+                        var sectionType = if (sectionSource.equals(
+                                ItemViewType.MID_BANNER_GAMES.name,
+                                true
+                            )
+                        ) EventConstants.TYPE_MID_SCROLL_GAMES else EventConstants.TYPE_MID_SCROLL
+
+                        if (sectionSource.equals(EventConstants.TYPE_MID_SCROLL_BANNER, true)) {
+                            sectionType = EventConstants.TYPE_MID_SCROLL_BANNER
+                        }
+                        val contentAnalyticsModel = getContentAnalyticsModel()
+                        holder.binding.root.setOnClickListener {
+                            if (contentItem.refId.isNullOrEmpty())
+                                contentItem.refId = refId
+                            listener.onSubItemClick(
+                                contentItem,
+                                position,
+                                sectionPosition,
+                                sectionType,
+                                null,
+                                railTitle,
+                                sectionSource,
+                                contentAnalyticsModel = contentAnalyticsModel
+                            )
+                        }
+                        holder.bind(contentItem, sectionType)
+
                     }
-                    val width = railPoint.mLandscapeWidth ?: 0
-                    val height = railPoint.mLandscapeHeight ?: 0
-                    val layoutParams = ConstraintLayout.LayoutParams(width, height)
-                    layoutParams.setMargins(
-                        dpToPx(holder.binding.root.context, 4),//left
-                        dpToPx(holder.binding.root.context, 0),//top
-                        dpToPx(holder.binding.root.context, 4),//right
-                        dpToPx(holder.binding.root.context, 0)//bottom
-                    )
-                    holder.binding.root.layoutParams = layoutParams
-
-                    var sectionType = if (sectionSource.equals(
-                            ItemViewType.MID_BANNER_GAMES.name,
-                            true
-                        )
-                    ) EventConstants.TYPE_MID_SCROLL_GAMES else EventConstants.TYPE_MID_SCROLL
-
-                    if(sectionSource.equals(EventConstants.TYPE_MID_SCROLL_BANNER,true)){
-                        sectionType = EventConstants.TYPE_MID_SCROLL_BANNER
-                    }
-
-                    holder.binding.root.setOnClickListener {
-                        if(contentItem.refId.isNullOrEmpty())
-                            contentItem.refId = refId
-                        listener.onSubItemClick(
-                            contentItem,
-                            position,
-                            sectionPosition,
-                            sectionType,
-                            null,
-                            railTitle,
-                            sectionSource
-                        )
-                    }
-                    holder.bind(contentItem,sectionType)
-
-
                 }
             }
-        }
-        catch(e : Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
 
-    class GameSquareViewHolder(val binding: ItemGameSquareBinding) :
+    inner class GameSquareViewHolder(val binding: ItemGameSquareBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(model: ContentItem) {
-            binding.contentItem = model
-//            ViewCompat.setTransitionName(binding.img, model.id + "image")
+        fun bind(
+            contentItem: ContentItem,
+            position: Int,
+            pointGameSquare: Point?,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
+            binding.contentItem = contentItem
+
+            val layoutParam = binding.ivItemGameSqaure.layoutParams
+            layoutParam.width = pointGameSquare?.x ?: dpToPx(binding.root.context, 120)
+            layoutParam.height = pointGameSquare?.y ?: dpToPx(binding.root.context, 120)
+            binding.ivItemGameSqaure.layoutParams = layoutParam
+
+            val url = getCloudinaryUrl(
+                cloudinaryUrl,
+                pointGameSquare?.x ?: dpToPx(binding.root.context, 120),
+                pointGameSquare?.y ?: dpToPx(binding.root.context, 120),
+                contentItem.getImageItem()
+            )
+
+            imageLoad(binding.ivItemGameSqaure, url)
+
+            binding.root.setOnClickListener {
+                listener.onSubItemClick(
+                    contentItem,
+                    position,
+                    sectionPosition,
+                    EventConstants.TYPE_RAIL,
+                    null,
+                    railTitle,
+                    sectionSource,
+                    GamesMixpanelInfoModel(
+                        pageName = pageName,
+                        railTitle = railTitle,
+                        railPosition = "$sectionPosition",
+                        railType = contentItem.origin,
+                        railCategory = ItemViewType.RAIL.name,
+                        gameGenre = contentItem.getSubTitle(),
+                        gamePartner = contentItem.provider,
+                        gamePosition = "${position + 1}",
+                        gameRating = contentItem.gameRating,
+                        releaseYear = "",
+                        source = if (pageName.equals(
+                                PROVIDER_GAMEZOP,
+                                true
+                            )
+                        ) SOURCE_GAMES else pageName
+                    ),
+                    contentAnalyticsModel = contentAnalyticsModel
+                )
+            }
         }
     }
 
@@ -759,196 +719,52 @@ class RailAdapter(
         }
     }
 
-    class RotateItemViewHolder(val binding: LayoutRotateItemBinding) :
+    inner class RailItemProviderPortraitViewHolder(val binding: LayoutProviderPortraitRailItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(model: ContentItem) {
-            binding.contentItem = model
-        }
-    }
+        fun bind(
+            contentItem: ContentItem,
+            point: Point?,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
+            /*  contentItem.isPartnerSubscribed = sharedPrefs.getSubscribedPack() != null &&
+                      SubscriptionPackStatusEnum.ACTIVE.status.equals(sharedPrefs.getSubscribedPack()?.subscriptionStatus, true) &&
+                      (mNonSubscribedPartnerList?.contains(contentItem.provider.toLowerCase(Locale.getDefault())) == false)
+              binding.firstFreeEpisodeVerbiage = sharedPrefs.getConfigResponse()?.data?.config?.firstEpisodeFreeVerbiage*/
+            binding.contentItem = contentItem
 
-    class GenreItemViewHolder(val binding: LayoutGenreBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(model: ContentItem, cloudinaryUrl: String?, railPoint: RailPoint, pageName: String) {
-            binding.contentItem = model
-//            if(pageName.equals(SOURCE_KIDS,true))
-//                binding.tvContentTitle.hide()
-            val layoutParams =
-                LinearLayout.LayoutParams(railPoint.mCircularWidth!!, LinearLayout.LayoutParams.WRAP_CONTENT)
-            layoutParams.setMargins(0, 0, dpToPx(binding.root.context, 6), 0)
-            binding.rlParent.layoutParams = layoutParams
+            val layoutParam = binding.mcvTop.layoutParams
+            layoutParam.width = point?.x ?: binding.mcvTop.width
+            layoutParam.height = point?.y ?: binding.mcvTop.height
+            binding.mcvTop.layoutParams = layoutParam
 
-            binding.frame.layoutParams =
-                LinearLayout.LayoutParams(railPoint.mCircularWidth!!, railPoint.mCircularWidth!!)
             val url = getCloudinaryUrl(
                 cloudinaryUrl,
-                model.image
+                point?.x ?: binding.mcvTop.width, point?.y ?: binding.mcvTop.height,
+                contentItem.getImageItem()
             )
-            transparentImageLoad(binding.ivGenre, url)
-        }
-    }
-
-    class CategoryViewHolder(val binding: LayoutCategoryLandscapeBinding) : RecyclerView.ViewHolder(binding.root){
-        fun bind(
-            model: ContentItem,
-            cloudinaryUrl: String?,
-            railPoint : RailPoint,
-            pageName: String
-        ) {
-            binding.contentItem = model
-            val layoutParams =
-                LinearLayout.LayoutParams(railPoint.mLandscapeCategoryWidth!!, railPoint.mLandscapeCategoryHeight!!)
-            layoutParams.setMargins(0, 0, dpToPx(binding.root.context, 6), 0)
-            binding.cardView.layoutParams = layoutParams
-            binding.img.layoutParams =
-                ConstraintLayout.LayoutParams(railPoint.mLandscapeCategoryWidth!!, railPoint.mLandscapeCategoryHeight!!)
-             binding.rlImage.layoutParams = LinearLayout.LayoutParams(railPoint.mLandscapeCategoryWidth!!,
-                railPoint.mLandscapeCategoryHeight!!)
-
-
-            val url =
-                    getCloudinaryUrl(
-                        cloudinaryUrl,
-                        railPoint.mLandscapeCategoryWidth!!, railPoint.mLandscapeCategoryHeight!!,
-                        model.image
-                    )
             imageLoad(binding.img, url)
-        }
-    }
+            //    ViewCompat.setTransitionName(binding.img, model.id + "image")
 
-    class GenreLandViewHolder(val binding: LayoutGenreLandscapeBinding) : RecyclerView.ViewHolder(binding.root){
-        fun bind(
-            model: ContentItem,
-            cloudinaryUrl: String?,
-            railPoint: RailPoint,
-            pageName: String,
-            isGameGenre: Boolean
-        ) {
-            binding.contentItem = model
-            val layoutParams =
-                LinearLayout.LayoutParams(railPoint.mCircularWidth!!, railPoint.mCircularWidth!!)
-            layoutParams.setMargins(0, 0, dpToPx(binding.root.context, 6), 0)
-            binding.cardView.layoutParams = layoutParams
-            binding.img.layoutParams =
-                RelativeLayout.LayoutParams(railPoint.mCircularWidth!!, railPoint.mCircularWidth!!)
-            binding.imgOverlay.layoutParams =
-                RelativeLayout.LayoutParams(railPoint.mCircularWidth!!, railPoint.mCircularWidth!!)
-            binding.rlImage.layoutParams = LinearLayout.LayoutParams(railPoint.mCircularWidth!!,
-                railPoint.mCircularWidth!!)
-
-            val url =
-                if(isGameGenre)
-                    getCloudinaryUrl(
-                        cloudinaryUrl,
-                        model.image
-                    )
-                else
-                    getCloudinaryUrl(
-                        cloudinaryUrl,
-                        railPoint.mLandscapeGenreWidth!!, railPoint.mLandscapeGenreHeight!!,
-                        model.image
-                    )
-            e("GlideHelperGenre","url : $url"+"scale"+binding.img.scaleType)
-            imageLoad(binding.img, url)
-        }
-    }
-
-    class CharacterViewHolder(val binding: LayoutCharacterBinding) : RecyclerView.ViewHolder(binding.root){
-        fun bind(model: ContentItem, cloudinaryUrl: String?, railPoint: RailPoint, position: Int) {
-            binding.contentItem = model
-            val layoutParams =
-                LinearLayout.LayoutParams(railPoint.mCircularWidth!!, railPoint.mCircularWidth!!)
-            layoutParams.setMargins(0, 0, dpToPx(binding.root.context, 4), 0)
-            binding.llRoot.layoutParams = layoutParams
-            binding.imgCharacter.layoutParams =
-                LinearLayout.LayoutParams(railPoint.mCircularWidth!!, railPoint.mCircularWidth!!)
-            val drawableName = "character"+(position%5)
-            val drawableResourceId: Int = binding.root.context.resources
-                .getIdentifier(drawableName, "drawable", binding.root.context.packageName)
-            binding.imgCharacter.setImageResource(drawableResourceId)
-        }
-    }
-
-
-    inner class MidscrollItemViewHolder(val binding: LayoutMidscrollItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(contentItem: ContentItem, sectionType: String? = null) {
-            imageLoad(binding.ivMidScroll, contentItem.image)
-//            if (sectionType.equals(EventConstants.TYPE_MID_SCROLL_BANNER)) {
-//                binding.ivGradient.show()
-//                val gd = GradientDrawable(
-//                    GradientDrawable.Orientation.TOP_BOTTOM,
-//                    intArrayOf(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT, Color.BLACK)
-//                )
-//                gd.cornerRadius = 0f
-//                binding.ivGradient.setImageDrawable(gd)
-//            } else {
-//                binding.ivGradient.hide()
-//            }
-
-//            if (contentItem.screenName?.equals(MID_SCROLL_DETAIL_SCREEN, true) == true) {
-//                binding.tvContentTitle.show()
-//                binding.ivProvider.show()
-//                updateCircularProviderLogo(
-//                    binding.ivProvider,
-//                    contentItem.provider,
-//                    providerLogos,
-//                    R.drawable.ic_rail_placeholder,
-//                    null
-//                )
-//                binding.tvContentTitle.text = contentItem.title
-//                imageLoad(binding.ivMidScroll, contentItem.image)
-//            } else {
-//                binding.tvContentTitle.hide()
-//                binding.ivProvider.hide()
-//                imageLoad(binding.ivMidScroll, contentItem.image)
-//            }
-        }
-    }
-
-    inner class RailItemTrailerViewHolder(val binding: LayoutRailItemTrailerBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(contentItem: ContentItem, position: Int) {
-            if (railPoint.landscapePoint == null || railPoint.mLandscapeHeight == null || railPoint.mLandscapeWidth == null) {
-                railPoint.landscapePoint =
-                    getNormalThumbnailDimension(binding.root.context!!)
-                railPoint.mLandscapeWidth = railPoint.landscapePoint?.x
-                railPoint.mLandscapeHeight = railPoint.landscapePoint?.y
+            if ((partnerName?.length ?: 0) > 1) {
+                binding.commonDetail.root.hide()
+            } else {
+                binding.commonDetail.root.show()
+//                holder.binding.commonDetail.ivBrand.show()
             }
-            val layoutParams =
-                ConstraintLayout.LayoutParams(
-                    railPoint.mLandscapeWidth!! + 30,
-                    railPoint.mLandscapeHeight!! + dpToPx(binding.root.context, 35)
-                )
-            layoutParams.setMargins(0, 0, 0, dpToPx(binding.root.context, 2))
-            binding.clItemTrailer.layoutParams = layoutParams
-            binding.cvTrailer.layoutParams = ConstraintLayout.LayoutParams(
-                railPoint.mLandscapeWidth!! + 30,
-                railPoint.mLandscapeHeight!!
+
+            updateProviderImage(
+                binding.commonDetail.ivBrand,
+                contentItem.provider,
+                providerLogos,
+                R.drawable.ic_rail_placeholder
             )
-
-            binding.tvTrailerName.text = contentItem.title
-            showTrailerImage(contentItem)
-
-
-            mTrailerView = binding.itemTrailer
-            mTrailerView?.setTrailerUrl(contentItem.trailerUrl!!)
-            d("TrailerView"," Url is ==>"+contentItem.trailerUrl)
-            mTrailerView?.setTrailerStartLambda {
-                binding.imgTrailer.visibility = View.GONE
-                binding.itemTrailer.visibility = View.VISIBLE
-            }
-            mTrailerView?.setTrailerFinishLambda {
-                d("TrailerView","inside finish")
-                showTrailerImage(contentItem)
-            }
-
-            if(!TextUtils.isEmpty(contentItem.trailerUrl))
-                trailerExchanger?.invoke(mTrailerView, true, viewPortPosition)
-
 
             binding.root.setOnClickListener {
-                contentItem.railCategory = sectionSource
-                if(contentItem.refId.isNullOrEmpty())
+                if (sectionSource == ItemViewType.PROVIDER_BROWSE_APPS.name
+                    || sectionSource == ItemViewType.SHUFFLE_RAIL.name
+                )
+                    contentItem.railCategory = sectionSource
+                if (contentItem.refId.isEmpty())
                     contentItem.refId = refId
                 listener.onSubItemClick(
                     contentItem,
@@ -957,31 +773,12 @@ class RailAdapter(
                     EventConstants.TYPE_RAIL,
                     null,
                     railTitle,
-                    sectionSource
+                    sectionSource,
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             }
-
-
-        }
-
-        private fun showTrailerImage(contentItem: ContentItem) {
-            binding.imgTrailer.apply {
-                visibility = View.VISIBLE
-                setImageDrawable(this.context.resources.getDrawable(R.drawable.shp_placeholder))
-            }
-
-
-            binding.itemTrailer.visibility = View.GONE
-            val url = getCloudinaryUrl(
-                cloudinaryUrl,
-                railPoint.mLandscapeWidth!! + 30,
-                railPoint.mLandscapeHeight!!,
-                contentItem.getImageItem()
-            )
-            imageLoad(binding.imgTrailer, url)
         }
     }
-
 
     private fun handleMixedPortrait(
         holder: RecyclerView.ViewHolder,
@@ -989,10 +786,17 @@ class RailAdapter(
         position: Int
     ) {
         if (holder is RailItemViewHolder) {
+            val contentAnalyticsModel = getContentAnalyticsModel()
             contentItem.isPartnerSubscribed = sharedPrefs.getSubscribedPack() != null &&
-                    SubscriptionPackStatusEnum.ACTIVE.status.equals(sharedPrefs.getSubscribedPack()?.subscriptionStatus, true) &&
-                    (mNonSubscribedPartnerList?.contains(contentItem.provider.toLowerCase()) == false)
-            holder.bind(contentItem, sharedPrefs.getConfigResponse()?.data?.config?.firstEpisodeFreeVerbiage)
+                    SubscriptionPackStatusEnum.ACTIVE.status.equals(
+                        sharedPrefs.getSubscribedPack()?.subscriptionStatus,
+                        true
+                    ) &&
+                    (mNonSubscribedPartnerList?.contains(contentItem.provider.lowercase(Locale.getDefault())) == false)
+            holder.bind(
+                contentItem,
+                sharedPrefs.getConfigResponse()?.data?.config?.firstEpisodeFreeVerbiage
+            )
             if (railPoint.portraitMixedPoint == null) {
                 railPoint.portraitMixedPoint =
                     getPortraitMixedThumbnailDimension(holder.binding.root.context!!)
@@ -1046,8 +850,8 @@ class RailAdapter(
                 lp2.addRule(RelativeLayout.ALIGN_PARENT_END)
                 holder.binding.commonDetail.ivCrownSmall.layoutParams = lp2
             }
-            else*/ if (layoutType == ItemLayoutType.MIXED_WITH_PROVIDER_DATA.name){
-                if(holder.binding.commonDetail.ivBrand.visibility == VISIBLE) {
+            else*/ if (layoutType == ItemLayoutType.MIXED_WITH_PROVIDER_DATA.name) {
+                if (holder.binding.commonDetail.ivBrand.visibility == VISIBLE) {
                     val lp = RelativeLayout.LayoutParams(
                         RelativeLayout.LayoutParams.WRAP_CONTENT,
                         dpToPx(holder.binding.root.context, 14)
@@ -1057,7 +861,7 @@ class RailAdapter(
                     holder.binding.commonDetail.ivBrand.layoutParams = lp
                 }
             }
-            if(holder.binding.commonDetail.ivBrand.visibility == VISIBLE) {
+            if (holder.binding.commonDetail.ivBrand.visibility == VISIBLE) {
                 val lp = RelativeLayout.LayoutParams(
                     dpToPx(holder.binding.root.context, 54),
                     dpToPx(holder.binding.root.context, 14)
@@ -1073,22 +877,742 @@ class RailAdapter(
                 R.drawable.ic_rail_placeholder
             )
             holder.binding.root.setOnClickListener {
-                if(sectionSource == ItemViewType.PROVIDER_BROWSE_APPS.name
-                    ||sectionSource == ItemViewType.SHUFFLE_RAIL.name)
+                if (sectionSource == ItemViewType.PROVIDER_BROWSE_APPS.name
+                    || sectionSource == ItemViewType.SHUFFLE_RAIL.name
+                )
                     contentItem.railCategory = sectionSource
-                if(contentItem.refId.isNullOrEmpty())
+                if (contentItem.refId.isEmpty())
                     contentItem.refId = refId
                 listener.onSubItemClick(
                     contentItem,
                     position,
                     sectionPosition,
                     EventConstants.TYPE_RAIL,
-                    null, railTitle,
-                    sectionSource
+                    null,
+                    railTitle,
+                    sectionSource,
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             }
         }
     }
+
+    inner class RailItemPortraitViewHolder(val binding: LayoutPortraitRailItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(
+            contentItem: ContentItem,
+            point: Point?,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
+            /*  contentItem.isPartnerSubscribed = sharedPrefs.getSubscribedPack() != null &&
+                      SubscriptionPackStatusEnum.ACTIVE.status.equals(sharedPrefs.getSubscribedPack()?.subscriptionStatus, true) &&
+                      (mNonSubscribedPartnerList?.contains(contentItem.provider.toLowerCase(Locale.getDefault())) == false)
+              binding.firstFreeEpisodeVerbiage = sharedPrefs.getConfigResponse()?.data?.config?.firstEpisodeFreeVerbiage*/
+            binding.contentItem = contentItem
+
+            val layoutParam = binding.mcvTop.layoutParams
+            layoutParam.width = point?.x ?: binding.mcvTop.width
+            layoutParam.height = point?.y ?: binding.mcvTop.height
+            binding.mcvTop.layoutParams = layoutParam
+
+            val url = getCloudinaryUrl(
+                cloudinaryUrl,
+                point?.x ?: binding.mcvTop.width, point?.y ?: binding.mcvTop.height,
+                contentItem.getImageItem()
+            )
+            imageLoad(binding.img, url)
+            //    ViewCompat.setTransitionName(binding.img, model.id + "image")
+
+            if ((partnerName?.length ?: 0) > 1) {
+                binding.commonDetail.root.hide()
+            } else {
+                binding.commonDetail.root.show()
+//                holder.binding.commonDetail.ivBrand.show()
+            }
+
+            updateProviderImage(
+                binding.commonDetail.ivBrand,
+                contentItem.provider,
+                providerLogos,
+                R.drawable.ic_rail_placeholder
+            )
+
+            binding.root.setOnClickListener {
+                if (contentItem.refId.isEmpty())
+                    contentItem.refId = refId
+                listener.onSubItemClick(
+                    contentItem,
+                    position,
+                    sectionPosition,
+                    EventConstants.TYPE_RAIL,
+                    null, // TODO
+                    railTitle,
+                    sectionSource,
+                    GamesMixpanelInfoModel(
+                        pageName = pageName,
+                        railTitle = railTitle,
+                        railPosition = "$sectionPosition",
+                        railType = contentItem.origin,
+                        railCategory = ItemViewType.RAIL.name,
+                        gameGenre = contentItem.getSubTitle(),
+                        gamePartner = contentItem.provider,
+                        gamePosition = "${position + 1}",
+                        gameRating = contentItem.gameRating,
+                        releaseYear = "",
+                        source = if (pageName.equals(
+                                PROVIDER_GAMEZOP,
+                                true
+                            )
+                        ) SOURCE_GAMES else pageName
+                    ),
+                    contentAnalyticsModel = contentAnalyticsModel
+                )
+            }
+
+        }
+    }
+
+    inner class SingleProviderBannerRailViewHolder(val binding: LayoutRailItemTempBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(
+            contentItem: ContentItem,
+            point: Point?,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
+
+            if (contentItem.provider.equals(PROVIDER_GAMEZOP, true)) {
+                binding.tvTitle.setCompoundDrawablesWithIntrinsicBounds(
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            }
+            else {
+                binding.tvTitle.setCompoundDrawablesWithIntrinsicBounds(
+                    ContextCompat.getDrawable(
+                        binding.tvTitle.context,
+                        R.drawable.ic_play_title_rail
+                    ), null, null, null
+                )
+            }
+
+            binding.isSports = true
+            binding.contentItem = contentItem
+            binding.commonDetail.root.hide()
+
+            val layoutParam = binding.mcvTop.layoutParams
+            layoutParam.width = point?.x ?: binding.mcvTop.width
+            layoutParam.height = point?.y ?: binding.mcvTop.height
+            binding.mcvTop.layoutParams = layoutParam
+
+            updateProviderImage(
+                binding.commonDetail.ivBrand,
+                contentItem.provider,
+                providerLogos,
+                R.drawable.ic_rail_placeholder
+            )
+
+            val url = getCloudinaryUrl(
+                cloudinaryUrl,
+                point?.x ?: binding.mcvTop.width, point?.y ?: binding.mcvTop.height,
+                contentItem.getImageItem()
+            )
+            imageLoad(binding.img, url)
+
+            binding.root.setOnClickListener {
+                if (contentItem.refId.isEmpty())
+                    contentItem.refId = refId
+                listener.onSubItemClick(
+                    contentItem,
+                    position,
+                    sectionPosition,
+                    EventConstants.TYPE_RAIL,
+                    null, // TODO
+                    railTitle,
+                    sectionSource,
+                    GamesMixpanelInfoModel(
+                        pageName = pageName,
+                        railTitle = railTitle,
+                        railPosition = "$sectionPosition",
+                        railType = contentItem.origin,
+                        railCategory = ItemViewType.RAIL.name,
+                        gameGenre = contentItem.getSubTitle(),
+                        gamePartner = contentItem.provider,
+                        gamePosition = "${position + 1}",
+                        gameRating = contentItem.gameRating,
+                        releaseYear = "",
+                        source = if (pageName.equals(
+                                PROVIDER_GAMEZOP,
+                                true
+                            )
+                        ) SOURCE_GAMES else pageName
+                    ),
+                    contentAnalyticsModel = contentAnalyticsModel
+                )
+            }
+        }
+    }
+
+    inner class RailItemTempViewHolder(val binding: LayoutRailItemTempBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(
+            contentItem: ContentItem,
+            point: Point?,
+            railItemsModel: RailItemsModel?,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
+            /*  contentItem.isPartnerSubscribed = sharedPrefs.getSubscribedPack() != null &&
+                      SubscriptionPackStatusEnum.ACTIVE.status.equals(sharedPrefs.getSubscribedPack()?.subscriptionStatus, true) &&
+                      (mNonSubscribedPartnerList?.contains(contentItem.provider.toLowerCase(Locale.getDefault())) == false)
+              binding.firstFreeEpisodeVerbiage = sharedPrefs.getConfigResponse()?.data?.config?.firstEpisodeFreeVerbiage*/
+            binding.contentItem = contentItem
+
+            val layoutParam = binding.mcvTop.layoutParams
+            layoutParam.width = point?.x ?: binding.mcvTop.width
+            layoutParam.height = point?.y ?: binding.mcvTop.height
+            binding.mcvTop.layoutParams = layoutParam
+
+            val url = getCloudinaryUrl(
+                cloudinaryUrl,
+                point?.x ?: binding.mcvTop.width, point?.y ?: binding.mcvTop.height,
+                contentItem.getImageItem()
+            )
+            imageLoad(binding.img, url)
+            /*Need to hide partner logo only for tataplay content*/
+            binding.commonDetail.ivBrand.show()
+            if(contentItem.getRental() != null ){
+                binding.commonDetail.ivBrand.hide()
+            }
+            else if(PROVIDER_TATA_SKY.equals(contentItem.provider, true)){
+                binding.commonDetail.ivBrand.hide()
+            }
+            else if (ItemLayoutType.TITLE_RAIL.name == layoutType) {
+                binding.isSports = true
+                if (ItemViewType.BACKGROUND_BANNER_RAIL.name == sectionSource) {
+                    if (contentItem.provider.equals(PROVIDER_GAMEZOP, true)) {
+                        binding.tvTitle.setCompoundDrawablesWithIntrinsicBounds(
+                            null,
+                            null,
+                            null,
+                            null
+                        )
+                    }
+                    else {
+                        binding.tvTitle.setCompoundDrawablesWithIntrinsicBounds(
+                            ContextCompat.getDrawable(
+                                binding.tvTitle.context,
+                                R.drawable.ic_play_title_rail
+                            ), null, null, null
+                        )
+                    }
+                    e("RailAdpater","showPartnerLogo railTitle: $railTitle partnerName: $partnerName" +
+                            "contentItem.provider : ${contentItem.provider}")
+                }
+            }
+            else {
+                binding.isSports = false
+                binding.commonDetail.root.show()
+            }
+            updateProviderImage(
+                binding.commonDetail.ivBrand,
+                contentItem.provider,
+                providerLogos,
+                R.drawable.ic_rail_placeholder
+            )
+            binding.root.setOnClickListener {
+                if (contentItem.refId.isEmpty())
+                    contentItem.refId = refId
+                listener.onSubItemClick(
+                    contentItem,
+                    position,
+                    sectionPosition,
+                    EventConstants.TYPE_RAIL,
+                    null, // TODO
+                    railTitle,
+                    sectionSource,
+                    GamesMixpanelInfoModel(
+                        pageName = pageName,
+                        railTitle = railTitle,
+                        railPosition = "$sectionPosition",
+                        railType = contentItem.origin,
+                        railCategory = ItemViewType.RAIL.name,
+                        gameGenre = contentItem.getSubTitle(),
+                        gamePartner = contentItem.provider,
+                        gamePosition = "${position + 1}",
+                        gameRating = contentItem.gameRating,
+                        releaseYear = "",
+                        source = if (pageName.equals(
+                                PROVIDER_GAMEZOP,
+                                true
+                            )
+                        ) SOURCE_GAMES else pageName
+                    ),
+                    railItemsModel = railItemsModel,
+                    contentAnalyticsModel = contentAnalyticsModel
+                )
+            }
+
+
+        }
+    }
+
+    inner class RailItemTop10PortraitViewHolder(val binding: LayoutRailTopTenPortraitItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(
+            contentItem: ContentItem,
+            point: Point?,
+            position: Int,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
+            binding.contentItem = contentItem
+
+            val layoutParam = binding.mcvTop.layoutParams
+            layoutParam.width = point?.x ?: binding.mcvTop.width
+            layoutParam.height = point?.y ?: binding.mcvTop.height
+            binding.mcvTop.layoutParams = layoutParam
+
+            val url = getCloudinaryUrl(
+                cloudinaryUrl,
+                point?.y ?: binding.mcvTop.width, point?.x ?: binding.mcvTop.height,
+                contentItem.getImageItem()
+            )
+            imageLoad(binding.img, url)
+
+            val drawableName = "ic_top_" + ((position % 10) + 1)
+            val drawableResourceId: Int = binding.root.context.resources
+                .getIdentifier(drawableName, "drawable", binding.root.context.packageName)
+            binding.tvTrendingNumber.setImageResource(drawableResourceId)
+            binding.tvTrendingNumber.show()
+            binding.imgOverlay.show()
+            binding.contentItem?.isTop10 = true
+
+            updateProviderImage(
+                binding.commonDetail.ivBrand,
+                contentItem.provider,
+                providerLogos,
+                R.drawable.ic_rail_placeholder
+            )
+
+            binding.root.setOnClickListener {
+                if (contentItem.refId.isEmpty())
+                    contentItem.refId = refId
+                listener.onSubItemClick(
+                    contentItem,
+                    position,
+                    sectionPosition,
+                    EventConstants.TYPE_RAIL,
+                    null, // TODO
+                    railTitle,
+                    sectionSource,
+                    GamesMixpanelInfoModel(
+                        pageName = pageName,
+                        railTitle = railTitle,
+                        railPosition = "$sectionPosition",
+                        railType = contentItem.origin,
+                        railCategory = ItemViewType.RAIL.name,
+                        gameGenre = contentItem.getSubTitle(),
+                        gamePartner = contentItem.provider,
+                        gamePosition = "${position + 1}",
+                        gameRating = contentItem.gameRating,
+                        releaseYear = "",
+                        source = if (pageName.equals(
+                                PROVIDER_GAMEZOP,
+                                true
+                            )
+                        ) SOURCE_GAMES else pageName
+                    ),
+                    contentAnalyticsModel = contentAnalyticsModel
+                )
+            }
+
+
+        }
+    }
+
+    inner class RotateItemViewHolder(val binding: LayoutRotateItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(contentItem: ContentItem) {
+            binding.contentItem = contentItem
+        }
+    }
+
+    inner class GenreItemViewHolder(val binding: LayoutGenreBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(contentItem: ContentItem, point: Point?) {
+            binding.contentItem = contentItem
+
+            val layoutParams = binding.frame.layoutParams
+            layoutParams.width = point?.x ?: binding.frame.width
+            layoutParams.height = point?.x ?: binding.frame.height
+            binding.frame.layoutParams = layoutParams
+
+            val url = getCloudinaryUrl(
+                cloudinaryUrl,
+                point?.x ?: binding.frame.width,
+                point?.x ?: binding.frame.height,
+                contentItem.image
+            )
+            transparentImageLoad(binding.ivGenre, url)
+        }
+    }
+
+    inner class LanguageItemViewHolder(val binding: LayoutLanguageRailItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(contentItem: ContentItem, point: Point?) {
+            binding.contentItem = contentItem
+
+            val layoutParams = binding.frame.layoutParams
+            layoutParams.width = point?.x ?: binding.frame.width
+            layoutParams.height = point?.x ?: binding.frame.height
+            binding.frame.layoutParams = layoutParams
+
+            val url = getCloudinaryUrl(
+                cloudinaryUrl,
+                point?.x ?: binding.frame.width,
+                point?.x ?: binding.frame.height,
+                contentItem.image
+            )
+            transparentImageLoad(binding.ivGenre, url)
+        }
+    }
+
+    inner class ChannelItemViewHolder(val binding: LayoutChannelRailItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(
+            contentItem: ContentItem,
+            point: Point?,
+            railItemsModel: RailItemsModel?,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
+            binding.contentItem = contentItem
+
+//            val layoutParams = binding.frame.layoutParams
+//            layoutParams.width = point?.x ?: binding.frame.width
+//            layoutParams.height = point?.x ?: binding.frame.height
+//            binding.frame.layoutParams = layoutParams
+            val w = dpToPx(binding.cardView.context,92)
+            val h = dpToPx(binding.cardView.context,84)
+            val url = getCloudinaryUrl(
+                cloudinaryUrl,
+                w,
+                h,
+                contentItem.image
+            )
+            imageLoad(binding.img, url)
+
+            binding.root.setOnClickListener {
+                contentItem.railCategory = sectionSource
+                if (contentItem.refId.isNullOrEmpty())
+                    contentItem.refId = refId
+                listener.onSubItemClick(
+                    contentItem,
+                    bindingAdapterPosition,
+                    sectionPosition,
+                    ItemViewType.BINGE_CHANNEL.name,
+                    null,
+                    railTitle,
+                    sectionSource,
+                    railItemsModel = railItemsModel,
+                    contentAnalyticsModel = contentAnalyticsModel
+                )
+            }
+        }
+    }
+    inner class CategoryViewHolder(val binding: LayoutCategoryLandscapeBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(
+            contentItem: ContentItem,
+            point: Point?,
+            position: Int,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
+            binding.contentItem = contentItem
+
+            val layoutParams = binding.cardView.layoutParams
+            layoutParams.width = point?.x ?: binding.cardView.width
+            layoutParams.height = point?.y ?: binding.cardView.height
+            binding.cardView.layoutParams = layoutParams
+
+            val url =
+                getCloudinaryUrl(
+                    cloudinaryUrl,
+                    point?.x ?: binding.cardView.width, point?.y ?: binding.cardView.height,
+                    contentItem.image
+                )
+            imageLoad(binding.img, url)
+
+            binding.root.setOnClickListener {
+                if (contentItem.refId.isNullOrEmpty())
+                    contentItem.refId = refId
+                listener.onSubItemClick(
+                    contentItem,
+                    position,
+                    sectionPosition,
+                    ItemViewType.CATEGORY.name,
+                    null,
+                    railTitle,
+                    sectionSource,
+                    contentAnalyticsModel = contentAnalyticsModel
+                )
+            }
+        }
+    }
+    inner class GenreLandViewHolder(val binding: LayoutGenreLandscapeBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(
+            contentItem: ContentItem,
+            point: Point?,
+            position: Int,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
+            binding.contentItem = contentItem
+            val url = getCloudinaryUrlByWidthOrHeight(
+                cloudinaryUrl,
+                contentItem.newImage,
+                height = 46
+            )
+            transparentImageLoad(binding.img, url)
+            binding.root.setOnClickListener {
+                if (contentItem.refId.isNullOrEmpty())
+                    contentItem.refId = refId
+                listener.onSubItemClick(
+                    contentItem,
+                    position,
+                    sectionPosition,
+                    ItemViewType.GENRE.name,
+                    null,
+                    railTitle,
+                    sectionSource,
+                    contentAnalyticsModel = contentAnalyticsModel
+                )
+            }
+        }
+    }
+
+    inner class GenreGameViewHolder(val binding: LayoutGenreGamesBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(
+            contentItem: ContentItem,
+            point: Point?,
+            position: Int,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
+            binding.contentItem = contentItem
+            val layoutParams = binding.cardView.layoutParams
+            layoutParams.width = point?.x ?: 0
+            layoutParams.height = point?.y ?: 0
+            binding.cardView.layoutParams = layoutParams
+            val url =
+                getCloudinaryUrl(
+                    cloudinaryUrl,
+                    contentItem.image
+                )
+            imageLoad(binding.img, url)
+
+            binding.root.setOnClickListener {
+                if (contentItem.refId.isEmpty())
+                    contentItem.refId = refId
+                listener.onSubItemClick(
+                    contentItem,
+                    position,
+                    sectionPosition,
+                    ItemViewType.GENRE_RAIL_FOR_GAMES.name,
+                    null,
+                    railTitle,
+                    sectionSource,
+                    contentAnalyticsModel = contentAnalyticsModel
+                )
+            }
+        }
+    }
+
+    inner class CharacterViewHolder(val binding: LayoutCharacterBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(
+            contentItem: ContentItem,
+            point: Point?,
+            position: Int,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
+            binding.contentItem = contentItem
+
+            val layoutParams = binding.llRoot.layoutParams
+            layoutParams.width = point?.x ?: 0
+            layoutParams.height = point?.y ?: 0
+            binding.llRoot.layoutParams = layoutParams
+
+            val drawableName = "character" + (position % 5)
+            val drawableResourceId: Int = binding.root.context.resources
+                .getIdentifier(drawableName, "drawable", binding.root.context.packageName)
+            binding.imgCharacter.setImageResource(drawableResourceId)
+
+            binding.root.setOnClickListener {
+                listener.onSubItemClick(
+                    contentItem,
+                    position,
+                    sectionPosition,
+                    ItemViewType.CHARACTER.name,
+                    null,
+                    railTitle,
+                    sectionSource,
+                    contentAnalyticsModel = contentAnalyticsModel
+                )
+            }
+        }
+    }
+
+
+    inner class MidscrollItemViewHolder(val binding: LayoutMidscrollItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(contentItem: ContentItem, sectionType: String? = null) {
+            imageLoad(binding.ivMidScroll, contentItem.image)
+//            if (sectionType.equals(EventConstants.TYPE_MID_SCROLL_BANNER)) {
+//                binding.ivGradient.show()
+//                val gd = GradientDrawable(
+//                    GradientDrawable.Orientation.TOP_BOTTOM,
+//                    intArrayOf(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT, Color.BLACK)
+//                )
+//                gd.cornerRadius = 0f
+//                binding.ivGradient.setImageDrawable(gd)
+//            } else {
+//                binding.ivGradient.hide()
+//            }
+
+//            if (contentItem.screenName?.equals(MID_SCROLL_DETAIL_SCREEN, true) == true) {
+//                binding.tvContentTitle.show()
+//                binding.ivProvider.show()
+//                updateCircularProviderLogo(
+//                    binding.ivProvider,
+//                    contentItem.provider,
+//                    providerLogos,
+//                    R.drawable.ic_rail_placeholder,
+//                    null
+//                )
+//                binding.tvContentTitle.text = contentItem.title
+//                imageLoad(binding.ivMidScroll, contentItem.image)
+//            } else {
+//                binding.tvContentTitle.hide()
+//                binding.ivProvider.hide()
+//                imageLoad(binding.ivMidScroll, contentItem.image)
+//            }
+        }
+    }
+
+    inner class RailItemTrailerViewHolder(val binding: LayoutRailItemTrailerBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(
+            contentItem: ContentItem,
+            position: Int,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
+            if (railPoint.landscapePoint == null || railPoint.mLandscapeHeight == null || railPoint.mLandscapeWidth == null) {
+                railPoint.landscapePoint =
+                    getNormalThumbnailDimension(binding.root.context!!)
+                railPoint.mLandscapeWidth = railPoint.landscapePoint?.x
+                railPoint.mLandscapeHeight = railPoint.landscapePoint?.y
+            }
+            var layoutParams =
+                ConstraintLayout.LayoutParams(
+                    railPoint.mLandscapeWidth!! + 20,
+                    railPoint.mLandscapeHeight!! + dpToPx(binding.root.context, 35)
+                )
+            var clTrailerLayoutParams= ConstraintLayout.LayoutParams(
+                railPoint.mLandscapeWidth!! + 20,
+                railPoint.mLandscapeHeight!!
+            )
+            layoutParams.setMargins(0, 0, 0, dpToPx(binding.root.context, 2))
+
+            if(isTablet(binding.root.context) && !isLandTablet(binding.root.context)){
+                layoutParams =
+                    ConstraintLayout.LayoutParams(
+                        railPoint.mLandscapeWidth!! + 50,
+                        railPoint.mLandscapeHeight!! + dpToPx(binding.root.context, 30)
+                    )
+
+                clTrailerLayoutParams= ConstraintLayout.LayoutParams(
+                    railPoint.mLandscapeWidth!! + 50,
+                    railPoint.mLandscapeHeight!! + dpToPx(binding.root.context, 30)
+                )
+                layoutParams.setMargins(0, 0, 10, dpToPx(binding.root.context, 2))
+                clTrailerLayoutParams.setMargins(0, 0, 10, dpToPx(binding.root.context, 2))
+            }
+            if(isLandTablet(binding.root.context)){
+                layoutParams =
+                    ConstraintLayout.LayoutParams(
+                        ConstraintLayout.LayoutParams.MATCH_PARENT,
+                        railPoint.mLandscapeHeight!! + dpToPx(binding.root.context, ADD_HEIGHT_LANDSCAPE)
+                    )
+
+                clTrailerLayoutParams= ConstraintLayout.LayoutParams(
+                    ConstraintLayout.LayoutParams.MATCH_PARENT,
+                    railPoint.mLandscapeHeight!! + dpToPx(binding.root.context, ADD_HEIGHT_LANDSCAPE)
+                )
+                layoutParams.setMargins(0, 0, 10, dpToPx(binding.root.context, 2))
+                clTrailerLayoutParams.setMargins(0, 0, 10, dpToPx(binding.root.context, 2))
+            }
+
+            binding.clItemTrailer.layoutParams = layoutParams
+            binding.cvTrailer.layoutParams = clTrailerLayoutParams
+            binding.tvTrailerName.text = contentItem.title
+            showTrailerImage(contentItem)
+
+
+            mTrailerView = binding.itemTrailer
+            /*Need to add this for QoE Probe Mitigation*/
+            mTrailerView?.setPlayerModel(contentItem.id,contentItem.contentType, contentItem.provider, contentItem.title, sharedPrefs.getOriginalSubscriberId())
+            /*End*/
+            mTrailerView?.setTrailerUrl(contentItem.trailerUrl!!)
+            d("TrailerView", " Url is ==>" + contentItem.trailerUrl)
+            mTrailerView?.setTrailerStartLambda {
+                binding.imgTrailer.visibility = View.GONE
+                binding.itemTrailer.visibility = View.VISIBLE
+            }
+            mTrailerView?.setTrailerFinishLambda {
+                d("TrailerView", "inside finish")
+                showTrailerImage(contentItem)
+            }
+
+            if (!TextUtils.isEmpty(contentItem.trailerUrl))
+                trailerExchanger?.invoke(mTrailerView, true, viewPortPosition)
+
+
+            binding.root.setOnClickListener {
+                contentItem.railCategory = sectionSource
+                if (contentItem.refId.isEmpty())
+                    contentItem.refId = refId
+                listener.onSubItemClick(
+                    contentItem,
+                    position,
+                    sectionPosition,
+                    EventConstants.TYPE_RAIL,
+                    null,
+                    railTitle,
+                    sectionSource,
+                    contentAnalyticsModel = contentAnalyticsModel
+                )
+            }
+        }
+
+        private fun showTrailerImage(contentItem: ContentItem) {
+            binding.imgTrailer.apply {
+                visibility = View.VISIBLE
+                setImageDrawable(this.context.resources.getDrawable(R.drawable.shp_placeholder))
+            }
+
+
+            binding.itemTrailer.visibility = View.GONE
+            val url = getCloudinaryUrl(
+                cloudinaryUrl,
+                railPoint.mLandscapeWidth!! + 30,
+                railPoint.mLandscapeHeight!!,
+                contentItem.getImageItem()
+            )
+            imageLoad(binding.imgTrailer, url)
+        }
+    }
+
 
     private fun handleMixedLandscape(
         holder: RecyclerView.ViewHolder,
@@ -1096,7 +1620,8 @@ class RailAdapter(
         position: Int
     ) {
         if (holder is RailItemTrailerViewHolder) {
-            holder.bind(contentItem,position)
+            val contentAnalyticsModel = getContentAnalyticsModel()
+            holder.bind(contentItem, position, contentAnalyticsModel)
         }
     }
 
@@ -1112,147 +1637,26 @@ class RailAdapter(
             length = partnerData.filteredContentItems.size
         }
         list = partnerData.filteredContentItems
+        list.forEach {contentItem->
+            crownCalculation(contentItem)
+        }
         notifyDataSetChanged()
-        for(content in list){
-            if(!TextUtils.isEmpty(content.trailerUrl))
-            {
+        for (content in list) {
+            if (!TextUtils.isEmpty(content.trailerUrl)) {
                 mTrailerView?.playUrl()
                 break
 
             }
         }
     }
-
-
-    private fun handleRailItemLayout(
-        holder: RailItemViewHolder, contentItem: ContentItem,
-        position: Int, width: Int, height: Int
-    ){
-        contentItem.isPartnerSubscribed = sharedPrefs.getSubscribedPack() != null &&
-                SubscriptionPackStatusEnum.ACTIVE.status.equals(sharedPrefs.getSubscribedPack()?.subscriptionStatus, true) &&
-                (mNonSubscribedPartnerList?.contains(contentItem.provider.toLowerCase()) == false)
-        holder.bind(contentItem, sharedPrefs.getConfigResponse()?.data?.config?.firstEpisodeFreeVerbiage)
-        val layoutParams =
-            RelativeLayout.LayoutParams(width, ViewGroup.LayoutParams.WRAP_CONTENT)
-        layoutParams.setMargins(0, 0, dpToPx(holder.binding.root.context, 8), 0)
-        holder.binding.cardView.layoutParams = layoutParams
-        FrameLayout.LayoutParams(width, height).also { holder.binding.img.layoutParams = it }
-        holder.binding.imgCard.layoutParams = ConstraintLayout.LayoutParams(width, height)
-        holder.binding.rlImage.layoutParams = RelativeLayout.LayoutParams(width, height)
-
-        holder.binding.imgOverlay.layoutParams =
-            FrameLayout.LayoutParams(
-                width,
-                height
-            )
-        val param = RelativeLayout.LayoutParams(
-            width,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        param.addRule(RelativeLayout.BELOW, holder.binding.rlImage.id)
-        if(ItemLayoutType.TOP_PORTRAIT.name == layoutType){
-            param.setMargins(0, 0, 0, dpToPx(holder.binding.root.context, 8))
-        }
-        holder.binding.commonDetail.root.layoutParams = param
-
-        if(ItemLayoutType.TITLE_RAIL.name == layoutType) {
-            holder.binding.rlSportsOverlay.layoutParams =
-                FrameLayout.LayoutParams(width, height)
-            holder.binding.rlSportsOverlay.show()
-            if(ItemViewType.BACKGROUND_BANNER_RAIL.name == sectionSource) {
-                if (contentItem.provider.equals(PROVIDER_GAMEZOP, true)) {
-                    holder.binding.tvTitle.setCompoundDrawablesWithIntrinsicBounds(
-                        null,
-                        null,
-                        null,
-                        null
-                    )
-                } else {
-                    holder.binding.tvTitle.setCompoundDrawablesWithIntrinsicBounds(
-                        ContextCompat.getDrawable(
-                            holder.binding.tvTitle.context,
-                            R.drawable.ic_play_title_rail
-                        ), null, null, null
-                    )
-                }
-                holder.binding.commonDetail.root.hide()
-            }
-            else
-                holder.binding.commonDetail.root.show()
-        }
-        holder.binding.commonDetail.ivBrand.show()
-        if(contentItem.getRental() != null ){
-            holder.binding.commonDetail.ivBrand.hide()
-        }
-        else if(PROVIDER_TATA_SKY.equals(contentItem.provider, true)){
-            holder.binding.commonDetail.ivBrand.hide()
-        }
-        else if(ItemLayoutType.TOP_PORTRAIT.name == layoutType){
-            val drawableName = "ic_top_"+((position%10)+1)
-            val drawableResourceId: Int = holder.binding.root.context.resources
-                .getIdentifier(drawableName, "drawable", holder.binding.root.context.packageName)
-            holder.binding.tvTrendingNumber.setImageResource(drawableResourceId)
-            holder.binding.tvTrendingNumber.show()
-//            holder.binding.viewRange.show()
-            holder.binding.imgOverlay.show()
-            holder.binding.contentItem?.isTop10 = true
-        }
-
-        val url = getCloudinaryUrl(
-            cloudinaryUrl,
-            width, height,
-            contentItem.getImageItem()
-        )
-
-        imageLoad(holder.binding.img, url)
-        if (holder.binding.commonDetail.root.visibility == View.VISIBLE) {
-            updateProviderImage(
-                holder.binding.commonDetail.ivBrand,
-                contentItem.provider,
-                providerLogos,
-                R.drawable.ic_rail_placeholder
-            )
-        }
-        var transition: List<Pair<View, String>>? = null
-        //in case of portrait transition should be null
-        if (ItemLayoutType.PORTRAIT.name != layoutType && ItemLayoutType.TOP_PORTRAIT.name != layoutType)
-            transition = listOf(
-                Pair(
-                    holder.binding.img,
-                    ViewCompat.getTransitionName(holder.binding.img)!!
-                )
-            )
-        holder.binding.root.setOnClickListener {
-            if(contentItem.refId.isNullOrEmpty())
-                contentItem.refId = refId
-            listener.onSubItemClick(
-                contentItem,
-                position,
-                sectionPosition,
-                EventConstants.TYPE_RAIL,
-                transition,
-                railTitle,
-                sectionSource,
-                GamesMixpanelInfoModel(
-                    pageName = pageName,
-                    railTitle = railTitle,
-                    railPosition = "$sectionPosition",
-                    railType = contentItem.origin,
-                    railCategory = ItemViewType.RAIL.name,
-                    gameGenre = contentItem.getSubTitle(),
-                    gamePartner = contentItem.provider,
-                    gamePosition = "${position + 1}",
-                    gameRating = contentItem.gameRating,
-                    releaseYear = "",
-                    source = if (pageName.equals(
-                            PROVIDER_GAMEZOP,
-                            true
-                        )
-                    ) SOURCE_GAMES else pageName
-                )
-            )
-        }
+    private fun crownCalculation(it : ContentItem) {
+        val mNonSubscribedPartnerList = sharedPrefs.getNonSubscribedPartnerList()
+        it.isPartnerSubscribed = sharedPrefs.getSubscribedPack() != null &&
+            SubscriptionPackStatusEnum.ACTIVE.status.equals(sharedPrefs.getSubscribedPack()?.subscriptionStatus, true) &&
+            (mNonSubscribedPartnerList?.contains(it.provider.toLowerCase(Locale.getDefault())) == false)
+        it.firstFreeEpisodeVerbiage = sharedPrefs.getConfigResponse()?.data?.config?.firstEpisodeFreeVerbiage?:"1st Episode Free"
     }
+
 
     private fun calculateLength() {
         length = if (ItemLayoutType.PORTRAIT.name.equals(mixedLayoutType, true)) {

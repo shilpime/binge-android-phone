@@ -4,10 +4,8 @@ import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.content.res.Configuration
+import android.os.*
 import android.view.*
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
@@ -45,7 +43,6 @@ import com.tatasky.binge.BuildConfig
 import com.tatasky.binge.HomeDirections
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.*
-import com.tatasky.binge.data.di.modules.CoachMarkModule
 import com.tatasky.binge.data.networking.models.response.*
 import com.tatasky.binge.databinding.LayoutToastSuccessFailureBinding
 import com.tatasky.binge.databinding.LayoutTsWalletBalanceBinding
@@ -61,7 +58,6 @@ import com.tatasky.binge.ui.base.frameworks.base.BaseActivity
 import com.tatasky.binge.ui.base.frameworks.extensions.*
 import com.tatasky.binge.ui.features.MiscAnalytics
 import com.tatasky.binge.ui.features.coachmark.CoachMark
-import com.tatasky.binge.ui.features.coachmark.CoachMarkAnalytics
 import com.tatasky.binge.ui.features.common.CommonSampleViewModel
 import com.tatasky.binge.ui.features.dialog.ConfettiDialogModel
 import com.tatasky.binge.ui.features.dialog.ConfettiDialogViewModel
@@ -85,6 +81,8 @@ import com.tatasky.binge.utils.PaymentUtility.getPgPaymentStatus
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import javax.inject.Inject
+import kotlin.math.absoluteValue
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.layout_header_guest_login.view.*
 import kotlinx.coroutines.delay
@@ -93,11 +91,8 @@ import nl.dionsegijn.konfetti.KonfettiView
 import nl.dionsegijn.konfetti.ParticleSystem
 import nl.dionsegijn.konfetti.listeners.OnParticleSystemUpdateListener
 import nl.dionsegijn.konfetti.models.Size
-import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt
 import java.util.*
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import kotlin.math.absoluteValue
 
 
 class LandingActivity : BaseActivity<CommonSampleViewModel>(),
@@ -125,12 +120,15 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
     private var isUserSubscribed: Boolean = true
     private var latestBalanceResponse: WalletBalanceResponse? = null
     private var gameLottieVisible: Boolean = false
+    var isScreenFullScreenMode: Boolean = false
+    var isParentalPinChanged: Boolean = false
 
 
     @Inject
     lateinit var homeAnalytics: HomeAnalytics
     @Inject
     lateinit var miscAnalytics: MiscAnalytics
+    var deviceType:String?=null
 
 
     private var isFreeTrialStartedUIShown: Boolean = false
@@ -259,7 +257,7 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                 showBottomNav()
             }
             if(destination.id == R.id.action_sub_landing_games){
-                lv_game_tab.invisible()
+                hideGameBottomAnim()
                 gameLottieVisible = false
             }
 
@@ -388,6 +386,10 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                 )
             }
         }
+        localBroadcastHelper.sendBroadcast(
+            this@LandingActivity,
+            localBroadcastHelper.ACTION_SUBSCRIPTION_UPDATED_DO_REFRESH
+        )
         trackEvents()
     }
 
@@ -404,114 +406,136 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
         val previousCurrentPack = sharedPrefs.getPreviousSubscribedPack()
         if (true == previousCurrentPack?.freeTrialStatus /*Key to identify if user is/was on Free trial if true, If false means paid pack activated*/)
             subscriptionAnalytics.trackPurchaseEvent()
-        if (paymentInfoBundle?.getString(KEY_MODIFICATION_TYPE) != null)
-            subscriptionAnalytics.trackModifyPackSuccess(
+        lifecycleScope.launchWhenResumed {
+            if (paymentInfoBundle?.getBoolean(KEY_PAY_BY_DTH) == true) {
+                subscriptionAnalytics.trackPaymentFlowExit(
+                    SUCCESS,
+                    TP_WALLET,
+                    SUCCESS,
+                    SUCCESS
+                )
+            }
+            delay(EVENT_DELAY_MS) // Delay is added to maintain the event sequence based on Timestamp
+            subscriptionAnalytics.trackPayment(
+                if (paymentInfoBundle?.getBoolean(KEY_PAY_BY_DTH) == true) TSWALLET else PG,
+                latestBalanceResponse?.data?.balanceQueryRespDTO?.balance ?: "",
+                COMPLETED,
+                ""/* Fixme, Todo*/,
+                "",
+                viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/
+                    ?: currentPack?.paymentMethod ?: "",
+                currentPack?.transactionID ?: paymentInfoBundle?.getString("orderId") ?: "",
+                "",
+                "",
+                paymentInfoBundle?.getString(KEY_PACK_PRICE)
+                    ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
+                paymentInfoBundle?.getString(KEY_PACK_NAME)
+                    ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.productName
+                    ?: "" /*Pack name*/,
+                viewModel.sharedPrefs.getAddModifyResponse()?.data?.validityInDays?.let {
+                    (it) + "D"
+                } /*Due to FDO, Use validity from Add/Modify pack response*/
+                    ?: currentPack?.packDurationInDaysWithDSuffix,
+                viewModel.sharedPrefs.getAddModifyResponse()?.data?.productId,
+                viewModel.getPaymentStatus().value?.peekContent()?.data?.promoCode /*Due to FDO, using API response*/
+                    ?: currentPack?.promoCode,
+                viewModel.sharedPrefs.getAddModifyResponse()?.data?.paymentPayload?.payload?.amount
+                    ?: paymentInfoBundle?.getString(KEY_ACTUAL_PRORATED_AMOUNT_FROM_API) /*For Old stack users*/,
+                viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/
+                    ?: currentPack?.paymentMethod,
+                paymentInfoBundle?.getString(KEY_SELECTED_TENURE_PACK_PRICE)
+                    ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
+                paymentInfoBundle?.getString(KEY_SELECTED_TENURE_DURATION_IN_DAYS_WITH_D_SUFFIX)
+                    ?: currentPack?.packDurationInDaysWithDSuffix,
+                pgPaymentStatus ?: SUCCESS,
+                pgResponseCode ?: SUCCESS,
+                shouldTriggerInMixpanel
+            )
+            delay(EVENT_DELAY_MS)
+            if (paymentInfoBundle?.getString(KEY_MODIFICATION_TYPE) != null) {
+                subscriptionAnalytics.trackModifyPackSuccess(
+                    paymentInfoBundle?.getString(KEY_FROM_SCREEN) ?: SOURCE_DEEPLINK,
+                    paymentInfoBundle?.getString(KEY_PACK_NAME)
+                        ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.productName
+                        ?: "" /*Pack name*/,
+                    paymentInfoBundle?.getString(KEY_PACK_PRICE)
+                        ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
+                    paymentInfoBundle?.getString(KEY_MODIFICATION_TYPE)
+                        ?: "" /*Includes Renew Use case*/,
+                    viewModel.sharedPrefs.getAddModifyResponse()?.data?.productId,
+                    viewModel.sharedPrefs.getAddModifyResponse()?.data?.validityInDays?.let {
+                        (it) + "D"
+                    } /*Due to FDO, Use validity from Add/Modify pack response*/
+                        ?: currentPack?.packDurationInDaysWithDSuffix,
+                    viewModel.getPaymentStatus().value?.peekContent()?.data?.promoCode /*Due to FDO, using API response*/
+                        ?: currentPack?.promoCode,
+                    viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/
+                        ?: currentPack?.paymentMethod,
+                    viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount,
+                    previousCurrentPack?.productId,
+                    paymentInfoBundle?.getString(KEY_APPSFLYER_SOURCE) ?: SOURCE_HOME,
+                    paymentInfoBundle?.getString(KEY_SELECTED_TENURE_PACK_PRICE)
+                        ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
+                    paymentInfoBundle?.getString(KEY_SELECTED_TENURE_DURATION_IN_DAYS_WITH_D_SUFFIX)
+                        ?: currentPack?.packDurationInDaysWithDSuffix,
+                    currentPack?.packType
+                        ?: if (true == previousCurrentPack?.freeTrialStatus) PACK_TYPE_FREE else PACK_TYPE_PAID,
+                    previousCurrentPack?.productName,
+                    previousCurrentPack?.packType
+                        ?: if (true == previousCurrentPack?.freeTrialStatus) PACK_TYPE_FREE else PACK_TYPE_PAID,
+                    previousCurrentPack?.amountValue,
+                    previousCurrentPack?.getCurrentOrLastActiveTenureDetailsForActiveOrInactiveUsers()?.tenureType,
+                    paymentInfoBundle?.getString(KEY_SELECTED_TENURE_TYPE),
+                    paymentInfoBundle?.getBoolean(KEY_IS_FIRST_SUBSCRIPTION, false) == true,
+                    paymentInfoBundle?.getString(KEY_PRODUCT_TYPE)
+                )
+            }
+            delay(EVENT_DELAY_MS)
+            subscriptionAnalytics.trackSubscribeSuccess(
+                currentPack?.packType ?: PACK_TYPE_PAID,
                 paymentInfoBundle?.getString(KEY_FROM_SCREEN) ?: SOURCE_DEEPLINK,
                 paymentInfoBundle?.getString(KEY_PACK_NAME)
                     ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.productName
                     ?: "" /*Pack name*/,
                 paymentInfoBundle?.getString(KEY_PACK_PRICE)
                     ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
+                intent?.extras?.getBoolean("isFromNudge") ?: false,
+                currentPack?.fdoRequested == true,
+                "",
                 paymentInfoBundle?.getString(KEY_MODIFICATION_TYPE) ?: "" /*Includes Renew Use case*/,
+                paymentMethod = if (paymentInfoBundle?.getBoolean(KEY_PAY_BY_DTH) == true) TSWALLET else PG,
+                paymentType =
+                when (
+                    viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMode
+                        ?: currentPack?.paymentMode
+                ) {
+                    OPEL_ONE_TIME -> ONETIME
+                    OPEL_RECURRING -> RECURRING
+                    else -> ""
+                },
                 viewModel.sharedPrefs.getAddModifyResponse()?.data?.productId,
-                viewModel.sharedPrefs.getAddModifyResponse()?.data?.validityInDays?.let {
-                    (it) + "D"
-                } /*Due to FDO, Use validity from Add/Modify pack response*/
-                    ?: currentPack?.packDurationInDaysWithDSuffix,
-                viewModel.getPaymentStatus().value?.peekContent()?.data?.promoCode /*Due to FDO, using API response*/  ?: currentPack?.promoCode,
-                viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/ ?: currentPack?.paymentMethod,
+                viewModel.getPaymentStatus().value?.peekContent()?.data?.promoCode /*Due to FDO, using API response*/
+                    ?: currentPack?.promoCode,
+                viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/
+                    ?: currentPack?.paymentMethod,
+                currentPack?.userIsOnFirstPaidPack ?: false,
                 viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount,
-                previousCurrentPack?.productId,
                 paymentInfoBundle?.getString(KEY_APPSFLYER_SOURCE) ?: SOURCE_HOME,
                 paymentInfoBundle?.getString(KEY_SELECTED_TENURE_PACK_PRICE)
                     ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
                 paymentInfoBundle?.getString(KEY_SELECTED_TENURE_DURATION_IN_DAYS_WITH_D_SUFFIX)
                     ?: currentPack?.packDurationInDaysWithDSuffix,
-                currentPack?.packType ?: if (true == previousCurrentPack?.freeTrialStatus) PACK_TYPE_FREE else PACK_TYPE_PAID,
-                previousCurrentPack?.productName,
-                previousCurrentPack?.packType
-                    ?: if (true == previousCurrentPack?.freeTrialStatus) PACK_TYPE_FREE else PACK_TYPE_PAID,
-                previousCurrentPack?.amountValue,
-                previousCurrentPack?.getCurrentOrLastActiveTenureDetailsForActiveOrInactiveUsers()?.tenureType,
+                previousCurrentPack?.productName ?: FREEMIUM,
+                previousCurrentPack?.let { if (true == it.freeTrialStatus) PACK_TYPE_FREE else PACK_TYPE_PAID }
+                    ?: PACK_TYPE_FREE,
+                previousCurrentPack?.amountValue ?: FREEMIUM,
+                previousCurrentPack?.getCurrentOrLastActiveTenureDetailsForActiveOrInactiveUsers()?.tenureType ?: "",
                 paymentInfoBundle?.getString(KEY_SELECTED_TENURE_TYPE),
                 paymentInfoBundle?.getBoolean(KEY_IS_FIRST_SUBSCRIPTION, false) == true,
+                shouldTriggerInMixpanel,
                 paymentInfoBundle?.getString(KEY_PRODUCT_TYPE)
             )
-        subscriptionAnalytics.trackSubscribeSuccess(
-            currentPack?.packType ?: PACK_TYPE_PAID,
-            paymentInfoBundle?.getString(KEY_FROM_SCREEN) ?: SOURCE_DEEPLINK,
-            paymentInfoBundle?.getString(KEY_PACK_NAME)
-                ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.productName
-                ?: "" /*Pack name*/,
-            paymentInfoBundle?.getString(KEY_PACK_PRICE)
-                ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
-            intent?.extras?.getBoolean("isFromNudge") ?: false,
-            currentPack?.fdoRequested == true,
-            "",
-            paymentInfoBundle?.getString(KEY_MODIFICATION_TYPE) ?: "" /*Includes Renew Use case*/,
-            paymentMethod = if (paymentInfoBundle?.getBoolean("payByDTH") == true) TSWALLET else PG,
-            paymentType =
-            when (
-                viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMode
-                    ?: currentPack?.paymentMode
-            ) {
-                OPEL_ONE_TIME -> ONETIME
-                OPEL_RECURRING -> RECURRING
-                else -> ""
-            },
-            viewModel.sharedPrefs.getAddModifyResponse()?.data?.productId,
-            viewModel.getPaymentStatus().value?.peekContent()?.data?.promoCode /*Due to FDO, using API response*/
-                ?: currentPack?.promoCode,
-            viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/
-                ?: currentPack?.paymentMethod,
-            currentPack?.userIsOnFirstPaidPack ?: false,
-            viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount,
-            paymentInfoBundle?.getString(KEY_APPSFLYER_SOURCE) ?: SOURCE_HOME,
-            paymentInfoBundle?.getString(KEY_SELECTED_TENURE_PACK_PRICE)
-                ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
-            paymentInfoBundle?.getString(KEY_SELECTED_TENURE_DURATION_IN_DAYS_WITH_D_SUFFIX)
-                ?: currentPack?.packDurationInDaysWithDSuffix,
-            previousCurrentPack?.productName ?: FREEMIUM,
-            previousCurrentPack?.let { if (true == it.freeTrialStatus) PACK_TYPE_FREE else PACK_TYPE_PAID }
-                ?: PACK_TYPE_FREE,
-            previousCurrentPack?.amountValue ?: FREEMIUM,
-            previousCurrentPack?.getCurrentOrLastActiveTenureDetailsForActiveOrInactiveUsers()?.tenureType ?: "",
-            paymentInfoBundle?.getString(KEY_SELECTED_TENURE_TYPE),
-            paymentInfoBundle?.getBoolean(KEY_IS_FIRST_SUBSCRIPTION, false) == true,
-            shouldTriggerInMixpanel,
-            paymentInfoBundle?.getString(KEY_PRODUCT_TYPE)
-        )
-        subscriptionAnalytics.trackPayment(
-            if (paymentInfoBundle?.getBoolean("payByDTH") == true) TSWALLET else PG,
-            latestBalanceResponse?.data?.balanceQueryRespDTO?.balance ?: "",
-            COMPLETED,
-            ""/* Fixme, Todo*/,
-            "",
-            viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/ ?: currentPack?.paymentMethod ?: "",
-            currentPack?.transactionID ?: paymentInfoBundle?.getString("orderId") ?: "",
-            "",
-            "",
-            paymentInfoBundle?.getString(KEY_PACK_PRICE)
-                ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
-            paymentInfoBundle?.getString(KEY_PACK_NAME)
-                ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.productName
-                ?: "" /*Pack name*/,
-            viewModel.sharedPrefs.getAddModifyResponse()?.data?.validityInDays?.let {
-                (it) + "D"
-            } /*Due to FDO, Use validity from Add/Modify pack response*/
-                ?: currentPack?.packDurationInDaysWithDSuffix,
-            viewModel.sharedPrefs.getAddModifyResponse()?.data?.productId,
-            viewModel.getPaymentStatus().value?.peekContent()?.data?.promoCode /*Due to FDO, using API response*/  ?: currentPack?.promoCode,
-            viewModel.sharedPrefs.getAddModifyResponse()?.data?.paymentPayload?.payload?.amount ?: paymentInfoBundle?.getString(KEY_ACTUAL_PRORATED_AMOUNT_FROM_API) /*For Old stack users*/,
-            viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/ ?: currentPack?.paymentMethod,
-            paymentInfoBundle?.getString(KEY_SELECTED_TENURE_PACK_PRICE)
-                ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
-            paymentInfoBundle?.getString(KEY_SELECTED_TENURE_DURATION_IN_DAYS_WITH_D_SUFFIX)
-                ?: currentPack?.packDurationInDaysWithDSuffix,
-            pgPaymentStatus ?: "",
-            pgResponseCode ?: "",
-            shouldTriggerInMixpanel
-        )
+        }
     }
 
     private fun setPaymentProgressing(enabled: Boolean) {
@@ -554,6 +578,12 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
             }
         }
 
+        deviceType = if(isTablet(this))
+            DEVICE_TYPE_TABLET
+        else DEVICE_TYPE
+        deviceType?.let {
+            sharedPrefs.setDeviceType(it)
+        }
 
         bottomNav.itemIconTintList = null
         viewModel.sharedPrefs.setInterruptCategoryTabStatus(true)
@@ -686,53 +716,7 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                         } else {
                             shouldTriggerInMixpanel = false
                             setPaymentProgressing(false)
-                            sharedPrefs?.setPaymentPendingStatus(true)
-                            subscriptionAnalytics.trackSubscribeFailure(
-                                sharedPrefs.getAddModifyResponse()?.data?.paymentErrorVerbiages?.transactionPendingVerbiage
-                                    ?: "",
-                                paymentInfoBundle?.getString(KEY_PACK_NAME)
-                                    ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.productName
-                                    ?: "", /*Pack name*/
-                                PACK_TYPE_PAID,
-                                paymentMethod = if (paymentInfoBundle?.getBoolean("payByDTH") == true) TSWALLET else PG,
-                                paymentType =
-                                when (viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMode) {
-                                    OPEL_ONE_TIME -> ONETIME
-                                    OPEL_RECURRING -> RECURRING
-                                    else -> ""
-                                },
-                                paymentInfoBundle?.getString(KEY_SELECTED_TENURE_TYPE),
-                                paymentInfoBundle?.getString(KEY_FROM_SCREEN) ?: SOURCE_DEEPLINK,
-                                currentPack?.productName ?: FREEMIUM,
-                                currentPack?.let { if (true == it.freeTrialStatus) PACK_TYPE_FREE else PACK_TYPE_PAID }
-                                    ?: PACK_TYPE_FREE,
-                                paymentInfoBundle?.getString(KEY_PACK_PRICE)
-                                    ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount
-                                    ?: "",
-                                currentPack?.amountValue ?: FREEMIUM,
-                                currentPack?.getCurrentOrLastActiveTenureDetailsForActiveOrInactiveUsers()?.tenureType
-                                    ?: "",
-                                paymentInfoBundle?.getBoolean(
-                                    KEY_IS_FIRST_SUBSCRIPTION,
-                                    false
-                                ) == true,
-                                paymentInfoBundle?.getString(KEY_MODIFICATION_TYPE),
-                                paymentInfoBundle?.getString(KEY_SELECTED_TENURE_PACK_PRICE)
-                                    ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount
-                                    ?: "",
-                                paymentInfoBundle?.getString(
-                                    KEY_SELECTED_TENURE_DURATION_IN_DAYS_WITH_D_SUFFIX
-                                )
-                                    ?: "",
-                                viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/
-                                    ?: sharedPrefs.getSubscribedPack()?.paymentMethod,
-                                viewModel.getPaymentStatus().value?.peekContent()?.data?.promoCode /*Due to FDO, using API response*/
-                                    ?: sharedPrefs.getSubscribedPack()?.promoCode,
-                                shouldTriggerInMixpanel,
-                                actualAmountPaid = viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount,
-                                productType = paymentInfoBundle?.getString(KEY_PRODUCT_TYPE)
-                            )
-
+                            sharedPrefs.setPaymentPendingStatus(true)
                             showDialog(
                                 DialogModel(
                                     imageId = R.drawable.ic_subscription_error,
@@ -752,10 +736,120 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                                     }
                                 }
                             )
+                            lifecycleScope.launchWhenResumed {
+                                if (paymentInfoBundle?.getBoolean(KEY_PAY_BY_DTH) == true) {
+                                    subscriptionAnalytics.trackPaymentFlowExit(
+                                        PENDING,
+                                        TP_WALLET,
+                                        PENDING,
+                                        PENDING
+                                    )
+                                }
+                                delay(EVENT_DELAY_MS)
+                                subscriptionAnalytics.trackPayment(
+                                    if (paymentInfoBundle?.getBoolean(KEY_PAY_BY_DTH) == true) TSWALLET else PG,
+                                    latestBalanceResponse?.data?.balanceQueryRespDTO?.balance ?: "",
+                                    PENDING,
+                                    "",
+                                    "",
+                                    viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/
+                                        ?: sharedPrefs.getSubscribedPack()?.paymentMethod ?: "",
+                                    orderId,
+                                    "",
+                                    viewModel.sharedPrefs.getAddModifyResponse()?.data?.paymentErrorVerbiages?.transactionPendingVerbiage
+                                        ?: "",
+                                    paymentInfoBundle?.getString(KEY_PACK_PRICE)
+                                        ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount
+                                        ?: "",
+                                    paymentInfoBundle?.getString(KEY_PACK_NAME)
+                                        ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.productName
+                                        ?: "" /*Pack name*/,
+                                    viewModel.sharedPrefs.getAddModifyResponse()?.data?.validityInDays?.let {
+                                        (it) + "D"
+                                    } /*Due to FDO, Use validity from Add/Modify pack response*/
+                                        ?: sharedPrefs.getSubscribedPack()?.packDurationInDaysWithDSuffix,
+                                    viewModel.sharedPrefs.getAddModifyResponse()?.data?.productId,
+                                    viewModel.getPaymentStatus().value?.peekContent()?.data?.promoCode /*Due to FDO, using API response*/
+                                        ?: sharedPrefs.getSubscribedPack()?.promoCode,
+                                    viewModel.sharedPrefs.getAddModifyResponse()?.data?.paymentPayload?.payload?.amount
+                                        ?: paymentInfoBundle?.getString(
+                                            KEY_ACTUAL_PRORATED_AMOUNT_FROM_API
+                                        ) /*For Old stack users*/,
+                                    viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/
+                                        ?: sharedPrefs.getSubscribedPack()?.paymentMethod,
+                                    paymentInfoBundle?.getString(KEY_SELECTED_TENURE_PACK_PRICE)
+                                        ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount
+                                        ?: "",
+                                    paymentInfoBundle?.getString(
+                                        KEY_SELECTED_TENURE_DURATION_IN_DAYS_WITH_D_SUFFIX
+                                    ) ?: "",
+                                    pgPaymentStatus ?: PENDING,
+                                    pgResponseCode ?: PENDING
+                                )
+                                delay(EVENT_DELAY_MS)
+                                subscriptionAnalytics.trackSubscribeFailure(
+                                    sharedPrefs.getAddModifyResponse()?.data?.paymentErrorVerbiages?.transactionPendingVerbiage
+                                        ?: "",
+                                    paymentInfoBundle?.getString(KEY_PACK_NAME)
+                                        ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.productName
+                                        ?: "", /*Pack name*/
+                                    PACK_TYPE_PAID,
+                                    paymentMethod = if (paymentInfoBundle?.getBoolean(KEY_PAY_BY_DTH) == true) TSWALLET else PG,
+                                    paymentType =
+                                    when (viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMode) {
+                                        OPEL_ONE_TIME -> ONETIME
+                                        OPEL_RECURRING -> RECURRING
+                                        else -> ""
+                                    },
+                                    paymentInfoBundle?.getString(KEY_SELECTED_TENURE_TYPE),
+                                    paymentInfoBundle?.getString(KEY_FROM_SCREEN)
+                                        ?: SOURCE_DEEPLINK,
+                                    currentPack?.productName ?: FREEMIUM,
+                                    currentPack?.let { if (true == it.freeTrialStatus) PACK_TYPE_FREE else PACK_TYPE_PAID }
+                                        ?: PACK_TYPE_FREE,
+                                    paymentInfoBundle?.getString(KEY_PACK_PRICE)
+                                        ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount
+                                        ?: "",
+                                    currentPack?.amountValue ?: FREEMIUM,
+                                    currentPack?.getCurrentOrLastActiveTenureDetailsForActiveOrInactiveUsers()?.tenureType
+                                        ?: "",
+                                    paymentInfoBundle?.getBoolean(
+                                        KEY_IS_FIRST_SUBSCRIPTION,
+                                        false
+                                    ) == true,
+                                    paymentInfoBundle?.getString(KEY_MODIFICATION_TYPE),
+                                    paymentInfoBundle?.getString(KEY_SELECTED_TENURE_PACK_PRICE)
+                                        ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount
+                                        ?: "",
+                                    paymentInfoBundle?.getString(
+                                        KEY_SELECTED_TENURE_DURATION_IN_DAYS_WITH_D_SUFFIX
+                                    )
+                                        ?: "",
+                                    viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/
+                                        ?: sharedPrefs.getSubscribedPack()?.paymentMethod,
+                                    viewModel.getPaymentStatus().value?.peekContent()?.data?.promoCode /*Due to FDO, using API response*/
+                                        ?: sharedPrefs.getSubscribedPack()?.promoCode,
+                                    shouldTriggerInMixpanel,
+                                    actualAmountPaid = viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount,
+                                    productType = paymentInfoBundle?.getString(KEY_PRODUCT_TYPE)
+                                )
+                            }
+                        }
+                    } else -> {
+                        lifecycleScope.launchWhenResumed {
+                            if (paymentInfoBundle?.getBoolean(KEY_PAY_BY_DTH) == true) {
+                                subscriptionAnalytics.trackPaymentFlowExit(
+                                    FAILURE,
+                                    TP_WALLET,
+                                    FAILURE,
+                                    FAILURE
+                                )
+                            }
+                            delay(EVENT_DELAY_MS)
                             subscriptionAnalytics.trackPayment(
-                                if (paymentInfoBundle?.getBoolean("payByDTH") == true) TSWALLET else PG,
+                                if (paymentInfoBundle?.getBoolean(KEY_PAY_BY_DTH) == true) TSWALLET else PG,
                                 latestBalanceResponse?.data?.balanceQueryRespDTO?.balance ?: "",
-                                PENDING,
+                                FAILED,
                                 "",
                                 "",
                                 viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/ ?: sharedPrefs.getSubscribedPack()?.paymentMethod ?: "",
@@ -778,79 +872,49 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                                 paymentInfoBundle?.getString(KEY_SELECTED_TENURE_PACK_PRICE)
                                     ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
                                 paymentInfoBundle?.getString(KEY_SELECTED_TENURE_DURATION_IN_DAYS_WITH_D_SUFFIX) ?: "",
-                                pgPaymentStatus ?: "",
-                                pgResponseCode ?: ""
+                                pgPaymentStatus ?: FAILURE,
+                                pgResponseCode ?: FAILURE
+                            )
+                            delay(EVENT_DELAY_MS)
+                            subscriptionAnalytics.trackSubscribeFailure(
+                                sharedPrefs.getAddModifyResponse()?.data?.paymentErrorVerbiages?.paymentFailureVerbiage?:"",
+                                paymentInfoBundle?.getString(KEY_PACK_NAME)
+                                    ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.productName
+                                    ?: "" /*Pack name*/,
+                                PACK_TYPE_PAID,
+                                paymentMethod = if (paymentInfoBundle?.getBoolean(KEY_PAY_BY_DTH) == true) TSWALLET else PG,
+                                paymentType =
+                                when (viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMode) {
+                                    OPEL_ONE_TIME -> ONETIME
+                                    OPEL_RECURRING -> RECURRING
+                                    else -> ""
+                                },
+                                paymentInfoBundle?.getString(KEY_SELECTED_TENURE_TYPE),
+                                paymentInfoBundle?.getString(KEY_FROM_SCREEN) ?: SOURCE_DEEPLINK,
+                                currentPack?.productName ?: FREEMIUM,
+                                currentPack?.let { if (true == it.freeTrialStatus) PACK_TYPE_FREE else PACK_TYPE_PAID }
+                                    ?: PACK_TYPE_FREE,
+                                paymentInfoBundle?.getString(KEY_PACK_PRICE)
+                                    ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
+                                currentPack?.amountValue ?: FREEMIUM,
+                                currentPack?.getCurrentOrLastActiveTenureDetailsForActiveOrInactiveUsers()?.tenureType ?: "",
+                                paymentInfoBundle?.getBoolean(KEY_IS_FIRST_SUBSCRIPTION, false) == true,
+                                paymentInfoBundle?.getString(KEY_MODIFICATION_TYPE),
+                                paymentInfoBundle?.getString(KEY_SELECTED_TENURE_PACK_PRICE)
+                                    ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount
+                                    ?: "",
+                                paymentInfoBundle?.getString(
+                                    KEY_SELECTED_TENURE_DURATION_IN_DAYS_WITH_D_SUFFIX
+                                )
+                                    ?: "",
+                                viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/
+                                    ?: sharedPrefs.getSubscribedPack()?.paymentMethod,
+                                viewModel.getPaymentStatus().value?.peekContent()?.data?.promoCode /*Due to FDO, using API response*/
+                                    ?: sharedPrefs.getSubscribedPack()?.promoCode,
+                                actualAmountPaid = viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount,
+                                productType = paymentInfoBundle?.getString(KEY_PRODUCT_TYPE)
                             )
                         }
-                    }
-                    else -> {
-                        subscriptionAnalytics.trackSubscribeFailure(
-                            sharedPrefs.getAddModifyResponse()?.data?.paymentErrorVerbiages?.paymentFailureVerbiage?:"",
-                            paymentInfoBundle?.getString(KEY_PACK_NAME)
-                                ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.productName
-                                ?: "" /*Pack name*/,
-                            PACK_TYPE_PAID,
-                            paymentMethod = if (paymentInfoBundle?.getBoolean("payByDTH") == true) TSWALLET else PG,
-                            paymentType =
-                            when (viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMode) {
-                                OPEL_ONE_TIME -> ONETIME
-                                OPEL_RECURRING -> RECURRING
-                                else -> ""
-                            },
-                            paymentInfoBundle?.getString(KEY_SELECTED_TENURE_TYPE),
-                            paymentInfoBundle?.getString(KEY_FROM_SCREEN) ?: SOURCE_DEEPLINK,
-                            currentPack?.productName ?: FREEMIUM,
-                            currentPack?.let { if (true == it.freeTrialStatus) PACK_TYPE_FREE else PACK_TYPE_PAID }
-                                ?: PACK_TYPE_FREE,
-                            paymentInfoBundle?.getString(KEY_PACK_PRICE)
-                                ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
-                            currentPack?.amountValue ?: FREEMIUM,
-                            currentPack?.getCurrentOrLastActiveTenureDetailsForActiveOrInactiveUsers()?.tenureType ?: "",
-                            paymentInfoBundle?.getBoolean(KEY_IS_FIRST_SUBSCRIPTION, false) == true,
-                            paymentInfoBundle?.getString(KEY_MODIFICATION_TYPE),
-                            paymentInfoBundle?.getString(KEY_SELECTED_TENURE_PACK_PRICE)
-                                ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount
-                                ?: "",
-                            paymentInfoBundle?.getString(
-                                KEY_SELECTED_TENURE_DURATION_IN_DAYS_WITH_D_SUFFIX
-                            )
-                                ?: "",
-                            viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/
-                                ?: sharedPrefs.getSubscribedPack()?.paymentMethod,
-                            viewModel.getPaymentStatus().value?.peekContent()?.data?.promoCode /*Due to FDO, using API response*/
-                                ?: sharedPrefs.getSubscribedPack()?.promoCode,
-                            actualAmountPaid = viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount,
-                            productType = paymentInfoBundle?.getString(KEY_PRODUCT_TYPE)
-                        )
-                        subscriptionAnalytics.trackPayment(
-                            if (paymentInfoBundle?.getBoolean("payByDTH") == true) TSWALLET else PG,
-                            latestBalanceResponse?.data?.balanceQueryRespDTO?.balance ?: "",
-                            FAILED,
-                            "",
-                            "",
-                            viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/ ?: sharedPrefs.getSubscribedPack()?.paymentMethod ?: "",
-                            orderId,
-                            "",
-                            viewModel.sharedPrefs.getAddModifyResponse()?.data?.paymentErrorVerbiages?.transactionPendingVerbiage ?: "",
-                            paymentInfoBundle?.getString(KEY_PACK_PRICE)
-                                ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
-                            paymentInfoBundle?.getString(KEY_PACK_NAME)
-                                ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.productName
-                                ?: "" /*Pack name*/,
-                            viewModel.sharedPrefs.getAddModifyResponse()?.data?.validityInDays?.let {
-                                (it) + "D"
-                            } /*Due to FDO, Use validity from Add/Modify pack response*/
-                                ?: sharedPrefs.getSubscribedPack()?.packDurationInDaysWithDSuffix,
-                            viewModel.sharedPrefs.getAddModifyResponse()?.data?.productId,
-                            viewModel.getPaymentStatus().value?.peekContent()?.data?.promoCode /*Due to FDO, using API response*/  ?: sharedPrefs.getSubscribedPack()?.promoCode,
-                            viewModel.sharedPrefs.getAddModifyResponse()?.data?.paymentPayload?.payload?.amount ?: paymentInfoBundle?.getString(KEY_ACTUAL_PRORATED_AMOUNT_FROM_API) /*For Old stack users*/,
-                            viewModel.getPaymentStatus().value?.peekContent()?.data?.paymentMethod /*Due to FDO, using API response*/ ?: sharedPrefs.getSubscribedPack()?.paymentMethod,
-                            paymentInfoBundle?.getString(KEY_SELECTED_TENURE_PACK_PRICE)
-                                ?: viewModel.sharedPrefs.getAddModifyResponse()?.data?.amount ?: "",
-                            paymentInfoBundle?.getString(KEY_SELECTED_TENURE_DURATION_IN_DAYS_WITH_D_SUFFIX) ?: "",
-                            pgPaymentStatus ?: "",
-                            pgResponseCode ?: ""
-                        )
                         setPaymentProgressing(false)
                     }
                 }
@@ -905,6 +969,7 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                 when (it) {
                     OrientationManager.ScreenOrientation.PORTRAIT,
                     OrientationManager.ScreenOrientation.REVERSED_PORTRAIT -> {
+                        handleDrawerUI()
                         window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                             val params = window.attributes
@@ -912,12 +977,15 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                                 WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT
                         }
                         window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-
-                        bottomNav.visibility = View.VISIBLE
                     }
                     OrientationManager.ScreenOrientation.LANDSCAPE,
                     OrientationManager.ScreenOrientation.REVERSED_LANDSCAPE -> {
-                        bottomNav.visibility = View.GONE
+                        handleDrawerUI()
+                        if(isScreenFullScreenMode){
+                            hideBottomNav()
+                        }else{
+                            showBottomNav()
+                        }
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                             val params = window.attributes
                             params.layoutInDisplayCutoutMode =
@@ -1332,7 +1400,7 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
         openNativeDrawer: Boolean = false
     ) {
 
-        if (sharedPrefs.isFirstTimeLanguagePopUpShown() == false) {
+        if (!sharedPrefs.isFirstTimeLanguagePopUpShown()) {
             try {
                 if(openNativeDrawer){
                     subscriptionBottomSheetDialog?.dismissAllowingStateLoss()
@@ -1349,9 +1417,9 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                         currentJourneyRefKey = journeyRefKey
                         currentNavController?.value?.navigateSafe(
                             HomeDirections.actionManagedApps(
-                                source,
-                                journeyRef,
-                                journeyRefKey,
+                                source=source,
+                                journeySource=journeyRef,
+                                journeySourceRefId= journeyRefKey,
                                 skipDrawer = skipDrawer
                             )
                         )
@@ -1365,7 +1433,10 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
     }
 
     private fun setListeners() {
-        btn_subscribe.setOnClickListener (object : SingleClickListener() {
+        btn_subscribe.text = viewModel.getConfigFromPreference()?.hamburger?.subscribe ?: getString(
+            R.string.subscribe
+        )
+        btn_subscribe.setOnClickListener(object : SingleClickListener() {
             override fun onClicked(v: View?) {
                 onGoVipClicked(true)
             }
@@ -1401,7 +1472,7 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
 
     fun showFirestickOfferDialogByFrequency(ignoreFrequency : Boolean = false) {
         if(!isManagedAppOpen())
-        Handler(Looper.getMainLooper()).postDelayed(
+            Handler(Looper.getMainLooper()).postDelayed(
             {
 
                 val isPackExpired = viewModel.sharedPrefs.getSubscribedPack()?.isInactive == true
@@ -1494,12 +1565,20 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
     }
 
     private fun handleDrawerUI() {
-        val width = getDisplayMatics().widthPixels - dpToPx(this, 60)
+        var width = getDisplayMatics().widthPixels - dpToPx(this, 60)
+        if(isTablet(this)){
+            width = if(this.resources.configuration.orientation== Configuration.ORIENTATION_PORTRAIT)
+                (getDisplayMatics().widthPixels * 0.5).toInt()
+            else (getDisplayMatics().widthPixels * 0.3).toInt()
+        }
+
         val layoutParams = DrawerLayout.LayoutParams(width,
             MATCH_PARENT)
         layoutParams.gravity = GravityCompat.START
         navDrawer.layoutParams = layoutParams
     }
+
+
 
     override fun getViewModelClass(): Class<CommonSampleViewModel> =
         CommonSampleViewModel::class.java
@@ -1649,6 +1728,7 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                                 ParentalControlBottomSheetResultStatus.SUCCESS_DISMISS -> {
                                     when (result.actionBeforeOpeningBottomSheet) {
                                         ACTION_PIN_FORGOT -> {
+
                                             val toastView =
                                                 DataBindingUtil.inflate<LayoutToastSuccessFailureBinding>(
                                                     LayoutInflater.from(this),
@@ -1768,8 +1848,11 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                                                                 context = this,
                                                                 startPackListing = true,
                                                                 fromScreen = getSourceOrFromScreenName(),
-                                                                source = HAMBURGER_SUBSCRIBE_CTA
+                                                                source = HOME_SUBSCRIBE_CTA,
+                                                                skipDrawer = true,
+                                                                journeyRef = DRAWER_CYOP
                                                             )
+
 
 
                                                         }
@@ -1790,7 +1873,9 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                                                                 context = this,
                                                                 startPackListing = true,
                                                                 fromScreen = getSourceOrFromScreenName(),
-                                                                source = HAMBURGER_SUBSCRIBE_CTA
+                                                                source = HOME_SUBSCRIBE_CTA,
+                                                                skipDrawer = true,
+                                                                journeyRef = DRAWER_CYOP
                                                             )
 
                                                         }
@@ -1801,7 +1886,9 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                                                     context = this,
                                                     startPackListing = true,
                                                     fromScreen = getSourceOrFromScreenName(),
-                                                    source = HAMBURGER_SUBSCRIBE_CTA
+                                                    source = HOME_SUBSCRIBE_CTA,
+                                                    skipDrawer = true,
+                                                    journeyRef = DRAWER_CYOP
                                                 )
                                             }
                                         }
@@ -1900,14 +1987,22 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
         return (currentNavController?.value?.navigateUp() ?: false) || super.onSupportNavigateUp()
     }
 
+
+    fun showGameBottomAnim(){
+        if(gameLottieVisible && bottomNavShowing)
+            lv_game_tab.show()
+    }
+    fun hideGameBottomAnim(){
+        lv_game_tab.invisible()
+    }
+
     fun showBottomNav() {
         e("bottomListener","inside showBottomNav $bottomNavShowing")
+        if(isManagedAppOpen() || isScreenFullScreenMode) return
         root_container.post {
             if (!bottomNavShowing) {
                 Handler(Looper.getMainLooper()).postDelayed(
                     {
-                        if(gameLottieVisible)
-                            lv_game_tab.show()
                         TransitionManager.beginDelayedTransition(
                             root_container,
                             TransitionInflater.from(this)
@@ -1922,6 +2017,8 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                         )
                         set.applyTo(root_container)
                         bottomNavShowing = true
+                        bottomNav.show()
+                        showGameBottomAnim()
                     }, 100
                 )
             }
@@ -1932,7 +2029,7 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
         e("bottomListener","inside hideBottomNav $bottomNavShowing")
         root_container.post {
             if (bottomNavShowing) {
-                lv_game_tab.invisible()
+                hideGameBottomAnim()
                 TransitionManager.beginDelayedTransition(
                     root_container,
                     TransitionInflater.from(this).inflateTransition(R.transition.default_transition)
@@ -1946,6 +2043,7 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                 )
                 set.applyTo(root_container)
                 bottomNavShowing = false
+                bottomNav.hide()
             }
         }
     }
@@ -2016,24 +2114,17 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
             }
             this.post(Runnable {
                 this.findViewById<View>(item.itemId).visibility = View.INVISIBLE
-                gameLottieVisible = true
-
                 lottieView.setOnClickListener {
                     if (viewModel.sharedPrefs.isGameHapticFeedbackEnabled()) {
                         viewModel.sharedPrefs.enableGameHapticFeedback(false)
                         vibratePhone(this.context, 100L)
                     }
                     setSelectedTab(R.id.gametab)
-                    lottieView.hide()
+                    hideGameBottomAnim()
                     gameLottieVisible = false
                 }
-
-                val x1 = this.findViewById<View>(item.itemId).x
-                val x2 = x1 + this.findViewById<View>(item.itemId).width
-                val middle = ((x1 + x2) / 2) - (lottieView.width / 3)
-                lottieView.x = middle
-                lottieView.y = this.y
-                lottieView.show()
+                gameLottieVisible = true
+                calculateGameAnimCoordinates(context, position, lottieView, this)
             })
         },200)
     }
@@ -2093,13 +2184,20 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
 //        pubnubHelper.getLastStatus(null)
     }
 
+
+
     override fun onResume() {
         super.onResume()
+        setupBottomNavigationBar()
         try {
             viewModel.isCCTOpen = false
         } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
+
+
+
 
     val mNotificationReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -2114,6 +2212,7 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                         startActivity(myIntent)
                     }
                 } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
             if (localBroadcastHelper.ACTION_PAYMENT_UPDATED == intent.action && this@LandingActivity.intent.getBooleanExtra(
@@ -2708,8 +2807,7 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
             return
 
         val count = sharedPrefs.getGameAnimOpenCount()
-        val nudgeOpenCount = count + 1
-
+        var nudgeOpenCount = count + 1
         if (nudgeOpenCount<=firstFrequency){
             sharedPrefs.setLastGameAnimTime(System.currentTimeMillis())
             sharedPrefs.setGameAnimOpenCount(nudgeOpenCount)
@@ -2862,7 +2960,7 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                     snackbarType = CustomSnackbarWithTwoActionsType.SnackbarTypeNormalSizeImage,
                     mszTitle = title,
                     mszDesc = desc,
-                    imgResourceSmall = R.drawable.ic_nudge_notification,
+                    imgResourceSmall = R.drawable.ic_white_notification_icon,
                     imgResourceLarge = null,
                     imgResourceCancel = R.drawable.ic_cross,
                     btnActionText = btnText,
@@ -3065,5 +3163,38 @@ class LandingActivity : BaseActivity<CommonSampleViewModel>(),
                 showFirestickOfferDialogByFrequency()
             } // FS dialog check after login
         navDrawerViewModel.updateLoggedOutState(false)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        bottomNav.post {
+            calculateGameAnimCoordinates(this@LandingActivity, 4, lv_game_tab, bottomNav)
+        }
+    }
+
+    //This function is to be used only for handling UI when returning from landscape to portrait player
+    fun handlePortraitForBottomNav() {
+        isScreenFullScreenMode = false
+        showBottomNav()
+        /*The below code will only run when player moves from landscape to portrait in DetailsFragment
+         and game animation frequencies are true all the UI work are for moving to portrait are
+         done and the coordinates are calculated which is very rare*/
+
+        if (gameLottieVisible) {
+            mHandler.postDelayed({
+                calculateGameAnimCoordinates(
+                    this@LandingActivity,
+                    4,
+                    lv_game_tab,
+                    bottomNav
+                )
+            }, 1500)
+        }
+    }
+
+
+    companion object {
+        // Minor delay to maintain the event sequence based on Timestamp
+        private const val EVENT_DELAY_MS = 300L
     }
 }

@@ -55,7 +55,6 @@ class SearchAnalytics(
         trackMoEngageSearchStart()
         trackAppsFlyerSearchView()
         trackMixPanelSearchInitiate()
-        trackMixPanelSearchHome(selectedBottomTab)
     }
 
     private fun trackAppsFlyerSearchView() {
@@ -74,6 +73,86 @@ class SearchAnalytics(
     fun trackSearch(keyword: String, source: String, screenName: String,filterLanguage:String,filterGenre: String) {
         trackMixPanelSearch(keyword, source, screenName, filterLanguage, filterGenre)
         trackMoEngageSearch(keyword, source, screenName)
+    }
+
+
+    fun trackSearchSuggestionInitiated(keyword: String , matches : String , matchCount : Int){
+        trackMixPanelSearchSuggestionInitiated(keyword,matches,matchCount)
+    }
+
+    fun trackMixPanelSearchSuggestionInitiated(keyword: String, matches: String, matchCount: Int){
+        try {
+            val jsonObjectUnified = JSONObject().apply {
+                put(PARA_KEYWORD, keyword)
+                put(PARA_MATCHES, matches)
+                put(PARA_MATCH_COUNT,matchCount)
+            }
+            mixpanelHelper.trackEvent(EVENT_AUTO_SUGGESTION_INITIATE, jsonObjectUnified,mixpanelHelper.mMixpanelUnifiedAPI)
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+    }
+
+
+    fun trackSearchSuggestionScrolled(keyword: String, scrollDirection: String, keyboardState: String) {
+        trackMixPanelSearchSuggestionsScrolled(keyword,scrollDirection,keyboardState)
+    }
+
+
+    private fun trackMixPanelSearchSuggestionsScrolled(
+        keyword: String,
+        scrollDirection: String,
+        keyboardState: String
+    ) {
+        val jsonObjectUnified = try {
+            JSONObject().apply {
+                put(PARA_KEYWORD, keyword)
+                put(PARA_SCROLL_DIRECTION, scrollDirection)
+                put(PARA_KEYBOARD_STATE, keyboardState)
+            }
+        } catch (e: JSONException) {
+            e.printStackTrace()
+            JSONObject()
+        }
+
+        mixpanelHelper.trackEvent(
+            EVENT_AUTO_SUGGESTION_SCROLLED,
+            jsonObjectUnified,
+            mixpanelHelper.mMixpanelUnifiedAPI
+        )
+    }
+
+    fun trackSearchSuggestionClicked(
+        keyword: String,
+        clickPosition: Int,
+        title: String,
+        suggestorType: String,
+        contentId: String
+    ) {
+        trackMixPanelSearchSuggestionClicked(
+            keyword,clickPosition, title, suggestorType, contentId
+        )
+    }
+
+    fun trackMixPanelSearchSuggestionClicked(
+        keyword: String,
+        clickPosition: Int,
+        title: String,
+        suggestorType: String,
+        contentId: String
+    ) {
+        try {
+            val jsonObjectUnified = JSONObject().apply {
+                put(PARA_KEYWORD, keyword)
+                put(PARA_CLICK_POSITION, clickPosition)
+                put(PARA_TITLE,title)
+                put(PARA_SUGGESTOR_TYPE,suggestorType)
+                put(PARA_CONTENT_ID,contentId)
+            }
+            mixpanelHelper.trackEvent(EVENT_AUTO_SUGGESTION_CLICKED, jsonObjectUnified,mixpanelHelper.mMixpanelUnifiedAPI)
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
     }
 
     fun trackSearchMIC(screenName: String,keyWord:String, source:String) {
@@ -228,7 +307,14 @@ class SearchAnalytics(
         }
     }
 
-    fun trackSearchResult(keyword: String, count: Int, source: String, searchType: String,filterLanguage: String,filterGenre: String) {
+    fun trackSearchResult(
+        keyword: String,
+        count: Int,
+        source: String,
+        searchType: String,
+        filterLanguage: String,
+        filterGenre: String
+    ) {
         trackMixPanelSearchResult(
             keyword,
             count,
@@ -238,6 +324,10 @@ class SearchAnalytics(
             filterGenre
         )
         trackMoEngageSearchResult(keyword, count, source, searchType)
+    }
+
+    fun trackSearchHome(selectedBottomTab : String){
+        trackMixPanelSearchHome(selectedBottomTab)
     }
 
     private fun trackMixPanelSearchResult(

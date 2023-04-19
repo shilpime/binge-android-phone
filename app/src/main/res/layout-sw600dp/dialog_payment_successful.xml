@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable name="dialogModel"
+            type="com.tatasky.binge.ui.features.dialog.ConfettiDialogModel"/>
+        <import type="android.view.View"/>
+        <import type="android.text.TextUtils"/>
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/payment_dialog_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <nl.dionsegijn.konfetti.KonfettiView
+            android:id="@+id/viewKonfetti"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/linearLayoutCompat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingHorizontal="@dimen/view_margin_xlarge"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="20dp">
+
+            <ImageView
+                android:id="@+id/iv_main"
+                android:layout_width="66dp"
+                android:layout_height="66dp"
+                app:srcCompat="@drawable/ic_tick_login_success" />
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_large"
+                android:gravity="center"
+                android:textSize="@dimen/text_size_22"
+                android:text = "@{dialogModel.title}"
+                tools:text="Payment Successful" />
+
+            <TextView
+                android:id="@+id/tv_subtitle1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_6"
+                android:layout_marginBottom="@dimen/margin_20"
+                android:gravity="center"
+                android:textSize="@dimen/text_size_16"
+                android:text = "@{dialogModel.primaryText}"
+                tools:text="You have now subscribed to Premium VIP monthly Plan" />
+
+            <TextView
+                android:id="@+id/tv_subtitle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/tint_purple_25"
+                android:layout_marginTop="@dimen/margin_4"
+                android:textSize="@dimen/text_size_16"
+                android:text = "@{dialogModel.secondaryText}"
+                tools:text="Your Plan is valid till 21/08/2021" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_start_watching"
+                android:layout_width="@dimen/button_max_width"
+                android:layout_height="@dimen/pi_page_button_height"
+                android:layout_marginTop="@dimen/view_margin_xxlarge"
+                android:text="@{dialogModel.primaryButtonText}" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

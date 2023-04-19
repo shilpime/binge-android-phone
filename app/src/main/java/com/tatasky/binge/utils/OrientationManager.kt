@@ -64,9 +64,16 @@ class OrientationManager : OrientationEventListener {
                 screenOrientation = newOrientation
                 if (listener != null) {
                     disposable?.dispose()
-                    disposable = Completable.timer(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe {
-                        listener!!.onOrientationChange(screenOrientation)
+                    if(mContext?.let { isTablet(it) } == true){
+                        disposable = Completable.timer(400, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe {
+                            listener?.onOrientationChange(screenOrientation)
+                        }
+                    }else{
+                        disposable = Completable.timer(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe {
+                            listener?.onOrientationChange(screenOrientation)
+                        }
                     }
+
                 }
             }
         }

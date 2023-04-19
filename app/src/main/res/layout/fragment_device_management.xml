@@ -34,17 +34,31 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginStart="@dimen/margin_18"
-            android:layout_marginTop="@dimen/margin_18"
-            android:layout_marginEnd="@dimen/margin_18"
+            android:id="@+id/llouter"
+            android:layout_marginStart="@dimen/tab_padding"
+            android:layout_marginEnd="@dimen/tab_padding_right"
             android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView"
+                style="@style/TSText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/tab_toolbar_text"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:text="@string/device_management" />
 
             <TextView
                 style="@style/TSTextBold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/login_devices"
+                android:text="@{viewModel.getSettingsPageVerbiage().loggedIn}"
                 android:textSize="@dimen/text_size_20"
+                android:layout_marginTop="@dimen/tab_top_margin_device_managment"
                 android:visibility="visible"
                 android:lineSpacingExtra="1sp"
                 android:translationY="-0.52sp"
@@ -58,7 +72,7 @@
                 android:translationY="-0.38sp"
                 android:gravity="top"
                 android:text="@{isDeviceReviewOnMaxLimitReached == true ? viewModel.getDeviceListResponse().peekContent().data.removeDeviceVerbiage : @string/login_devices_msg, default=@string/login_devices_msg}"
-                android:textSize="@dimen/text_size_14"
+                android:textSize="@dimen/tab_text_size14"
                 android:visibility="visible"/>
 
             <include
@@ -66,7 +80,7 @@
                 layout="@layout/layout_item_device"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_18"
+                android:layout_marginTop="@dimen/tab_top_margin_device_managment_primaryText"
                 android:visibility="gone"
                 tools:visibility = "visible"
                 app:item="@{item}" />

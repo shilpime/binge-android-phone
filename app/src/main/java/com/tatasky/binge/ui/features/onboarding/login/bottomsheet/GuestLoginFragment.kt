@@ -25,6 +25,7 @@ import com.tatasky.binge.analytics.NEW
 import com.tatasky.binge.analytics.PREVUSED
 import com.tatasky.binge.analytics.SOURCE_LOGIN
 import com.tatasky.binge.data.networking.models.requests.NewBingeUserRequest
+import com.tatasky.binge.data.networking.models.response.GetOtpGuestLoginResponse
 import com.tatasky.binge.data.networking.models.response.LoginResponse
 import com.tatasky.binge.data.networking.models.response.SubscriberIdListResponse
 import com.tatasky.binge.data.receiver.SMSBroadcastReceiver
@@ -42,9 +43,9 @@ import com.tatasky.binge.ui.features.onboarding.login.adapter.PartnerLogoRVAdapt
 import com.tatasky.binge.ui.features.onboarding.login.bottomsheet.temp.GuestLoginBottomSheetResult
 import com.tatasky.binge.ui.features.parentalcontrol.ParentalControlViewModel
 import com.tatasky.binge.utils.*
+import javax.inject.Inject
 import kotlinx.coroutines.delay
 import java.util.*
-import javax.inject.Inject
 
 const val KEY_PREVIOUSLY_SELECTED_MOBILE = "KeyPreviouslySelectedMobile"
 
@@ -56,7 +57,7 @@ class GuestLoginFragment :
     private var isPastBingeUser: Boolean = false
     private var isCreate: Boolean = false
     private var dsn : String?= null
-
+    private lateinit var userMobileNumber: String
     @Inject
     lateinit var loginAnalytics: LoginAnalytics
 
@@ -125,10 +126,12 @@ class GuestLoginFragment :
         viewModel.validateOtp(isFromAutoFillOtp)
     }
 
-    private fun setError(enabled: Boolean, errorMsg: String? = null) {
+    private fun setError(enabled: Boolean, errorMsg: String? = null, incorrectOtp: String? = null) {
         binding.apply {
-            layoutLoginOTP.tvErrorGuestLoginVerifyOtp.text = getString(R.string.incorrect_otp) ?: ""
-            layoutLoginOTP.tvErrorGuestLoginVerifyOtp.visibility = if (enabled) View.VISIBLE else View.GONE
+            layoutLoginOTP.tvErrorGuestLoginVerifyOtp.text =
+                incorrectOtp ?: getString(R.string.incorrect_otp)
+            layoutLoginOTP.tvErrorGuestLoginVerifyOtp.visibility =
+                if (enabled) View.VISIBLE else View.GONE
             layoutLoginOTP.tvCodeExpiryGuestLoginVerifyOtp.visibility =
                 if (!enabled) View.VISIBLE else View.GONE
             layoutLoginOTP.clEtOtpContainer.apply {
@@ -242,7 +245,7 @@ class GuestLoginFragment :
         }
     }
 
-    private fun setTimer() {
+    private fun setTimer(resendOtpInVerbiage: String?= null) {
         viewModel.timer =
             object : CountDownTimer(viewModel.OTP_RESEND_DURATION.toLong(), 1000) {
                 override fun onTick(millisUntilFinished: Long) {
@@ -253,12 +256,21 @@ class GuestLoginFragment :
                     }
                     viewModel.resendDurationLeft = secs
                     context?.let {
-                        binding.layoutLoginOTP.tvCodeExpiryGuestLoginVerifyOtp.text =
-                            String.format(
-                                Locale.US,
-                                it.getString(R.string.text_code_expiry_guest_login_verify_otp),
-                                secs.toString() + ""
-                            )
+                        binding.layoutLoginOTP.tvCodeExpiryGuestLoginVerifyOtp.apply {
+                            text = resendOtpInVerbiage?.let {
+                                String.format(
+                                    Locale.US,
+                                    it,
+                                    secs.toString() + ""
+                                )
+                            }.run {
+                                String.format(
+                                    Locale.US,
+                                    it.getString(R.string.text_code_expiry_guest_login_verify_otp),
+                                    secs.toString() + ""
+                                )
+                            }
+                        }
                     }
 
                 }
@@ -328,10 +340,11 @@ class GuestLoginFragment :
                     DialogModel(
                         false,
                         R.drawable.ic_device_center,
-                        maxDeviceLimitReachedResponse.message,
-                        getString(R.string.review_devices),
-                        getString(R.string.text_non_underlined_Not_Now),
-                        maxDeviceLimitReachedResponse.title
+                        title = viewModel.getVerbiageFromConfig()?.device?.header,
+                        viewModel.getVerbiageFromConfig()?.device?.review
+                            ?: getString(R.string.review_devices),
+                        secondaryButtonText = getString(R.string.text_non_underlined_Not_Now),
+                        text = viewModel.getVerbiageFromConfig()?.device?.subHeader
                     ), object :
                         CommonDialogEventListener {
                         override fun onPrimaryButtonClick() {
@@ -378,20 +391,21 @@ class GuestLoginFragment :
 
         viewModel.getSubLookupResponse().observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { subList ->
-                var finalSidLisitng: List<SubscriberIdListResponse.SubscriberDetail>? = subList.subscribersList
-                e("getSubLookupResponse","inside finalSidLisitng size : ${finalSidLisitng?.size}")
-                if (finalSidLisitng == null || finalSidLisitng.isEmpty()
-                    || (finalSidLisitng.size == 1 && finalSidLisitng[0].listOfBaIds.isEmpty())
+                var finalSidListing: List<SubscriberIdListResponse.SubscriberDetail>? = subList.subscribersList
+                viewModel.sharedPrefs.addSubscriberIDListResponse(subList)
+                e("getSubLookupResponse","inside finalSidLisitng size : ${finalSidListing?.size}")
+                if (finalSidListing == null || finalSidListing.isEmpty()
+                    || (finalSidListing.size == 1 && finalSidListing[0].listOfBaIds.isEmpty())
                 ) {
                     e("GuestLoginOTP", "SID Listing inside createNew BingeMobileUser")
                     var sid = viewModel.rmn
                     var dthStatus = "Non DTH User"
                     var pastBingeUser = false
-                    if(finalSidLisitng?.size?:0 > 0) {
-                        sid = finalSidLisitng!![0].sid
-                        dthStatus = finalSidLisitng[0].dthStatus?:"Non DTH User"
-                        pastBingeUser = finalSidLisitng[0].isPastBingeUser ?: false
-                        viewModel.referenceId = finalSidLisitng[0].referenceId
+                    if(finalSidListing?.size?:0 > 0) {
+                        sid = finalSidListing!![0].sid
+                        dthStatus = finalSidListing[0].dthStatus?:"Non DTH User"
+                        pastBingeUser = finalSidListing[0].isPastBingeUser ?: false
+                        viewModel.referenceId = finalSidListing[0].referenceId
                     }
                     viewModel.createNewBingeMobileUser(
                         NewBingeUserRequest(
@@ -408,7 +422,7 @@ class GuestLoginFragment :
                         )
                     )
                 } else {
-                    finalSidLisitng.let { it ->
+                    finalSidListing.let { it ->
                         e("GuestLoginOTP", "SID Listing inside it.size : ${it.size}")
                         if (it.size == 1) {
                             val subObj = it[0]
@@ -488,9 +502,9 @@ class GuestLoginFragment :
 
         viewModel.generateOtpResponse.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { generateOTPResponse ->
-                loginAnalytics?.trackGetOtp()
+                loginAnalytics.trackGetOtp()
                 // Generate OTP response has masked number, So getting from text field
-                updateAndShowOtpUI(viewModel.rmn)
+                updateAndShowOtpUI(getOtpGuestLoginResponse = generateOTPResponse)
             }
         }
 
@@ -527,8 +541,12 @@ class GuestLoginFragment :
         viewModel.validateOtpResponseError.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { errorModel ->
                 when (errorModel.code) {
-                    40008, 60001, 60003 -> {
+                    40008, 60001 -> {
                         setError(true, errorModel.message)
+                        setOtp("")
+                    }
+                    60003 -> {
+                        setError(true, errorModel.message, incorrectOtpVerbiage)
                         setOtp("")
                     }
                     else -> {
@@ -563,6 +581,9 @@ class GuestLoginFragment :
         viewModel.getExistingBingeUserLoginResponse().observe(viewLifecycleOwner) { obj ->
             obj.getContentIfNotHandled()?.let {
 //                viewModel.saveLoggedInDetails(it)
+                /*Changes for ProbeSDK*/
+                context?.let { playerEventRegisterForMitigationSession(sharedPrefs.getClearRMN(), it) }
+                /*End*/
                 if (viewModel.isParentalPinSetupRequested && selectedBingeUser?.parentalPinExist == true) {
                     //if user is not logged in and parental pin setup requested and parental pin already exists then take user to pin success screen
                     findNavController().navigateSafe(GuestLoginFragmentDirections.actionGlobalParentalPinSuccessFragment())
@@ -577,23 +598,32 @@ class GuestLoginFragment :
         }
     }
 
-    private fun updateAndShowOtpUI(mobileNumber: String?) {
+    private var incorrectOtpVerbiage: String? = null
+    private fun updateAndShowOtpUI(getOtpGuestLoginResponse: GetOtpGuestLoginResponse? = null) {
+        val dataFromResponse = getOtpGuestLoginResponse?.data
         startSMSListener()
         binding.header.imgBack.show()
         binding.rmnGroup.visibility = View.GONE
-        binding.layoutLoginOTP.tvResendOtpGuestLoginVerifyOtp.disable()
-        binding.layoutLoginOTP.root.apply {
-            visibility = View.VISIBLE
-            lifecycleScope.launchWhenResumed {
-                binding.layoutLoginOTP.clEtOtpContainer.etOtpDig1.requestFocus()
-                delay(400)
-                openKeyboard() // Open keyboard automatically when user is on OTP screen view
+        binding.etMobileGuestLogin.et.hide()
+        binding.layoutLoginOTP.tvResendOtpGuestLoginVerifyOtp.apply {
+            disable()
+            dataFromResponse?.let {
+                text = it.resendOtpHeading
+                incorrectOtpVerbiage = it.incorrectOtpVerbiage
             }
         }
+        binding.layoutLoginOTP.root.show()
+        // Setting Error to false for this https://jira.tothenew.com/browse/TSF-19626
+        setError(false)
+        binding.layoutLoginOTP.clEtOtpContainer.etOtpDig1.apply {
+            requestFocus()
+            showKeyboard()
+        }
+
         setOtp("")
-        setTimer()
+        setTimer(dataFromResponse?.resendOtpInVerbiage)
         viewModel.resendCount++
-        val configCount = viewModel.sharedPrefs.getOtpResentCount()+1
+        val configCount = viewModel.sharedPrefs.getOtpResentCount() + 1
         if (viewModel.resendCount >= configCount) {
             binding.layoutLoginOTP.tvResendOtpGuestLoginVerifyOtp.disable()
             binding.layoutLoginOTP.tvResendOtpGuestLoginVerifyOtp.invisible()
@@ -601,19 +631,17 @@ class GuestLoginFragment :
             viewModel.timer?.start()
             binding.layoutLoginOTP.tvResendOtpGuestLoginVerifyOtp.disable()
         }
-        mobileNumber?.let { mobNo ->
-            String.format(
-                Locale.US,
-                getString(R.string.text_subtitle_guest_login_verify_otp),
-                mobNo
-            ).let { subtitle ->
-                binding.layoutLoginOTP.tvSubtitleGuestLoginVerifyOtp.text = subtitle
-            }
-        }
+        val enterOtpVerbiage = getString(
+            R.string.please_enter_otp,
+            dataFromResponse?.enterOTP?.splitAnyString("*")?.first(),
+            userMobileNumber
+        )
+        binding.layoutLoginOTP.tvSubtitleGuestLoginVerifyOtp.text = enterOtpVerbiage
     }
 
     override fun toBeCalledOnce() {
         binding.viewModel = viewModel
+        setBingeLogoOnGuestPage()
         isEligibleForFreeTrial = viewModel.showFreeTrailUI
         guestLoginFragmentArgs.selectedRmnDetails?.let {
             loginAnalytics.trackLoginPageVisit(
@@ -622,8 +650,9 @@ class GuestLoginFragment :
             )
             isEligibleForFreeTrial = it.freeTrialEligible
             it.mobileNumber?.let { mobNo ->
+                userMobileNumber = mobNo
                 viewModel.rmn = mobNo
-                updateAndShowOtpUI(mobNo)
+                validateAndGenerateOtp()
             }
         } ?: run {
             loginAnalytics.trackLoginPageVisit(
@@ -699,7 +728,7 @@ class GuestLoginFragment :
                     getString(R.string.header_title_parental_pin_setup)
             }
             viewModel.isParentalPinSetupRequested && viewModel.isLoggedIn -> {
-                binding.header.logo.setImageResource(R.drawable.ic_lock)
+                setBingeLogoOnGuestPage()
                 binding.header.tvHeaderTitle.text = getString(R.string.title_parental_pin_setup)
                 viewModel.rmn = sharedPrefs.getClearRMN()
             }
@@ -723,6 +752,7 @@ class GuestLoginFragment :
                     viewModel?.loginSource ?: ""
                 )
                 loginAnalytics.trackOtpResend()
+                userMobileNumber = viewModel?.rmn ?: ""
                 viewModel?.generateOtp()
                 binding.layoutLoginOTP.tvResendOtpGuestLoginVerifyOtp.disable()
             }
@@ -750,6 +780,13 @@ class GuestLoginFragment :
                 etOtpDig6.setOnKeyListener(this@GuestLoginFragment)
             }
         }
+    }
+
+    private fun setBingeLogoOnGuestPage() {
+        binding.header.logo.setImageWithPlaceHolder(
+            viewModel.getVerbiageFromConfig()?.loginScreen?.logo,
+            R.drawable.medium_binge_logo
+        )
     }
 
     private fun setLicenseAgreement(tncPart1: String?, tncPart2: String?) {
@@ -835,10 +872,11 @@ class GuestLoginFragment :
         super.onViewCreated(view, savedInstanceState)
         binding.btnProceedGuestLogin.setOnClickListener {
             loginAnalytics.trackLoginRmnEnter()
-            validate()
+            validateAndGenerateOtp()
         }
 
         binding.btnCancelGuestLogin.setOnClickListener {
+            binding.root.closeKeyboard()
             loginAnalytics.trackLoginPageNotNow()
             viewModel.guestLoginResult.postValue(SingleEvent(GuestLoginBottomSheetResult.FAILURE))
         }
@@ -856,6 +894,7 @@ class GuestLoginFragment :
                     binding.layoutLoginOTP.root.hide()
                     binding.rmnGroup.apply {
                         show()
+                        binding.etMobileGuestLogin.et.show()
                         lifecycleScope.launchWhenResumed {
                             delay(300)
                             binding.etMobileGuestLogin.et.showKeyboard()
@@ -867,8 +906,9 @@ class GuestLoginFragment :
         }
     }
 
-    private fun validate() {
+    private fun validateAndGenerateOtp() {
         if (viewModel.rmn.length == 10) {
+            userMobileNumber = viewModel.rmn
             loginAnalytics.trackOtpInvoked(
                 viewModel.loginType,
                 viewModel.loginAuth,

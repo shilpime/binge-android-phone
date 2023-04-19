@@ -7,10 +7,13 @@ import android.os.Bundle
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import com.tatasky.binge.BuildConfig
 import com.tatasky.binge.HomeDirections
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.SOURCE_DEEPLINK
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
+import com.tatasky.binge.analytics.util.getDeeplinkContentAnalyticsModel
 import com.tatasky.binge.data.networking.models.response.ContentItem
 import com.tatasky.binge.data.networking.models.response.PartnerPacks
 import com.tatasky.binge.data.networking.models.response.SubscriberProfileListModel
@@ -264,6 +267,9 @@ object DeeplinkHelper {
                             viewModel.getPreviouslyUsedMobileNumbers()
                         }
                     }
+                    "/$KEY_HELP_CENTER" -> {
+                        navController?.value?.navigateSafe(R.id.action_global_help_and_faq)
+                    }
                     else -> localIntent?.data?.let {
                         /**
                          * Currently supporting only Google and FB DDL
@@ -329,7 +335,8 @@ object DeeplinkHelper {
                             ContentItem().apply {
                                 provider = PROVIDER_PRIME
                                 providerContentId = ""
-                            }
+                            },
+                            contentAnalyticsModel = getDeeplinkContentAnalyticsModel()
                         ))
                 }
             }

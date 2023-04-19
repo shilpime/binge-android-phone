@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <View
+            android:id="@+id/view_background_login_successful_toast"
+            android:layout_width="570dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="1dp"
+            android:background="@drawable/toast_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/image_tick_login_successful_toast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_15"
+            app:layout_constraintBottom_toBottomOf="@id/view_background_login_successful_toast"
+            app:layout_constraintEnd_toStartOf="@id/text_login_successful_toast"
+            app:layout_constraintTop_toTopOf="@id/view_background_login_successful_toast"
+            app:srcCompat="@drawable/ic_tick_login_success" />
+
+        <TextView
+            android:id="@+id/text_login_successful_toast"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_15"
+            android:textSize="14sp"
+            android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="@id/view_background_login_successful_toast"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/view_background_login_successful_toast"
+            tools:text="Successfully Logged in" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

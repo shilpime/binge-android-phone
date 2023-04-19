@@ -38,7 +38,7 @@
             android:textColor="@color/purple_25"
             android:text="@{verbiage.data.subHeader}"
             android:textSize="@dimen/sp_16"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/toolbar_layout" />

@@ -12,7 +12,6 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.CalendarContract
 import android.view.MotionEvent
 import android.view.View
 import androidx.browser.customtabs.CustomTabColorSchemeParams
@@ -24,16 +23,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.SOURCE_HOME
-import com.tatasky.binge.data.networking.models.ErrorModel
 import com.tatasky.binge.data.networking.models.response.ContentItem
-import com.tatasky.binge.domain.repositories.PrefsRepo
 import com.tatasky.binge.interfaces.CommonDialogEventListener
 import com.tatasky.binge.ui.base.frameworks.base.BaseActivity
 import com.tatasky.binge.ui.base.frameworks.extensions.show
-import com.tatasky.binge.ui.features.details.DetailAnalytics
 import com.tatasky.binge.ui.features.dialog.DialogModel
 import com.tatasky.binge.ui.features.dialog.DialogViewModel
-import com.tatasky.binge.ui.features.player.PlayerAnalytics
 import com.tatasky.binge.ui.features.prime.PrimeAnalytics
 import com.tatasky.binge.ui.features.prime.viewmodel.PrimeViewModel
 import com.tatasky.binge.utils.*
@@ -85,11 +80,15 @@ class PrimeActivity : BaseActivity<PrimeViewModel>() {
 		 * you can not change orientation for transparent Activity
 		 */
 
-		if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-			requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-		} else {
-			requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-		}
+        if(isTablet(this)){
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR
+        }else {
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            } else {
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+        }
 
 		val contentItem = try {
 			intent.extras?.getParcelable<ContentItem>("contentItem")

@@ -39,10 +39,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource
 import com.google.android.exoplayer2.text.Cue
 import com.google.android.exoplayer2.text.TextOutput
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.TrackSelection
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.google.android.exoplayer2.trackselection.*
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.google.android.exoplayer2.ui.PlayerControlView
@@ -52,11 +49,13 @@ import com.google.android.exoplayer2.upstream.cache.*
 import com.google.android.exoplayer2.util.EventLogger
 import com.google.android.exoplayer2.util.MimeTypes
 import com.google.android.exoplayer2.util.Util
+import com.probe.sdk.otherutils.ProbeInterface
 import com.ttn.ttnplayer.R
 import com.ttn.ttnplayer.listeners.*
 import com.ttn.ttnplayer.ui.TtnPlayerView
 import com.ttn.ttnplayer.ui.TtnTrackSelector
 import com.ttn.ttnplayer.util.*
+import com.ttn.ttnplayer.util.ProviderSpecificRestrictions.PROVIDER_CHAUPAL_RESTRICTIONS
 import okhttp3.Call
 import okhttp3.OkHttpClient
 import org.json.JSONObject
@@ -81,12 +80,15 @@ class TtnPlayerHelper constructor(context: Context) :
     , PlayerControlView.VisibilityListener, OrientationManager.OrientationChangeListener,
     TimeBar.OnScrubListener {
 
+    private var playbackQualityRestrictionsEnabled: Boolean = false
     private var mAllCookieEnable: Boolean = false
     var mCookieValue : String? = null
     var isBuffering: Boolean = true
     private var formatBuilder= StringBuilder()
     private var enforceL1L3: Boolean = false
     private var securityLevel: String? = null
+    private lateinit var bandwidthMeter: DefaultBandwidthMeter
+
     /**
      * flag to track playback ready state
      *
@@ -309,7 +311,7 @@ class TtnPlayerHelper constructor(context: Context) :
      * token to generate drmLicense
      *
      * */
-    private var token: String? = null
+    private var drmLicenseToken: String? = null
     /**
      * drmProxyUrl to generate drmLicense
      *
@@ -433,12 +435,15 @@ class TtnPlayerHelper constructor(context: Context) :
         context: Context,
         ttnPlayerView: TtnPlayerView,
         cookies: String?,
-        isAllCookieEnable: Boolean = false) {
+        isAllCookieEnable: Boolean = false,
+        playbackQualityRestrictionsEnabled: Boolean
+    ) {
         private val ttnPlayerHelper: TtnPlayerHelper = TtnPlayerHelper(
             context,
             ttnPlayerView,
             cookies,
-            isAllCookieEnable
+            isAllCookieEnable,
+            playbackQualityRestrictionsEnabled
         )
         /**
          * @param visibility
@@ -560,6 +565,13 @@ class TtnPlayerHelper constructor(context: Context) :
          * */
         fun enableLiveStreamSupport(): Builder {
             ttnPlayerHelper.isLiveStreamSupportEnabled = true
+            ttnPlayerHelper.isLiveStream = true
+            return this
+        }
+
+        fun enableAddToWatchlist(isVisible: Boolean): Builder {
+            if (isVisible) ttnPlayerHelper.showAddToWatchlist()
+            else ttnPlayerHelper.hideAddToWatchlist()
             return this
         }
 
@@ -662,7 +674,14 @@ class TtnPlayerHelper constructor(context: Context) :
         isResumePlayWhenReady = true
     }
 
-    constructor(context: Context, ttnPlayerView: TtnPlayerView, cookies: String?,isAllCookieEnable : Boolean) : this(context) {
+    constructor(
+        context: Context,
+        ttnPlayerView: TtnPlayerView,
+        cookies: String?,
+        isAllCookieEnable: Boolean,
+        playbackQualityRestrictionsEnabled: Boolean
+    ) : this(context) {
+        this.playbackQualityRestrictionsEnabled = playbackQualityRestrictionsEnabled
         /*This Cookie handling is only required for Chaupal*/
         if(isAllCookieEnable) {
             val cookieManager = CookieManager()
@@ -798,6 +817,18 @@ class TtnPlayerHelper constructor(context: Context) :
         mDefaultTimeBar?.addListener(this)
     }
 
+    fun handleGoLiveButton(showGoLive: Boolean) {
+        if (showGoLive) {
+            mTextViewLive?.text = mContext.getString(R.string.live)
+            mTextViewLive?.background = null
+            mTextViewLive?.setOnClickListener(this)
+        } else {
+            mTextViewLive?.text = mContext.getString(R.string.live)
+            mTextViewLive?.background = ContextCompat.getDrawable(mContext, android.R.color.holo_red_dark)
+            mTextViewLive?.setOnClickListener(null)
+        }
+    }
+
     fun showUiControls() {
         mTtnPlayerView.showController()
     }
@@ -824,7 +855,7 @@ class TtnPlayerHelper constructor(context: Context) :
         // Measures bandwidth during playback. Can be null if not required.
         /*This DefaultDataSourceFactory handling is only required for Chaupal
         * For others we need to use OkHttpDataSourceFactory*/
-        val bandwidthMeter = DefaultBandwidthMeter.Builder(mContext).build()
+        bandwidthMeter = DefaultBandwidthMeter.Builder(mContext).build()
         val defaultHttpDataSourceFactory =
             if(mAllCookieEnable)
                 DefaultHttpDataSourceFactory(
@@ -883,22 +914,29 @@ class TtnPlayerHelper constructor(context: Context) :
     private fun setDRMLicenseUrl(url: String) {
         mDrmLicenseUrl = url
     }
+
+    private fun setDrmToken(token : String){
+        drmLicenseToken = token
+    }
+
     private fun setDRMInfo(kid: String?, token : String?, drmUrl : String?) {
         this.kid = kid
-        this.token = token
+        this.drmLicenseToken = token
         this.drmProxyUrl = drmUrl
     }
     private fun setControllerTime(time : Long){
         mControllerTime = time
     }
 
-    private fun createMediaSource() : MediaSource{ // A MediaSource defines the media to be played, loads the media, and from which the loaded media can be read.
-// A MediaSource is injected via ExoPlayer.prepare at the start of playback.
+    public fun createMediaSource(/*subTitlesUrl:  ArrayList<SubtitleDTO>?*/) : MediaSource{
+        // A MediaSource defines the media to be played, loads the media, and from which the loaded media can be read.
+        // A MediaSource is injected via ExoPlayer.prepare at the start of playback.
         val mediaSources = arrayOfNulls<MediaSource>(mVideosUris!!.size)
         for (i in mVideosUris!!.indices) {
             mediaSources[i] = mVideosUris!![i]?.let { buildMediaSource(it) }
-            if (mSubTitlesUrls?.size?:0 > 0) {
-                mediaSources[i] = addSubTitlesToMediaSource(mediaSources[i], mSubTitlesUrls!![i])
+            if ((mSubTitlesUrls?.size ?: 0) > 0) {
+
+                mediaSources[i] = addSubTitlesToMediaSource(mediaSources[i], mSubTitlesUrls)
             }
         }
         val mediaSource =
@@ -907,27 +945,40 @@ class TtnPlayerHelper constructor(context: Context) :
         return mediaSource
     }
 
+
     private fun addSubTitlesToMediaSource(
         mediaSource: MediaSource?,
-        subTitlesUrl: SubtitleDTO
+        subTitlesUrl:  ArrayList<SubtitleDTO>?
     ): MediaSource {
-        val textFormat = Format.createTextSampleFormat(
-            null, MimeTypes.APPLICATION_SUBRIP,
-            null, Format.NO_VALUE, Format.NO_VALUE, subTitlesUrl.lang, Format.NO_VALUE, null
-        )
-        val uri = Uri.parse(subTitlesUrl.url?:"")
-        val subtitleSource: MediaSource = SingleSampleMediaSource.Factory(mDataSourceFactory)
-            .createMediaSource(uri, textFormat, C.TIME_UNSET)
-        return MergingMediaSource(mediaSource, subtitleSource)
+        var mediaSourcetemp=mediaSource
+        subTitlesUrl?.let {
+            val mediaSourcesSub = arrayOfNulls<MediaSource>(mSubTitlesUrls?.size!!)
+
+            for(i in mSubTitlesUrls!!.indices) {
+                val textFormat = Format.createTextSampleFormat(
+                    null, MimeTypes.APPLICATION_SUBRIP,
+                    null, Format.NO_VALUE, Format.NO_VALUE, it[i].lang, Format.NO_VALUE, null
+                )
+                val uri = Uri.parse(it[i].url?:"")
+                val subtitleSource: MediaSource = SingleSampleMediaSource.Factory(mDataSourceFactory)
+                    .createMediaSource(uri, textFormat, C.TIME_UNSET)
+                mediaSourcesSub[i]=subtitleSource
+            }
+
+
+            mediaSourcetemp=MergingMediaSource(mediaSource,*mediaSourcesSub)
+
+        }
+        return mediaSourcetemp!!
     }
 
     private fun buildMediaSource(uri: Uri): MediaSource {
         val type = Util.inferContentType(uri)
+        bandwidthMeter = DefaultBandwidthMeter.Builder(mContext).build()
         if(kid != null) {
-            mDrmSessionManager = DRMSessionManager().buildDrmSessionManager(kid, token, drmProxyUrl)
+            mDrmSessionManager = DRMSessionManager().buildDrmSessionManager(kid, drmLicenseToken, drmProxyUrl)
         }
         else if (!mDrmLicenseUrl.isNullOrBlank()) {
-            val bandwidthMeter = DefaultBandwidthMeter.Builder(mContext).build()
             val defaultHttpDataSourceFactory =
                 if(mAllCookieEnable)
                     DefaultHttpDataSourceFactory(
@@ -939,12 +990,14 @@ class TtnPlayerHelper constructor(context: Context) :
             val drmCallback = HttpMediaDrmCallback(
                 mDrmLicenseUrl!!,
                 defaultHttpDataSourceFactory)
-
+            if(drmLicenseToken?.isNotEmpty() == true)
+                drmCallback.setKeyRequestProperty("X-AxDRM-Message", drmLicenseToken!!)
             mDrmSessionManager = if (enforceL1L3) DRMSessionManager().buildSessionManager(drmCallback, securityLevel)
             else
                 DefaultDrmSessionManager.Builder()
                     .setUuidAndExoMediaDrmProvider(C.WIDEVINE_UUID, FrameworkMediaDrm.DEFAULT_PROVIDER)
-                    .setMultiSession(true).build(drmCallback)
+//                    .setMultiSession(true)
+                    .build(drmCallback)
 
             mDrmSessionManager!!.addListener(Handler(), this)
         }
@@ -964,9 +1017,11 @@ class TtnPlayerHelper constructor(context: Context) :
             C.TYPE_SS -> SsMediaSource.Factory(mDataSourceFactory!!).setDrmSessionManager(
                 drmSessionManager
             ).createMediaSource(uri)
-            C.TYPE_DASH -> DashMediaSource.Factory(mDataSourceFactory!!).setDrmSessionManager(
-                drmSessionManager
-            ).createMediaSource(uri)
+            C.TYPE_DASH -> {
+                DashMediaSource.Factory(mDataSourceFactory!!).setDrmSessionManager(
+                    drmSessionManager
+                ).createMediaSource(uri)
+            }
             C.TYPE_HLS -> HlsMediaSource.Factory(mDataSourceFactory!!).setDrmSessionManager(
                 drmSessionManager
             ).createMediaSource(uri)
@@ -1298,11 +1353,17 @@ class TtnPlayerHelper constructor(context: Context) :
 
     private fun liveStreamCheck() {
         if (isLiveStreamSupportEnabled) {
-            isLiveStream =
-                (mPlayer!!.isCurrentWindowDynamic || !mPlayer!!.isCurrentWindowSeekable) && mPlayer!!.isCurrentWindowLive
+//            isLiveStream =
+//                (mPlayer!!.isCurrentWindowDynamic || !mPlayer!!.isCurrentWindowSeekable) && mPlayer!!.isCurrentWindowLive
             mTextViewLive?.visibility = if (isLiveStream) View.VISIBLE else View.GONE
+            mTvRemainingDuration?.visibility = if (!isLiveStream) View.VISIBLE else View.INVISIBLE
         }
     }
+
+    fun getDefaultSeekPosition() =
+        mPlayer?.let {
+            it.currentTimeline.getWindow(it.currentWindowIndex, Timeline.Window()).defaultPositionMs
+        } ?: duration
 
     private fun onPlayerPaused() {
         setProgressVisible(false)
@@ -1338,9 +1399,19 @@ class TtnPlayerHelper constructor(context: Context) :
         mMiniTimeBar = timeBar
     }
 
+    override fun hideAddToWatchlist() {
+        mIvWatchList?.visibility = View.GONE
+    }
+
+    override fun showAddToWatchlist() {
+        mIvWatchList?.visibility = View.VISIBLE
+    }
+
     private fun createPlayerTrailer(url : String) {
         val trackSelector = DefaultTrackSelector()
-        val loadControl = DefaultLoadControl()
+        val mLoadBuilder : DefaultLoadControl.Builder = Builder()
+        ProbeInterface.configBufferingProp(mLoadBuilder)
+        ProbeInterface.configEstDownloadRate()
         if(mPlayer == null) {
             val renderersFactory = DefaultRenderersFactory(mContext)
             mPlayer = SimpleExoPlayer.Builder(mContext, renderersFactory)
@@ -1352,19 +1423,6 @@ class TtnPlayerHelper constructor(context: Context) :
             Util.getUserAgent(mContext, "TS")
         )
         val mediaSource: MediaSource = createMediaSource()
-        /*val mediaSource: MediaSource =
-            when (Util.inferContentType(url)) {
-                C.TYPE_HLS -> {
-                    HlsMediaSource.Factory(mediaDataSourceFactory).createMediaSource(Uri.parse(url))
-                }
-                else -> {
-                    DashMediaSource.Factory(
-                        DefaultDashChunkSource.Factory(mediaDataSourceFactory),
-                        mediaDataSourceFactory
-                    ).createMediaSource(Uri.parse(url))
-                }
-            }
-*/
         mPlayer?.setHandleWakeLock(true)
         mPlayer?.setHandleAudioBecomingNoisy(true)
         //for handling audio focus
@@ -1399,17 +1457,31 @@ class TtnPlayerHelper constructor(context: Context) :
         }
 
         //load control
-        val builder = Builder()
-        //builder.setAllocator(DefaultAllocator(true, 2 * 1024 * 1024))
-        builder.setBufferDurationsMs(
+        val mLoadBuilder : DefaultLoadControl.Builder = Builder()
+//        mLoadBuilder?.setAllocator(DefaultAllocator(true, 2 * 1024 * 1024))
+        mLoadBuilder?.setBufferDurationsMs(
             30000, 120000,
             15000, DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
         )
-        builder.setPrioritizeTimeOverSizeThresholds(false)
-        val mLoadControl: DefaultLoadControl = builder.createDefaultLoadControl()
+//        mLoadBuilder?.setPrioritizeTimeOverSizeThresholds(false)//Commented because of Manorama Playback issue
+        ProbeInterface.configBufferingProp(mLoadBuilder)
+        val mLoadControl: DefaultLoadControl = mLoadBuilder?.createDefaultLoadControl()
         if (trackSelectorParameters == null) {
-
             e("SecurityLevel", securityLevel)
+            val trackBuilder = DefaultTrackSelector.ParametersBuilder(mContext)
+            trackSelectorParameters =
+                if (enforceL1L3 && SECURITY_LEVEL_L3.equals(securityLevel, true)) {
+
+                    if (Util.SDK_INT >= 21) {
+                        trackBuilder.setTunnelingAudioSessionId(C.generateAudioSessionIdV21(mContext))
+                        trackBuilder.setMaxVideoBitrate(L3_MAX_BITRATE)
+                            .setMaxVideoSize(854, 480)
+                    }
+                    trackBuilder.build()
+                }
+                else
+                    trackBuilder.build()
+            ProbeInterface.configEstDownloadRate()
             trackSelectorParameters = if (enforceL1L3 && SECURITY_LEVEL_L3.equals(securityLevel, true)) {
                 val trackBuilder = DefaultTrackSelector.ParametersBuilder(mContext)
                 if (Util.SDK_INT >= 21) {
@@ -1418,6 +1490,14 @@ class TtnPlayerHelper constructor(context: Context) :
                         .setMaxVideoSize(854, 480)
                 }
                 trackBuilder.build()
+            } else if (playbackQualityRestrictionsEnabled) {
+                // Restrict auto video quality to < 4K Streaming
+                val maxAllowedVideoWidth = PROVIDER_CHAUPAL_RESTRICTIONS.first
+                val maxAllowedVideoHeight = PROVIDER_CHAUPAL_RESTRICTIONS.second
+                val trackBuilder = DefaultTrackSelector.ParametersBuilder(mContext)
+                trackBuilder
+                    .setMaxVideoSize(maxAllowedVideoWidth, maxAllowedVideoHeight)
+                    .build()
             } else {
                 DefaultTrackSelector.ParametersBuilder(mContext).build()
             }
@@ -1433,11 +1513,11 @@ class TtnPlayerHelper constructor(context: Context) :
             AdaptiveTrackSelection.DEFAULT_BANDWIDTH_FRACTION
         )
         trackSelector = DefaultTrackSelector(mContext, trackSelectionFactory)
-        trackSelector.parameters = trackSelectorParameters!!
+        trackSelector.parameters = trackSelectorParameters as DefaultTrackSelector.Parameters
         if(mPlayer == null) {
             val renderersFactory = DefaultRenderersFactory(mContext)
             mPlayer = SimpleExoPlayer.Builder(mContext, renderersFactory)
-//                .setLoadControl(mLoadControl)
+                .setLoadControl(mLoadControl)
                 .setTrackSelector(trackSelector)
                 .build()
         }
@@ -1781,7 +1861,7 @@ class TtnPlayerHelper constructor(context: Context) :
         isPlayerPrepared = true
         mPlayer!!.prepare(mMediaSource!!)
         mHandler.postDelayed(updateUI, 1000)
-        if (mResumeWindow != C.INDEX_UNSET && !mPlayer!!.isPlayingAd) {
+        if (!isLiveStreamSupportEnabled && mResumeWindow != C.INDEX_UNSET && !mPlayer!!.isPlayingAd) {
             mPlayer!!.playWhenReady = isResumePlayWhenReady
             mPlayer!!.seekTo(mResumeWindow, mResumePosition + 100)
             if (mTtnPlayerListener != null) {
@@ -2131,7 +2211,15 @@ class TtnPlayerHelper constructor(context: Context) :
     override fun onPlayerError(e: ExoPlaybackException) {
         setProgressVisible(false)
         var errorString: String? = null
-        mTtnPlayerListener?.onTTNPlayerError(e)
+        if(isLiveStreamSupportEnabled){
+            if (isBehindLiveWindow(e)) {
+                createPlayer(true)
+            }
+            else
+                mTtnPlayerListener?.onTTNPlayerError(e)
+        }
+        else
+            mTtnPlayerListener?.onTTNPlayerError(e)
 //        when (e.type) {
 //            ExoPlaybackException.TYPE_SOURCE -> {
 //                val ex = e.sourceException
@@ -2199,9 +2287,6 @@ class TtnPlayerHelper constructor(context: Context) :
 ////            if (mTtnPlayerListener != null) {
 ////                mTtnPlayerListener!!.onPlayerError(errorString)
 ////            }
-//        }
-//        if (isBehindLiveWindow(e)) {
-//            createPlayer(true)
 //        }
 
     }
@@ -2431,7 +2516,19 @@ class TtnPlayerHelper constructor(context: Context) :
             R.id.tv_add_to_watchlist -> {
                 mTtnPlayerListener?.toggleWatchlisted()
             }
+            R.id.tv_live -> {
+                goLive()
+            }
         }
+    }
+
+    private fun getLivePosition() =
+        duration - DEFAULT_MIN_BUFFER_MS
+
+    private fun goLive() {
+        handleGoLiveButton(showGoLive = false)
+        seekTo(currentWindowIndex, getLivePosition())
+        playerPlay()
     }
 
     override fun preparePlayback() {
@@ -2446,6 +2543,11 @@ class TtnPlayerHelper constructor(context: Context) :
     fun getPlayer(): SimpleExoPlayer? {
         return mPlayer
     }
+
+    fun getBandwidthMeter(): DefaultBandwidthMeter{
+        return bandwidthMeter
+    }
+
 
     override fun onScrubMove(timeBar: TimeBar, position: Long) {
         mTtnPlayerListener?.onScrubMove(timeBar, position)

@@ -1,6 +1,8 @@
 package com.tatasky.binge.ui.features.watchlist
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
 import android.view.*
@@ -11,6 +13,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.tatasky.binge.R
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
 import com.tatasky.binge.customviews.RVGridLayoutManager
 import com.tatasky.binge.data.networking.models.response.ContentItem
 import com.tatasky.binge.data.networking.models.response.HomeResponse
@@ -26,6 +29,7 @@ import com.tatasky.binge.ui.features.home.LandingActivity
 import com.tatasky.binge.ui.features.home.adapter.ItemGridAdapter
 import com.tatasky.binge.ui.features.home.sub.SubFragmentDirections
 import com.tatasky.binge.utils.EndlessRecyclerOnScrollListener
+import com.tatasky.binge.utils.isTablet
 import com.tatasky.binge.utils.navigateSafe
 import com.tatasky.binge.utils.showCustomToast
 import java.util.*
@@ -159,16 +163,18 @@ class WatchlistFragment : BaseFragment<FragmentWatchlistBinding, FavouriteViewMo
                 binding.swipeRefresh.isRefreshing = false
             binding.progressBarBottom.startProgressAvd(false)
         })
-        viewModel.getClickedItem().observe(viewLifecycleOwner, Observer
-        {
-            it.getContentIfNotHandled()?.let { contentItem ->
-                if (contentItem.contentItem.id == "0") {
-                    contentItem.contentItem.id = contentItem.contentItem.contentId
+
+        viewModel.getClickedItem().observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { clickedItem ->
+                if (clickedItem.contentItem.id == "0") {
+                    clickedItem.contentItem.id = clickedItem.contentItem.contentId
                 }
                 findNavController().navigateSafe(
                     SubFragmentDirections.actionToDetail(
-                        contentItem.contentItem
-                    ), contentItem.extras
+                        clickedItem.contentItem,
+                        contentAnalyticsModel = clickedItem.contentAnalyticsModel
+                    ),
+                    clickedItem.extras
                 )
             }
         })
@@ -255,7 +261,14 @@ class WatchlistFragment : BaseFragment<FragmentWatchlistBinding, FavouriteViewMo
             binding.favRecyclerView.addOnScrollListener(endlessScrollListener)
         }
 
-        viewModel.updateList(response)
+        viewModel.updateList(
+            response,
+            ContentAnalyticsModel(
+                null,
+                null,
+                getString(R.string.watchlist)
+            )
+        )
         binding.favRecyclerView.show()
         binding.llEmpty.hide()
         mMenuSelectItem?.isVisible = true
@@ -272,28 +285,37 @@ class WatchlistFragment : BaseFragment<FragmentWatchlistBinding, FavouriteViewMo
 
     private fun checkNewItem(data: HomeResponse.Items?): Boolean {
         if(contentItem.isNotEmpty()
-            && data?.filteredContentItems?.size ?: 0 > 0
-            && contentItem[0].contentId != data?.filteredContentItems!![0].contentId)
+            && (data?.filteredContentItems?.size ?: 0) > 0
+            && contentItem[0].contentId != data?.filteredContentItems!![0].contentId
+        )
             return true
         return false
     }
 
     private fun setNoResultView() {
-        binding.swipeRefresh.isRefreshing = false
-        binding.favRecyclerView.hide()
-        binding.llEmpty.show()
+        binding.apply {
+            swipeRefresh.isRefreshing = false
+            favRecyclerView.hide()
+            llEmpty.show()
+            tvBingeListEmpty?.text = viewModel.getSettingsPageVerbiage()?.bingeListEmpty
+            tvBingeListDesc?.text = viewModel.getSettingsPageVerbiage()?.subHeader
+            btnDiscoverToAdd.text = viewModel.getSettingsPageVerbiage()?.cta
+        }
+
         mMenuSelectItem?.isVisible = false
 
     }
 
     private fun setSpan() {
-        val gridLayoutManager = RVGridLayoutManager(requireContext())
-        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-            override fun getSpanSize(position: Int): Int {
-                return if (position == (binding.favRecyclerView.adapter as ItemGridAdapter).getListSize()) 2 else 1
+        context?.let {
+            val gridLayoutManager = RVGridLayoutManager(it, resources.getInteger(R.integer.grid_landscape))
+            gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    return if (position == (binding.favRecyclerView.adapter as ItemGridAdapter).getListSize()) 2 else 1
+                }
             }
+            binding.favRecyclerView.layoutManager = gridLayoutManager
         }
-        binding.favRecyclerView.layoutManager = gridLayoutManager
     }
 
     override fun onResume() {
@@ -320,5 +342,17 @@ class WatchlistFragment : BaseFragment<FragmentWatchlistBinding, FavouriteViewMo
             handleMenuButtonText(it)
         }
         super.onPrepareOptionsMenu(menu)
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        activity?.let {
+            if(isTablet(it)){
+                val manager = binding.favRecyclerView.layoutManager as GridLayoutManager
+                manager.spanCount = it.resources.getInteger(R.integer.grid_landscape)
+                binding.favRecyclerView.adapter?.notifyDataSetChanged()
+            }
+        }
     }
 }

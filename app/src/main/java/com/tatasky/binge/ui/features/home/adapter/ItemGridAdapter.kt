@@ -1,6 +1,8 @@
 package com.tatasky.binge.ui.features.home.adapter
 
+import android.content.res.Configuration
 import android.graphics.Point
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -13,6 +15,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.SOURCE_BINGE_LIST
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
+import com.tatasky.binge.analytics.util.emptyContentAnalyticsModel
 import com.tatasky.binge.customviews.EndlessListAdapter
 import com.tatasky.binge.data.database.model.GamesMixpanelInfoModel
 import com.tatasky.binge.data.networking.models.requests.ContentIdAndTypeRequest
@@ -47,8 +51,8 @@ class ItemGridAdapter(
     private val mSelectedItemsSize: MutableLiveData<SingleEvent<Int>>? = null,
     var railTitle:String? = null,
     var railPosition : String? = null,
-    var pageName : String? =null
-) : EndlessListAdapter<ContentItem, RecyclerView.ViewHolder>(mList) {
+    var pageName : String? =null,
+) : EndlessListAdapter<ContentItem, RecyclerView.ViewHolder>(mList, emptyContentAnalyticsModel()) {
     private var mTotalCount: Int = 0
     private var layoutType: String = ItemLayoutType.LANDSCAPE.name
     private var isSubscribed = false
@@ -112,6 +116,8 @@ class ItemGridAdapter(
         contentItem.isPartnerSubscribed = isPackAvailed &&
             !mNonSubscribedPartnerList.contains(contentItem.provider.toLowerCase())
         contentItem.isGuestUser = !mIsUserLogin
+
+        Log.d("TAG", "bindNormalViewHolder: ${holder.itemViewType} :: $position :: ${contentItem.contentTitle}")
         when (holder.itemViewType) {
             PORTRAIT_TYPE -> {
                 holder as RailItemViewHolder
@@ -125,7 +131,7 @@ class ItemGridAdapter(
                 layoutParams.setMargins(
                     dpToPx(holder.binding.root.context, 4),//left
                     dpToPx(holder.binding.root.context, 4),//top
-                    dpToPx(holder.binding.root.context, 4),//right
+                    dpToPx(holder.binding.root.context, 0),//right
                     dpToPx(holder.binding.root.context, 8)//bottom
                 )
                 holder.binding.cardView.layoutParams = layoutParams
@@ -185,7 +191,8 @@ class ItemGridAdapter(
                         sectionPosition,
                         EventConstants.TYPE_RAIL,
                         null,
-                        origin = origin
+                        origin = origin,
+                        contentAnalyticsModel = contentAnalyticsModel
                     )
                 }
             }
@@ -238,7 +245,8 @@ class ItemGridAdapter(
                         sectionPosition,
                         EventConstants.TYPE_APPS,
                         null,
-                        origin = origin
+                        origin = origin,
+                        contentAnalyticsModel = contentAnalyticsModel
                     )
                 }
             }
@@ -282,6 +290,14 @@ class ItemGridAdapter(
             dpToPx(holder.binding.root.context, 4),
             dpToPx(holder.binding.root.context, 8)
         )
+        if(isTablet(holder.binding.root.context)){
+            layoutParams.setMargins(
+                dpToPx(holder.binding.root.context, 4),
+                dpToPx(holder.binding.root.context, 4),
+                dpToPx(holder.binding.root.context, 10),
+                dpToPx(holder.binding.root.context, 8)
+            )
+        }
         holder.binding.clHomeGamingRoot.layoutParams = layoutParams
 //        holder.binding.ivItemGameSqaure.layoutParams = ConstraintLayout.LayoutParams(mWidth, mHeight)
         val url = getCloudinaryUrl(
@@ -311,11 +327,10 @@ class ItemGridAdapter(
                     gameRating = contentItem.gameRating,
                     releaseYear = contentItem.releaseYear ?: "",
                     source = contentItem.source
-                )
+                ),
+                contentAnalyticsModel = contentAnalyticsModel
             )
-
         }
-
     }
 
     private fun handleLandscapeRail(
@@ -331,25 +346,21 @@ class ItemGridAdapter(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
-        if (position % 2 == 0) {
-            layoutParams.setMargins(
-                dpToPx(holder.binding.root.context, 4),
-                dpToPx(holder.binding.root.context, 4),
-                dpToPx(holder.binding.root.context, 4),
-                dpToPx(holder.binding.root.context, 8)
-            )
-        } else {
-            layoutParams.setMargins(
-                dpToPx(holder.binding.root.context, 4),
-                dpToPx(holder.binding.root.context, 4),
-                dpToPx(holder.binding.root.context, 4),
-                dpToPx(holder.binding.root.context, 8)
-            )
-        }
+        setItemMargin(layoutParams, holder)
         holder.binding.cardView.layoutParams = layoutParams
-        holder.binding.img.layoutParams = FrameLayout.LayoutParams(mWidth, mHeight)
-        holder.binding.imgCard.layoutParams = ConstraintLayout.LayoutParams(mWidth, mHeight)
-        holder.binding.rlImage.layoutParams = RelativeLayout.LayoutParams(mWidth, mHeight)
+        if(isTablet(holder.binding.root.context) && holder.binding.root.context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE){
+            setItemMargin(layoutParams, holder)
+            holder.binding.img.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mHeight)
+            holder.binding.imgCard.layoutParams = ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, mHeight)
+            holder.binding.rlImage.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,mHeight)
+        }else {
+            if(isTablet(holder.binding.root.context) && holder.binding.root.context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT){
+                setItemMarginTabletLandscape(layoutParams, holder)
+            }
+            holder.binding.img.layoutParams = FrameLayout.LayoutParams(mWidth, mHeight)
+            holder.binding.imgCard.layoutParams = ConstraintLayout.LayoutParams(mWidth, mHeight)
+            holder.binding.rlImage.layoutParams = RelativeLayout.LayoutParams(mWidth, mHeight)
+        }
         if(isSelectionMode){
             holder.binding.selectOverlay.show()
         }else{
@@ -428,7 +439,8 @@ class ItemGridAdapter(
                         gameRating = contentItem.gameRating,
                         releaseYear = contentItem.releaseYear ?: "",
                         source = contentItem.source
-                    )
+                    ),
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             }
         }
@@ -442,6 +454,30 @@ class ItemGridAdapter(
         }
         holder.binding.selectOverlay.isSelected = mSelectedItems.contains(position)
 
+    }
+
+    private fun setItemMargin(
+        layoutParams: LinearLayout.LayoutParams,
+        holder: RailItemViewHolder
+    ) {
+        layoutParams.setMargins(
+            dpToPx(holder.binding.root.context, 6),
+            dpToPx(holder.binding.root.context, 4),
+            dpToPx(holder.binding.root.context, 6),
+            dpToPx(holder.binding.root.context, 8)
+        )
+    }
+
+    private fun setItemMarginTabletLandscape(
+        layoutParams: LinearLayout.LayoutParams,
+        holder: RailItemViewHolder
+    ) {
+        layoutParams.setMargins(
+            dpToPx(holder.binding.root.context, 6),
+            dpToPx(holder.binding.root.context, 2),
+            dpToPx(holder.binding.root.context, 10),
+            dpToPx(holder.binding.root.context, 8)
+        )
     }
 
 
@@ -478,15 +514,15 @@ class ItemGridAdapter(
         isAppending = false
     }
 
-    fun addToList(itemsToAdd: List<ContentItem>) {
-        this.addTomDataList(itemsToAdd)
+    fun addToList(itemsToAdd: List<ContentItem>, contentAnalyticsModel: ContentAnalyticsModel) {
+        this.addTomDataList(itemsToAdd, contentAnalyticsModel)
         if (mDataList.size < mTotalCount) {
             isAppending = true
         }
     }
 
-    fun updateList(mItems: List<ContentItem>) {
-        this.setmDataList(mItems.toMutableList())
+    fun updateList(mItems: List<ContentItem>, contentAnalyticsModel: ContentAnalyticsModel) {
+        this.setmDataList(mItems.toMutableList(), contentAnalyticsModel)
         if (mDataList.size < mTotalCount) {
             isAppending = true
         }
@@ -557,22 +593,13 @@ class ItemGridAdapter(
     }
 
     fun updateListForDiff(
-        list: List<ContentItem>, isFilters:Boolean = false
+        list: List<ContentItem>,
+        isFilters:Boolean = false,
+        contentAnalyticsModel: ContentAnalyticsModel
     ) {
         val diffResult = if(isFilters) DiffUtil.calculateDiff(ContentItemFiltersDiffCallback(this.mDataList, list), false) else DiffUtil.calculateDiff(ContentItemDiffCallback(this.mDataList, list), false)
-        updateDataWithDiffCallback(list, diffResult)
+        updateDataWithDiffCallback(list, diffResult, contentAnalyticsModel)
         if (mDataList.size < mTotalCount) {
-            isAppending = true
-        }
-    }
-
-    fun addToListForDiff(
-        list: List<ContentItem>
-    ) {
-        val tempList = this.mDataList + list
-        val diffResult = DiffUtil.calculateDiff(ContentItemDiffCallback(this.mDataList, tempList), false)
-        updateDataWithDiffCallback(tempList, diffResult)
-        if (tempList.size < mTotalCount) {
             isAppending = true
         }
     }
@@ -580,23 +607,30 @@ class ItemGridAdapter(
     fun updateListForDiff(
         list: List<ContentItem>,
         isFilters:Boolean = false,
-        continuePaging : Boolean
+        continuePaging : Boolean,
+        contentAnalyticsModel: ContentAnalyticsModel
     ) {
         val diffResult = if(isFilters) DiffUtil.calculateDiff(ContentItemFiltersDiffCallback(this.mDataList, list), false) else DiffUtil.calculateDiff(ContentItemDiffCallback(this.mDataList, list), false)
-        updateDataWithDiffCallback(list, diffResult)
+        updateDataWithDiffCallback(list, diffResult, contentAnalyticsModel)
         isAppending = continuePaging
     }
 
 
-    fun addToList(itemsToAdd: List<ContentItem>,
-                  continuePaging : Boolean) {
-        this.addTomDataList(itemsToAdd)
+    fun addToList(
+        itemsToAdd: List<ContentItem>,
+        continuePaging: Boolean,
+        contentAnalyticsModel: ContentAnalyticsModel
+    ) {
+        this.addTomDataList(itemsToAdd, contentAnalyticsModel)
         isAppending = continuePaging
     }
 
-    fun updateList(mItems: List<ContentItem>,
-                   continuePaging : Boolean) {
-        this.setmDataList(mItems.toMutableList())
+    fun updateList(
+        mItems: List<ContentItem>,
+        continuePaging: Boolean,
+        contentAnalyticsModel: ContentAnalyticsModel
+    ) {
+        this.setmDataList(mItems.toMutableList(), contentAnalyticsModel)
         isAppending = continuePaging
     }
 

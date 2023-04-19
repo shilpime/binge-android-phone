@@ -435,6 +435,9 @@ fun NavController.navigateSafe(navDirection: NavDirections) {
                 else if(PROVIDER_PRIME.equals(navDirection.arguments.getParcelable<ContentItem>("contentItem")?.provider, true)){
                     changeNodeDestination(R.id.nav_details, R.id.prime_activity).navigate(navDirection)
                 }
+                else  if(TYPE_LIVE.equals(navDirection.arguments.getParcelable<ContentItem>("contentItem")?.contentType, true)){
+                    changeNodeDestination(R.id.nav_details, R.id.liveChannelPlayerFragment).navigate(navDirection)
+                }
                 else {
                     changeNodeDestination(R.id.nav_details, R.id.ttnDetailsFragment).navigate(navDirection)
                 }
@@ -473,6 +476,9 @@ fun NavController.navigateSafe(navDirection: NavDirections, navigatorExtras: Nav
                 else if(PROVIDER_PRIME.equals(navDirection.arguments.getParcelable<ContentItem>("contentItem")?.provider, true)){
                     changeNodeDestination(R.id.nav_details, R.id.prime_activity).navigate(navDirection, navigatorExtras)
                 }
+                else  if(TYPE_LIVE.equals(navDirection.arguments.getParcelable<ContentItem>("contentItem")?.contentType, true)){
+                    changeNodeDestination(R.id.nav_details, R.id.liveChannelPlayerFragment).navigate(navDirection, navigatorExtras)
+                }
                 else {
                     changeNodeDestination(R.id.nav_details, R.id.ttnDetailsFragment).navigate(navDirection, navigatorExtras)
                 }
@@ -497,6 +503,9 @@ fun NavController.navigateSafe(navDirection: NavDirections, navOptions: NavOptio
                 }
                 else if(PROVIDER_PRIME.equals(navDirection.arguments.getParcelable<ContentItem>("contentItem")?.provider, true)){
                     changeNodeDestination(R.id.nav_details, R.id.prime_activity).navigate(navDirection, navOptions)
+                }
+                else  if(TYPE_LIVE.equals(navDirection.arguments.getParcelable<ContentItem>("contentItem")?.contentType, true)){
+                    changeNodeDestination(R.id.nav_details, R.id.liveChannelPlayerFragment).navigate(navDirection, navOptions)
                 }
                 else {
                     changeNodeDestination(R.id.nav_details, R.id.ttnDetailsFragment).navigate(navDirection, navOptions)

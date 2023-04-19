@@ -62,9 +62,8 @@ repositories {
 }
 kapt {
     generateStubs = true
-    correctErrorTypes true
 }
-def version ="4.0.8.27"
+def version = "4.1.0.14"
 android {
     compileSdkVersion 31
     buildToolsVersion "29.0.3"
@@ -72,7 +71,7 @@ android {
         applicationId "com.tatasky.binge"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 35
+        versionCode 37
         versionName version
         testInstrumentationRunner "com.tatasky.binge.app.CustomInstrumentationRunner"
         manifestPlaceholders.hostName = project.property("hostNameUat")
@@ -210,7 +209,7 @@ android {
             buildConfigField 'String', 'SONY_LIV_TOKEN', '"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXJ0bmVyIjoiVEFUQV9TS1lfQklOR0VfTU9CSUxFIiwiYWNjZXNzS2V5IjoiM2QxYWFmNjIzNzI3NTdmYThkNjAiLCJpc3N1ZXIiOiJTb255TElWIiwic3ViamVjdCI6IlBhcnRuZXIgU3BlY2lmaWMgVG9rZW4iLCJhdWRpZW5jZSI6Iiouc29ueWxpdi5jb20iLCJpYXQiOjE2MTYwOTI1NDAsImV4cCI6MTYxNjE4NjE0MH0.CvyzgZ7UNBHRT9crMWKZphEvh1F6mhY_Y93IexcacWW92QSjnvig6dWo3yjKjFdDFjgwf94yljiykDv6wroLvg"'
             buildConfigField 'String', 'EROSNOW_PARTNER_CODE', '"TSKY"'
             buildConfigField 'String', 'EROSNOW_API_CLIENTID', '"1MZeCKJYqvwEeaWsCd1FA19KZxHubbz41TCIqdbF"'
-            versionName '4.0.8.3'
+            versionName '4.1.5'
             // AppsFlyer Dev Key
             buildConfigField 'String', 'AF_DEV_KEY', '"3TcAjEHEaS4MjapFRiRpCJ"'
             // AppsFlyer Branded Domain
@@ -247,7 +246,7 @@ android {
             buildConfigField 'String', 'AUTH_APP_KEY', '"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6InZyLWRtLWFuZHJvaWQtdWF0Iiwia2V5IjoidnItZG0tYW5kcm9pZC11YXQifQ.ugNAiQFxbgJ6_lKBJdXpJ6Rq7JOGt_fKP3rO5kwbM6U"'
             buildConfigField 'String', 'EROSNOW_PARTNER_CODE', '"TSKY"'
             buildConfigField 'String', 'EROSNOW_API_CLIENTID', '"1MZeCKJYqvwEeaWsCd1FA19KZxHubbz41TCIqdbF"'
-            versionName '4.0.8'
+            versionName '4.1.0'
             buildConfigField 'String', 'SONY_LIV_TOKEN', '"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXJ0bmVyIjoiVEFUQV9TS1lfQklOR0VfTU9CSUxFIiwiYWNjZXNzS2V5IjoiM2QxYWFmNjIzNzI3NTdmYThkNjAiLCJpc3N1ZXIiOiJTb255TElWIiwic3ViamVjdCI6IlBhcnRuZXIgU3BlY2lmaWMgVG9rZW4iLCJhdWRpZW5jZSI6Iiouc29ueWxpdi5jb20iLCJpYXQiOjE2MTYwOTI1NDAsImV4cCI6MTYxNjE4NjE0MH0.CvyzgZ7UNBHRT9crMWKZphEvh1F6mhY_Y93IexcacWW92QSjnvig6dWo3yjKjFdDFjgwf94yljiykDv6wroLvg"'
             // AppsFlyer Dev Key
             buildConfigField 'String', 'AF_DEV_KEY', '"3TcAjEHEaS4MjapFRiRpCJ"'
@@ -288,20 +287,26 @@ android {
     }
 }
 
-//android.applicationVariants.all {
-//    def aptOutputDir = new File(buildDir, "generated/source/kapt/${it.unitTestVariant.dirName}")
-//    it.unitTestVariant.addJavaSourceFoldersToModel(aptOutputDir)
-//}
+android.applicationVariants.all {
+    def aptOutputDir = new File(buildDir, "generated/source/kapt/${it.unitTestVariant.dirName}")
+    it.unitTestVariant.addJavaSourceFoldersToModel(aptOutputDir)
+}
 
 ext.exoPlayerVersion = '2.11.8'
 
 dependencies {
+        implementation 'com.intuit.sdp:sdp-android:1.1.0'
     implementation 'com.airbnb.android:lottie:5.2.0'
     implementation 'nl.dionsegijn:konfetti:1.3.2'
     implementation 'com.github.didikk:sticky-nestedscrollview:1.0.1'
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
     implementation files('libs/ha-release-1.6.aar')
     implementation files('libs/hungamaplayersdk-release_1.6.aar')
+//probemitigationsdk
+    implementation files('libs/probemitigationsdk_2.6.aar')
+//    uatImplementation files('src/uat/libs/probemitigationsdk-v2.2.aar')
+//    stagingImplementation files('src/staging/libs/probemitigationsdk-stage-v2.3.aar')
+//    productionImplementation files('src/production/libs/probemitigationsdk-prod-v2.3.aar')
 
     implementation 'com.android.support:multidex:1.0.3'
 
@@ -404,8 +409,6 @@ dependencies {
     implementation "androidx.room:room-runtime:2.2.4"
     kapt "androidx.room:room-compiler:2.2.4"
     implementation "androidx.room:room-ktx:2.2.4"
-//    implementation "androidx.room:room-runtime:2.3.0"
-//    annotationProcessor "androidx.room:room-compiler:2.3.0"
     implementation 'com.robinhood.ticker:ticker:2.0.2'
     implementation 'androidx.browser:browser:1.3.0'
 
@@ -462,9 +465,6 @@ dependencies {
     //JusPay HyperSDK for Payment gateway integration
     implementation 'in.juspay:hypersdk:2.1.7'
 
-    //Clevertap
-    implementation 'com.clevertap.android:clevertap-android-sdk:4.6.1'
-
     //MX Player
 //    implementation 'com.m.x.tata.sdk:player:1.0.1.17-SNAPSHOT'
 
@@ -483,5 +483,9 @@ dependencies {
 
     // Material tap target: For Coach marks
     implementation 'uk.co.samuelwall:material-tap-target-prompt:3.3.2'
+
+    //Clevertap-RenderMax
+    implementation 'com.clevertap.android:clevertap-android-sdk:4.6.6'
+    implementation 'com.clevertap.android:clevertap-rendermax-sdk:1.0.2'
 }
 apply plugin: 'com.google.gms.google-services'

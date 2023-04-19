@@ -11,8 +11,8 @@ import com.tatasky.binge.data.networking.models.requests.LionsgateRequest
 import com.tatasky.binge.data.networking.models.response.*
 import com.tatasky.binge.domain.repositories.PrefsRepo
 import com.tatasky.binge.domain.usecase.CommonUseCase
-import com.tatasky.binge.epicon.PartnerContentAnalyticsRequest
-import com.tatasky.binge.epicon.PlanetMarathiAnalyticsRequest
+import com.tatasky.binge.data.networking.models.requests.PartnerContentAnalyticsRequest
+import com.tatasky.binge.data.networking.models.requests.PlanetMarathiAnalyticsRequest
 import com.tatasky.binge.learnactions.LearnActionHelper
 import com.tatasky.binge.lionsgatehelper.LionsgateAnalyticsBody
 import com.tatasky.binge.shemaroo.helper.ShemarooAnalyticsBody
@@ -24,7 +24,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
-class PlayerViewModel @Inject constructor(
+open class PlayerViewModel @Inject constructor(
     val mUseCase: CommonUseCase,
     val mDatabase: AppDatabase,
     val mSharedPrefs: PrefsRepo,

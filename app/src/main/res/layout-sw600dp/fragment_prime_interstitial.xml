@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.tatasky.binge.data.networking.models.response.PrimeInterstitialResponse.Data" />
+
+        <import type="android.view.View" />
+        <import type="android.text.TextUtils"/>
+
+    </data>
+
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false">
+
+            <ImageView
+                android:id="@+id/binge_logo_iv"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:minHeight="?attr/actionBarSize"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="@dimen/margin_20"
+                app:srcCompat="@drawable/large_binge_logo" />
+
+
+            <include
+                android:id="@+id/promotional_banner_iv"
+                layout="@layout/layout_prime_banner"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginHorizontal="@dimen/tab_prime_banner_margin"
+                app:layout_constraintDimensionRatio="16:7"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/binge_logo_iv"
+                />
+
+            <!--Image size to be fixed from BE-->
+            <ImageView
+                android:id="@+id/first_prime_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintHeight_min="@dimen/margin_28"
+                app:layout_constraintHeight_max="@dimen/margin_28"
+                android:layout_marginTop="@dimen/view_margin_xlarge"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/promotional_banner_iv" />
+
+            <TextView
+                android:id="@+id/header_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:lineSpacingExtra="4sp"
+                android:paddingHorizontal="@dimen/view_margin_xlarge"
+                android:paddingVertical="@dimen/view_margin_medium"
+                style="@style/TSTextMedium"
+                android:text="@{model.firstInformation}"
+                android:visibility="@{!TextUtils.isEmpty(model.firstInformation) ? View.VISIBLE : View.GONE}"
+                android:textColor="@color/offer_color"
+                android:textSize="@dimen/text_size_20"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/first_prime_logo" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPrimary"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/tab_button_height"
+                android:layout_marginHorizontal="@dimen/view_margin_medium"
+                app:layout_constraintWidth_max="@dimen/button_max_width"
+                android:textSize="@dimen/text_size_20"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/header_text" />
+
+
+            <TextView
+                android:id="@+id/btnSecondary"
+                style="@style/Widget.AppTheme.ButtonStyle.Text"
+                android:layout_width="wrap_content"
+                android:minHeight="@dimen/margin_0"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/view_margin_small"
+                android:textSize="@dimen/text_size_20"
+                android:text="@string/existing_prime_user"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnPrimary" />
+
+            <TextView
+                android:id="@+id/sub_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingHorizontal="@dimen/view_margin_xlarge"
+                android:paddingVertical="@dimen/view_margin_small"
+                android:layout_marginTop="@dimen/view_margin_small"
+                style="@style/TSTextMedium"
+                android:text="@{model.secondInformation}"
+                android:visibility="@{!TextUtils.isEmpty(model.secondInformation) ? View.VISIBLE : View.GONE}"
+                android:textColor="@color/text_color"
+                android:textSize="@dimen/text_size_16"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnSecondary" />
+
+            <TextView
+                android:id="@+id/tnc_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="@dimen/view_margin_medium"
+                android:paddingHorizontal="@dimen/view_margin_medium"
+                android:autoLink="web"
+                style="@style/TSTextMedium"
+                android:text="@{model.thirdInformation}"
+                android:visibility="@{!TextUtils.isEmpty(model.thirdInformation) ? View.VISIBLE : View.GONE}"
+                android:textSize="@dimen/text_size_20"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/sub_header" />
+
+            <TextView
+                android:id="@+id/tnc_body"
+                style="@style/TSTextMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/darkPrimary"
+                android:paddingHorizontal="@dimen/view_margin_medium"
+                android:text="@{model.fourthInformation}"
+                android:textSize="@dimen/text_size_20"
+                android:visibility="@{!TextUtils.isEmpty(model.fourthInformation) ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="@id/tnc_header"
+                app:layout_constraintStart_toStartOf="@id/tnc_header"
+                app:layout_constraintTop_toBottomOf="@id/tnc_header" />
+
+            <!--Image size to be fixed from BE-->
+            <ImageView
+                android:layout_marginTop="@dimen/view_margin_large"
+                android:id="@+id/second_prime_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintHeight_max="@dimen/margin_30"
+                app:layout_constraintHeight_min="@dimen/margin_30"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tnc_body" />
+
+            <TextView
+                android:id="@+id/secondary_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/view_margin_medium"
+                style="@style/TSTextMedium"
+                android:text="@{model.fifthInformation}"
+                android:visibility="@{!TextUtils.isEmpty(model.fifthInformation) ? View.VISIBLE : View.GONE}"
+                android:textSize="@dimen/text_size_20"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/second_prime_logo" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_icons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/secondary_header">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/view_margin_medium"
+                android:id="@+id/amazon_services"
+                android:layout_marginTop="@dimen/view_margin_large"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/footer_info_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_xlarge"
+                android:gravity="center"
+                style="@style/TSTextMedium"
+                android:paddingHorizontal="@dimen/view_margin_xlarge"
+                android:paddingVertical="@dimen/view_margin_medium"
+                android:textColor="@color/text_color"
+                android:text="@{model.sixthInformation}"
+                android:visibility="@{!TextUtils.isEmpty(model.sixthInformation) ? View.VISIBLE : View.GONE}"
+                android:textSize="@dimen/text_size_12"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cl_icons" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

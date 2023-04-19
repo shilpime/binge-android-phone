@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="isTablet">true</bool>
+    <bool name="isTabletLand">true</bool>
+    <bool name="is7inch">true</bool>
+    <integer name="grid_landscape">4</integer>
+    <integer name="grid_portrait">6</integer>
+    <integer name="shuffle_rail_span">6</integer>
+    <dimen name="player_view_width">0dp</dimen>
+    <dimen name="player_view_height">280dp</dimen>
+    <integer name="grid_game_square">6</integer>
+    <integer name="grid_provider_subscription">8</integer>
+    <dimen name="language_nudge_width">670dp</dimen>
+    <dimen name="tab_text_size_18">18sp</dimen>
+    <dimen name="provider_grid_width">0dp</dimen>
+    <dimen name="tab_text_size_20">20sp</dimen>
+    <dimen name="tab_setting_text_size">18sp</dimen>
+    <dimen name="tab_padding">70dp</dimen>
+    <dimen name="tab_padding_right">77dp</dimen>
+    <dimen name="padding_18dp">18dp</dimen>
+    <dimen name="padding_77dp">77dp</dimen>
+    <dimen name="padding_22dp">22dp</dimen>
+    <dimen name="tab_otp_margin">80dp</dimen>
+    <dimen name="tab_trailer_text_size_20">20sp</dimen>
+    <string name="language_widget_text">Personalise your video with your preferred languages </string>
+    <integer name="grid_game_landscape">6</integer>
+    <dimen name="button_max_width">340dp</dimen>
+    <dimen name="subscription_tab_max_width">640dp</dimen>
+    <dimen name="buttons_layout_max_width">400dp</dimen>
+    <dimen name="button_margin_90">90dp</dimen>
+    <dimen name="tab_pi_share_buttons_padding">90dp</dimen>
+    <dimen name="tab_video_quality_margin">2dp</dimen>
+    <dimen name="tab_max_game_icon_size">164dp</dimen>
+    <dimen name="tab_max_game_week">360dp</dimen>
+    <dimen name="screen_end_margin">0dp</dimen>
+    <integer name="grid_plan_provider">8</integer>
+    <dimen name="my_plan_margin">320dp</dimen>
+    <dimen name="pi_page_button_height">60dp</dimen>
+    <dimen name="tab_setting_side_pane">.4</dimen>
+    <dimen name="tab_taost_width">570dp</dimen>
+    <dimen name="toast_max_width">570dp</dimen>
+    <dimen name="game_card_margin">20dp</dimen>
+    <dimen name="tab_prime_banner_margin">200dp</dimen>
+    <dimen name="tab_game_text">12sp</dimen>
+    <dimen name="tab_game_text14">10sp</dimen>
+    <dimen name="tab_game_text12">8sp</dimen>
+    <dimen name="tab_game_margintop">8dp</dimen>
+    <dimen name="tab_ratting_button_width">250dp</dimen>
+    <dimen name="share_buttons_margin">150dp</dimen>
+    <dimen name="genre_items_wheel_padding">@dimen/_51sdp</dimen>
+
+    <style name="Widget.AppTheme.ButtonStyle.Icon">
+        <item name="iconPadding">8dp</item>
+        <item name="android:layout_width">280dp</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="android:textSize">18sp</item>
+        <item name="fontPath">@string/bold_font</item>
+        <item name="android:textColor">@color/button_text_color</item>
+    </style>
+
+    <style name="TabPackCardStyle" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">@dimen/view_margin_xlarge</item>
+        <item name="strokeColor">@color/white</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cardElevation">1dp</item>
+        <item name="cardBackgroundColor">@color/transparent</item>
+    </style>
+
+
+</resources>

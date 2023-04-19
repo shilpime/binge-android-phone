@@ -93,6 +93,9 @@ interface PrefsRepo {
     fun addConfigResponse(configResponse: ConfigResponse)
     fun getConfigResponse(): ConfigResponse?
 
+    fun addSubscriberIDListResponse(subscriberIdListResponse: SubscriberIdListResponse)
+    fun getSubscriberIDListResponse(): SubscriberIdListResponse?
+
     fun setEntitlements(listOfIds: Set<String>)
 
     fun setSelectedProfile(data: LoginResponse.BingeSubscription)
@@ -135,6 +138,7 @@ interface PrefsRepo {
     fun removeTempToken()
     fun saveSubscribedPack(pack: PartnerPacks?,subscriptionAnalytics: SubscriptionAnalytics)
     fun getSubscribedPack(): PartnerPacks?
+    fun getNonSubscribedPartnerList(): List<String?>?
     fun savePrimePackDetails(primePack: PrimePack?)
     fun getPrimePackDetails(): PrimePack?
     fun setPackSelectionJourneyCompleted()
@@ -438,4 +442,17 @@ interface PrefsRepo {
     fun setWelcomeDialogStatus(status: Boolean)
     fun getWelcomeDialogStatus(): Boolean
 
+    fun saveAllowedLiveChannelIds(allowedLiveChannelIds: Set<String>)
+    fun getAllowedLiveChannelIds(): Set<String>?
+
+    fun setParentalPin(pin:String)
+    fun getParentalPin(): String?
+
+    fun sethandleRatingScreenTablet(from :String)
+    fun gethandleRatingScreenTablet() :String?
+    fun getDeviceType(): String?
+
+    fun setDeviceType(deviceType: String)
+    fun getSonyOldToken(): String?
+    fun setSonyOldToken(shortToken: String)
 }

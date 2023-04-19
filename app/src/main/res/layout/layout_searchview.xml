@@ -32,8 +32,11 @@
             android:layout_height="wrap_content"
             android:clipToPadding="true"
             app:layout_constraintTop_toTopOf="parent"
+            app:cardBackgroundColor="@color/search_view_background"
             app:layout_constraintStart_toEndOf="@id/iv_back"
-            app:layout_constraintEnd_toStartOf="@id/guidelineSearchContainerEnd"
+            app:layout_constraintEnd_toStartOf="@id/iv_speak_now"
+            android:layout_marginEnd="16dp"
+            app:layout_goneMarginEnd="0dp"
             android:elevation="0dp"
             app:cardCornerRadius="@dimen/corner_radius_6"
             app:cardUseCompatPadding="false"
@@ -43,7 +46,6 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_searchview"
                 android:layout_width="match_parent"
-                android:background="@color/search_view_background"
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
                 android:transitionGroup="true">
@@ -72,7 +74,6 @@
                     android:focusable="false"
                     android:paddingStart="-16dp"
                     android:focusableInTouchMode="true"
-                    app:defaultQueryHint="@string/search_hint"
                     app:closeIcon="@null"
                     android:focusedByDefault="false"
                     android:singleLine="true"
@@ -83,7 +84,7 @@
                     app:layout_constraintStart_toEndOf="@id/iv_search"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <!--<ImageView
+                <ImageView
                     android:id="@+id/iv_close"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -97,33 +98,33 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/ic_cross"
-                    app:tint="@color/launcher_background" />-->
+                    app:tint="@color/launcher_background" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </com.google.android.material.card.MaterialCardView>
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guidelineSearchContainerEnd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_end="52dp" />
+<!--        <androidx.constraintlayout.widget.Guideline-->
+<!--            android:id="@+id/guidelineSearchContainerEnd"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="vertical"-->
+<!--            app:layout_constraintGuide_end="@dimen/dp52" />-->
 
-        <ImageView
-            android:id="@+id/iv_close"
-            increaseTouch="@{8}"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.6"
-            app:layout_constraintStart_toEndOf="@id/guidelineSearchContainerEnd"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_cross"
-            tools:visibility="gone" />
+<!--        <ImageView-->
+<!--            android:id="@+id/iv_close"-->
+<!--            increaseTouch="@{8}"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:clickable="true"-->
+<!--            android:focusable="true"-->
+<!--            android:visibility="gone"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintHorizontal_bias="0.6"-->
+<!--            app:layout_constraintStart_toEndOf="@id/guidelineSearchContainerEnd"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:srcCompat="@drawable/ic_cross"-->
+<!--            tools:visibility="gone" />-->
 
         <ImageView
             android:id="@+id/iv_speak_now"
@@ -134,7 +135,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.8"
-            app:layout_constraintStart_toEndOf="@id/guidelineSearchContainerEnd"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_mic_new"
             tools:visibility="visible" />

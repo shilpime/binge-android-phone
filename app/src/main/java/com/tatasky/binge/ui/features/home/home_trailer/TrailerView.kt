@@ -7,8 +7,11 @@ import android.widget.FrameLayout
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.tatasky.binge.R
+import com.tatasky.binge.ui.features.player.PlayerModel
 import com.tatasky.binge.utils.d
+import com.tatasky.binge.utils.probePlayerEventInitSdk
 import kotlinx.android.synthetic.main.fragment_app_splash.view.*
 
 
@@ -90,7 +93,9 @@ class TrailerView(context: Context, attrs: AttributeSet) : FrameLayout(context, 
         }
         if (!this::mVideoView.isInitialized)
             init()
-        mPlayUrl?.let { mMediaPlayer.play(it) }
+        mPlayUrl?.let {
+            mMediaPlayer.play(it)
+        }
 
 
     }
@@ -102,6 +107,15 @@ class TrailerView(context: Context, attrs: AttributeSet) : FrameLayout(context, 
 
     override fun isPlaying(): Boolean {
         return mIsPlaying
+    }
+    /*Need to add this for QoE Probe Mitigation*/
+    fun setPlayerModel(id: String, contentType: String, provider: String?, title: String?, sId:String?) {
+        val playerModel = PlayerModel()
+        playerModel.setTitle(title?:"")
+        playerModel.setContentId(id)
+        playerModel.setProvider(provider ?: "")
+        playerModel.setContentType(contentType)
+        mMediaPlayer.setPlayerModel(playerModel, sId)
     }
 
 }

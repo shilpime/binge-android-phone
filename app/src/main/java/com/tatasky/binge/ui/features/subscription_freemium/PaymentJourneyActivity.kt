@@ -136,7 +136,7 @@ class PaymentJourneyActivity : BaseActivity<CommonSampleViewModel>() {
             TransactionStatus.USER_ABORTED.transactionStatus.lowercase(Locale.getDefault()) -> {
                 if (!payByDthBalanceSelected)
                     subscriptionAnalytics.trackPaymentFlowExit(
-                        "",
+                        TransactionStatus.BACKPRESSED.transactionStatus.uppercase(),
                         PAYMENT_GATEWAY,
                         NOT_ATTEMPTED,
                         status.uppercase()
@@ -233,7 +233,7 @@ class PaymentJourneyActivity : BaseActivity<CommonSampleViewModel>() {
             this.putString("paymentMessage",mSubscriptionViewModel.getAddOrModifyPackResponse().value?.peekContent()?.data?.paymentStatusVerbiage?.message)
             this.putString("paymentFooter",mSubscriptionViewModel.getAddOrModifyPackResponse().value?.peekContent()?.data?.paymentStatusVerbiage?.footer)
             this.putBoolean("upFrontMoneyCollected",mSubscriptionViewModel.getAddOrModifyPackResponse().value?.peekContent()?.data?.upFrontMoneyCollected?:false)
-            this.putBoolean("payByDTH",payByDTH)
+            this.putBoolean(KEY_PAY_BY_DTH, payByDTH)
             this.putString(KEY_FROM_SCREEN, getSourceOrFromScreenName())
             PaymentUtility.getModificationType(
                 addModifyPackResponse?.modificationType
@@ -267,13 +267,6 @@ class PaymentJourneyActivity : BaseActivity<CommonSampleViewModel>() {
                 addModifyPackResponse?.productType
             )
         }
-        if (payByDthBalanceSelected)
-            subscriptionAnalytics.trackPaymentFlowExit(
-                "",
-                TP_WALLET,
-                "",
-                ""
-            )
         startHomeScreen(
             this,
             checkPaymentStatus = true,
@@ -353,7 +346,8 @@ class PaymentJourneyActivity : BaseActivity<CommonSampleViewModel>() {
         }
         else {
             // Open self care
-            mSubscriptionViewModel.startRecharge(getSourceOrFromScreenName())
+            mSubscriptionViewModel.startRecharge(getSourceOrFromScreenName(),
+                addOrModifyPackResponse.amount.toString())
         }
     }
 
@@ -555,12 +549,18 @@ class PaymentJourneyActivity : BaseActivity<CommonSampleViewModel>() {
                 }
                 else if (it.data?.DTH == true) {
                     val intent = Intent(this, WalletPaymentActivity::class.java)
-                    intent.putExtra("packID", this.intent.getStringExtra("packID"))
+                    intent.putExtra(
+                        "packID",
+                        this.intent.getStringExtra("packID") ?: it.data?.productId
+                    )
                     intent.putExtra("selectedTenureID", this.intent.getStringExtra("selectedTenureID"))
                     intent.putExtra("selectedTenureAmount", this.intent.getStringExtra("selectedTenureAmount"))
                     intent.putExtra("isMigrated", this.intent.getBooleanExtra("isMigrated", false))
                     intent.putExtra("migratedVerbiage", this.intent.getStringExtra("migratedVerbiage"))
-                    intent.putExtra("proratedAmount", proratedAmount ?: sharedPrefs.getSubscribedPack()?.amountValue)
+                    intent.putExtra("proratedAmount",
+                        it.data?.amount ?: proratedAmount
+                        ?: sharedPrefs.getSubscribedPack()?.amountValue
+                    )
                     intent.putExtra(KEY_PACK_PRICE, this.intent.getStringExtra(KEY_PACK_PRICE))
                     intent.putExtra(KEY_ADD_PACK_CALLED, mSubscriptionViewModel.addPackCalled)
                     intent.putExtra(KEY_MODIFY_PACK_CALLED, mSubscriptionViewModel.modifyPackCalled)

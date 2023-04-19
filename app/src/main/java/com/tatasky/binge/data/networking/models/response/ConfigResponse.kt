@@ -2,7 +2,6 @@ package com.tatasky.binge.data.networking.models.response
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import com.tatasky.binge.analytics.PLATFORM_ANDROID
 import com.tatasky.binge.utils.filterProviderOnly
 
 class ConfigResponse : BaseResponse() {
@@ -181,6 +180,9 @@ class ConfigResponse : BaseResponse() {
 
     class Android {
 
+        @SerializedName("packageId")
+        val partnerAppPackageId: String? = null
+
         @SerializedName("playAuthType")
         var playAuthType: String? = null
 
@@ -306,7 +308,18 @@ class ConfigResponse : BaseResponse() {
         @SerializedName("androidLaunchFrequency") var androidLaunchFrequency: Int? = null
     )
 
+    data class DigitalFeedDecryptionKey(
+        @SerializedName("v1") var aesEncryptionSecretKeyV1: String? = null,
+        @SerializedName("v2") var aesEncryptionSecretKeyV2: String? = null,
+    )
+
     class Config {
+        @SerializedName("channelDetailRetry")
+        var channelDetailRetry : Long? = null // Always comes in seconds
+
+        @SerializedName("dd")
+        var digitalFeedDecryptionKey : DigitalFeedDecryptionKey? = null
+
         @SerializedName("coachMark")
         var coachMark : CoachMark? = null
 
@@ -324,6 +337,10 @@ class ConfigResponse : BaseResponse() {
 
         @SerializedName("appRating")
         var appRating: AppRating? = null
+
+
+        @SerializedName("searchSuggestionThershold")
+        var searchSuggestionThershold : Int = 2
 
         @SerializedName("heroBannerRotation")
         @Expose
@@ -377,9 +394,17 @@ class ConfigResponse : BaseResponse() {
         @Expose
         var bingeAndroidDrpEnabled: Boolean = false//default
 
+        @SerializedName("bingeTabletDrpEnabled")
+        @Expose
+        val bingeTabletDrpEnabled: Boolean = false
+
         @SerializedName("otpResentCount")
         @Expose
         var otpResentCount: Int = 5//default
+
+        @SerializedName("playbackRetryCount")
+        @Expose
+        var playbackRetryCount: Int = 2//default
 
         @SerializedName("url")
         @Expose
@@ -397,14 +422,9 @@ class ConfigResponse : BaseResponse() {
         @SerializedName("availableProviders")
         var availableProviders : List <AvailableProviders>? = null
 
-        @SerializedName("taRelatedRail")
-        @Expose
-        var taRelatedRail: List<TaRelatedRail>? = null
-
         @SerializedName("verbiages")
         @Expose
         var verbiages: List<Verbiages>? = null
-
 
         fun getLanguageVerbiage(categoryName: String): Verbiages {
             verbiages?.let{
@@ -479,6 +499,10 @@ class ConfigResponse : BaseResponse() {
         @SerializedName("FreemiumBackgroundPoster")
         var freemiumBackgroundPoster:FreemiumBackgroundPoster ? =null
 
+        @SerializedName("taRelatedRail")
+        var taRelatedRail : ArrayList<TaRelatedRail> = arrayListOf()
+
+
         @SerializedName("SubscriptionDrawer",alternate = ["subscriptionDrawer"])
         var subscriptionDrawer : SubscriptionDrawer?= null //used to show Mini Subscription Drawer at the time of launch app
 
@@ -503,7 +527,104 @@ class ConfigResponse : BaseResponse() {
         @SerializedName("tickTickFixedPlanDrawerScreen")
         var tickTickFixedPlanDrawerScreen : ManagedAppDrawerResponse.TickTickDrawerDetail?=null
 
+        @SerializedName("notNow")
+        var notNow: String? = null
+        @SerializedName("notification")
+        var notification: String? = null
+        @SerializedName("accountRefresh")
+        var accountRefresh: String? = null
+        @SerializedName("refreshCTA")
+        var refreshCTA: String? = null
+        @SerializedName("loginScreen")
+        var loginScreen: LoginScreen? = null
+        @SerializedName("logout")
+        var logout: Logout? = null
+        @SerializedName("device")
+        var device: Device? = null
+        @SerializedName("parental")
+        var parental: Parental? = null
+        @SerializedName("hamburger")
+        var hamburger: Hamburger? = null
+        @SerializedName("search")
+        var search: Search? = null
+        @SerializedName("switchAccount")
+        var switchAccount: SwitchAccount? = null
     }
+
+    data class LoginScreen(
+        @SerializedName("logo") val logo: String? = null,
+        @SerializedName("login") val login: String? = null,
+        @SerializedName("getOtp") val getOtp: String? = null,
+        @SerializedName("resendOtpIn") val resendOtpIn: String? = null,
+        @SerializedName("resendOtp") val resendOtp: String? = null,
+        @SerializedName("loginToWatch") val loginToWatch: String? = null,
+        @SerializedName("incorrectOtp") val incorrectOtp: String? = null,
+        @SerializedName("subHeader1") val subHeader1: String? = null,
+        @SerializedName("subHeader2") val subHeader2: String? = null,
+        @SerializedName("cta") val cta: String? = null
+    )
+
+    data class Logout(
+        @SerializedName("header") val header: String? = null,
+        @SerializedName("subHeader") val subHeader: String? = null,
+        @SerializedName("logout") val logout: String? = null,
+        @SerializedName("success") val success: String? = null
+    )
+
+    data class Device(
+        @SerializedName("header") val header: String? = null,
+        @SerializedName("subHeader") val subHeader: String? = null,
+        @SerializedName("review") val review: String? = null,
+        @SerializedName("notSuccess") val notSuccess: String? = null,
+        @SerializedName("success") val success: String? = null
+    )
+
+    data class Parental(
+        @SerializedName("setView") val setView: String? = null,
+        @SerializedName("viewRest") val viewRest: String? = null,
+        @SerializedName("parentalPin") val parentalPin: String? = null,
+        @SerializedName("enter") val enter: String? = null,
+        @SerializedName("enterDigit") val enterDigit: String? = null,
+        @SerializedName("forgot") val forgot: String? = null
+    )
+
+    data class Hamburger(
+        @SerializedName("loginNow") val loginNow: String? = null,
+        @SerializedName("subscribe") val subscribe: String? = null,
+        @SerializedName("bingeList") val bingeList: String? = null,
+        @SerializedName("notifications") val notifications: String? = null,
+        @SerializedName("settings") val settings: String? = null,
+        @SerializedName("help") val help: String? = null,
+        @SerializedName("subText") val subText: String? = null,
+        @SerializedName("subTextCta") val subTextCta: String? = null,
+        @SerializedName("myPlan") val myPlan: String? = null,
+        @SerializedName("tataPlayBalance") val tataPlayBalance: String? = null,
+        @SerializedName("login") val login: String? = null
+    )
+
+    data class Search(
+        @SerializedName("voiceSearch") val voiceSearch: String? = null,
+        @SerializedName("tapSpeak") val tapSpeak: String? = null,
+        @SerializedName("tvShow") val tvShow: String? = null,
+        @SerializedName("toggleCTA") val toggleCTA: String? = null,
+        @SerializedName("filter") val filter: String? = null,
+        @SerializedName("filterLang") val filterLang: String? = null,
+        @SerializedName("filterGenre") val filterGenre: String? = null,
+        @SerializedName("noResults") val noResults: String? = null,
+        @SerializedName("recentSearch") val recentSearch: String? = null,
+        @SerializedName("clearAll") val clearAll: String? = null,
+        @SerializedName("trySaying") val trySaying: String? = null,
+        @SerializedName("allContent") val allContent: String? = null,
+        @SerializedName("free") val free: String? = null,
+        @SerializedName("tapMicrophone") val tapMicrophone: String? = null
+    )
+
+    data class SwitchAccount(
+        @SerializedName("successToast") val successToast: String? = null,
+        @SerializedName("cta") val cta: String? = null,
+        @SerializedName("header") val header: String? = null,
+        @SerializedName("subText") val subText: String? = null
+    )
 
     data class AppRating(
         @SerializedName("appRatingSkipCtaVerbiage") var appRatingSkipCtaVerbiage: String? = null,

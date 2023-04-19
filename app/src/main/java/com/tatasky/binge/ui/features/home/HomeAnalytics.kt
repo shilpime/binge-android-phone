@@ -13,6 +13,7 @@ import com.tatasky.binge.analytics.mixpanel.MixpanelHelper
 import com.tatasky.binge.analytics.moengage.MoEngageHelper
 import com.tatasky.binge.data.networking.models.response.ContentItem
 import com.tatasky.binge.domain.repositories.PrefsRepo
+import com.tatasky.binge.utils.ContentUtil.isLiveContent
 import com.tatasky.binge.utils.EventConstants
 import com.tatasky.binge.utils.FREE
 import com.tatasky.binge.utils.PROVIDER_PRIME
@@ -459,7 +460,7 @@ class HomeAnalytics(
                 sectionPosition,
                 iListItem.title,
                 itemPosition,
-                PLATFORM_ANDROID,
+                sharedPrefs.getDeviceType() ?: "",
                 sharedPrefs.getSubscribedPack()?.amountValue,
                 sharedPrefs.getSubscribedPack()?.productName,
                 (pageOffSet/10)+1,
@@ -474,7 +475,7 @@ class HomeAnalytics(
                 sectionPosition,
                 iListItem.title,
                 itemPosition,
-                PLATFORM_ANDROID_CAPS,
+                sharedPrefs.getDeviceType()?.uppercase()?:"",
                 sharedPrefs.getSubscribedPack()?.amountValue ?: FREEMIUM,
                 sharedPrefs.getSubscribedPack()?.productName ?: FREEMIUM,
                 "${(pageOffSet/10)+1}"
@@ -488,26 +489,25 @@ class HomeAnalytics(
                 sectionPosition,
                 iListItem.title,
                 itemPosition,
-                PLATFORM_ANDROID,
+                sharedPrefs.getDeviceType() ?: "",
                 sharedPrefs.getSubscribedPack()?.amountValue,
                 sharedPrefs.getSubscribedPack()?.productName,
                 (pageOffSet/10)+1,
                 iListItem.title
             )
-            sectionType.equals(EventConstants.TYPE_APPS, true)
-            -> trackMixPanelAppsRailClick(
+            sectionType.equals(EventConstants.TYPE_APPS, true) -> trackMixPanelAppsRailClick(
                 pageName,
                 railTitle,
                 sectionPosition,
                 configType,
                 iListItem.title,
-                PLATFORM_ANDROID,
+                sharedPrefs.getDeviceType() ?: "",
                 sharedPrefs.getSubscribedPack()?.amountValue,
                 itemPosition,
                 sharedPrefs.getSubscribedPack()?.productName
             )
             else -> {
-                /*trackMixPanelContentClick(
+                trackMixPanelContentClick(
                     section,
                     itemPosition,
                     sectionPosition,
@@ -519,7 +519,7 @@ class HomeAnalytics(
                     cardConfigType,
                     sharedPrefs,
                     contentAuth
-                )*/
+                )
             }
         }
         trackMoEngageHomeClick(
@@ -670,31 +670,6 @@ class HomeAnalytics(
         contentAuth: String
     ) {
         try {
-            val jsonObject = JSONObject()
-            jsonObject.put(PARA_SECTION, section)
-            jsonObject.put(PARA_HERO_BANNER_NUMBER, if (section.equals(EVENT_VALUE_RAIL_HB)) itemPosition else "")
-            jsonObject.put(PARA_CONFIG_TYPE, configType)
-            jsonObject.put(PARA_CARD_CONFIG_TYPE, cardConfigType)
-            jsonObject.put(
-                PARA_CONTENT_TYPE, if (iListItem.contentType.contains(TYPE_LANGUAGE, true))
-                    TYPE_LANGUAGE
-                else if (iListItem.contentType.contains(TYPE_GENRE, true))
-                    TYPE_GENRE
-                else
-                    iListItem.contentType
-            )
-            jsonObject.put(PARA_PARTNER, iListItem.provider)
-            jsonObject.put(PARA_CONTENT_TITLE, iListItem.title)
-            jsonObject.put(PARA_PAGE_NAME, pageName)
-            jsonObject.put(PARA_TITLE_RAIL, railTitle)
-            jsonObject.put(PARA_GENRE, TextUtils.join(", ", iListItem.genres))
-            jsonObject.put(PARA_RAIL_POSITION, sectionPosition)
-            jsonObject.put(PARA_CONTENT_POSITION, if (!section.equals(EVENT_VALUE_RAIL_HB)) itemPosition else "")
-            jsonObject.put(PARA_PARTNER_HOME, if (partnerHomePage) YES else NO)
-            jsonObject.put(CONTENT_GENRE,TextUtils.join(", ", iListItem.genres ?: emptyList<String>()))
-            jsonObject.put(CONTENT_LANGUAGE,TextUtils.join(", ", iListItem.language ?: emptyList<String>()))
-            mixpanelHelper.trackEvent(EVENT_HOME_CLICK, jsonObject)
-
             val jsonUnifiedObject = JSONObject().apply {
                 put(PARA_PAGE_NAME, pageName)
                 put(PARA_TITLE_RAIL, railTitle)
@@ -732,19 +707,22 @@ class HomeAnalytics(
                         ) == true
                     ) YES else NO
                 )
-                put(PARA_RELEASE_YEAR, "")
-                put(PARA_DEVICE_TYPE, PLATFORM_ANDROID)
-                put(PARA_ACTORS, "")
+                put(PARA_RELEASE_YEAR, iListItem.releaseYear?:"")
+                put(PARA_DEVICE_TYPE, sharedPrefs.getDeviceType() ?: "")
+                put(PARA_ACTORS, iListItem.actor?:"")
                 put(PARA_SOURCE, iListItem.source)
                 put(PARA_PACK_PRICE, sharedPrefs.getSubscribedPack()?.amountValue)
                 put(PARA_PACK_NAME, sharedPrefs.getSubscribedPack()?.productName)
                 put(PARA_AUTO_PLAYED, NO /*For Prime there is not PI Screen, So making it by default No*/)
-                put(PARA_LIVE_CONTENT, "No")
+                put(
+                    PARA_LIVE_CONTENT,
+                    if (isLiveContent(iListItem.contentType, iListItem.liveContent)) YES else NO
+                )
+                put(PARA_SEARCH_KEYWORD, iListItem.searchKeyword)
+                put(PARA_SEARCH_TYPE,iListItem.refId)
             }
             if (iListItem.provider.equals(PROVIDER_PRIME, true))
-                mixpanelHelper.trackEvent(EVENT_PRIME_CONTENT_CLICK, jsonUnifiedObject, mixpanelHelper.mMixpanelUnifiedAPI)
-//            else
-//                mixpanelHelper.trackEvent(EVENT_CONTENT_CLICK, jsonUnifiedObject, mixpanelHelper.mMixpanelUnifiedAPI)
+                mixpanelHelper.trackEvent(EVENT_CONTENT_CLICK, jsonUnifiedObject, mixpanelHelper.mMixpanelUnifiedAPI)
         } catch (e: JSONException) {
             e.printStackTrace()
         }

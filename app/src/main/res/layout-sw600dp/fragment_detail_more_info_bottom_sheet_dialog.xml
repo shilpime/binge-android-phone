@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.tatasky.binge.data.networking.models.response.MetaDetails" />
+
+        <import type="android.view.View" />
+
+
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingHorizontal="@dimen/tab_poup_horizontal_margin">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/dialog_background_with_stroke"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="@dimen/tab_popup_max_width">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_start"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.10" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_end"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.90" />
+
+            <ImageView
+                android:id="@+id/view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_10"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_bottom_sheet_top_selector" />
+
+            <TextView
+                android:id="@+id/tv_content_title"
+                style="@style/TSTextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="@{model.vodTitle}"
+                android:textSize="@dimen/text_size_26"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@+id/view"
+                app:layout_constraintWidth_max="444dp"
+                tools:text="The Big Bull" />
+
+            <TextView
+                android:id="@+id/tv_description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_xlarge"
+                android:lineSpacingExtra="3sp"
+                android:text="@{model.vodDescription}"
+                android:textColor="@color/white_75"
+                android:textSize="@dimen/text_size_18"
+                android:visibility="@{model.vodDescription.length() > 0 ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@id/tv_content_title"
+                app:layout_constraintWidth_max="444dp"
+                tools:text="There is a moment in the life of any aspiring astronomer that it is time to buy that." />
+
+            <View
+                android:id="@+id/horizontalSeperater"
+                android:layout_width="0dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="@dimen/view_margin_large"
+                android:background="@color/stroke_color"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@id/tv_description"
+                app:layout_constraintWidth_max="444dp" />
+
+
+            <TextView
+                android:id="@+id/starring_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_large"
+                android:lineSpacingExtra="2sp"
+                android:text="@{model.starring}"
+                android:textColor="@color/white_75"
+                android:textFontWeight="400"
+                android:textSize="@dimen/text_size_18"
+                android:visibility="@{model.starring.length() > 0 ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@id/horizontalSeperater"
+                app:layout_constraintWidth_max="444dp"
+                tools:text="Starring \nAbhishek Bacchan  |  Abhishek Bacchan  |  Kimmi Shargille  |  Ashwaria rai" />
+
+
+            <TextView
+                android:id="@+id/director_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_large"
+                android:lineSpacingExtra="@dimen/line_spacing_2"
+                android:text="@{model.directors}"
+                android:textColor="@color/white_75"
+                android:textFontWeight="400"
+                android:textSize="@dimen/text_size_18"
+                android:visibility="@{model.directors.length() > 0 ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@id/starring_detail"
+                app:layout_constraintWidth_max="444dp"
+                tools:text="Director \nShoojit Sarkar" />
+
+
+            <TextView
+                android:id="@+id/producer_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_large"
+                android:lineSpacingExtra="@dimen/line_spacing_2"
+                android:text="@{model.producers}"
+                android:textColor="@color/white_75"
+                android:textFontWeight="400"
+                android:textSize="@dimen/text_size_18"
+                android:visibility="@{model.producers.length() > 0 ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@id/director_detail"
+                app:layout_constraintWidth_max="444dp"
+                tools:text="Producer \nShoojit Sarkar" />
+
+            <TextView
+                android:id="@+id/genre_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_large"
+                android:lineSpacingExtra="@dimen/line_spacing_2"
+                android:text="@{model.genres}"
+                android:textColor="@color/white_75"
+                android:textFontWeight="400"
+                android:textSize="@dimen/text_size_18"
+                android:visibility="@{model.genres.length() > 0 ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@id/producer_detail"
+                app:layout_constraintWidth_max="@dimen/dimens_444dp"
+                tools:text="Genre \nDrama  |  Superhero" />
+
+
+            <LinearLayout
+                android:id="@+id/tv_audio"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_margin_xlarge"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="@{model.audios !=null ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@id/genre_detail"
+                app:layout_constraintWidth_max="444dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    app:srcCompat="@drawable/ic_audio_tv_drawable" />
+
+                <TextView
+                    style="@style/TSTextMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/view_margin_smallest"
+                    android:gravity="center"
+                    android:lineSpacingExtra="@dimen/line_spacing_4"
+                    android:text="@{model.audios}"
+                    android:textColor="@color/white"
+                    android:textFontWeight="600"
+                    android:textSize="@dimen/text_size_14"
+                    tools:text="English  •  Hindi  •  Tamil  •  Bengali  •  Hindi  •  Tamil  •  Bengali" />
+
+            </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tv_not_now"
+            style="@style/Widget.AppTheme.ButtonStyle.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_16"
+            android:layout_marginBottom="@dimen/margin_16"
+            android:text="@string/close"
+            android:textSize="@dimen/text_size_20"
+            android:textColor="@color/tint_pink_light"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_audio" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

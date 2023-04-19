@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -23,10 +24,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.tabs.TabLayout
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.EVENT_VALUE_SOURCE_DETAIL
-import com.tatasky.binge.analytics.SOURCE_SEE_ALL
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
+import com.tatasky.binge.analytics.util.emptyContentAnalyticsModel
 import com.tatasky.binge.customviews.RVGridLayoutManager
 import com.tatasky.binge.data.database.model.GamesMixpanelInfoModel
 import com.tatasky.binge.data.networking.models.response.ContentItem
@@ -42,6 +45,7 @@ import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.base.frameworks.extensions.startProgressAvd
 import com.tatasky.binge.ui.features.details.adapter.AllEpisodeAdapter
 import com.tatasky.binge.ui.features.dialog.DialogModel
+import com.tatasky.binge.ui.features.home.model.RailItemsModel
 import com.tatasky.binge.utils.*
 import io.reactivex.Completable
 import io.reactivex.disposables.CompositeDisposable
@@ -92,29 +96,36 @@ class EpisodeSeeAllFragment : BaseFragment<FragmentEpisodeSeeAllBinding, DetailV
 
                 (binding.seriesRecycler.adapter as? AllEpisodeAdapter)?.updateList(
                     seriesListResponse.data!!.contentItem,
-                    moreContentAvailable
+                    moreContentAvailable,
+                    args.contentAnalyticsModel ?: emptyContentAnalyticsModel()
                 )
                 clearSeriesList = false
             } else if (isPrepand) {
                 (binding.seriesRecycler.adapter as? AllEpisodeAdapter)?.prepandToList(
-                    seriesListResponse.data!!.contentItem
+                    seriesListResponse.data!!.contentItem,
+                    args.contentAnalyticsModel ?: emptyContentAnalyticsModel()
                 )
             } else {
                 (binding.seriesRecycler.adapter as? AllEpisodeAdapter)?.addToList(
                     seriesListResponse.data!!.contentItem,
-                    moreContentAvailable
+                    moreContentAvailable,
+                    args.contentAnalyticsModel ?: emptyContentAnalyticsModel()
                 )
             }
     }
 
     private val mEpisodeClickListener = object : EpisodeClickListener{
-        override fun selectedEpisode(currentEpisode: ContentItem) {
+        override fun selectedEpisode(
+            currentEpisode: ContentItem,
+            contentAnalyticsModel: ContentAnalyticsModel
+        ) {
             mSeriesClickListener.onSubItemClick(
                 currentEpisode,
                 0,
                 0,
                 EventConstants.TYPE_RAIL,
-                null
+                null,
+                contentAnalyticsModel = contentAnalyticsModel
             )
         }
 
@@ -136,16 +147,21 @@ class EpisodeSeeAllFragment : BaseFragment<FragmentEpisodeSeeAllBinding, DetailV
             transitions: List<Pair<View, String>>?,
             railTitle: String,
             origin: String?,
-            gamesMixpanelInfoModel: GamesMixpanelInfoModel?
+            gamesMixpanelInfoModel: GamesMixpanelInfoModel?,
+            railItemsModel: RailItemsModel?,
+            contentAnalyticsModel: ContentAnalyticsModel
         ) {
             iListItem.railName = railTitle
             iListItem.source = EVENT_VALUE_SOURCE_DETAIL
             iListItem.contentPosition = (iItemPosition+1).toString()
             iListItem.railPosition = iSectionPosition.toString()
             findNavController().navigateSafe(
-                EpisodeSeeAllFragmentDirections.actionDetailEpisodeBotttomSheet(iListItem,mEpisodeClickListener)
+                EpisodeSeeAllFragmentDirections.actionDetailEpisodeBotttomSheet(
+                    iListItem,
+                    mEpisodeClickListener,
+                    contentAnalyticsModel
+                )
             )
-
         }
     }
 
@@ -191,6 +207,7 @@ class EpisodeSeeAllFragment : BaseFragment<FragmentEpisodeSeeAllBinding, DetailV
 
         viewModel.getSeriesList().observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { response ->
+
                 binding.seriesRecycler.show()
                 if (response.code == CUSTOM_RESPONSE_CODE_SERIES_ADDING) {
                     (binding.seriesRecycler.adapter as AllEpisodeAdapter).addLoading()
@@ -265,28 +282,42 @@ class EpisodeSeeAllFragment : BaseFragment<FragmentEpisodeSeeAllBinding, DetailV
             transitions: List<Pair<View, String>>?,
             railTitle: String,
             origin: String?,
-            gamesMixpanelInfoModel: GamesMixpanelInfoModel?
+            gamesMixpanelInfoModel: GamesMixpanelInfoModel?,
+            railItemsModel: RailItemsModel?,
+            contentAnalyticsModel: ContentAnalyticsModel
         ) {
             iListItem.railName = railTitle
             iListItem.source = EVENT_VALUE_SOURCE_DETAIL
             iListItem.contentPosition = (iItemPosition+1).toString()
             iListItem.railPosition = iSectionPosition.toString()
-            findNavController().navigateSafe(EpisodeSeeAllFragmentDirections.actionToDetail1(iListItem,false,true))
+            findNavController().navigateSafe(
+                EpisodeSeeAllFragmentDirections.actionToDetail1(
+                    iListItem,
+                    fromGrid = false,
+                    playEpisode = true,
+                    contentAnalyticsModel = contentAnalyticsModel
+                )
+            )
         }
     }
 
 
     private fun setAdapter(response: SeriesListResponse) {
+
         binding.tvNoResult.hide()
         setSearchedView()
         response.data?.let{
             if (episodeSearchPageOffset == 1){
                 (binding.episodeSearchRecycler.adapter as? AllEpisodeAdapter)?.updateList(
-                    it.contentItem
+                    it.contentItem,
+                    contentAnalyticsModel = args.contentAnalyticsModel
+                        ?: emptyContentAnalyticsModel()
                 )
             } else {
                 (binding.episodeSearchRecycler.adapter as? AllEpisodeAdapter)?.addToList(
-                    it.contentItem
+                    it.contentItem,
+                    contentAnalyticsModel = args.contentAnalyticsModel
+                        ?: emptyContentAnalyticsModel()
                 )
             }
         }
@@ -294,13 +325,16 @@ class EpisodeSeeAllFragment : BaseFragment<FragmentEpisodeSeeAllBinding, DetailV
 
 
     private fun handleBrandSeriesRecyclerView(response: DetailsResponse) {
+
         binding.episodeSearchRecycler.adapter = AllEpisodeAdapter(
             mSeriesClickListener,
-            mutableListOf<ContentItem>(), 0, PrimaryButtonStateEnum.STATE_PLAY,
+            mutableListOf(),
+            0,
+            PrimaryButtonStateEnum.STATE_PLAY,
             "", "contentItem.id",
             viewModel.getCloudinaryUrl(),
             mEpisodeInfoClickListener,
-            isContentSubscribed
+            isContentSubscribed,
         )
 
         if (!alreadyAddedSeason) {
@@ -313,7 +347,7 @@ class EpisodeSeeAllFragment : BaseFragment<FragmentEpisodeSeeAllBinding, DetailV
                 alreadyAddedSeason = true
 
                 binding.seriesRecycler.layoutManager =
-                    RVGridLayoutManager(requireContext())
+                    RVGridLayoutManager(requireContext(),resources.getInteger(R.integer.grid_landscape))
                 binding.seriesRecycler.adapter = AllEpisodeAdapter(
                     mSeriesClickListener,
                     mutableListOf<ContentItem>(), 0, PrimaryButtonStateEnum.STATE_PLAY,
@@ -345,14 +379,16 @@ class EpisodeSeeAllFragment : BaseFragment<FragmentEpisodeSeeAllBinding, DetailV
             ) {
                 alreadyAddedSeason = true
                 binding.seriesRecycler.layoutManager =
-                    RVGridLayoutManager(requireContext())
+                    RVGridLayoutManager(requireContext(), resources.getInteger(R.integer.grid_landscape))
                 binding.seriesRecycler.adapter = AllEpisodeAdapter(
                     mSeriesClickListener,
-                    mutableListOf<ContentItem>(), 0, PrimaryButtonStateEnum.STATE_PLAY,
+                    mutableListOf(),
+                    0,
+                    PrimaryButtonStateEnum.STATE_PLAY,
                     "", "",
                     viewModel.getCloudinaryUrl(),
                     mEpisodeInfoClickListener,
-                    isContentSubscribed
+                    isContentSubscribed,
                 )
                 binding.tabLayoutSeasons.removeAllTabs()
                 response.data?.seriesList?.forEachIndexed { index, season ->
@@ -493,7 +529,7 @@ class EpisodeSeeAllFragment : BaseFragment<FragmentEpisodeSeeAllBinding, DetailV
                 } else {
                     showToast(
                         context,
-                        "Please enter atleast 1 character to search"
+                        context?.getString(R.string.search_min_char_text)?:""
                     )
                     false
                 }
@@ -703,4 +739,20 @@ class EpisodeSeeAllFragment : BaseFragment<FragmentEpisodeSeeAllBinding, DetailV
     companion object {
         private const val VOICE_SEARCH_DIALOG_RESULT: Int = 112
     }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        activity?.let {
+            if(isTablet(it)){
+                (binding.seriesRecycler.adapter as? AllEpisodeAdapter)?.let { adapter->
+                        val layoutManager =
+                            binding.seriesRecycler.layoutManager as GridLayoutManager
+                        layoutManager.spanCount = resources.getInteger(R.integer.grid_landscape)
+                        adapter.notifyDataSetChanged()
+                    }
+            }
+        }
+
+    }
+
 }

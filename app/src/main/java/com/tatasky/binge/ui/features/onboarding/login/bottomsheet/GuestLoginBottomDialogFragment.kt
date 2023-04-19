@@ -1,6 +1,7 @@
 package com.tatasky.binge.ui.features.onboarding.login.bottomsheet
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
@@ -11,11 +12,14 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.content.ContextCompat.getDrawable
 import androidx.core.text.set
 import androidx.core.text.toSpannable
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsCompat.toWindowInsetsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -49,9 +53,10 @@ import com.tatasky.binge.ui.features.subscription.SubscriptionAnalytics
 import com.tatasky.binge.utils.*
 import com.tatasky.binge.utils.PaymentUtility.getCurrentOrLastActiveTenureDetailsForActiveOrInactiveUsers
 import dagger.android.support.AndroidSupportInjection
+import kotlinx.android.synthetic.main.activity_home.bottomNav
+import javax.inject.Inject
 import kotlinx.android.synthetic.main.fragment_guest_login_bottom_sheet_dialog.*
 import java.util.*
-import javax.inject.Inject
 
 class GuestLoginBottomDialogFragment : BottomSheetDialogFragment() {
 
@@ -79,7 +84,7 @@ class GuestLoginBottomDialogFragment : BottomSheetDialogFragment() {
     private var showProgress: Runnable = Runnable { }
     var loaderDelayTime = 0L
 
-    private lateinit var standardBottomSheetBehavior: BottomSheetBehavior<FrameLayout>
+    private var standardBottomSheetBehavior: BottomSheetBehavior<FrameLayout>? = null
 
     private fun getSourceOrFromScreenName() =
         activity?.intent?.extras?.get(KEY_FROM_SCREEN) as String?
@@ -94,6 +99,20 @@ class GuestLoginBottomDialogFragment : BottomSheetDialogFragment() {
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+    }
+
+
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+
+        this.context?.let{ctx->
+            if(isTablet(ctx)){
+                return Dialog(ctx, theme)
+            }
+
+        }
+        return super.onCreateDialog(savedInstanceState)
+
     }
 
     override fun onCreateView(
@@ -117,6 +136,12 @@ class GuestLoginBottomDialogFragment : BottomSheetDialogFragment() {
             hideProgress()
             isLoaded = true
         }
+        this.context?.let{ctx->
+            if(isTablet(ctx)){
+              this.dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+            }
+
+        }
 
         loaderDelayTime = sharedPrefs.getLoaderDelayTime()
         showProgress = Runnable {
@@ -139,10 +164,30 @@ class GuestLoginBottomDialogFragment : BottomSheetDialogFragment() {
             }
         }
 
-
-
+        activity?.let {
+            if(isTablet(it)){
+                showHideBottomNavigation()
+            }
+        }
     }
 
+    private fun showHideBottomNavigation(){
+        dialog?.window?.decorView?.setOnApplyWindowInsetsListener{view, insets->
+            val insetsCompat = toWindowInsetsCompat(insets, view)
+            val isImeVisible = insetsCompat.isVisible(WindowInsetsCompat.Type.ime())
+            // below line, do the necessary stuff:
+            if(isImeVisible)
+                (activity as? LandingActivity)?.hideBottomNav()
+            else
+                (activity as? LandingActivity)?.showBottomNav()
+            view.onApplyWindowInsets(insets)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        (activity as? LandingActivity)?.showBottomNav()
+    }
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -159,8 +204,8 @@ class GuestLoginBottomDialogFragment : BottomSheetDialogFragment() {
         mBinding.progressBarOverlay.setOnTouchListener { _, _ -> true }
 
         dialog?.let {
-            standardBottomSheetBehavior = (dialog as BottomSheetDialog).behavior
-            standardBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            standardBottomSheetBehavior = (dialog as? BottomSheetDialog?)?.behavior
+            standardBottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
 
@@ -276,6 +321,8 @@ class GuestLoginBottomDialogFragment : BottomSheetDialogFragment() {
                     view.textLoginSuccessfulToast.text =
                         loginToastMessage
                     view.imageTickLoginSuccessfulToast.setImageResource(R.drawable.ic_tick_login_success)
+                    view.viewBackgroundLoginSuccessfulToast.setBackgroundResource(R.drawable.toast_login_bg)
+
                 }
                 showCustomToast(
                     context,
@@ -307,7 +354,7 @@ class GuestLoginBottomDialogFragment : BottomSheetDialogFragment() {
                     LinearGradientSpan(
                         loginNotSuccessfulMessage,
                         getString(R.string.please_try_again),
-                        intArrayOf(getColor(requireContext(), R.color.darkPrimary), getColor(requireContext(), R.color.darkPrimary)),
+                        intArrayOf(getColor(requireContext(), R.color.darkSecondary), getColor(requireContext(), R.color.darkSecondary)),
                         null
                     )
                 view.textLoginSuccessfulToast.text = spannable
@@ -354,21 +401,23 @@ class GuestLoginBottomDialogFragment : BottomSheetDialogFragment() {
                 // take the user to change plan screen
 
                 //Todo Need discussion
-                /*findNavController().navigateSafe(
+                findNavController().navigateSafe(
                     GuestLoginBottomDialogFragmentDirections.actionGuestLoginBottomDialogFragmentToManagedAppFragment(
-                        isToSummaryPage=true
+                        isToSummaryPage=true,
+                        source=guestLoginBottomDialogArgs.source
                     )
-                )*/
+                )
 
             } else if (subscriptionStatusInfo?.allowPG == true) {
                 //take the user to the PG
                 //take user to managedappsummry
 
-                /*findNavController().navigateSafe(
+                findNavController().navigateSafe(
                     GuestLoginBottomDialogFragmentDirections.actionGuestLoginBottomDialogFragmentToManagedAppFragment(
-                        isToSummaryPage=true
+                        isToSummaryPage=true,
+                        source=guestLoginBottomDialogArgs.source
                     )
-                )*/
+                )
 
             } else {
                 val view = DataBindingUtil.inflate<LayoutToastSuccessFailureBinding>(
@@ -379,11 +428,13 @@ class GuestLoginBottomDialogFragment : BottomSheetDialogFragment() {
                 )
                 view.textLoginSuccessfulToast.text = getString(R.string.toast_msg_login_success, "")
                 view.imageTickLoginSuccessfulToast.setImageResource(R.drawable.ic_tick_login_success)
-                showCustomToast(
+                    view.viewBackgroundLoginSuccessfulToast.setBackgroundResource(R.drawable.toast_login_bg)
+
+                  /*  showCustomToast(
                     context,
                     view?.root,
                     Gravity.FILL_HORIZONTAL
-                )
+                )*/
                 if (activity is LandingActivity) {
                     updateBackStack=false
                     dialog?.dismiss()
@@ -488,11 +539,13 @@ class GuestLoginBottomDialogFragment : BottomSheetDialogFragment() {
             )
             view.textLoginSuccessfulToast.text = getString(R.string.toast_msg_login_success, "")
             view.imageTickLoginSuccessfulToast.setImageResource(R.drawable.ic_tick_login_success)
-            showCustomToast(
+            view.viewBackgroundLoginSuccessfulToast.setBackgroundResource(R.drawable.toast_login_bg)
+
+            /*showCustomToast(
                 context,
                 view?.root,
                 Gravity.FILL_HORIZONTAL
-            )
+            )*/
             if (activity is LandingActivity) {
                 (activity as LandingActivity).subscriptionBottomSheetDialog?.dismiss()
             } else {

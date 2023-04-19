@@ -11,6 +11,10 @@
         <variable
             name="contentLangTitle"
             type="String" />
+        <variable
+            name="vm"
+            type="com.tatasky.binge.ui.features.myaccount.MyAccountViewModel" />
+
     </data>
 
     <LinearLayout
@@ -43,7 +47,7 @@
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_end="@dimen/margin_20" />
+                    app:layout_constraintGuide_end="@dimen/margin_20dp" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -60,7 +64,7 @@
                         app:menuArrowVisible="@{true}"
                         app:menuDividerVisible="@{true}"
                         app:menuItemImgRes="@{@drawable/ic_profile}"
-                        app:menuItemText="@{@string/edit_profile}" />
+                        app:menuItemText="@{vm.getSettingsPageVerbiage().editProfile}" />
 
                     <include
                         android:id="@+id/view_content_language"
@@ -70,7 +74,7 @@
                         app:menuArrowVisible="@{true}"
                         app:menuDividerVisible="@{true}"
                         app:menuItemImgRes="@{@drawable/ic_content_language}"
-                        app:menuItemText="@{contentLangTitle}" />
+                        app:menuItemText="@{vm.getSettingsPageVerbiage().videoLang}" />
 
                     <include
                         android:id="@+id/view_device_management"
@@ -80,7 +84,7 @@
                         app:menuArrowVisible="@{true}"
                         app:menuDividerVisible="@{true}"
                         app:menuItemImgRes="@{@drawable/ic_device_management}"
-                        app:menuItemText="@{@string/device_management}" />
+                        app:menuItemText="@{vm.getSettingsPageVerbiage().manageDevices}" />
                     <include
                         android:id="@+id/view_parental_pin"
                         layout="@layout/layout_settings_item"
@@ -89,17 +93,8 @@
                         app:menuArrowVisible="@{true}"
                         app:menuDividerVisible="@{true}"
                         app:menuItemImgRes="@{@drawable/ic_parental_lock}"
-                        app:menuItemText="@{@string/btn_parental_pin}" />
-<!--
-                    <include
-                        android:id="@+id/view_payment_settings"
-                        layout="@layout/layout_settings_item"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:menuArrowVisible="@{true}"
-                        app:menuDividerVisible="@{true}"
-                        app:menuItemImgRes="@{@drawable/ic_payment_settings}"
-                        app:menuItemText="@{@string/payment_settings}" />-->
+                        app:menuItemText="@{vm.getSettingsPageVerbiage().parentalControl}" />
+
                     <include
                         android:id="@+id/view_switch_account"
                         layout="@layout/layout_settings_item"
@@ -120,7 +115,7 @@
                         app:menuItemSwitchEnabled="@{true}"
                         app:isChecked="@{autoPlayOn}"
                         app:menuItemImgRes="@{@drawable/ic_auto_trailer}"
-                        app:menuItemText="@{@string/auto_play_trailers}" />
+                        app:menuItemText="@{vm.getSettingsPageVerbiage().autoPlay}" />
                     <include
                         android:id="@+id/view_notification_settings"
                         layout="@layout/layout_settings_item_with_toggle"
@@ -130,7 +125,7 @@
                         app:menuItemSwitchEnabled="@{true}"
                         app:isChecked="@{notificationOn}"
                         app:menuItemImgRes="@{@drawable/ic_notification_settings}"
-                        app:menuItemText="@{@string/notification_settings}" />
+                        app:menuItemText="@{vm.getSettingsPageVerbiage().notificationSett}" />
 
                     <include
                         android:id="@+id/view_transaction_history"
@@ -140,7 +135,7 @@
                         app:menuArrowVisible="@{true}"
                         app:menuDividerVisible="@{true}"
                         app:menuItemImgRes="@{@drawable/ic_trans_history}"
-                        app:menuItemText="@{@string/transaction_history}" />
+                        app:menuItemText="@{vm.getSettingsPageVerbiage().transactionHist}" />
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>
@@ -151,9 +146,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawablePadding="27dp"
-            android:padding="@dimen/margin_20"
+            android:paddingVertical="@dimen/margin_20"
+            android:paddingHorizontal="@dimen/margin_20dp"
             android:textColor="@color/white_75"
-            android:text="@string/text_account_refresh"
+            tools:text="Account Refresh"
+            android:gravity="center_vertical"
+            android:text="@{vm.setRefreshAccountCTAText()}"
             android:textSize="@dimen/dimens_16sp"
             app:drawableStartCompat="@drawable/ic_refresh_account" />
 
@@ -163,9 +161,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawablePadding="27dp"
-            android:padding="@dimen/margin_20"
+            android:paddingVertical="@dimen/margin_20"
+            android:paddingHorizontal="@dimen/margin_20dp"
+            tools:text="Logout"
+            android:gravity="center_vertical"
             android:textColor="@color/white_75"
-            android:text="@string/text_logout"
+            android:text="@{vm.getSettingsPageVerbiage().logout}"
             android:textSize="@dimen/dimens_16sp"
             app:drawableStartCompat="@drawable/ic_sign_out_settings" />
     </LinearLayout>

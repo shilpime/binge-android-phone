@@ -1,5 +1,6 @@
 package com.tatasky.binge.ui.features.subscription_freemium.view
 
+import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,11 +19,8 @@ import com.tatasky.binge.ui.base.frameworks.extensions.hide
 import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.features.subscription_freemium.viewmodel.FreemiumSubscriptionViewModel
 import com.tatasky.binge.ui.features.subscription_freemium.viewmodel.ManagedAppViewModel
+import com.tatasky.binge.utils.*
 import com.tatasky.binge.utils.PaymentUtility.getCurrentOrLastActiveTenureDetailsForActiveOrInactiveUsers
-import com.tatasky.binge.utils.SERVER_DATE_TIME_FORMAT
-import com.tatasky.binge.utils.getCurrentDateInFormat
-import com.tatasky.binge.utils.getDifferenceBetweenTwoDates
-import com.tatasky.binge.utils.navigateSafe
 import dagger.android.support.AndroidSupportInjection
 
 import javax.inject.Inject
@@ -130,6 +128,14 @@ class MyPlanOtherOptionsBottomSheet: BottomSheetDialogFragment() {
                 }
             }
         })
+
+    }
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        this.context?.let{ctx->
+            if(isTablet(ctx))
+                return Dialog(ctx, getTheme())
+        }
+        return super.onCreateDialog(savedInstanceState)
 
     }
 

@@ -116,7 +116,8 @@ class SubscriptionTypeSelectorFragment :
                         SubscriptionTypeSelectorFragmentDirections.actionSubscriptionTypeSelectorFragmentToManagedAppFragment(
                             journeySource = landingActivity?.currentJourneyRef ?: "",
                             accessToken = managedAppResponse.data?.accessToken ?: "",
-                            pageUrl = it
+                            pageUrl = it,
+                            source = source
                         )
                     )
                 } ?: run { onError(ErrorModel()) }
@@ -162,7 +163,8 @@ class SubscriptionTypeSelectorFragment :
                         SubscriptionTypeSelectorFragmentDirections.actionSubscriptionTypeSelectorFragmentToManagedAppFragment(
                             journeySource = args.journeySource,
                             journeySourceRefId = args.journeySourceRefId,
-                            skipDrawer = args.skipDrawer
+                            skipDrawer = args.skipDrawer,
+                            source = args.source
                         )
                     )
 //                }
@@ -193,8 +195,8 @@ class SubscriptionTypeSelectorFragment :
             binding.clRoot.visibility = View.GONE
             binding.cyopClRoot.visibility = View.VISIBLE
             sharedPrefs.getConfigResponse()?.data?.config?.tickTickFixedPlanDrawerScreen?.let {
-                val coloredValue=it.colorTitleValue
-                it.colorTitleValue = " " + Html.fromHtml(it.colorTitleValue).toString()
+                val coloredValue=it.baseAmountColorValue
+                it.baseAmountColorValue = " " + Html.fromHtml(it.baseAmountColorValue).toString()
                 binding.drawerData = it
                 it.partnersImage?.let {
                     binding.cyopRvHeaderApps.adapter = FreemiumProviderAdapter(it)
@@ -224,7 +226,7 @@ class SubscriptionTypeSelectorFragment :
             binding.cyopClRoot.visibility = View.GONE
 
             sharedPrefs.getConfigResponse()?.data?.config?.tickTickDrawerScreen?.let {
-                it.colorTitleValue = " " + Html.fromHtml(it.colorTitleValue).toString()
+                it.baseAmountColorValue = " " + Html.fromHtml(it.baseAmountColorValue).toString()
                 binding.drawerData = it
                 it.partnersImage?.let {
                     binding.rvHeaderApps.adapter = FreemiumProviderAdapter(it)
@@ -232,11 +234,9 @@ class SubscriptionTypeSelectorFragment :
                 paintPremiumGradient(
                     binding.tvMarkettingAmount,
                     binding.tvMarkettingAmount.paint.measureText(
-                        Html.fromHtml(it.colorTitleValue).toString()
+                        Html.fromHtml(it.baseAmountColorValue).toString()
                     )
                 )
-
-
             }
             if (sharedPrefs.getLoginStatus())
                 binding.tvExistingUser.hide()

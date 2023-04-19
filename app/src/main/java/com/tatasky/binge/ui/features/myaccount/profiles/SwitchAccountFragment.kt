@@ -3,29 +3,27 @@ package com.tatasky.binge.ui.features.myaccount.profiles
 import android.app.Activity
 import android.content.Intent
 import android.os.Handler
-import android.os.Looper
+import android.view.View
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.navigation.fragment.findNavController
 import com.tatasky.binge.R
-import com.tatasky.binge.analytics.SOURCE_SWITCH_SUBSCRIPTION
 import com.tatasky.binge.data.networking.models.ErrorModel
-import com.tatasky.binge.data.networking.models.requests.NewBingeUserRequest
 import com.tatasky.binge.data.networking.models.response.LoginResponse
 import com.tatasky.binge.databinding.FragmentSwitchAccountBinding
 import com.tatasky.binge.interfaces.CommonDialogEventListener
 import com.tatasky.binge.ui.base.frameworks.base.BaseFragment
-import com.tatasky.binge.ui.base.frameworks.extensions.enable
 import com.tatasky.binge.ui.base.frameworks.extensions.hide
 import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.features.device_management.DeviceListManagementActivity
 import com.tatasky.binge.ui.features.dialog.DialogModel
 import com.tatasky.binge.ui.features.myaccount.MyAccountViewModel
 import com.tatasky.binge.ui.features.updateprofile.ProfileAnalytics
-import com.tatasky.binge.utils.*
-import io.reactivex.Completable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import java.util.concurrent.TimeUnit
+import com.tatasky.binge.utils.LOGIN_MAX_DEVICE_ERROR_CODE
+import com.tatasky.binge.utils.NON_DTH_USER
+import com.tatasky.binge.utils.isTablet
+import com.tatasky.binge.utils.setSelectedAccountDetail
+import com.tatasky.binge.utils.showCustomLoginToast
+import com.tatasky.binge.utils.startHomeScreen
 import javax.inject.Inject
 
 class SwitchAccountFragment : BaseFragment<FragmentSwitchAccountBinding, MyAccountViewModel>() {
@@ -59,6 +57,11 @@ class SwitchAccountFragment : BaseFragment<FragmentSwitchAccountBinding, MyAccou
     }
 
     override fun toBeCalledOnce() {
+        if (context?.let { isTablet(it) } == true)
+        {
+            binding.toolbarLayout.visibility = View.INVISIBLE
+            binding.textView?.visibility =View.VISIBLE
+        }
         viewModel.fetchBaIdList(sharedPrefs.getOriginalSubscriberId(), false)
         binding.viewModel = viewModel
         binding.btnNext.setOnClickListener {
@@ -85,10 +88,12 @@ class SwitchAccountFragment : BaseFragment<FragmentSwitchAccountBinding, MyAccou
                     DialogModel(
                         false,
                         R.drawable.ic_device_center,
-                        maxDeviceLimitReachedResponse.message,
-                        getString(R.string.review_devices),
-                        getString(R.string.text_non_underlined_Not_Now),
-                        maxDeviceLimitReachedResponse.title
+                        title = sharedPrefs.getConfigResponse()?.data?.config?.device?.header,
+                        primaryButtonText =
+                        sharedPrefs.getConfigResponse()?.data?.config?.device?.review
+                            ?: getString(R.string.review_devices),
+                        secondaryButtonText = getString(R.string.text_non_underlined_Not_Now),
+                        text = sharedPrefs.getConfigResponse()?.data?.config?.device?.subHeader
                     ), object :
                         CommonDialogEventListener {
                         override fun onPrimaryButtonClick() {

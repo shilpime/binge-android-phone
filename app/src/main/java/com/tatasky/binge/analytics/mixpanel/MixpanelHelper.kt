@@ -41,7 +41,7 @@ class MixpanelHelper(val context: Context) {
         mixpanelAPI.unregisterSuperProperty(TS_SID)
         mixpanelAPI.unregisterSuperProperty(C_ID)
         val initialSuperProperties = getInitialSuperProperties(userDetails.rmn, userDetails.dthStatus, userDetails.subscriberId, userDetails.bingeSubscriberId,
-            PLATFORM_ANDROID)
+            if(isTablet(context)) PLATFORM_ANDROID_TABLET else PLATFORM_ANDROID)
         try {
             userDetails.let { it ->
                 initialSuperProperties.put(PROFILE_ID, it.profileId)
@@ -141,7 +141,7 @@ class MixpanelHelper(val context: Context) {
                 userDetails.dthStatus,
                 userDetails.subscriberId,
                 userDetails.bingeSubscriberId,
-                PLATFORM_ANDROID
+                if(isTablet(context)) PLATFORM_ANDROID_TABLET else PLATFORM_ANDROID
             )
         )
         mixpanelAPI.people.set(CLEVERTAP_USER_ID, userDetails.subscriberId)
@@ -405,7 +405,10 @@ class MixpanelHelper(val context: Context) {
         try {
             val props = JSONObject()
             props.put(DEVICE_ID, DeviceInfoUtils.getDeviceId(context))
-            props.put(PLATFORM, PLATFORM_ANDROID)
+            if(isTablet(context))
+                props.put(PLATFORM, PLATFORM_ANDROID_TABLET)
+            else
+                props.put(PLATFORM, PLATFORM_ANDROID)
             mMixpanelUnifiedAPI.registerSuperProperties(props)
         } catch (e: JSONException) {
             e.printStackTrace()
@@ -416,7 +419,9 @@ class MixpanelHelper(val context: Context) {
         val props = JSONObject()
         try {
             props.put(DEVICE_ID, DeviceInfoUtils.getDeviceId(context))
-            props.put(PLATFORM, PLATFORM_ANDROID)
+            if(isTablet(context))
+                props.put(PLATFORM, PLATFORM_ANDROID_TABLET)
+            else props.put(PLATFORM, PLATFORM_ANDROID)
             props.put(USER_TYPE, UserDetailsUtil.getUserType(null))
         } catch (e: JSONException) {
             e.printStackTrace()
@@ -426,7 +431,10 @@ class MixpanelHelper(val context: Context) {
 
     fun setUserIdentity(userIdentity: String?, mixpanelAPI: MixpanelAPI = mMixpanelAPI) {
         //Setting generic super properties before calling identify()
-        addUpdateSuperProperty(PLATFORM, PLATFORM_ANDROID)
+        if(isTablet(context))
+            addUpdateSuperProperty(PLATFORM, PLATFORM_ANDROID_TABLET)
+         else
+            addUpdateSuperProperty(PLATFORM, PLATFORM_ANDROID)
         addUpdateSuperProperty(DEVICE_ID, DeviceInfoUtils.getDeviceId(context))
         if (userIdentity?.isNotBlank() == true) {
             mixpanelAPI.identify(userIdentity)

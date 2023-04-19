@@ -6,11 +6,13 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="view_margin_smallest">4dp</dimen>
     <dimen name="edit_layout_height">56dp</dimen>
+    <dimen name="home_toolbar_height">56dp</dimen>
     <dimen name="view_margin_small">8dp</dimen>
     <dimen name="view_margin_medium">12dp</dimen>
     <dimen name="view_margin_large">16dp</dimen>
     <dimen name="view_margin_xlarge">20dp</dimen>
     <dimen name="view_margin_xxlarge">24dp</dimen>
+    <dimen name="view_margin_xxxlarge">28dp</dimen>
     <dimen name="view_margin_form">24dp</dimen>
 
     <dimen name="doc_width">164dp</dimen>
@@ -28,8 +30,10 @@
     <dimen name="margin_36">36dp</dimen>
     <dimen name="banner_window_width">0dp</dimen>
     <dimen name="margin_2">2dp</dimen>
+    <dimen name="margin_1">1dp</dimen>
     <dimen name="card_elevation">2dp</dimen>
     <dimen name="corner_radius_4">4dp</dimen>
+    <dimen name="corner_radius_14">14dp</dimen>
     <dimen name="corner_radius_16">16dp</dimen>
     <dimen name="corner_radius_6">6dp</dimen>
     <dimen name="card_elevation_8">8dp</dimen>
@@ -54,7 +58,10 @@
     <dimen name="text_size_30">30sp</dimen>
     <dimen name="text_size_42">42sp</dimen>
     <dimen name="text_size_28">28sp</dimen>
+    <dimen name="text_size_26">26sp</dimen>
     <dimen name="line_spacing_5">5sp</dimen>
+    <dimen name="line_spacing_2">2sp</dimen>
+    <dimen name="line_spacing_1">1sp</dimen>
     <dimen name="line_spacing_9">9sp</dimen>
     <dimen name="line_spacing_6">6sp</dimen>
     <dimen name="line_spacing_4">4sp</dimen>
@@ -76,6 +83,7 @@
     <dimen name="detail_image_height">224dp</dimen>
     <dimen name="padding_5dp">5dp</dimen>
     <dimen name="padding_10dp">10dp</dimen>
+    <dimen name="padding_20dp">20dp</dimen>
     <dimen name="button_radius">24dp</dimen>
     <dimen name="logo_max_width">128dp</dimen>
     <dimen name="logo_max_height">18dp</dimen>
@@ -117,8 +125,26 @@
     <dimen name="btn_bg_height">112dp</dimen>
     <dimen name="dimen_22dp">22dp</dimen>
     <dimen name="dimen_16dp">16dp</dimen>
+    <dimen name="dimen_18dp">18dp</dimen>
     <dimen name="dimen_0dp">0dp</dimen>
+    <dimen name="dimen_6dp">6dp</dimen>
+    <dimen name="dimen_4dp">0dp</dimen>
     <dimen name="dimen_46dp">46dp</dimen>
     <dimen name="dp_16">16dp</dimen>
     <dimen name="dimens_1dp">1dp</dimen>
+    <dimen name="dimen_0.5dp">0.5dp</dimen>
+    <dimen name="dimen_minus_10dp">-10dp</dimen>
+
+    <dimen name="tab_button_height">60dp</dimen>
+
+    <dimen name="tab_margin_15">15dp</dimen>
+    <dimen name="tab_provider_logo">60dp</dimen>
+    <dimen name="tab_details_button_size">46dp</dimen>
+    <dimen name="dimen_2dp">2dp</dimen>
+    <dimen name="dimen_8dp">8dp</dimen>
+    <dimen name="dimen_14dp">14dp</dimen>
+    <dimen name="margin_37">37dp</dimen>
+    <dimen name="dimen_60dp">60dp</dimen>
+    <dimen name="dimen_30dp">30dp</dimen>
+    <dimen name="dimen_8sp">8sp</dimen>
 </resources>

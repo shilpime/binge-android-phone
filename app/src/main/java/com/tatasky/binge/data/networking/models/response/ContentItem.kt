@@ -2,20 +2,28 @@ package com.tatasky.binge.data.networking.models.response
 
 import android.os.Parcel
 import android.os.Parcelable
+import android.text.SpannableString
 import android.text.TextUtils
+import androidx.databinding.ObservableField
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import com.moengage.inbox.core.model.InboxMessage
+import com.tatasky.binge.analytics.RAIL
 import com.tatasky.binge.data.networking.models.notifications.MoEngageGenericModel
+import com.tatasky.binge.ui.features.home.ItemViewType
+import com.tatasky.binge.ui.features.home.SuggestionSuggestors
 import com.tatasky.binge.utils.*
 import com.ttn.ttnplayer.player.SubtitleDTO
-import kotlinx.android.parcel.Parcelize
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
 class ContentItem() : Parcelable {
+
+    var appleRedemptionStatus: String? = null
+    var railSectionType: String = RAIL.uppercase()
+    var railConfigType: String = EventConstants.TYPE_EDITORIAL.uppercase()
 
     fun getVodOrParentTitle(): String? {
         return when (contentType) {
@@ -33,7 +41,13 @@ class ContentItem() : Parcelable {
                 true))
         )
             return true*/
-        return isShowCrownOnContent(isPartnerSubscribed, isGuestUser,provider, partnerSubscriptionType)
+        return isShowCrownOnContent(
+            isPartnerSubscribed,
+            isGuestUser,
+            provider,
+            partnerSubscriptionType,
+            appleRedemptionStatus
+        )
     }
 
     fun getRental() :String? {
@@ -54,6 +68,27 @@ class ContentItem() : Parcelable {
             return TextUtils.join(", ", subsTitle)
         }
         return ""
+    }
+
+    fun getSubtitleSearchSuggestions(): String {
+
+        if (!subText.isBlank())
+            return subText
+        val subtextSearch: ArrayList<String> = arrayListOf()
+        if (genres.isNotEmpty())
+            subtextSearch.add(genres[0])
+        if(suggestionContentType.isNotEmpty())
+            subtextSearch.add(suggestionContentType)
+        if ((releaseYear != null) &&
+            (releaseYear.trim() != "0")
+            && (releaseYear.isNotEmpty())
+        ) {
+            subtextSearch.add(releaseYear)
+        }
+        if (language.isNotEmpty())
+            subtextSearch.add(language[0])
+        return TextUtils.join(" | ", subtextSearch)
+
     }
 
     fun getAirDuration():String{
@@ -117,10 +152,19 @@ class ContentItem() : Parcelable {
 
     @SerializedName("id")
     var id: String = "0"
+
+    var suggestionPosition = 0
+
     @SerializedName("contentId")
     var contentId: String = ""
     @SerializedName("title")
     var title: String = ""
+    @SerializedName("subText")
+    var subText: String = ""
+
+
+    var name : SpannableString = SpannableString("")
+
     @SerializedName("contentTitle")
     var contentTitle: String = ""
     @SerializedName("boxCoverImage")
@@ -131,12 +175,18 @@ class ContentItem() : Parcelable {
     val appImageBM : String? = null
     @SerializedName("image", alternate = ["imageUrl"])
     var image: String = ""
+
+    @SerializedName("newImage")
+    var newImage: String = ""
+
     @SerializedName("buttonText")
     var liveBannerButtonText: String = ""
     @SerializedName("bannerText")
     var bannerText: String = ""
     @SerializedName("contentType")
     var contentType: String = ""
+    @SerializedName("suggestionContentType")
+    var suggestionContentType: String = ""
     @SerializedName("genre", alternate = arrayOf("genres"))
     var genres: ArrayList<String> = arrayListOf()
     @SerializedName("linkUrl")
@@ -245,7 +295,23 @@ class ContentItem() : Parcelable {
 
     @SerializedName("liveContent")
     @Expose
-    val liveContent = false
+    val liveContent = false // Used mainly for Live tag and content identifier
+
+    @SerializedName("suggestor")
+    @Expose
+    var suggestor : String = ""
+
+    var suggestorForMixpanel: String = ""
+        get() {
+            return when(suggestor.lowercase()){
+                SuggestionSuggestors.GenreSuggestor.name.lowercase() -> "GENRE"
+                SuggestionSuggestors.LanguageSuggestor.name.lowercase() -> "LANGUAGE"
+                SuggestionSuggestors.KeywordSuggestor.name.lowercase() -> "STRING"
+                SuggestionSuggestors.TitleSuggestor.name.lowercase() -> "CONTENT"
+                SuggestionSuggestors.ProviderSuggestor.name.lowercase() -> "PARTNER"
+                else -> ""
+            }
+        }
 
     /*TA Related Shows Handling*/
     @SerializedName("seriesTitle")
@@ -267,6 +333,9 @@ class ContentItem() : Parcelable {
 
     @SerializedName("backgroundImage")
     val backgroundImage : String? = null
+
+    @SerializedName("newBackgroundImage")
+    val newBackgroundImage : String? =null
 
     @SerializedName("appContentList")
     var contentItem: ArrayList<ContentItem> = ArrayList()
@@ -305,12 +374,15 @@ class ContentItem() : Parcelable {
     var availableDays: String = ""
     var isSelected = false
     var refId : String = ""
+    var isCrown : Boolean = false
 
     var payload:MoEngageGenericModel? = null
 
     //New mixpanel fields added during game dev
     var gameRailName : String = ""
 
+    //Need to send for mixpanel search suggestion
+    var searchKeyword : String = ""
 
     @SerializedName("audio")
     @Expose
@@ -326,6 +398,8 @@ class ContentItem() : Parcelable {
     var isQuerySubmitted : Boolean = false
     @SerializedName("freeEpisodesAvailable")
     var freeEpisodesAvailable : Boolean = false
+
+    var firstFreeEpisodeVerbiage : String = ""
 
     //Gamezop
     @SerializedName("gamePlayCount")
@@ -345,6 +419,9 @@ class ContentItem() : Parcelable {
 
     @SerializedName("adPlayUrl")
     var adPlayUrl: String = ""
+
+    var mergeSectionType: String = ""
+    var mergeSectionTitle: String = ""
 
     constructor(parcel: Parcel) : this() {
         id = parcel.readString()?:"0"
@@ -404,14 +481,36 @@ class ContentItem() : Parcelable {
         isQuerySubmitted = parcel.readByte() != 0.toByte()
         playUrl = parcel.readString()?: ""
         adPlayUrl = parcel.readString()?: ""
+        firstFreeEpisodeVerbiage = parcel.readString()?: ""
         refId = parcel.readString() ?: ""
+        isCrown = parcel.readByte() != 0.toByte()
         position =parcel.readInt()
+        suggestionPosition =parcel.readInt()
+        suggestor = parcel.readString() ?: ""
+        searchKeyword = parcel.readString() ?: ""
+        mergeSectionType = parcel.readString() ?: ""
+        mergeSectionTitle = parcel.readString() ?: ""
+        railConfigType = parcel.readString() ?: EventConstants.TYPE_EDITORIAL.uppercase()
+        railSectionType = parcel.readString() ?: RAIL.uppercase()
+        appleRedemptionStatus = parcel.readString() ?: ""
     }
 
     fun getImageItem() : String{
         if(!image.isEmpty()) return  image
         else if(!boxCoverImage.isEmpty()) return  boxCoverImage
         else return ""
+    }
+
+    fun getLangGenreIcon(sectionSource: String): String {
+        return if (sectionSource.equals(ItemViewType.GENRE.name, true)) newImage else image
+    }
+
+    fun getLangGenreBackDrop(sectionSource : String) : String? {
+        return if (sectionSource.equals(
+                ItemViewType.GENRE.name,
+                true
+            )
+        ) newBackgroundImage else backgroundImage
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -472,8 +571,18 @@ class ContentItem() : Parcelable {
         parcel.writeByte(if (isQuerySubmitted) 1 else 0)
         parcel.writeString(playUrl)
         parcel.writeString(adPlayUrl)
+        parcel.writeString(firstFreeEpisodeVerbiage)
         parcel.writeString(refId)
+        parcel.writeByte(if (isCrown) 1 else 0)
         parcel.writeInt(position)
+        parcel.writeInt(suggestionPosition)
+        parcel.writeString(suggestor)
+        parcel.writeString(searchKeyword)
+        parcel.writeString(mergeSectionType)
+        parcel.writeString(mergeSectionTitle)
+        parcel.writeString(railConfigType)
+        parcel.writeString(railSectionType)
+        parcel.writeString(appleRedemptionStatus)
     }
 
     override fun describeContents(): Int {

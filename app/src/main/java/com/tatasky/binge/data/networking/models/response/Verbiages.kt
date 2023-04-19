@@ -16,5 +16,7 @@ data class VerbiageData (
 )
 
 data class Others (
-    @SerializedName("buttonTitle") var buttonTitle : String? = null
+    @SerializedName("buttonTitle") var buttonTitle : String? = null,
+    @SerializedName("exitButtonTitle") var exitButtonTitle : String? = null,
+    val buttonHeader : String? = null
 )

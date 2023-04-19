@@ -15,7 +15,6 @@ import com.tatasky.binge.databinding.FragmentTrialSubscripitonBinding
 import com.tatasky.binge.interfaces.CommonDialogEventListener
 import com.tatasky.binge.ui.base.frameworks.base.BaseActivity
 import com.tatasky.binge.ui.base.frameworks.base.BaseFragment
-import com.tatasky.binge.ui.base.frameworks.extensions.invisible
 import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.features.dialog.DialogModel
 import com.tatasky.binge.ui.features.recharge.RechargeActivity
@@ -24,7 +23,6 @@ import com.tatasky.binge.ui.features.subscription.SubscriptionAnalytics
 import com.tatasky.binge.ui.features.subscription.adapter.ProviderAdapter
 import com.tatasky.binge.ui.features.subscription.viewmodel.SubscriptionViewModel
 import com.tatasky.binge.utils.*
-import java.util.*
 import javax.inject.Inject
 
 class TrialSubscriptionFragment : BaseFragment<FragmentTrialSubscripitonBinding, SubscriptionViewModel>(){

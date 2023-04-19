@@ -65,7 +65,7 @@
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
             app:srcCompat="@drawable/ic_crown_with_bg"
-            android:visibility="@{contentItem.containsCrown ? View.VISIBLE : View.GONE, default=gone}"
+            android:visibility="@{contentItem.containsCrown() ? View.VISIBLE : View.GONE, default=gone}"
             android:contentDescription="@string/premium_image_desc" />
 
     </RelativeLayout>

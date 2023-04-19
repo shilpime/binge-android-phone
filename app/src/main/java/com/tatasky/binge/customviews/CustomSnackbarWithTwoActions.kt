@@ -10,8 +10,10 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
 import androidx.constraintlayout.widget.Group
 import androidx.core.content.ContextCompat
+import androidx.core.view.updateLayoutParams
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.tatasky.binge.R
@@ -22,6 +24,7 @@ import com.tatasky.binge.utils.BindingAdapters.Companion.setHtmlText
 import com.tatasky.binge.utils.CustomSnackbarWithTwoActionsType
 import com.tatasky.binge.utils.d
 import com.tatasky.binge.utils.dpToPx
+import com.tatasky.binge.utils.isTablet
 
 @SuppressLint("ClickableViewAccessibility")
 class CustomSnackbarWithTwoActions(
@@ -75,6 +78,8 @@ class CustomSnackbarWithTwoActions(
                 customView.findViewById<TextView>(R.id.tv_desc_snackbar_custom_with_two_actions)
             val tvTitle =
                 customView.findViewById<TextView>(R.id.tv_title_snackbar_custom_with_two_actions)
+            val tvAction =
+                customView.findViewById<TextView>(R.id.btn_action_snackbar_custom_with_two_actions)
 
             val gameNudge =
                 customView.findViewById<ConstraintLayout>(R.id.snackbar_game_nudge)
@@ -152,6 +157,22 @@ class CustomSnackbarWithTwoActions(
                     imageView.visibility = View.VISIBLE
                     tvDesc.visibility = View.GONE
                     tvTitle.textSize = 14f
+                    if (btnText.isEmpty()){
+                        tvAction.visibility = View.GONE
+                        if (isTablet(tvTitle))
+                        {
+                            val textLayoutParams=tvTitle.layoutParams as LayoutParams
+                            textLayoutParams.bottomToBottom=LayoutParams.PARENT_ID
+                            textLayoutParams.bottomToTop=-1
+                            tvTitle.layoutParams = textLayoutParams
+                        }else
+                        {
+                            tvTitle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                                setMargins(0,18,0,0) //parameters are in pixel
+                            }
+                        }
+
+                    }
 
                     customView.findViewById<ImageView>(R.id.iv_snackbar_custom_with_two_actions)
                         .apply {
@@ -271,9 +292,14 @@ private fun CustomSnackbarWithTwoActionsView.setupNewNudgeStyle(
     imgResourceCancel: Int?,
     lambdaAction: (() -> Unit)?,
     lambdaCancel: (() -> Unit)?
-): MaterialCardView? {
+): ConstraintLayout? {
     val nudge =
-        findViewById<MaterialCardView>(R.id.snackbar_new_design)
+        findViewById<ConstraintLayout>(R.id.snackbar_new_design)
+    context?.let {
+        if(isTablet(it)){
+            findViewById<ConstraintLayout>(R.id.cl_snackbar_custom_with_two_actions).hide()
+        }
+    }
     val title = nudge.findViewById<TextView>(R.id.nudgeTitle_TV)
     val description = nudge.findViewById<TextView>(R.id.nudgeDescription_TV)
     val image = nudge.findViewById<ImageView>(R.id.icon_IV)

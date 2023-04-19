@@ -12,6 +12,7 @@ import com.tatasky.binge.ui.features.home.bottomsheet.HomeBottomSheetViewModel
 import com.tatasky.binge.ui.features.home.sub.SubViewModel
 import com.tatasky.binge.ui.features.home.subpage.SeeAllViewModel
 import com.tatasky.binge.ui.features.link_accounts.LinkAccountViewModel
+import com.tatasky.binge.ui.features.live_channel.LiveChannelDetailsViewModel
 import com.tatasky.binge.ui.features.more.SettingsViewModel
 import com.tatasky.binge.ui.features.myaccount.MyAccountViewModel
 import com.tatasky.binge.ui.features.notifications.NotificationViewModel
@@ -189,5 +190,10 @@ internal abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(GamesViewModel::class)
     internal abstract fun bindGameViewModel(viewModel: GamesViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(LiveChannelDetailsViewModel::class)
+    internal abstract fun bindLiveChannelDetailsViewModel(viewModel: LiveChannelDetailsViewModel): ViewModel
 
 }

@@ -1,9 +1,13 @@
 package com.tatasky.binge.ui.features.device_management
 
 import android.app.Activity
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelStoreOwner
@@ -25,6 +29,7 @@ import com.tatasky.binge.ui.features.myaccount.MyAccountViewModel
 import com.tatasky.binge.utils.DeviceInfoUtils
 import com.tatasky.binge.utils.VerticalSpaceItemDecoration
 import com.tatasky.binge.utils.dpToPx
+import com.tatasky.binge.utils.isTablet
 import javax.inject.Inject
 
 /**
@@ -53,6 +58,7 @@ class DeviceListFragment : BaseFragment<FragmentDeviceManagementBinding, MyAccou
         returnTransition = backward
         reenterTransition = backward
         exitTransition = forward*/
+
     }
     override fun getViewModelClass(): Class<MyAccountViewModel> {
         return MyAccountViewModel::class.java
@@ -60,6 +66,23 @@ class DeviceListFragment : BaseFragment<FragmentDeviceManagementBinding, MyAccou
 
     override fun layoutId(): Int {
         return R.layout.fragment_device_management
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        uiChanges()
+    }
+
+    private fun uiChanges() {
+        val layoutParams= binding.llouter?.layoutParams as LinearLayout.LayoutParams
+        activity?.let {
+            layoutParams.apply {
+                layoutParams.marginStart = it.resources.getDimensionPixelSize(R.dimen.tab_padding)
+                layoutParams.marginEnd  = it.resources.getDimensionPixelSize(R.dimen.tab_padding_right)
+            }
+        }
+
+        binding.llouter?.layoutParams=layoutParams
     }
 
     override fun getViewModelOwner(): ViewModelStoreOwner {
@@ -227,6 +250,11 @@ class DeviceListFragment : BaseFragment<FragmentDeviceManagementBinding, MyAccou
              },
              deviceName ?: ""
          )*/
+        if (context?.let { isTablet(it) } == true)
+        {
+            binding.toolbarLayout.visibility = View.INVISIBLE
+            binding.textView.visibility =View.VISIBLE
+        }
         isReviewDeviceOnMaxLimitReached =
             activity?.intent?.getBooleanExtra(KEY_IS_DEVICE_REVIEW_ON_MAX_LIMIT_REACHED, false) == true
         binding.isDeviceReviewOnMaxLimitReached = isReviewDeviceOnMaxLimitReached

@@ -4,19 +4,34 @@ import com.tatasky.binge.data.networking.models.response.PartnerPacks
 import java.util.*
 
 object ContentUtil {
+
+    fun isLiveContent(contentType: String?, isLiveContent: Boolean?) =
+        TYPE_LIVE.equals(contentType, true) || isLiveContent == true
+
+    fun isAppleCodeRedeemed(provider: String?, appleRedemptionStatus: String?) =
+        PROVIDER_APPLE.equals(
+            provider,
+            true
+        ) && CONSUMED.equals(
+            appleRedemptionStatus,
+            true
+        )
+
     fun isContentAuth(
         contentContractName: String,
         currentSubscribedPack: PartnerPacks?,
         isLoggedIn: Boolean,
         provider: String?,
-        partnerSubscriptionType: String?
+        partnerSubscriptionType: String?,
+        appleRedemptionStatus: String?
     ): Boolean {
         return !(!RENTAL.equals(contentContractName, true)
                 && isShowCrownOnContent(
             isPartnerSubscribedForSelectedContent(currentSubscribedPack, provider ?: ""),
             !isLoggedIn,
             provider,
-            partnerSubscriptionType
+            partnerSubscriptionType,
+            appleRedemptionStatus
         ))
     }
 

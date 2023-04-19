@@ -122,6 +122,7 @@ const val TYPE_SERIES_CHILD = "SERIES_CHILD_LOCAL"
 const val TYPE_BRAND_CHILD = "BRAND_CHILD_LOCAL"
 const val TYPE_CUSTOM_WEB_VIEW = "CUSTOM_WEB_VIEW"
 const val TYPE_LIVE = "LIVE"
+const val TYPE_VOD = "VOD"
 const val TYPE_LIVE_EVENT = "LIVE_EVENT"
 const val TYPE_CUSTOM_PRIME = "CUSTOM_PRIME"
 const val TYPE_SUB_PAGE = "SUB_PAGE"
@@ -184,6 +185,7 @@ const val KEY_HEADER_PARTNERS = "partners"
 const val HEADER_TYPE_OLD_BA = "migrateOldUser"
 const val KEY_HEADER_TYPE_PARTNER_UNIQUE_ID = "partnerUniqueId"
 const val HEADER_VALUE_DEVICE_TYPE = "Android"
+const val HEADER_VALUE_DEVICE_TYPE_TABLET = "iPad"
 const val HEADER_VALUE_PLATFORM_BA = "BINGE_ANYWHERE"
 const val HEADER_TYPE_BA = "binge_anywhere"
 const val HEADER_TYPE_BA_DEVICE_MANAGEMENT = "binge_anywhere_device_management"
@@ -194,6 +196,7 @@ const val HEADER_TYPE_BA_CREATE = "binge_anywhere_create"
 const val HEADER_TYPE_DEVICE = "freemium_device"
 const val HEADER_TYPE_ALIAS = "header_alias"
 const val HEADER_VALUE_PLATFORM_TA = "binge_anywhere_android"
+const val HEADER_VALUE_PLATFORM_TA_TABLET = "Binge_anywhere"
 const val HEADER_TYPE_DONGLE = "binge_mobile"
 const val HEADER_TYPE_NO_CACHE = "no_cache"
 const val HEADER_TYPE_NONE = "header_none"
@@ -201,6 +204,7 @@ const val HEADER_TYPE_TVOD = "header_tvod"
 const val HEADER_TYPE_RRM = "header_rrm"
 const val HEADER_TYPE_VRTA = "header_vrta"
 const val HEADER_TYPE_VRTARAIL = "header_vrta_rail"
+const val HEADER_TYPE_IPAD = "header_type_ipad"
 const val HEADER_TYPE_VR_WITH_AUTH = "header_rrm_auth"
 const val HEADER_TYPE_VR_WITH_AUTH_NO_CACHE = "header_rrm_auth_no_cache"
 const val HEADER_TYPE_NO_HEADER = "header_no_value"
@@ -232,6 +236,7 @@ val HEADER_VALUE_KEY_HEADER_X_API_LOGIN_GENERATE = "ylFS29nVnD1A59ucq6NpcM0QiNIZ
 val HEADER_VALUE_KEY_HEADER_X_API_LOGIN_VALIDATE = "88k8Wwdz1NtqykinxmBbxXfazcbhOphf"
 val HEADER_VALUE_LOOKUP = "cHwH9oW4zAcxVTkD2ZxaivxljEEXhLG2"
 
+
 /**
  * End Of Header Type
  */
@@ -260,6 +265,8 @@ val PROVIDER_CHAUPAL    = "CHAUPAL"
 val PROVIDER_PLANET_MARATHI = "PLANETMARATHI"
 val PROVIDER_NAMMAFLIX = "sjfsd"
 val PROVIDER_LIONSGATE = "LIONSGATE"
+val PROVIDER_APPLE = "APPLETV"
+val PROVIDER_MANORAMA = "ManoramaMAX"
 
 
 val subscriptionTypeAtv = "atv"
@@ -392,6 +399,7 @@ const val KEY_LOGIN = "login"
 const val KEY_NOTIFICATION = "notification"
 const val KEY_GAMES = "games"
 const val KEY_SPORTS = "sports"
+const val KEY_HELP_CENTER = "help-center"
 
 /*
 * Mid scroll screen names
@@ -483,6 +491,9 @@ const val USER_PREFERRED_GENRE_TYPE = "genre"
 const val USER_PREFERRED_GENRE_USE_CASE = "UC_GET_GENRE_PROFILE_1"
 const val USER_PREFERRED_LANGUAGE_USE_CASE = "UC_PL"
 
+// Preference keys
+const val KEY_ALIAS_NAME = "aliasName"
+
 //AppsFlyer/Deeplink/Other constants
 const val ACTION = "action"
 const val KEY_IS_RENEW = "isRenew"
@@ -502,6 +513,7 @@ const val KEY_MANAGED_APP_JOURNEY_SOURCE_REFID = "managedAppJourneySourceRefId"
 const val KEY_JOURNEY_SOURCE_REFID = "journeySourceRefId"
 const val KEY_TITLE = "title"
 const val KEY_PRODUCT_TYPE = "productType"
+const val KEY_PAY_BY_DTH = "payByDTH"
 
 
 //Tick Tick Model constants
@@ -517,6 +529,7 @@ const val CLEVERTAP_USER_ID = "$" + "CleverTap_user_id"
 const val VTR_PERCENTAGE_50 = "50%"
 const val VTR_PERCENTAGE_75 = "75%"
 const val KEY_REFRESH_GAME_FAV = "refreshGameFav"
+const val KEY_REFRESH_GAME_CW = "refreshGameCW"
 
 ///CT Constants
 const val DEEP_LINK_KEY = "wzrk_dl"
@@ -535,6 +548,9 @@ const val WHITE = "#FFFFFF"
 const val CLOSE_SYSTEM_DIALOGS = "close_system_dialogs"
 const val CATEGORY_LANGUAGE_SETTING = "language-setting"
 const val CATEGORY_LANGUAGE_DRAWER = "language-drawer"
+const val CATEGORY_APPLE_UPGRADE_POPUP = "apple-upgrade-popup"
+const val CATEGORY_APPLE_ACTIVATION_POPUP = "apple-activation-popup"
+const val CATEGORY_APPLE_ACTIVATION_CTA = "apple-activation-cta"
 //CT New Constant
 const val NOTIF_ICON = "ico"
 const val WZRK_ACTIONS = "wzrk_acts"
@@ -544,3 +560,18 @@ const val WZRK_SUBTITLE = "wzrk_st"
 const val WZRK_COLOR = "wzrk_clr"
 const val KEY_CT_TYPE = "ct_type"
 const val LABEL_INTENT_SERVICE = "CLEVERTAP_INTENT_SERVICE"
+const val ADD_HEIGHT_LANDSCAPE=115
+const val GAME_OF_THE_WEEK_SECTION="GAME_OF_THE_WEEK"
+const val NEWLY_ADDED_GAMES_SECTION="NEWLY_ADDED_GAMES"
+const val MERGE_GAME_RAIL_SECTION="MERGE_GAME_RAIL"
+
+const val CONSUMED = "consumed"
+const val DEVICE_TYPE_MOBILE="BINGE_ANYWHERE"
+const val DEVICE_TYPE_IPAD="IPAD"
+const val DETAILS_LAYOUT_WEIGHT_1F=1f
+const val DETAILS_LAYOUT_WEIGHT_2F=2f
+const val DETAILS_LAYOUT_WEIGHT_3F=3f
+const val CONSTANT_50=50
+const val CUSTOM_SNACKBAR_DELAY = 3000
+const val PARENTAL_VIEWING_RESTRICTION_UPDATED = "parentalViewingRestrictionUpdated"
+const val PARENTAL_PIN_SETUP_SUCCESS = "parentalPinSetupSuccess"

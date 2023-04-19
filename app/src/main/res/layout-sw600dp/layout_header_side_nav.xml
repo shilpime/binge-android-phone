@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <View
+            android:id="@+id/view_background_profile"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_profile"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toTopOf="@+id/tv_title_profile"
+            app:layout_constraintEnd_toEndOf="@id/view_background_profile"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@id/view_background_profile"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:srcCompat="@drawable/ic_profile_settings" />
+
+        <TextView
+            android:id="@+id/tv_title_profile"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="48dp"
+            android:textColor="@color/white"
+            android:gravity="center"
+            tools:text="@string/text_un_logged_in_header"
+            android:textSize="@dimen/text_size_18"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/tv_subtitle_profile"
+            app:layout_constraintEnd_toEndOf="@id/view_background_profile"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@id/view_background_profile"
+            app:layout_constraintTop_toBottomOf="@+id/iv_profile" />
+
+        <TextView
+            android:id="@+id/tv_subtitle_profile"
+            style="@style/TSTextMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="48dp"
+            android:gravity="center"
+            android:textColor="@color/white_75"
+            android:textSize="@dimen/dimens_16sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/tv_text_device_name"
+            app:layout_constraintEnd_toEndOf="@id/view_background_profile"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@id/view_background_profile"
+            app:layout_constraintTop_toBottomOf="@+id/tv_title_profile"
+            tools:text="+91 9114567890" />
+
+        <TextView
+            android:id="@+id/tv_text_device_name"
+            style="@style/TSTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="48dp"
+            android:drawablePadding="16dp"
+            android:gravity="center"
+            android:textColor="@color/white_70"
+            android:textSize="@dimen/dimens_16sp"
+            android:visibility="gone"
+            app:drawableStartCompat="@drawable/ic_tv"
+            app:layout_constraintBottom_toTopOf="@id/tv_text_login"
+            app:layout_constraintEnd_toEndOf="@id/view_background_profile"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@id/view_background_profile"
+            app:layout_constraintTop_toBottomOf="@+id/tv_subtitle_profile"
+            tools:text="Briju’s Fire TV" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tv_text_login"
+            style="@style/Widget.AppTheme.OutlineButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            tools:text="@string/login"
+            android:textFontWeight="600"
+            android:paddingStart="@dimen/margin_55"
+            android:paddingEnd="@dimen/margin_55"
+            android:textSize="@dimen/text_size_20"
+            app:drawableTint="?colorSecondary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/view_background_profile"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@id/view_background_profile"
+            app:layout_constraintTop_toBottomOf="@id/tv_text_device_name" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

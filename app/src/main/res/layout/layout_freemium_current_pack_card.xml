@@ -236,7 +236,7 @@
                     android:layout_marginTop="@dimen/view_margin_medium"
                     android:layout_marginEnd="@dimen/margin_2"
                     app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                    app:spanCount="5"
+                    app:spanCount="@integer/grid_plan_provider"
                     app:layout_constraintStart_toEndOf="@id/guideline_v_1"
                     app:layout_constraintEnd_toEndOf="parent"
                     android:layoutAnimation="@anim/pack_anim"

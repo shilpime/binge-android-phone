@@ -374,23 +374,23 @@ final public class ExpandableTextView extends androidx.appcompat.widget.AppCompa
         void onShrink(ExpandableTextView view);
     }
 
-    private class ExpandableClickListener implements View.OnClickListener{
+    private class ExpandableClickListener implements OnClickListener{
         @Override
         public void onClick(View view) {
             toggle();
         }
     }
 
-    public View.OnClickListener getOnClickListener(View view) {
+    public OnClickListener getOnClickListener(View view) {
         return getOnClickListenerV14(view);
     }
 
-    private View.OnClickListener getOnClickListenerV(View view) {
-        View.OnClickListener retrievedListener = null;
+    private OnClickListener getOnClickListenerV(View view) {
+        OnClickListener retrievedListener = null;
         try {
             Field field = Class.forName(CLASS_NAME_VIEW).getDeclaredField("mOnClickListener");
             field.setAccessible(true);
-            retrievedListener = (View.OnClickListener) field.get(view);
+            retrievedListener = (OnClickListener) field.get(view);
         } catch (Exception e) {
             e("ExpandableTextView","e:"+e);
         }
@@ -398,8 +398,8 @@ final public class ExpandableTextView extends androidx.appcompat.widget.AppCompa
         return retrievedListener;
     }
 
-    private View.OnClickListener getOnClickListenerV14(View view) {
-        View.OnClickListener retrievedListener = null;
+    private OnClickListener getOnClickListenerV14(View view) {
+        OnClickListener retrievedListener = null;
         try {
             Field listenerField = Class.forName(CLASS_NAME_VIEW).getDeclaredField("mListenerInfo");
             Object listenerInfo = null;
@@ -413,7 +413,7 @@ final public class ExpandableTextView extends androidx.appcompat.widget.AppCompa
 
             if (clickListenerField != null && listenerInfo != null) {
                 clickListenerField.setAccessible(true);
-                retrievedListener = (View.OnClickListener) clickListenerField.get(listenerInfo);
+                retrievedListener = (OnClickListener) clickListenerField.get(listenerInfo);
             }
         } catch (Exception e) {
             e("ExpandableTextView","e:"+e);

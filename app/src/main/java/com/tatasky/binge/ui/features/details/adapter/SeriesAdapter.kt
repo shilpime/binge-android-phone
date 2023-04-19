@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
+import com.tatasky.binge.analytics.util.emptyContentAnalyticsModel
 import com.tatasky.binge.customviews.EndlessListAdapter
 import com.tatasky.binge.data.networking.models.response.ContentItem
 import com.tatasky.binge.data.networking.models.response.RailPoint
@@ -31,9 +33,9 @@ class SeriesAdapter(
     private val cloudinaryUrl: String?,
     val loadMoreClickListener: CommonLoadMoreClickListener?,
     val episodeInfoClickListener: CommonDTOClickListener,
-    var isContenSubscribed : Boolean
-) : EndlessListAdapter<ContentItem, RecyclerView.ViewHolder>(mList) {
-    private val railPoint = RailPoint()
+    var isContenSubscribed : Boolean,
+) : EndlessListAdapter<ContentItem, RecyclerView.ViewHolder>(mList, emptyContentAnalyticsModel()) {
+    private var railPoint = RailPoint()
     init {
         autoUpdating = false
     }
@@ -67,6 +69,12 @@ class SeriesAdapter(
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun resetContentCardDimension() {
+        railPoint = RailPoint()
+        notifyDataSetChanged()
+    }
+
     fun addLoading() {
         //isAppending = true
     }
@@ -75,12 +83,15 @@ class SeriesAdapter(
         isAppending = false
     }
 
-    fun addToList(mItems: List<ContentItem>,
-                  moreContentAvailable: Boolean,
-                  isContenSubscribed: Boolean) {
+    fun addToList(
+        mItems: List<ContentItem>,
+        moreContentAvailable: Boolean,
+        isContenSubscribed: Boolean,
+        contentAnalyticsModel: ContentAnalyticsModel,
+    ) {
         this.isContenSubscribed = isContenSubscribed
         removeLoading()
-        this.addTomDataList(mItems)
+        this.addTomDataList(mItems, contentAnalyticsModel)
 //        if (moreContentAvailable)
 //            addLoading()
     }
@@ -96,23 +107,21 @@ class SeriesAdapter(
 
     @SuppressLint("SetTextI18n")
     override fun bindNormalViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-
-
-
         if (holder is RailItemViewHolder) {
-
-            if(railPoint.landscapePoint==null || railPoint.mLandscapeHeight==null || railPoint.mLandscapeWidth==null) {
-                railPoint.landscapePoint = getEpisodeThumbnailDimension(holder.binding.root.context!!)
-                railPoint.mLandscapeWidth = railPoint.landscapePoint?.x
-                railPoint.mLandscapeHeight = railPoint.landscapePoint?.y
+            if (railPoint.landscapePoint == null ||
+                railPoint.mLandscapeHeight == null ||
+                railPoint.mLandscapeWidth == null
+            ) {
+                holder.binding.root.context?.let {
+                    railPoint.landscapePoint =
+                        getEpisodeThumbnailDimension(it)
+                    railPoint.mLandscapeWidth = railPoint.landscapePoint?.x
+                    railPoint.mLandscapeHeight = railPoint.landscapePoint?.y
+                }
             }
             val width = railPoint.mLandscapeWidth ?: 0
             val height = railPoint.mLandscapeHeight ?: 0
-
-
             holder.binding.root.layoutParams = ConstraintLayout.LayoutParams(width, height)
-
-
             val contentItem = mDataList[position]
             contentItem.isPartnerSubscribed = isContenSubscribed
             holder.bind(contentItem, state)
@@ -126,12 +135,17 @@ class SeriesAdapter(
             imageLoad(holder.binding.image, url)
             holder.binding.root.setOnClickListener {
                 listener.onSubItemClick(
-                    contentItem, position, sectionPosition, EventConstants.TYPE_RAIL, listOf(
+                    contentItem,
+                    position,
+                    sectionPosition,
+                    EventConstants.TYPE_RAIL,
+                    listOf(
                         Pair(
                             holder.binding.image,
                             ViewCompat.getTransitionName(holder.binding.image) ?: "fd"
                         )
-                    )
+                    ),
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             }
             holder.binding.ivMore.setOnClickListener {
@@ -140,7 +154,8 @@ class SeriesAdapter(
                     position,
                     sectionPosition,
                     EventConstants.TYPE_RAIL,
-                    null
+                    null,
+                    contentAnalyticsModel = contentAnalyticsModel
                 )
             }
         } else if (holder is LoadMoreViewHolder) {

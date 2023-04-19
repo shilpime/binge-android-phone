@@ -10,6 +10,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.tatasky.binge.R
+import com.tatasky.binge.analytics.models.ContentAnalyticsModel
+import com.tatasky.binge.analytics.util.emptyContentAnalyticsModel
 import com.tatasky.binge.customviews.EndlessListAdapter
 import com.tatasky.binge.data.networking.models.response.ContentItem
 import com.tatasky.binge.data.networking.models.response.ProviderLogo
@@ -25,17 +27,20 @@ import com.tatasky.binge.utils.*
 class TrendingAdapter(
     val listener: CommonDTOClickListener,
     var list: MutableList<ContentItem> = mutableListOf(),
-    val sectionPosition: Int = 0,
+    private val sectionPosition: Int = 0,
     private val cloudinaryUrl: String?,
-    val loadMoreClickListener : CommonLoadMoreClickListener?,
-    val providerLogos : ProviderLogo,
-    val continuePaging : Boolean = false,
-    private val sharedPrefs: PrefsRepo
-    ) : EndlessListAdapter<ContentItem, RecyclerView.ViewHolder>(mutableListOf()) {
+    private val loadMoreClickListener: CommonLoadMoreClickListener?,
+    val providerLogos: ProviderLogo,
+    private val continuePaging: Boolean = false,
+    private val sharedPrefs: PrefsRepo,
+) : EndlessListAdapter<ContentItem, RecyclerView.ViewHolder>(
+    mutableListOf(),
+    emptyContentAnalyticsModel()
+) {
     init {
         e("SearchLandingAdapter","inside TrendingAdaptersize : ${list.size}")
         autoUpdating = false
-        addToList(list, continuePaging)
+        addToList(list, continuePaging, contentAnalyticsModel)
     }
 
     private var layoutType: String = ItemLayoutType.LANDSCAPE.name
@@ -115,7 +120,8 @@ class TrendingAdapter(
                                     holder.binding.img,
                                     ViewCompat.getTransitionName(holder.binding.img)!!
                                 )
-                            )
+                            ),
+                            contentAnalyticsModel = contentAnalyticsModel
                         )
                     }
                 }
@@ -183,7 +189,8 @@ class TrendingAdapter(
                                     holder.binding.img,
                                     ViewCompat.getTransitionName(holder.binding.img)!!
                                 )
-                            )
+                            ),
+                            contentAnalyticsModel = contentAnalyticsModel
                         )
                     }
                 }
@@ -204,23 +211,8 @@ class TrendingAdapter(
     }
 
 
-    fun removeLoading() {
+    private fun removeLoading() {
         isAppending = false
-    }
-
-    private fun addToList() {
-        this.addTomDataList(list)
-//        addLoading()
-        if (continuePaging) {
-            addLoading()
-        }
-    }
-
-
-    fun updateList(mItems: List<ContentItem>) {
-        list.clear()
-        list.addAll(mItems)
-        this.setmDataList(list)
     }
 
     class RailItemViewHolder(val binding: LayoutRailItemBinding) :
@@ -246,15 +238,12 @@ class TrendingAdapter(
 //        notifyItemInserted(itemCount)
     }
 
-    fun addToList(itemsToAdd: List<ContentItem>,
-                  continuePaging : Boolean) {
-        this.addTomDataList(itemsToAdd)
-        isAppending = continuePaging
-    }
-
-    fun updateList(mItems: List<ContentItem>,
-                   continuePaging : Boolean) {
-        this.setmDataList(mItems.toMutableList())
+    fun addToList(
+        itemsToAdd: List<ContentItem>,
+        continuePaging: Boolean,
+        contentAnalyticsModel: ContentAnalyticsModel
+    ) {
+        this.addTomDataList(itemsToAdd, contentAnalyticsModel)
         isAppending = continuePaging
     }
 

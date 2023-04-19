@@ -2,6 +2,8 @@ package com.tatasky.binge.ui.features.prime.view
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -9,6 +11,8 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.transition.MaterialSharedAxis
@@ -104,6 +108,11 @@ class PrimeInterstitialFragment : BaseFragment<FragmentPrimeInterstitialBinding,
 		true // default to enabled
 	) {
 		override fun handleOnBackPressed() {
+            activity?.let {
+                if(isTablet(it)){
+                    it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR
+                }
+            }
 			try {
 				primeAnalytics.trackPrimePackAddSkip(viewModel.getPrimeInterstitialResponse().value?.peekContent()?.packList?.get(0)?.packType ?: "PAID", viewModel.source)
 			}catch (e:Exception){}
@@ -323,4 +332,20 @@ class PrimeInterstitialFragment : BaseFragment<FragmentPrimeInterstitialBinding,
 			binding.amazonServices.addView(view)
 		}
 	}
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        activity?.let {
+            if(isTablet(it)){
+                var layoutMargin=0
+                if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE)
+                    layoutMargin = 200
+                 else layoutMargin = 20
+                val bannerLayoutParams=binding.promotionalBannerIv.layoutParams as ConstraintLayout.LayoutParams
+                bannerLayoutParams.width = LayoutParams.MATCH_PARENT
+                bannerLayoutParams.setMargins(layoutMargin,0,layoutMargin,0)
+                binding.promotionalBannerIv.layoutParams = bannerLayoutParams
+            }
+        }
+    }
 }

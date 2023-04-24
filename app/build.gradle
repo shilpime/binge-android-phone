@@ -209,7 +209,7 @@ android {
             buildConfigField 'String', 'SONY_LIV_TOKEN', '"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXJ0bmVyIjoiVEFUQV9TS1lfQklOR0VfTU9CSUxFIiwiYWNjZXNzS2V5IjoiM2QxYWFmNjIzNzI3NTdmYThkNjAiLCJpc3N1ZXIiOiJTb255TElWIiwic3ViamVjdCI6IlBhcnRuZXIgU3BlY2lmaWMgVG9rZW4iLCJhdWRpZW5jZSI6Iiouc29ueWxpdi5jb20iLCJpYXQiOjE2MTYwOTI1NDAsImV4cCI6MTYxNjE4NjE0MH0.CvyzgZ7UNBHRT9crMWKZphEvh1F6mhY_Y93IexcacWW92QSjnvig6dWo3yjKjFdDFjgwf94yljiykDv6wroLvg"'
             buildConfigField 'String', 'EROSNOW_PARTNER_CODE', '"TSKY"'
             buildConfigField 'String', 'EROSNOW_API_CLIENTID', '"1MZeCKJYqvwEeaWsCd1FA19KZxHubbz41TCIqdbF"'
-            versionName '4.1.5'
+            versionName '4.2.0'
             // AppsFlyer Dev Key
             buildConfigField 'String', 'AF_DEV_KEY', '"3TcAjEHEaS4MjapFRiRpCJ"'
             // AppsFlyer Branded Domain

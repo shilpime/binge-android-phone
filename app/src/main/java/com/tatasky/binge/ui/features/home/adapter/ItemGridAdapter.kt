@@ -672,12 +672,20 @@ class ItemGridAdapter(
             val layoutParamImg = binding.mcvTop.layoutParams
             val layoutParamNumber : ConstraintLayout.LayoutParams = binding.tvTrendingNumber.layoutParams as ConstraintLayout.LayoutParams
             var w = rootWidth  - rootWidth/3
-            if(position == 0){
+            /*if(position == 0){
                 layoutParamNumber.marginEnd = dpToPx(binding.root.context, 116)
             } else if(position < 9){
                 layoutParamNumber.marginEnd = dpToPx(binding.root.context, 106)
             } else
-                layoutParamNumber.marginEnd = dpToPx(binding.root.context, 92)
+                layoutParamNumber.marginEnd = dpToPx(binding.root.context, 92)*/
+            if(position >= 9){
+                layoutParamNumber.marginEnd = w - dpToPx(binding.root.context, 36)
+            }
+            else if (position == 0){
+                layoutParamNumber.marginEnd = w - dpToPx(binding.root.context, 10)
+            }else{
+                layoutParamNumber.marginEnd = w - dpToPx(binding.root.context, 16)
+            }
             if(position%2 == 0){
                 rootWidth -= dpToPx(binding.root.context, 10)
             }

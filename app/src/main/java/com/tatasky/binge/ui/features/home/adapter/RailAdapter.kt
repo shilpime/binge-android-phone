@@ -1155,23 +1155,27 @@ class RailAdapter(
             val rootWidth = point?.x ?: binding.clRoot.width
             layoutParam.width = rootWidth
             val layoutParamImg = binding.mcvTop.layoutParams
-            val layoutParamNumber = binding.tvTrendingNumber.layoutParams
+            val layoutParamNumber : ConstraintLayout.LayoutParams = binding.tvTrendingNumber.layoutParams as ConstraintLayout.LayoutParams
             var w = rootWidth  - rootWidth/3
 
             if(position >= 9){
-                layoutParam.width = rootWidth+ rootWidth/3
-                //layoutParam.height = point?.y ?: binding.mcvTop.height
-                binding.clRoot.layoutParams = layoutParam
+                layoutParam.width = rootWidth + dpToPx(binding.root.context, 10)
+                layoutParamNumber.marginEnd = w - dpToPx(binding.root.context, 36)
+                //layoutParamNumber.width = rootWidth  - rootWidth/2
             }
-            else{
+            else if (position == 0){
+                layoutParam.width = rootWidth - dpToPx(binding.root.context, 12)
+                layoutParamNumber.marginEnd = w - dpToPx(binding.root.context, 10)
+            }else{
                 layoutParam.width = rootWidth - dpToPx(binding.root.context, 8)
-                //layoutParam.height = point?.y ?: binding.mcvTop.height
+                layoutParamNumber.marginEnd = w - dpToPx(binding.root.context, 16)
             }
+            e("Top10Width","Root $rootWidth new layoutParam.width :${layoutParam.width}," +
+                "Image Width $w, Number Width : ${layoutParamNumber.width}")
             layoutParamImg.width = w
-            layoutParamNumber.width = w
             layoutParamImg.height = (w * THUMBNAIL_RATIO_LARGE_GRID).toInt()
             binding.mcvTop.layoutParams = layoutParamImg
-            //binding.tvTrendingNumber.layoutParams = layoutParamImg
+            binding.tvTrendingNumber.layoutParams = layoutParamNumber
             binding.clRoot.layoutParams = layoutParam
 
             val url = getCloudinaryUrl(

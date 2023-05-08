@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
@@ -667,26 +668,27 @@ class ItemGridAdapter(
             binding.contentItem = contentItem
 
             val layoutParam = binding.clRoot.layoutParams
-            val rootWidth = point?.x ?: binding.clRoot.width
-            layoutParam.width = rootWidth
+            var rootWidth = point?.x ?: binding.clRoot.width
             val layoutParamImg = binding.mcvTop.layoutParams
-            val layoutParamNumber = binding.tvTrendingNumber.layoutParams
+            val layoutParamNumber : ConstraintLayout.LayoutParams = binding.tvTrendingNumber.layoutParams as ConstraintLayout.LayoutParams
             var w = rootWidth  - rootWidth/3
-
-            if(position % 2 == 0){
-                layoutParam.width = (point?.x ?:  binding.clRoot.width)
-                //layoutParam.height = point?.y ?: binding.mcvTop.height
+            if(position == 0){
+                layoutParamNumber.marginEnd = dpToPx(binding.root.context, 116)
+            } else if(position < 9){
+                layoutParamNumber.marginEnd = dpToPx(binding.root.context, 106)
+            } else
+                layoutParamNumber.marginEnd = dpToPx(binding.root.context, 92)
+            if(position%2 == 0){
+                rootWidth -= dpToPx(binding.root.context, 10)
             }
-            else{
-                layoutParam.width = (point?.x ?:  binding.clRoot.width)+ dpToPx(binding.root.context, 16)
-//                w = (point?.x ?:  binding.clRoot.width)  - dpToPx(binding.root.context, 46)
-                //layoutParam.height = point?.y ?: binding.mcvTop.height
-            }
+            else
+                rootWidth += dpToPx(binding.root.context, 10)
             layoutParamImg.width = w
-            layoutParamNumber.width = w
+//            layoutParamNumber.width = rootWidth  - rootWidth/2
             layoutParamImg.height = (w * THUMBNAIL_RATIO_LARGE_GRID).toInt()
             binding.mcvTop.layoutParams = layoutParamImg
-            //binding.tvTrendingNumber.layoutParams = layoutParamImg
+            binding.tvTrendingNumber.layoutParams = layoutParamNumber
+            layoutParam.width = rootWidth
             binding.clRoot.layoutParams = layoutParam
 
             val url = getCloudinaryUrl(

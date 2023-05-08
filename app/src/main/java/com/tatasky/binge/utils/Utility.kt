@@ -2240,7 +2240,7 @@ fun Context.getLifecycleOwner(): LifecycleOwner {
 
 fun getPortraitTop10ThumbnailDimensionGrid(activity: Context): Point {
     val point = getDeviceDimension(activity)
-    var columnNumber = 2.16
+    var columnNumber = 2.06
     var w = point.x
     if(isLandTablet(activity)) {
         w = point.y

@@ -18,20 +18,21 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clRoot"
-        android:layout_width="132dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/margin_card_rail">
 
         <ImageView
             android:id="@+id/tv_trending_number"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
             android:elevation="6dp"
             android:scaleType="fitEnd"
-            android:src="@drawable/ic_top_1"
+            android:layout_marginEnd="98dp"
+            android:src="@drawable/ic_top_10"
             app:layout_constraintBottom_toBottomOf="@+id/mcvTop"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/mcvTop"

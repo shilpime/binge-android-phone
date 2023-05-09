@@ -401,23 +401,23 @@ class GuestLoginBottomDialogFragment : BottomSheetDialogFragment() {
                 // take the user to change plan screen
 
                 //Todo Need discussion
-                findNavController().navigateSafe(
-                    GuestLoginBottomDialogFragmentDirections.actionGuestLoginBottomDialogFragmentToManagedAppFragment(
-                        isToSummaryPage=true,
-                        source=guestLoginBottomDialogArgs.source
-                    )
-                )
+//                findNavController().navigateSafe(
+//                    GuestLoginBottomDialogFragmentDirections.actionGuestLoginBottomDialogFragmentToManagedAppFragment(
+//                        isToSummaryPage=true,
+//                        source=guestLoginBottomDialogArgs.source
+//                    )
+//                )
 
             } else if (subscriptionStatusInfo?.allowPG == true) {
                 //take the user to the PG
                 //take user to managedappsummry
 
-                findNavController().navigateSafe(
-                    GuestLoginBottomDialogFragmentDirections.actionGuestLoginBottomDialogFragmentToManagedAppFragment(
-                        isToSummaryPage=true,
-                        source=guestLoginBottomDialogArgs.source
-                    )
-                )
+//                findNavController().navigateSafe(
+//                    GuestLoginBottomDialogFragmentDirections.actionGuestLoginBottomDialogFragmentToManagedAppFragment(
+//                        isToSummaryPage=true,
+//                        source=guestLoginBottomDialogArgs.source
+//                    )
+//                )
 
             } else {
                 val view = DataBindingUtil.inflate<LayoutToastSuccessFailureBinding>(

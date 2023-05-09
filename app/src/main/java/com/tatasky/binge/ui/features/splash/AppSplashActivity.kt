@@ -24,17 +24,17 @@ class AppSplashActivity : BaseActivity<BaseViewModel>() {
 //        window.statusBarColor = Color.WHITE
         if(!isTablet(this))
             requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-//                Log.w(TAG, "Fetching FCM registration token failed", task.exception)
-                return@OnCompleteListener
-            }
-
-            // Get new FCM registration token
-            // Log and toast
-            val token = task.result
-            d(this.localClassName, token)
-        })
+//        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+//            if (!task.isSuccessful) {
+////                Log.w(TAG, "Fetching FCM registration token failed", task.exception)
+//                return@OnCompleteListener
+//            }
+//
+//            // Get new FCM registration token
+//            // Log and toast
+//            val token = task.result
+//            d(this.localClassName, token)
+//        })
 
 
     }

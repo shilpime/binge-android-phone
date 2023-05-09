@@ -16,6 +16,9 @@
     <uses-feature android:name="android.hardware.touchscreen"
 
         android:required="true"/>
+    <uses-feature
+        android:name="android.hardware.type.automotive"
+        android:required="true" />
 
     <supports-screens
         android:largeScreens="false"
@@ -51,6 +54,10 @@
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config"
         tools:ignore="GoogleAppIndexingWarning">
+        <uses-library
+            android:name="android-automotive-video"
+            android:required="true"/>
+
         <meta-data android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_notification_icon_small" />
         <!-- Value to be added to enable deferred deep links -->

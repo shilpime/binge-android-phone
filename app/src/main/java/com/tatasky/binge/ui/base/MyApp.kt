@@ -96,10 +96,10 @@ open class MyApp : BaseApplication(),CTPushAmpListener {
         HungamaPlayerManager.initialize(this)
         if(BuildConfig.DEBUG){
             HungamaPlayerManager.getInstance().setSDKMode(b.b)
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
+            //FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
         } else {
             HungamaPlayerManager.getInstance().setSDKMode(b.a)
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
+            //FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
         }
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
 

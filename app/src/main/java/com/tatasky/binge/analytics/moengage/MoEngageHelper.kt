@@ -397,17 +397,17 @@ class MoEngageHelper(private val context: Context) {
 
     fun generateFCMToken(){
 
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                Log.w("firebase", "Fetching FCM registration token failed", task.exception)
-                return@OnCompleteListener
-            }
-
-            // Get new FCM registration token
-            val token = task.result
-            sendTokenToClevertap(token)
-
-        })
+//        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+//            if (!task.isSuccessful) {
+//                Log.w("firebase", "Fetching FCM registration token failed", task.exception)
+//                return@OnCompleteListener
+//            }
+//
+//            // Get new FCM registration token
+//            val token = task.result
+//            sendTokenToClevertap(token)
+//
+//        })
     }
     fun sendTokenToClevertap(token:String){
         clevertapHelper?.pushFcmRegistrationId(token,true)

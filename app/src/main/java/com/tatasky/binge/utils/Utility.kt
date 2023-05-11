@@ -297,7 +297,7 @@ private val NUMBER_OF_NORMAL_COLUMN_PHONE_GRID_TAB_LAND = 4.5f
 var NUMBER_OF_NORMAL_COLUMN_PHONE_KID = 1.175f
 private const val NUMBER_OF_PORTRAIT_COLUMN_PHONE = 3.35f
 private val NUMBER_OF_PORTRAIT_COLUMN_TABLET = 5.25f
-private const val NUMBER_OF_PORTRAIT_TOP_10_COLUMN_PHONE = 2.65f
+private const val NUMBER_OF_PORTRAIT_TOP_10_COLUMN_PHONE = 2.45f
 private val NUMBER_OF_BUNDLE_COLUMN_PHONE = 2.75f
 private val NUMBER_OF_GENRE_COLUMN_PHONE = 3.8f
 private val NUMBER_OF_GENRE_COLUMN_PHONE_TAB = 5.5f
@@ -2236,21 +2236,4 @@ fun Context.getLifecycleOwner(): LifecycleOwner {
     } catch (exception: ClassCastException) {
         (this as ContextWrapper).baseContext as LifecycleOwner
     }
-}
-
-fun getPortraitTop10ThumbnailDimensionGrid(activity: Context): Point {
-    val point = getDeviceDimension(activity)
-    var columnNumber = 2.06
-    var w = point.x
-    if(isLandTablet(activity)) {
-        w = point.y
-        columnNumber = 4.32
-    }
-    else if (isTablet(activity))
-        columnNumber = 3.24
-    point.x = (w / columnNumber - (columnNumber + 1)).toInt()
-    point.y = (point.x * THUMBNAIL_RATIO_LARGE_GRID).toInt()
-    e("UtilsKt","portrait point x: "+point.x)
-    e("UtilsKt","portrait point y: "+point.y)
-    return point
 }

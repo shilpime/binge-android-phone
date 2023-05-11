@@ -57,7 +57,24 @@ import com.tatasky.binge.ui.features.home.sub.SubFragment.Companion.pointNormalC
 import com.tatasky.binge.ui.features.home.sub.SubFragment.Companion.pointNormalForGenre
 import com.tatasky.binge.ui.features.home.sub.SubFragment.Companion.pointPortraitMixedThumbnail
 import com.tatasky.binge.ui.features.home.sub.SubFragment.Companion.pointTop10
-import com.tatasky.binge.utils.*
+import com.tatasky.binge.utils.ADD_HEIGHT_LANDSCAPE
+import com.tatasky.binge.utils.EDITORIAL
+import com.tatasky.binge.utils.EventConstants
+import com.tatasky.binge.utils.PROVIDER_GAMEZOP
+import com.tatasky.binge.utils.PROVIDER_TATA_SKY
+import com.tatasky.binge.utils.RECOMMENDATION
+import com.tatasky.binge.utils.SubscriptionPackStatusEnum
+import com.tatasky.binge.utils.d
+import com.tatasky.binge.utils.dpToPx
+import com.tatasky.binge.utils.e
+import com.tatasky.binge.utils.getCloudinaryUrl
+import com.tatasky.binge.utils.getCloudinaryUrlByWidthOrHeight
+import com.tatasky.binge.utils.getNormalThumbnailDimension
+import com.tatasky.binge.utils.getPortraitMixedThumbnailDimension
+import com.tatasky.binge.utils.isLandTablet
+import com.tatasky.binge.utils.isTablet
+import com.tatasky.binge.utils.updateProviderImage
+import com.tatasky.binge.utils.updateProviderLogo
 import java.util.*
 
 class RailAdapter(
@@ -1151,32 +1168,10 @@ class RailAdapter(
         ) {
             binding.contentItem = contentItem
 
-            val layoutParam = binding.clRoot.layoutParams
-            val rootWidth = point?.x ?: binding.clRoot.width
-            layoutParam.width = rootWidth
-            val layoutParamImg = binding.mcvTop.layoutParams
-            val layoutParamNumber : ConstraintLayout.LayoutParams = binding.tvTrendingNumber.layoutParams as ConstraintLayout.LayoutParams
-            var w = rootWidth  - rootWidth/3
-
-            if(position >= 9){
-                layoutParam.width = rootWidth + dpToPx(binding.root.context, 10)
-                layoutParamNumber.marginEnd = w - dpToPx(binding.root.context, 36)
-                //layoutParamNumber.width = rootWidth  - rootWidth/2
-            }
-            else if (position == 0){
-                layoutParam.width = rootWidth - dpToPx(binding.root.context, 12)
-                layoutParamNumber.marginEnd = w - dpToPx(binding.root.context, 10)
-            }else{
-                layoutParam.width = rootWidth - dpToPx(binding.root.context, 8)
-                layoutParamNumber.marginEnd = w - dpToPx(binding.root.context, 16)
-            }
-            e("Top10Width","Root $rootWidth new layoutParam.width :${layoutParam.width}," +
-                "Image Width $w, Number Width : ${layoutParamNumber.width}")
-            layoutParamImg.width = w
-            layoutParamImg.height = (w * THUMBNAIL_RATIO_LARGE_GRID).toInt()
-            binding.mcvTop.layoutParams = layoutParamImg
-            binding.tvTrendingNumber.layoutParams = layoutParamNumber
-            binding.clRoot.layoutParams = layoutParam
+            val layoutParam = binding.mcvTop.layoutParams
+            layoutParam.width = point?.x ?: binding.mcvTop.width
+            layoutParam.height = point?.y ?: binding.mcvTop.height
+            binding.mcvTop.layoutParams = layoutParam
 
             val url = getCloudinaryUrl(
                 cloudinaryUrl,
@@ -1184,6 +1179,7 @@ class RailAdapter(
                 contentItem.getImageItem()
             )
             imageLoad(binding.img, url)
+
             val drawableName = "ic_top_" + ((position % 10) + 1)
             val drawableResourceId: Int = binding.root.context.resources
                 .getIdentifier(drawableName, "drawable", binding.root.context.packageName)

@@ -57,7 +57,6 @@
         <uses-library
             android:name="android-automotive-video"
             android:required="true"/>
-
         <meta-data android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_notification_icon_small" />
         <!-- Value to be added to enable deferred deep links -->

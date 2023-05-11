@@ -18,31 +18,19 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clRoot"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/margin_card_rail">
 
-        <ImageView
-            android:id="@+id/tv_trending_number"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:elevation="6dp"
-            android:scaleType="fitEnd"
-            android:layout_marginEnd="98dp"
-            android:src="@drawable/ic_top_10"
-            app:layout_constraintBottom_toBottomOf="@+id/mcvTop"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/mcvTop"
-            android:layout_width="99dp"
-            android:layout_height="150dp"
+            android:layout_width="153dp"
+            android:layout_height="230dp"
             app:cardElevation="6dp"
             app:cardCornerRadius="6dp"
-            tools:visibility="visible"
             app:layout_constraintBottom_toTopOf="@+id/commonDetail"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -123,16 +111,24 @@
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
+        <ImageView
+            android:id="@+id/tv_trending_number"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/ic_top_1"
+            android:elevation="6dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <include
             android:id="@+id/commonDetail"
             layout="@layout/common_rail_detail"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             app:contentItem="@{contentItem}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/mcvTop" />
+            app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

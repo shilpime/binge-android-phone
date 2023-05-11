@@ -546,8 +546,8 @@ class HomeAdapter(
                             item.sectionSource.equals(
                                 ItemLayoutType.POPULAR_CHARACTER.name,
                                 true
-                            )
-                            //|| item.layoutType.equals(ItemLayoutType.TOP_PORTRAIT.name, true)
+                            ) ||
+                            item.layoutType.equals(ItemLayoutType.TOP_PORTRAIT.name, true)
                             || item.sectionSource.equals(ItemViewType.CATEGORY.name,true)
                             || item.sectionSource.equals(ItemViewType.BINGE_CHANNEL.name,true)
                             || item.sectionSource.equals(ItemViewType.DARSHAN_CHANNEL.name,true)

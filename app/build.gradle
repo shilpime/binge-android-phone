@@ -66,7 +66,7 @@ kapt {
 def version = "4.1.0.14"
 android {
     compileSdkVersion 31
-    buildToolsVersion "29.0.3"
+    buildToolsVersion "30.0.2"
     defaultConfig {
         applicationId "com.tatasky.binge"
         minSdkVersion 21
@@ -290,6 +290,12 @@ android {
 android.applicationVariants.all {
     def aptOutputDir = new File(buildDir, "generated/source/kapt/${it.unitTestVariant.dirName}")
     it.unitTestVariant.addJavaSourceFoldersToModel(aptOutputDir)
+}
+configurations.all {
+    resolutionStrategy {
+        force("org.antlr:antlr4-runtime:4.7.1")
+        force("org.antlr:antlr4-tool:4.7.1")
+    }
 }
 
 ext.exoPlayerVersion = '2.11.8'

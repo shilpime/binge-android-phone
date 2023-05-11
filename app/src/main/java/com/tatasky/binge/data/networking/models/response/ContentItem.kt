@@ -61,10 +61,10 @@ class ContentItem() : Parcelable {
 
     fun getSubTitle(): String {
 
-        if (!genres.isNullOrEmpty()) {
+        if (genres.isNotEmpty()) {
             return TextUtils.join(", ", genres)
         }
-        else if(!subsTitle.isNullOrEmpty()){
+        else if(subsTitle.isNotEmpty()){
             return TextUtils.join(", ", subsTitle)
         }
         return ""
@@ -75,9 +75,9 @@ class ContentItem() : Parcelable {
         if (!subText.isBlank())
             return subText
         val subtextSearch: ArrayList<String> = arrayListOf()
-        if (!genres.isNullOrEmpty())
+        if (genres.isNotEmpty())
             subtextSearch.add(genres[0])
-        if(!suggestionContentType.isNullOrEmpty())
+        if(suggestionContentType.isNotEmpty())
             subtextSearch.add(suggestionContentType)
         if ((releaseYear != null) &&
             (releaseYear.trim() != "0")
@@ -85,7 +85,7 @@ class ContentItem() : Parcelable {
         ) {
             subtextSearch.add(releaseYear)
         }
-        if (!language.isNullOrEmpty())
+        if (language.isNotEmpty())
             subtextSearch.add(language[0])
         return TextUtils.join(" | ", subtextSearch)
 

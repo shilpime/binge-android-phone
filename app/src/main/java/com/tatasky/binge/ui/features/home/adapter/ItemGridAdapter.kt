@@ -9,14 +9,12 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.tatasky.binge.R
 import com.tatasky.binge.analytics.SOURCE_BINGE_LIST
-import com.tatasky.binge.analytics.SOURCE_GAMES
 import com.tatasky.binge.analytics.models.ContentAnalyticsModel
 import com.tatasky.binge.analytics.util.emptyContentAnalyticsModel
 import com.tatasky.binge.customviews.EndlessListAdapter
@@ -27,7 +25,6 @@ import com.tatasky.binge.data.networking.models.response.ProviderLogo
 import com.tatasky.binge.databinding.ItemGameSquareBinding
 import com.tatasky.binge.databinding.LayoutProviderItemBinding
 import com.tatasky.binge.databinding.LayoutRailItemBinding
-import com.tatasky.binge.databinding.LayoutRailTopTenPortraitItemBinding
 import com.tatasky.binge.domain.repositories.PrefsRepo
 import com.tatasky.binge.helper.imageLoad
 import com.tatasky.binge.interfaces.CommonDTOClickListener
@@ -36,8 +33,6 @@ import com.tatasky.binge.ui.base.frameworks.SingleEvent
 import com.tatasky.binge.ui.base.frameworks.extensions.hide
 import com.tatasky.binge.ui.base.frameworks.extensions.show
 import com.tatasky.binge.ui.features.home.ItemLayoutType
-import com.tatasky.binge.ui.features.home.ItemViewType
-import com.tatasky.binge.ui.features.home.sub.SubFragment
 import com.tatasky.binge.utils.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
@@ -101,12 +96,6 @@ class ItemGridAdapter(
                     false
                 )
             )
-        else if (layoutType.equals(ItemLayoutType.TOP_PORTRAIT.name, true))
-            return RailItemTop10PortraitViewHolder(
-                (LayoutRailTopTenPortraitItemBinding.inflate(
-                    LayoutInflater.from(parent.context), parent, false
-                ))
-            )
         else
             return RailItemViewHolder(
                 LayoutRailItemBinding.inflate(
@@ -130,12 +119,6 @@ class ItemGridAdapter(
 
         Log.d("TAG", "bindNormalViewHolder: ${holder.itemViewType} :: $position :: ${contentItem.contentTitle}")
         when (holder.itemViewType) {
-            TOP_PORTRAIT_TYPE -> {
-                if (holder is RailItemTop10PortraitViewHolder) {
-                    point = getPortraitTop10ThumbnailDimensionGrid(holder.binding.root.context!!)
-                    holder.bind(contentItem, point, position, contentAnalyticsModel)
-                }
-            }
             PORTRAIT_TYPE -> {
                 holder as RailItemViewHolder
                 holder.bind(contentItem, sharedPrefs.getConfigResponse()?.data?.config?.firstEpisodeFreeVerbiage)
@@ -575,7 +558,6 @@ class ItemGridAdapter(
             this.layoutType.equals(ItemLayoutType.LANDSCAPE.name, true) -> LANDSCAPE_TYPE
             this.layoutType.equals(ItemLayoutType.APP_RAIL.name, true) -> PROVIDER_TYPE
             this.layoutType.equals(ItemLayoutType.SQUARE.name, true) -> GAME_TYPE
-            this.layoutType.equals(ItemLayoutType.TOP_PORTRAIT.name, true) -> TOP_PORTRAIT_TYPE
             else ->
                 LANDSCAPE_TYPE
         }
@@ -605,7 +587,6 @@ class ItemGridAdapter(
     val PROVIDER_TYPE = 3
     val GAME_TYPE = 5
     private val TITLE = 4
-    val TOP_PORTRAIT_TYPE = 6
 
     fun setTotalItemsCount(totalCount: Int) {
         this.mTotalCount = totalCount
@@ -656,85 +637,4 @@ class ItemGridAdapter(
     fun getSelectedItemArray():Array<ContentIdAndTypeRequest.ContentIdAndType>{
         return mSelectedItems.values.toTypedArray()
     }
-
-    inner class RailItemTop10PortraitViewHolder(val binding: LayoutRailTopTenPortraitItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(
-            contentItem: ContentItem,
-            point: Point?,
-            position: Int,
-            contentAnalyticsModel: ContentAnalyticsModel
-        ) {
-            binding.contentItem = contentItem
-
-            val layoutParam = binding.clRoot.layoutParams
-            var rootWidth = point?.x ?: binding.clRoot.width
-            val layoutParamImg = binding.mcvTop.layoutParams
-            val layoutParamNumber : ConstraintLayout.LayoutParams = binding.tvTrendingNumber.layoutParams as ConstraintLayout.LayoutParams
-            var w = rootWidth  - rootWidth/3
-            /*if(position == 0){
-                layoutParamNumber.marginEnd = dpToPx(binding.root.context, 116)
-            } else if(position < 9){
-                layoutParamNumber.marginEnd = dpToPx(binding.root.context, 106)
-            } else
-                layoutParamNumber.marginEnd = dpToPx(binding.root.context, 92)*/
-            if(position >= 9){
-                layoutParamNumber.marginEnd = w - dpToPx(binding.root.context, 36)
-            }
-            else if (position == 0){
-                layoutParamNumber.marginEnd = w - dpToPx(binding.root.context, 10)
-            }else{
-                layoutParamNumber.marginEnd = w - dpToPx(binding.root.context, 16)
-            }
-            if(position%2 == 0){
-                rootWidth -= dpToPx(binding.root.context, 10)
-            }
-            else
-                rootWidth += dpToPx(binding.root.context, 10)
-            layoutParamImg.width = w
-//            layoutParamNumber.width = rootWidth  - rootWidth/2
-            layoutParamImg.height = (w * THUMBNAIL_RATIO_LARGE_GRID).toInt()
-            binding.mcvTop.layoutParams = layoutParamImg
-            binding.tvTrendingNumber.layoutParams = layoutParamNumber
-            layoutParam.width = rootWidth
-            binding.clRoot.layoutParams = layoutParam
-
-            val url = getCloudinaryUrl(
-                cloudinaryUrl,
-                point?.y ?: binding.mcvTop.width, point?.x ?: binding.mcvTop.height,
-                contentItem.getImageItem()
-            )
-            imageLoad(binding.img, url)
-
-            val drawableName = "ic_top_" + ((position % 10) + 1)
-            val drawableResourceId: Int = binding.root.context.resources
-                .getIdentifier(drawableName, "drawable", binding.root.context.packageName)
-            binding.tvTrendingNumber.setImageResource(drawableResourceId)
-            binding.tvTrendingNumber.show()
-            binding.imgOverlay.show()
-            binding.contentItem?.isTop10 = true
-
-            updateProviderImage(
-                binding.commonDetail.ivBrand,
-                contentItem.provider,
-                providerLogos,
-                R.drawable.ic_rail_placeholder
-            )
-
-            binding.root.setOnClickListener {
-                listener.onSubItemClick(
-                    contentItem,
-                    position,
-                    sectionPosition,
-                    EventConstants.TYPE_RAIL,
-                    null,
-                    origin = origin,
-                    contentAnalyticsModel = contentAnalyticsModel
-                )
-            }
-
-
-        }
-    }
-
 }

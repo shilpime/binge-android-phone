@@ -5,6 +5,9 @@
     android:id="@+id/root_container_drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginStart="72dp"
+    android:layout_marginEnd="72dp"
+    android:layout_gravity="center_horizontal"
     android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout

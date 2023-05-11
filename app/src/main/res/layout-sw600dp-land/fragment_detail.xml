@@ -28,11 +28,11 @@
         <ImageView
             android:id="@+id/iv_poster"
             android:layout_width="@dimen/player_view_width"
-            android:layout_height="@dimen/player_view_height"
+            android:layout_height="@dimen/car_player_height"
             android:contentDescription="@string/sample_iv_desc"
             android:scaleType="fitXY"
             tools:visibility="gone"
-            app:layout_constraintDimensionRatio="16:9"
+            app:layout_constraintDimensionRatio="16:4"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -40,7 +40,7 @@
         <com.tatasky.binge.ui.features.details.trailer.TrailerView
             android:id="@+id/trailer_view"
             android:layout_width="0dp"
-            android:layout_height="@dimen/player_view_height"
+            android:layout_height="@dimen/car_player_height"
             android:scaleType="fitXY"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
@@ -104,7 +104,7 @@
         <FrameLayout
             android:id="@+id/player_frame"
             android:layout_width="@dimen/player_view_width"
-            android:layout_height="@dimen/player_view_height"
+            android:layout_height="@dimen/car_player_height"
             android:scaleType="fitXY"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"

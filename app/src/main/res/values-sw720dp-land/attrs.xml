@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <bool name="isTablet">true</bool>
-    <bool name="isTabletLand">true</bool>
+    <bool name="isTabletLand">false</bool>
     <bool name="is7inch">false</bool>
     <integer name="grid_landscape">4</integer>
     <integer name="grid_portrait">6</integer>

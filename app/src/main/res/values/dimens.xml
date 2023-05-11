@@ -147,4 +147,5 @@
     <dimen name="dimen_60dp">60dp</dimen>
     <dimen name="dimen_30dp">30dp</dimen>
     <dimen name="dimen_8sp">8sp</dimen>
+    <dimen name="car_player_height">180dp</dimen>
 </resources>
